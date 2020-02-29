@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+{% include head.html %}
+
+</head>
+
+<body>
+
+<!-- BEGIN header -->
+<header>
+
+<!-- BEGIN common page header -->
+{% include header.html %}
+<!-- END common page header -->
+
+<!-- BEGIN main navigation -->
+{% include navigation.html %}
+<!-- END main navigation -->
+
+</header>
+<!-- END header -->
+
+<!-- BEGIN main -->
+<main>
+
+<!-- BEGIN page content -->
+{{ content }}
+<!-- END page content -->
+
+</main>
+<!-- END main -->
+
+<!-- BEGIN footer -->
+<footer>
+
+{% include footer.html %}
+
+</footer>
+<!-- END footer -->
+
+</body>
+
+</html>
