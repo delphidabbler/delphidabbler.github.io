@@ -6,7 +6,7 @@ repository: "delphidabbler/delphidabbler.github.io"
 # see https://github.com/jekyll/jekyll/issues/7478
 theme: null
 
-exclude: [README.md, Gemfile, Gemfile.lock]
+exclude: [README.md, LICENSE.md, CHANGELOG.md, Gemfile, Gemfile.lock]
 
 defaults:
   -
