@@ -5,3 +5,5 @@ repository: "delphidabbler/delphidabbler.github.io"
 # inhibit github-pages from gerating unwanted style sheet
 # see https://github.com/jekyll/jekyll/issues/7478
 theme: null
+
+exclude: [README.md, Gemfile, Gemfile.lock]
