@@ -21,9 +21,10 @@ title: Applications
         </div>
         <div class="panel-body">
           <p>{{ program.summary | escape }}</p>
+          {% if program.mothballed %}<p class="text-warning"><strong>Note:</strong> this program is mothballed. It is being neither developed nor supported.</p>{% endif %}
         </div>
         <div class="panel-footer text-right">
-          <span class="btn btn-default"><a href="{{ program.more-info }}">More info</a></span>
+          <a href="{{ program.more-info }}" class="btn btn-default">More info</a>
         </div>
       </div>
     </div>
