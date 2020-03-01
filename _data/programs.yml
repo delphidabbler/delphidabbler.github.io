@@ -11,7 +11,7 @@
 -
   id: codesnip
   title: "Code Snippets Repository"
-  summary: "Code Snippets repository / code bank specialising in Pascal, that can display code from the online CodeSnip database along with user defined code snippets. Can export snippets to compilable units and can test compile code with any supported installed version of Delphi and Free Pascal."
+  summary: "Code Snippets repository / code bank specialising in Pascal, that can display code from the online CodeSnip database along with user defined code snippets. It can export snippets to compilable units and can test compile code with any supported installed version of Delphi or Free Pascal."
   mothballed: false
   more-info: "http://codesnip.delphidabbler.com/"
 -
@@ -29,7 +29,7 @@
 -
   id: bdiff
   title: "BDiff / BPatch Utilities"
-  summary: "Computes differences between two binary files and outputs either a human readable file of a binary file that can be used by BPatch to patch a file."
+  summary: "BDiff computes differences between two binary files and outputs either a human readable file of a binary patch file. BPatch uses the binary patch files produced by BDiff to patch fils."
   mothballed: false
   more-info: "http://delphidabbler.com/software/bdiff"
 -
@@ -47,7 +47,7 @@
 -
   id: pashi
   title: "Pascal Syntax Highlighter"
-  summary: "Command line program with optional GUI that highlights Pascal source code using HTML, styled by CSS. Has facility to work with clipboard and to generate code fragments for pasting into other HTML documents. Of use to web developers and bloggers needing to display Delphi Pascal source code on web pages."
+  summary: "Command line program (with optional GUI) that highlights Pascal source code using HTML, styled by CSS. It has the facility to work with the clipboard and to generate code fragments for pasting into other HTML documents."
   mothballed: false
   more-info: "http://delphidabbler.com/software/pashi"
 -
@@ -59,7 +59,7 @@
 
   id: vibindata
   title: "Version Information Manipulator Library"
-  summary: "DLL that can access, manipulate and update binary version information data."
+  summary: "A DLL that can access, manipulate and update binary version information data."
   mothballed: false
   more-info: "http://delphidabbler.com/software/vibindata"
 -
