@@ -1,4 +1,12 @@
 ---
+# Meta data for each program listed on the website:
+#   id: unique indentifier for the program
+#   title: brief program title
+#   summary: brief summary of the program's purpose
+#   mothballed: whether the program has been mothballed (i.e. is no longer being
+#       developed
+#   more-info: link to the program's own web page
+
 # TODO: replace more-info links to delphidabbler.com with links program pages on this site, as they come on line
 -
   id: codesnip
