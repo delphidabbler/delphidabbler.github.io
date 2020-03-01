@@ -1,0 +1,38 @@
+---
+title: Applications
+---
+<h1>
+  Applications
+</h1>
+
+<p>All the open source programs available from this site are listed below. Clicking the program's <em>More Info</em> buttn takes you a page that provides detailed information about the program.</p>
+
+<p>Each program's page provides links that can be used to download the program and its source code.</p>
+
+{% assign supported-programs = site.data.programs %}
+{% for program in supported-programs %}
+{% assign test = forloop.index | modulo: 2 %}
+{% if test <> 0 %}<div class="row">{% endif %}
+  <section>
+    <div class="col-sm-6">
+      <div class="panel panel-default {% if program.mothballed %}panel-warning{% endif %}">
+        <div class="panel-heading">
+          <h3>{{ program.title }}</h3>
+        </div>
+        <div class="panel-body">
+          <p>{{ program.summary | escape }}</p>
+          {% if program.mothballed %}<p class="text-warning"><strong>Note:</strong> this program is mothballed. It is being neither developed nor supported.</p>{% endif %}
+        </div>
+        <div class="panel-footer text-right">
+          <a href="{{ program.more-info }}" class="btn btn-default">More info</a>
+        </div>
+      </div>
+    </div>
+  </section>
+{% if test == 0 or forloop.last %}
+</div> <!-- ./row -->
+<!-- Clear the lg cols if their content doesn't match in height -->
+<div class="clearfix visible-sm-block"></div>
+{% endif %}
+{%endfor %}
+
