@@ -56,7 +56,7 @@
   summary: "Displays the version information from any file that contains it. Includes shell extensions for easy access to version information from Windows Explorer."
   mothballed: false
   more-info: "http://delphidabbler.com/software/vis"
-
+-
   id: vibindata
   title: "Version Information Manipulator Library"
   summary: "A DLL that can access, manipulate and update binary version information data."
