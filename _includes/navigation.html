@@ -1,11 +1,19 @@
-<nav>
-  <ul>
-    <li>
-      <a href="index.html">Home</a>
-    </li>
-    <li>
-      <a href="about.html">About</a>
-    </li>
-  </ul>
-  <hr>
+<nav class="navbar navbar-default" role="navigation">
+
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-toggle-collapse">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="navbar-toggle-caption">Menu</span>
+    </button>
+    <span class="navbar-brand visible-xs-inline">{{ site.data.core.logo }}</span>
+  </div><!-- /.navbar-header -->
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse" id="navbar-toggle-collapse">
+    <ul class="nav navbar-nav">
+      <li{% if page.url == site.data.core.homeLink %} class="active"{% endif %}><a href="{{ site.data.core.homeLink }}">Home</a></li>
+      <li{% if page.url == site.data.core.aboutLink %} class="active"{% endif %}><a href="{{ site.data.core.aboutLink }}">About</a></li>
+    </ul>
+  </div><!-- /.navbar-collapse -->
 </nav>
