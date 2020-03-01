@@ -1,0 +1,86 @@
+---
+# TODO: replace more-info links to delphidabbler.com with links program pages on this site, as they come on line
+-
+  id: codesnip
+  title: "Code Snippets Repository"
+  summary: "Code Snippets repository / code bank specialising in Pascal, that can display code from the online CodeSnip database along with user defined code snippets. Can export snippets to compilable units and can test compile code with any supported installed version of Delphi and Free Pascal."
+  mothballed: false
+  more-info: "http://codesnip.delphidabbler.com/"
+-
+  id: htmlres
+  title: "HTML Resource Compiler"
+  summary: "Compiles HTML and associated files into RT_HTML resources in 32 bit resource files suitable for use with Internet Explorer's res:// protocol or with TWebBrowser."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/htmlres"
+-
+  id: vied
+  title: "Version Information Editor"
+  summary: "Creates version information resources for embedding in executable programs."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/vied"
+-
+  id: bdiff
+  title: "BDiff / BPatch Utilities"
+  summary: "Computes differences between two binary files and outputs either a human readable file of a binary file that can be used by BPatch to patch a file."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/bdiff"
+-
+  id: compfiledate
+  title: "File Date Comparison Utility"
+  summary: "Compares the last modification date of two files. For use in batch files etc."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/compfiledate"
+-
+  id: cfs
+  title: "Clipboard Format Spy"
+  summary: "Displays the names of formats currently on the clipboard and enables common formats to be viewed."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/cfs"
+-
+  id: pashi
+  title: "Pascal Syntax Highlighter"
+  summary: "Command line program with optional GUI that highlights Pascal source code using HTML, styled by CSS. Has facility to work with clipboard and to generate code fragments for pasting into other HTML documents. Of use to web developers and bloggers needing to display Delphi Pascal source code on web pages."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/pashi"
+-
+  id: vispy
+  title: "Version Information Spy"
+  summary: "Displays the version information from any file that contains it. Includes shell extensions for easy access to version information from Windows Explorer."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/vis"
+
+  id: vibindata
+  title: "Version Information Manipulator Library"
+  summary: "DLL that can access, manipulate and update binary version information data."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/vibindata"
+-
+  id: 8queens
+  title: "8 Queens Problem Solver"
+  summary: "Demonstrates all solutions of the 8 queens problem."
+  mothballed: true
+  more-info: "http://delphidabbler.com/software/queens"
+-
+  id: life
+  title: "John Conway's Game Of Life"
+  summary: "Demonstrates John Conway's Game of Life."
+  mothballed: true
+  more-info: "http://delphidabbler.com/software/life"
+-
+  id: boobytrap
+  title: "BoobyTrap!"
+  summary: "A clone of the Minesweeper game written in Delphi Pascal."
+  mothballed: true
+  more-info: "http://delphidabbler.com/software/boobytrap"
+-
+  id: chi
+  title: "Component Help Installer"
+  summary: "Installs OpenHelp compatible help files for components etc. into Delphi 3 to 7. Available as stand-alone Windows and console applications."
+  mothballed: true
+  more-info: "http://delphidabbler.com/software/chi"
+-
+  id: sib
+  title: "SIBuilder"
+  summary: "Creates a self-extracting install program for software releases."
+  mothballed: true
+  more-info: "http://delphidabbler.com/software/sib"
