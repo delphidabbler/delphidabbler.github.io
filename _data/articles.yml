@@ -1,0 +1,151 @@
+---
+-
+  id: 25
+  title: "How to handle drag and drop in a TWebBrowser control"
+  summary: "Sometimes you need to be able to customise how a TWebBrowser control handles drag and drop, or you may need to prevent the control from accepting files dropped it. This article explains how."
+  more-info: "http://delphidabbler.com/articles?article=25"
+  pages: 4
+-
+  id: 24
+  title: "How to receive data dragged from other applications"
+  summary: "The standard Windows API method of handling drag and drop is fine for catching files dragged from Explorer, but how do we handle data dragged and dropped from other applications? This article explains."
+  more-info: "http://delphidabbler.com/articles?article=24"
+  pages: 6
+-
+  id: 23
+  title: "How to get operating system version information"
+  summary: "We often need to detect the version and various other characteristics of the operating system from our applications. Here's how to do this from Delphi."
+  more-info: "http://delphidabbler.com/articles?article=23"
+  pages: 6
+-
+  id: 22
+  title: "How to call Delphi code from scripts running in a TWebBrowser"
+  summary: "When using a TWebBrowser control to display a user interface you may need to call your program's Delphi code in response to user input in the TWebBrowser or to get information to be displayed by the control. This article shows how."
+  more-info: "http://delphidabbler.com/articles?article=22"
+  pages:
+-
+  id: 21
+  title: "How to call JavaScript functions in a TWebBrowser from Delphi"
+  summary: "Sometimes it is necessary to call JavaScript function embedded within a document displayed in a TWebBrowser control. Here's how."
+  more-info: "http://delphidabbler.com/articles?article=21"
+  pages: 1
+-
+  id: 20
+  title: "How to extract version information using the Windows API"
+  summary: "Excutable files can contain a resource containing version information. The Windows API provides tools for extracting the information. Here's how to use it."
+  more-info: "http://delphidabbler.com/articles?article=20"
+  pages: 1
+-
+  id: 19
+  title: "How to make a TWebBrowser become the active control when clicked"
+  summary: "When you click inside a TWebBrowser control, it does not become the active control, unlike other controls. This article shows how to detect clicks in the control and make it the form's active control."
+  more-info: "http://delphidabbler.com/articles?article=19"
+  pages: 1
+-
+  id: 18
+  title: "How to customise the TWebBrowser user interface"
+  summary: "When we use TWebBroswer we often want to change the way it appears and acts to fit in to our application's look and feel. Here's how to override the IE context menu, change the border style, show or hide scroll bars and style the content without changing the HTML document."
+  more-info: "http://delphidabbler.com/articles?article=18"
+  pages: 6
+-
+  id: 17
+  title: "How to set a component's default event handler"
+  summary: "When you double click many components at design time Delphi creates an empty event handler for the default event. Sometimes you need to specify a different default event than that used by Delphi. Here's how."
+  more-info: "http://delphidabbler.com/articles?article=17"
+  pages: 4
+-
+  id: 16
+  title: "How to use the TListView OnCustomDrawXXX events"
+  summary: "TListView's OnCustomDraw, OnCustomDrawItem and OnCustomDrawSubItems events are useful to customise the appearance on a list view control without having to handle all the painting yourself. This article shows how to use these events in a report style list view control."
+  more-info: "http://delphidabbler.com/articles?article=16"
+  pages: 1
+-
+  id: 15
+  title: "How to integrate help files into the Delphi 3-7 IDE"
+  summary: "Information on the changes that have to be made to Delphi's help files in order for your help files to be integrated with the Delphi help system."
+  more-info: "http://delphidabbler.com/articles?article=15"
+  pages: 1
+-
+  id: 14
+  title: "How to load and save documents in TWebBrowser in a Delphi-like way"
+  summary: "A presentation of the development of a wrapper class for TWebBrowser that simplifies navigation, the loading and saving of HTML when using the control."
+  more-info: "http://delphidabbler.com/articles?article=14"
+  pages: 1
+-
+  id: 13
+  title: "How to run a single instance of an application"
+  summary: "Describes how to ensure only a single instance of an application runs and how to pass command line data to a running program instance."
+  more-info: "http://delphidabbler.com/articles?article=13"
+  pages: 4
+-
+  id: 12
+  title: "How to add a program to the Explorer Send To menu"
+  summary: "A look at adding an entry to Explorer's Send To menu and handling files sent to an application using the menu."
+  more-info: "http://delphidabbler.com/articles?article=12"
+  pages: 1
+-
+  id: 11
+  title: "How to catch files dragged and dropped on an application from Explorer"
+  summary: "A guide to using the Windows API to catch and process files dropped from Windows Explorer."
+  more-info: "http://delphidabbler.com/articles?article=11"
+  pages: 1
+-
+  id: 10
+  title: "How to create and use HTML resource files"
+  summary: "A review of the techniques used to create HTML resources for embedding in a program, along with a discussion of Internet Explorer's use of the res:// protocol to access and display embedded HTML."
+  more-info: "http://delphidabbler.com/articles?article=10"
+  pages: 1
+-
+  id: 9
+  title: "How to get notified when the content of the clipboard changes"
+  summary: "Sometimes we need need to know when the content of the clipboard has changed. This article shows how."
+  more-info: "http://delphidabbler.com/articles?article=9"
+  pages: 1
+-
+  id: 8
+  title: "How to detect the types of executable files"
+  summary: "This article explains how to detect if a file is a DOS program or a 16 bit or 32 bit Windows executable program or DLL."
+  more-info: "http://delphidabbler.com/articles?article=8"
+  pages: 3
+-
+  id: 7
+  title: "How to dynamically add data to an executable file"
+  summary: "Here is an alternative way of embedding data in a program by appending the data to the end of the executable file as a payload. In the article we create two classes to help read and write the data."
+  more-info: "http://delphidabbler.com/articles?article=7"
+  pages: 5
+-
+  id: 6
+  title: "How to access environment variables"
+  summary: "Every Windows process gets a copy of some environment variables. Here's how to read and update them."
+  more-info: "http://delphidabbler.com/articles?article=6"
+  pages: 1
+-
+  id: 5
+  title: "How to write filters that extend the functionality of the TStream classes"
+  summary: "Here's the basis for a set of classes that wrap around any TStream object to allow you to write formatted data to any stream."
+  more-info: "http://delphidabbler.com/articles?article=5"
+  pages: 1
+-
+  id: 4
+  title: "How to remember a window's size, state and position"
+  summary: "When I open an application I like to have it remember the size and position of its window when it was last closed. Here's how to do it with Delphi forms."
+  more-info: "http://delphidabbler.com/articles?article=4"
+  pages: 1
+-
+  id: 3
+  title: "How to read data embedded in your program's resources"
+  summary: "Having embedded files and/or data in your executable (article #2) you need to get them out again - read on!"
+  more-info: "http://delphidabbler.com/articles?article=3"
+  pages: 1
+-
+  id: 2
+  title: "How to store files inside an executable program"
+  summary: "Its sometimes useful to be able to distribute read-only files embedded in your programs. This article explains why and discusses how."
+  more-info: "http://delphidabbler.com/articles?article=2"
+  pages: 1
+-
+  id: 1
+  title: "How a non-windowed component can receive messages from Windows"
+  summary: "Sometimes we need a non-windowed component to receive Windows messages. Here's how and why."
+  more-info: "http://delphidabbler.com/articles?article=1"
+  pages: 1
