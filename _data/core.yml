@@ -1,6 +1,10 @@
-# Links
+---
 
+# Links
 homeLink: "/"
+appsLink: "/programs.html"
+libLink: "/codelib.html"
+articlesLink: "/articles.html"
 aboutLink: "/about.html"
 
 # Site Logo Text

@@ -1,0 +1,142 @@
+---
+# Meta data for each code library item listed on the website:
+#   id: unique indentifier for the program
+#   title: brief program title
+#   summary: brief summary of the program's purpose
+#   mothballed: whether the program has been mothballed (i.e. is no longer being
+#       developed
+#   more-info: link to the program's own web page
+
+# TODO: replace more-info links to delphidabbler.com with links program pages on this site, as they come on line
+-
+  id: dropfiles
+  title: "Drop Files Components"
+  summary: "Components that get and filter names of files and folders dragged and dropped from Explorer."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/dropfiles"
+-
+  id: wdwstate
+  title: "Window State Components"
+  summary: "Three components that save and restore window size, state and position using either, ini files, the registry or user-defined storage."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/wdwstate"
+-
+  id: verinfo
+  title: "Version Information Component"
+  summary: "Component that accesses version information embedded in program files, DLLs etc."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/verinfo"
+-
+  id: shellfolders
+  title: "Shell Folders Unit"
+  summary: "A unit that provides various components, classes and routines for handling Windows shell folders – including the Browse for Folders dialog box."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/shellfolders"
+-
+  id: cbview
+  title: "Clipboard Viewer Component"
+  summary: "Component that triggers event when Windows clipboard contents change."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/cbview"
+-
+  id: hotlabel
+  title: "Hot Label Component"
+  summary: "Label component that accesses a URL when clicked."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/hotlabel"
+-
+  id: aboutbox
+  title: "About Box Component"
+  summary: "About box component that can display version information."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/aboutbox"
+-
+  id: msgdlg
+  title: "Message Dialogue Components"
+  summary: "Components that can display message dialogues that wrap either the Windows API or the Delphi VCL message box code."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/msgdlg"
+-
+  id: envvars
+  title: "Environment Variables Unit"
+  summary: "Source code of a unit containing a component and routines to help manage and access environment variables.s"
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/envvars"
+-
+  id: md5
+  title: "MD5 Message Digest Unit"
+  summary: "Object oriented implementation of the MD5 Message Digest Algorithm"
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/md5"
+-
+  id: sysinfo
+  title: "System Information Unit"
+  summary: "Source code of a unit containing static classes, constant, type definitions and routines to provide information about the host computer and operating system."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/sysinfo"
+-
+  id: fractions
+  title: "Fractions Unit"
+  summary: "Advanced Delphi record that encapsulates a fraction along with numerous operations."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/fractions"
+-
+  id: consoleapp
+  title: "Console Application Runner Classes"
+  summary: "Source code of classes that simplify executing, and redirecting the I/O of, child console processes."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/consoleapp"
+-
+  id: ioutils
+  title: "I/O Utility Classes"
+  summary: "Various Delphi Pascal classes designed to assist in various I/O related tasks."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/ioutils"
+-
+  id: resfile
+  title: "Resource File Unit"
+  summary: "Delphi unit that defines classes that encapsulate the Windows 32 bit resource file format and helper functions to assist in compiling and decompiling binary resource files."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/resfile"
+-
+  id: streams
+  title: "Stream Extension Classes"
+  summary: "Source code of classes that provide a means to wrap TStream classes. Provides a stream wrapper, classes to help with writing resource files and IStream wrappers for various TStream classes."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/streams"
+-
+  id: envvars
+  title: "Environment Variables Unit"
+  summary: "Source code of a unit containing a component and routines to help manage and access environment variables."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/envvars"
+-
+  id: stringpe
+  title: "Extended String Property Editor"
+  summary: "Property editor for properties of type string and TCaption that extends the default editor to provide a dialogue box for editing multi-line strings."
+  mothballed: false
+  more-info: "http://delphidabbler.com/software/stringpe"
+-
+  id: menusbtn
+  title: "Menu Speed Button Components"
+  summary: "Set of three speed button components that either display associated pop-up menus or form connected button / menu button pairs. Includes demo project."
+  mothballed: true
+  more-info: "http://delphidabbler.com/software/menusbtn"
+-
+  id: cmenu
+  title: "Colour Pop-up Menu Component"
+  summary: "A pop-up menu component that displays the basic Windows colours in a menu or palette. Includes a component editor and demo."
+  mothballed: true
+  more-info: "http://delphidabbler.com/software/cmenu"
+-
+  id: mtdwiz
+  title: "Macro Toolbar Display Wizard for Delphi 7"
+  summary: "Wizard that makes the macro toolbar visible in Delphi 7 editor windows. It also adds a menu item to Delphi to enable the macro toolbars to be toggled on and off."
+  mothballed: true
+  more-info: "http://delphidabbler.com/software/mtdwiz"
+-
+  id: hkeype
+  title: "HKEY Property Editor"
+  summary: "Property editor that permits registry root keys to be edited using symbolic constant names."
+  mothballed: true
+  more-info: "http://delphidabbler.com/software/hkeype"

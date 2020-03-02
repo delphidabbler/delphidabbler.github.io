@@ -1,0 +1,39 @@
+---
+title: Code Library
+---
+<h1>
+  Code Library
+</h1>
+
+<p>The DelphiDabbler Code Library comprises numerous open source Delphi components, units containing classes and some IDE extensions. They are all listed below.</p>
+
+<p>Each library member's page provides links that can be used to download the its source.</p>
+
+<!-- Consider if the following code could be extracted as a parameterised include -->
+{% assign supported-codelib = site.data.codelib %}
+{% for item in supported-codelib %}
+{% assign test = forloop.index | modulo: 2 %}
+{% if test <> 0 %}<div class="row">{% endif %}
+  <section>
+    <div class="col-sm-6">
+      <div class="panel panel-default {% if item.mothballed %}panel-warning{% endif %}">
+        <div class="panel-heading">
+          <h3>{{ item.title | escape }}</h3>
+        </div>
+        <div class="panel-body">
+          <p>{{ item.summary | escape }}</p>
+          {% if item.mothballed %}<p class="text-warning"><strong>Note:</strong> this item is mothballed. It is being neither developed nor supported.</p>{% endif %}
+        </div>
+        <div class="panel-footer text-right">
+          <a href="{{ item.more-info }}" class="btn btn-default">More info</a>
+        </div>
+      </div>
+    </div>
+  </section>
+{% if test == 0 or forloop.last %}
+</div> <!-- ./row -->
+<!-- Clear the lg cols if their content doesn't match in height -->
+<div class="clearfix visible-sm-block"></div>
+{% endif %}
+{%endfor %}
+
