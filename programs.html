@@ -5,7 +5,7 @@ title: Applications
   Applications
 </h1>
 
-<p>All the open source programs available from this site are listed below. Clicking the program's <em>More Info</em> buttn takes you a page that provides detailed information about the program.</p>
+<p>All the open source programs available from this site are listed below. Clicking the program's <em>More Info</em> button takes you to a page that provides detailed information about the program.</p>
 
 <p>Each program's page provides links that can be used to download the program and its source code.</p>
 
@@ -17,7 +17,7 @@ title: Applications
     <div class="col-sm-6">
       <div class="panel panel-default {% if program.mothballed %}panel-warning{% endif %}">
         <div class="panel-heading">
-          <h3>{{ program.title }}</h3>
+          <h3>{{ program.title | escape }}</h3>
         </div>
         <div class="panel-body">
           <p>{{ program.summary | escape }}</p>

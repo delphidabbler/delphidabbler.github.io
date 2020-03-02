@@ -73,7 +73,7 @@
   title: "System Information Unit"
   summary: "Source code of a unit containing static classes, constant, type definitions and routines to provide information about the host computer and operating system."
   mothballed: false
-  more-info: "http://delphidabbler.com/software/"
+  more-info: "http://delphidabbler.com/software/sysinfo"
 -
   id: fractions
   title: "Fractions Unit"
