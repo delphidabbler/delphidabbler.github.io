@@ -22,7 +22,7 @@ title: Articles
           <p>{{ article.summary | escape }}</p>
         </div>
         <footer class="panel-footer text-right">
-          <a href="{{ article.more-info }}" class="btn btn-default">Read the article&hellip;</a>
+          <a href="{{ article.more-info }}" title="Read &quot;{{ article.title | escape }}&quot; over on {{ site.data.core.orig-site-name | escape }}" class="btn btn-default">Read the article&hellip;</a>
         </footer>
       </div>
     </div>

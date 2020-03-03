@@ -24,7 +24,7 @@ title: Applications
           {% if program.mothballed %}<p class="text-warning"><span class="fa fa-flag" aria-hidden="true"></span><span class="sr-only">Note</span> This program is mothballed. It is being neither developed nor supported.</p>{% endif %}
         </div>
         <div class="panel-footer text-right">
-          <a href="{{ program.more-info }}" class="btn btn-default">More info&hellip;</a>
+          <a href="{{ program.more-info }}" title="{{ program.title | escape }} page on {{ site.data.core.orig-site-name | escape }}" class="btn btn-default">More info&hellip;</a>
         </div>
       </div>
     </div>
