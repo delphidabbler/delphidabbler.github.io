@@ -2,11 +2,11 @@
 
 # Internal links
 
-homeLink: "/"
-appsLink: "/programs.html"
-libLink: "/codelib.html"
-articlesLink: "/articles.html"
-aboutLink: "/about.html"
+home-link: "/"
+apps-link: "/programs.html"
+lib-link: "/codelib.html"
+articles-link: "/articles.html"
+about-link: "/about.html"
 
 bootstrap-link: "/assets/scripts/bootstrap.js"
 prefix-free-link: "/assets/scripts/prefixfree.min.js"
