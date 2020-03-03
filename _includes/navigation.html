@@ -4,7 +4,7 @@
   <div class="navbar-header">
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-toggle-collapse">
       <span class="sr-only">Toggle navigation</span>
-      <span class="navbar-toggle-caption">Menu</span>
+      <span class="navbar-toggle-caption">Menu&nbsp;<span class="fa fa-bars" aria-hidden="true"></span></span>
     </button>
     <span class="navbar-brand visible-xs-inline">{{ site.data.core.logo }}</span>
   </div><!-- /.navbar-header -->
@@ -12,11 +12,21 @@
   <!-- Collect the nav links, forms, and other content for toggling -->
   <div class="collapse navbar-collapse" id="navbar-toggle-collapse">
     <ul class="nav navbar-nav">
-      <li{% if page.url == site.data.core.homeLink %} class="active"{% endif %}><a href="{{ site.data.core.homeLink }}">Home</a></li>
-      <li{% if page.url == site.data.core.appsLink %} class="active"{% endif %}><a href="{{ site.data.core.appsLink }}">Applications</a></li>
-      <li{% if page.url == site.data.core.libLink %} class="active"{% endif %}><a href="{{ site.data.core.libLink }}">Code Library</a></li>
-      <li{% if page.url == site.data.core.articlesLink %} class="active"{% endif %}><a href="{{ site.data.core.articlesLink }}">Articles</a></li>
-      <li{% if page.url == site.data.core.aboutLink %} class="active"{% endif %}><a href="{{ site.data.core.aboutLink }}">About</a></li>
+      <li{% if page.url == site.data.core.homeLink %} class="active"{% endif %}>
+        <a href="{{ site.data.core.homeLink }}"><span class="fa fa-home fa-lg hidden-xs" aria-hidden="true" title="Home"></span><span class="sr-only">Home</span><span class="visible-xs-inline">Home</span></a>
+      </li>
+      <li{% if page.url == site.data.core.appsLink %} class="active"{% endif %}>
+        <a href="{{ site.data.core.appsLink }}">Applications</a>
+      </li>
+      <li{% if page.url == site.data.core.libLink %} class="active"{% endif %}>
+        <a href="{{ site.data.core.libLink }}">Code Library</a>
+      </li>
+      <li{% if page.url == site.data.core.articlesLink %} class="active"{% endif %}>
+        <a href="{{ site.data.core.articlesLink }}">Articles</a>
+      </li>
+      <li{% if page.url == site.data.core.aboutLink %} class="active"{% endif %}>
+        <a href="{{ site.data.core.aboutLink }}">About</a>
+      </li>
     </ul>
   </div><!-- /.navbar-collapse -->
 </nav>
