@@ -18,19 +18,19 @@
   <div class="collapse navbar-collapse" id="navbar-toggle-collapse">
     <ul class="nav navbar-nav">
       <li{% if page.url == site.data.core.home-link %} class="active"{% endif %}>
-        <a href="{{ site.data.core.home-link }}" title="{{ site.data.core.home-link-title}}"><span class="fa fa-home fa-lg hidden-xs" aria-hidden="true" title="Home"></span><span class="sr-only">Home</span><span class="visible-xs-inline">Home</span></a>
+        <a href="{{ site.data.core.home-link }}" aria-label="{{ site.data.core.home-link-title }}"><span class="fa fa-home fa-lg hidden-xs" aria-hidden="true"></span><span class="visible-xs-inline">Home</span></a>
       </li>
       <li{% if page.url == site.data.core.apps-link %} class="active"{% endif %}>
-        <a href="{{ site.data.core.apps-link }}" title="{{ site.data.core.apps-link-title}}">Applications</a>
+        <a href="{{ site.data.core.apps-link }}" aria-label="{{ site.data.core.apps-link-title}}">Applications</a>
       </li>
       <li{% if page.url == site.data.core.lib-link %} class="active"{% endif %}>
-        <a href="{{ site.data.core.lib-link }}" title="{{ site.data.core.lib-link-title}}">Code Library</a>
+        <a href="{{ site.data.core.lib-link }}" aria-label="{{ site.data.core.lib-link-title}}">Code Library</a>
       </li>
       <li{% if page.url == site.data.core.articles-link %} class="active"{% endif %}>
-        <a href="{{ site.data.core.articles-link }}" title="{{ site.data.core.articles-link-title}}">Articles</a>
+        <a href="{{ site.data.core.articles-link }}" aria-label="{{ site.data.core.articles-link-title}}">Articles</a>
       </li>
       <li{% if page.url == site.data.core.about-link %} class="active"{% endif %}>
-        <a href="{{ site.data.core.about-link }}" title="{{ site.data.core.about-link-title}}">About</a>
+        <a href="{{ site.data.core.about-link }}" aria-label="{{ site.data.core.about-link-title}}">About</a>
       </li>
     </ul>
   </div><!-- /.navbar-collapse -->
