@@ -1,11 +1,30 @@
 ---
 
-# Links
+# Internal links
+
 homeLink: "/"
 appsLink: "/programs.html"
 libLink: "/codelib.html"
 articlesLink: "/articles.html"
 aboutLink: "/about.html"
 
-# Site Logo Text
+bootstrap-link: "/assets/scripts/bootstrap.js"
+prefix-free-link: "/assets/scripts/prefixfree.min.js"
+style-link: "/assets/css/style.css"
+
+# External links
+
+gravatar-url: "http://en.gravatar.com/delphidabbler"
+twitter-url: "https://twitter.com/delphidabbler"
+github-url: "https://github.com/delphidabbler"
+sourceforge-url: "https://sourceforge.net/u/delphidabbler/profile/"
+dd-blog-url: "http://delphidabbler.blogspot.com/"
+cs-blog-url: "http://codesnip-app.blogspot.com/"
+cc-40-url: "https://creativecommons.org/licenses/by/4.0/"
+font-awesome-url: "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+jquery-url: "http://code.jquery.com/jquery-1.11.1.min.js"
+
+
+# Site logo text
+
 logo: "delphiDabbler.com"
