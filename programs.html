@@ -13,12 +13,12 @@ title: Applications
 {% for program in supported-programs %}
 {% assign test = forloop.index | modulo: 2 %}
 {% if test <> 0 %}<div class="row">{% endif %}
-  <section>
+  <section role="section" aria-labelledby="{{ program.id | escape }}-head">
     <div class="col-sm-6">
       <div class="panel panel-default {% if program.mothballed %}panel-warning{% endif %}">
-        <div class="panel-heading">
+        <header class="panel-heading" id="{{ program.id | escape }}-head">
           <h3>{{ program.title | escape }}</h3>
-        </div>
+        </header>
         <div class="panel-body">
           <p>{{ program.summary | escape }}</p>
           {% if program.mothballed %}<p class="text-warning"><span class="fa fa-flag" aria-hidden="true"></span><span class="sr-only">Note</span> This program is mothballed. It is being neither developed nor supported.</p>{% endif %}

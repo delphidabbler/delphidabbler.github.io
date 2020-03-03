@@ -12,10 +12,10 @@ title: Articles
 {% for article in articles %}
 {% assign test = forloop.index | modulo: 2 %}
 {% if test <> 0 %}<div class="row">{% endif %}
-  <article>
+  <article role="section" aria-labelledby="art-{{ article.id | escape }}-head">
     <div class="col-md-6">
       <div class="panel panel-default">
-        <header class="panel-heading lead">
+        <header class="panel-heading lead" id="art-{{ article.id | escape }}-head">
           {{ article.title | escape }}
         </header>
         <div class="panel-body">
