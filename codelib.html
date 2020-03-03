@@ -1,7 +1,7 @@
 ---
 title: Code Library
 ---
-<h1>
+<h1 roll="heading">
   Code Library
 </h1>
 
@@ -14,18 +14,18 @@ title: Code Library
 {% for item in supported-codelib %}
 {% assign test = forloop.index | modulo: 2 %}
 {% if test <> 0 %}<div class="row">{% endif %}
-  <section>
+  <section role="section" aria-labelledby="{{ item.id | escape }}-head">
     <div class="col-sm-6">
       <div class="panel panel-default {% if item.mothballed %}panel-warning{% endif %}">
-        <div class="panel-heading">
+        <header class="panel-heading" id="{{ item.id | escape }}-head">
           <h3>{{ item.title | escape }}</h3>
-        </div>
+        </header>
         <div class="panel-body">
           <p>{{ item.summary | escape }}</p>
-          {% if item.mothballed %}<p class="text-warning"><span class="fa fa-flag" aria-hidden="true"></span><span class="sr-only">Note</span> This item is mothballed. It is being neither developed nor supported.</p>{% endif %}
+          {% if item.mothballed %}<p class="text-warning" role="alert"><span class="fa fa-flag" aria-hidden="true"></span><span class="sr-only">Note</span> This item is mothballed. It is being neither developed nor supported.</p>{% endif %}
         </div>
         <div class="panel-footer text-right">
-          <a href="{{ item.more-info }}" class="btn btn-default">More info&hellip;</a>
+          <a href="{{ item.more-info }}" aria-label="{{ item.title | escape }} page on {{ site.data.core.orig-site-name | escape }}" class="btn btn-default">More info&hellip;</a>
         </div>
       </div>
     </div>
@@ -33,7 +33,7 @@ title: Code Library
 {% if test == 0 or forloop.last %}
 </div> <!-- ./row -->
 <!-- Clear the lg cols if their content doesn't match in height -->
-<div class="clearfix visible-sm-block"></div>
+<div class="clearfix visible-sm-block" role="presentation"></div>
 {% endif %}
 {%endfor %}
 

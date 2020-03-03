@@ -1,7 +1,7 @@
 ---
 title: Articles
 ---
-<h1>
+<h1 role="heading">
   Articles
 </h1>
 {% assign articles = site.data.articles %}
@@ -12,17 +12,17 @@ title: Articles
 {% for article in articles %}
 {% assign test = forloop.index | modulo: 2 %}
 {% if test <> 0 %}<div class="row">{% endif %}
-  <article>
+  <article role="section" aria-labelledby="art-{{ article.id | escape }}-head">
     <div class="col-md-6">
       <div class="panel panel-default">
-        <header class="panel-heading lead">
+        <header class="panel-heading lead" id="art-{{ article.id | escape }}-head">
           {{ article.title | escape }}
         </header>
         <div class="panel-body">
           <p>{{ article.summary | escape }}</p>
         </div>
         <footer class="panel-footer text-right">
-          <a href="{{ article.more-info }}" class="btn btn-default">Read the article&hellip;</a>
+          <a href="{{ article.more-info }}" aria-label="Read &quot;{{ article.title | escape }}&quot; over on {{ site.data.core.orig-site-name | escape }}" class="btn btn-default">Read the article&hellip;</a>
         </footer>
       </div>
     </div>
@@ -30,7 +30,7 @@ title: Articles
 {% if test == 0 or forloop.last %}
 </div> <!-- ./row -->
 <!-- Clear the lg cols if their content doesn't match in height -->
-<div class="clearfix visible-md-block"></div>
+<div class="clearfix visible-md-block" role="presentation"></div>
 {% endif %}
 {%endfor %}
 

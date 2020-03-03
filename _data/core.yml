@@ -30,18 +30,23 @@ dd-blog-url: "http://delphidabbler.blogspot.com/"
 cs-blog-url: "http://codesnip-app.blogspot.com/"
 cc-40-url: "https://creativecommons.org/licenses/by/4.0/"
 
+
 font-awesome-url: "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
 jquery-url: "http://code.jquery.com/jquery-1.11.1.min.js"
 
 # External link titles
 
-gravatar-link-title: "Peter Johnson's Gravatar"
+gravatar-link-title: "Peter Johnson's Gravatar account"
 twitter-link-title: "@delphidabbler on Twitter"
 github-link-title: "DelphiDabbler GitHub account"
 sourceforge-link-title: "DelphiDabbler SourceForge account"
-dd-blog-link-title: "DelphiDabbler Blog"
-cs-blog-link-title: "CodeSnip Blog"
-cc-40-link-title: "Creative Commons CC BY 4.0 license"
+dd-blog-link-title: "DelphiDabbler Blog on Blogspot"
+cs-blog-link-title: "CodeSnip Blog on Blogspot"
+cc-40-link-title: "Creative Commons CC BY 4.0 license page"
+
+# Original site name
+
+orig-site-name: "delphidabbler.com"
 
 # Site logo text
 
