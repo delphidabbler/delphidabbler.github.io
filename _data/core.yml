@@ -3,50 +3,82 @@
 # Internal links
 
 home-link: "/"
+home-link-title: "Home page"
+
 apps-link: "/programs.html"
+apps-link-title: "Applications page"
+
 lib-link: "/codelib.html"
+lib-link-title: "Code Library page"
+
 articles-link: "/articles.html"
+articles-link-title: "Articles page"
+
 about-link: "/about.html"
+about-link-title: "About page"
+
+credits-link: "/credits.html"
+credits-link-title: "Credits page"
 
 bootstrap-link: "/assets/scripts/bootstrap.js"
+
 prefix-free-link: "/assets/scripts/prefixfree.min.js"
+
 style-link: "/assets/css/style.css"
 
-# Internal link titles
-
-home-link-title: "Home page"
-apps-link-title: "Applications page"
-lib-link-title: "Code Library page"
-articles-link-title: "Articles page"
-about-link-title: "About page"
 
 # External links
 
 gravatar-url: "http://en.gravatar.com/delphidabbler"
+gravatar-link-title: "Peter Johnson's Gravatar account"
+
 twitter-url: "https://twitter.com/delphidabbler"
+twitter-link-title: "@delphidabbler on Twitter"
+
 github-url: "https://github.com/delphidabbler"
+github-link-title: "DelphiDabbler GitHub account"
+
 sourceforge-url: "https://sourceforge.net/u/delphidabbler/profile/"
+sourceforge-link-title: "DelphiDabbler SourceForge account"
+
 dd-blog-url: "http://delphidabbler.blogspot.com/"
+dd-blog-link-title: "DelphiDabbler Blog on Blogspot"
+
 cs-blog-url: "http://codesnip-app.blogspot.com/"
+cs-blog-link-title: "CodeSnip Blog on Blogspot"
+
 cc-40-url: "https://creativecommons.org/licenses/by/4.0/"
+cc-40-link-title: "Creative Commons CC BY 4.0 license on the Creative Commons web site"
+
+site-mit-license-url: "https://raw.githubusercontent.com/delphidabbler/delphidabbler.github.io/master/LICENSE.md"
+site-mit-license-link-title: "MIT License page"
+
+generic-mit-license-url: "https://opensource.org/licenses/MIT"
+generic-mit-license-link-title: "MIT License on the Open Source Initiative web site"
+
+jquery-license-url: "https://jquery.org/license/"
+jquery-license-link-title: "jQuery License on the jQuery web site"
+
+normalize-css-license-url: "https://raw.githubusercontent.com/necolas/normalize.css/master/LICENSE.md"
+normalize-css-license-link-title: "MIT license on normalize CSS GitHub page"
+
+apache-20-license-url: "http://www.apache.org/licenses/LICENSE-2.0"
+apache-20-license-link-title: "Apache License v2.0 on apache.org"
+
+sil-ofl-11-license-url: "http://scripts.sil.org/OFL"
+sil-ofl-11-license-link-title: "SIL Open Font license v1.1 on sil.org"
 
 google-fonts-url: "http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro|Open+Sans+Condensed:700|Libre+Baskerville:400italic"
+
 font-awesome-url: "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+
 jquery-url: "http://code.jquery.com/jquery-1.11.1.min.js"
 
-# External link titles
-
-gravatar-link-title: "Peter Johnson's Gravatar account"
-twitter-link-title: "@delphidabbler on Twitter"
-github-link-title: "DelphiDabbler GitHub account"
-sourceforge-link-title: "DelphiDabbler SourceForge account"
-dd-blog-link-title: "DelphiDabbler Blog on Blogspot"
-cs-blog-link-title: "CodeSnip Blog on Blogspot"
-cc-40-link-title: "Creative Commons CC BY 4.0 license page"
 
 # Original site name
 
 orig-site-name: "delphidabbler.com"
+
 
 # Site logo text
 
