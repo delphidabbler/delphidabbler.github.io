@@ -10,15 +10,6 @@ ul.wide li {
   margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
 }
 
-// Extra style for Font Awesome to pad glyphs on right
-// Any class whose name begins with fa-x provides additional classes for use 
-// with Font Awesome/
-// Custom class
-.fa-x-pad-right {
-  padding-right: .25em;
-}
-
-
 // Customise appearance of navbar to match branding
 // Overrides bootstrap class
 .navbar {
