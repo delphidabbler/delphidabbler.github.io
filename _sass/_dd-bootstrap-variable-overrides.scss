@@ -14,3 +14,9 @@ $navbar-default-toggle-color: $navbar-default-color;
 $navbar-default-toggle-hover-bg: $navbar-default-link-hover-bg;
 $navbar-default-toggle-border-color: $navbar-default-toggle-color;
 $navbar-default-toggle-icon-bar-bg: $navbar-default-color;
+
+$jumbotron-bg: lighten($navbar-default-bg, 20%);
+$jumbotron-color: #ffffff;
+$jumbotron-padding: 20px;
+// follow var is not in Bootstrap
+$jumbotron-font-size-xs:            ceil(($font-size-base * 1.2));
