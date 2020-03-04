@@ -13,7 +13,7 @@ ul.wide li {
 // Extra style for Font Awesome to pad glyphs on right
 // Any class whose name begins with fa-x provides additional classes for use 
 // with Font Awesome/
-// Custom class
+// Custom
 .fa-x-pad-right {
   padding-right: .25em;
 }
@@ -61,7 +61,7 @@ ul.wide li {
 }
 
 // General strapline
-// Custom class
+// Custom
 .strapline {
   font-family: $branding-strapline-font-family;
   font-style: italic; // MUST be italic, no other style available for this font
@@ -69,7 +69,7 @@ ul.wide li {
 }
 
 // Styling of logo and strapline etc.
-// Custom class
+// Custom
 .branding {
   display: none;
   @media (min-width: $screen-sm-min) {
@@ -90,8 +90,8 @@ ul.wide li {
 
 // Sets style of logo on large page header and of brand displayed on collapsed
 // nav bar
-// .brandng > .logo is a custom class
-// .navbar-brand overrides bootstrap class
+// .brandng > .logo is custom
+// .navbar-brand overrides a bootstrap class
 .branding > .logo,
 .navbar-brand {
   font-family: $branding-logo-font-family;
@@ -110,7 +110,7 @@ ul.wide li {
 
 // Set size of logo displayed on larger screens (not displayed when menu
 // collapsed)
-// Custom class
+// Custom
 .branding > .logo {
   font-size: $branding-logo-font-size;
 }
@@ -142,8 +142,7 @@ ul.wide li {
 }
 
 // Sets font size on text of navbar "toggle" - this is the menu button text
-// Custom class (.navbar-toggle comes from bootstrap, .navbar-toggle-caption
-// is custom
+// Custom (.navbar-toggle comes from bootstrap, .navbar-toggle-caption is custom
 .navbar-toggle > .navbar-toggle-caption {
   @extend .text-uppercase;
   font-size: $font-size-small;
@@ -153,7 +152,7 @@ ul.wide li {
 }
 
 // Styles the strapline that appears below logo on pages with un-collapsed menus
-// Custom class
+// Custom
 .branding > .strapline {
   display: none;
   @extend .strapline;
@@ -168,7 +167,7 @@ ul.wide li {
 }
 
 // Styles page footer
-// Custom classes
+// Custom
 .pagefoot {
   padding: $padding-small-vertical $padding-small-horizontal;
   background-color: $pagefoot-bg;
@@ -193,3 +192,51 @@ ul.wide li {
   }
 }
 
+
+// Jumbotron-like box
+// Custom
+.box {
+  background-color: $box-bg;
+  color: $box-color;
+  padding: $box-padding;
+  margin: 0 0 $box-margin-bottom 0;
+  border-radius: $border-radius-large;
+
+  > .strapline {
+   @extend .strapline;
+    opacity: 0.75;
+  }
+
+  p {
+    font-size: $box-font-size;
+  }
+
+  h1 {
+    margin-top: 0;
+  }
+  
+  a {
+    color: $box-color;
+  }
+
+  // remove bottom margin from last child in box
+  > *:last-child {
+    margin-bottom: 0;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    padding-top:    ($box-padding * 1.6);
+    padding-bottom: ($box-padding * 1.6);
+    margin-bottom:  ($box-margin-bottom * 1.6);
+
+    p {
+      font-size: ceil($box-font-size * 1.2);
+    }
+
+    h1,
+    .h1 {
+      font-size: ceil($font-size-h1 * 1.2);
+    }
+  }
+
+}

@@ -1,3 +1,10 @@
+$font-size-base: $global-font-size-base;
+
+$brand-primary:   #505095;  //#666699;
+$brand-success:   #70ac36;
+$brand-info:      #9696BF;  //#8484b5;  //#bfbfd6;
+//$brand-warning:
+//$brand-danger:
 
 $navbar-default-border: transparent;
 $navbar-border-radius: 0;
@@ -14,3 +21,9 @@ $navbar-default-toggle-color: $navbar-default-color;
 $navbar-default-toggle-hover-bg: $navbar-default-link-hover-bg;
 $navbar-default-toggle-border-color: $navbar-default-toggle-color;
 $navbar-default-toggle-icon-bar-bg: $navbar-default-color;
+
+$jumbotron-bg: lighten($navbar-default-bg, 20%);
+$jumbotron-color: #ffffff;
+$jumbotron-padding: 20px;
+// follow var is not in Bootstrap
+$jumbotron-font-size-xs:            ceil(($font-size-base * 1.2));
