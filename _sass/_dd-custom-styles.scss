@@ -3,6 +3,13 @@
     MIT License. Copyright (c) 2020 Peter Johnson <gravatar.com/delphidabbler>
 */
 
+//// Basic typography
+ol.wide li,
+ul.wide li {
+  // margin based on bootstrap's styling of the p tag
+  margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
+}
+
 // Customise appearance of navbar to match branding
 // Overrides bootstrap class
 .navbar {
