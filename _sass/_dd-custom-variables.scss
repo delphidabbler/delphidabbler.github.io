@@ -1,0 +1,24 @@
+$branding-base-padding:       12px;
+$branding-xs-padding-vertical: 8px;
+$branding-xs-padding-horizontal: $navbar-padding-horizontal;
+$branding-margin:             0;
+$branding-color:              $global-branding-color;
+$branding-bg:                 #333366;
+$branding-bg-start:           $branding-bg;             // start colour for background gradient
+$branding-bg-stop:            $global-branding-bg-stop; // stop colour for background gradient
+$branding-logo-font-family: $headings-font-family;
+$branding-logo-font-size: ceil($font-size-h1 * 1.2);
+$branding-logo-font-size-sm: $branding-logo-font-size * 0.7;
+$branding-logo-font-size-xs: $branding-logo-font-size * 0.4;
+$branding-logo-color:         $branding-color;
+$branding-logo-opacity:       0.9;
+$branding-logo-shadow:        2px 2px 3px rgba(255, 255, 255, 0.6);
+$branding-strapline-font-family: 'Libre Baskerville', serif; // only italic supported for this font
+$branding-strapline-color:    $branding-color;
+$branding-strapline-opacity:  0.6;
+$branding-strapline-shadow:   4px 4px 9px rgba(255, 255, 255, 0.74);
+$branding-strapline-letter-spacing: 2px;
+$branding-strapline-font-size: 16px;
+
+$page-margin-top:             12px;
+$page-margin-bottom:          12px;
