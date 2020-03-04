@@ -1,0 +1,147 @@
+// Customise appearance of navbar to match branding
+// Overrides bootstrap class
+.navbar {
+//  #gradient > .horizontal($branding-bg-start, $branding-bg-stop, 35%, 100%);
+  #gradient > .horizontal {
+    @include gradient-horizontal(
+      $start-color: $branding-bg-start,
+      $end-color: $branding-bg-stop,
+      $start-percent: 35%,
+      $end-percent: 100%
+    )
+  }
+  border: none;
+  border-top: 1px $gray-light solid;
+}
+
+/* Ensure that dividers in drop-down menus don't display on collapsed version of
+   menu
+.dropdown-menu .divider {
+  display: none;
+  @media (min-width: $screen-sm-min) {
+    display: block;
+  }
+}
+*/
+
+// Change background colour of Menu button used on collapsed menu
+// Overrides bootstrap class
+.navbar-default .navbar-toggle {
+  background-color: $navbar-default-toggle-bg;
+  color: $navbar-default-toggle-color;
+}
+
+// Reset page header margins and borders
+// Overrides bootstrap class
+.page-header {
+  margin: $page-margin-top 0 0 0;
+  padding: 0;
+  border: none;
+}
+
+// General strapline
+// Custom class
+.strapline {
+  font-family: $branding-strapline-font-family;
+  font-style: italic; // MUST be italic, no other style available for this font
+  font-weight: normal;
+}
+
+// Styling of logo and strapline etc.
+// Custom class
+.branding {
+  display: none;
+  @media (min-width: $screen-sm-min) {
+    display: block;
+    color: $branding-color;
+    background-color: $branding-bg-start;
+    //#gradient > .horizontal($branding-bg-start, $branding-bg-stop, 35%, 100%);
+    #gradient > .horizontal {
+      @include gradient-horizontal(
+        $start-color: $branding-bg-start,
+        $end-color: $branding-bg-stop
+      )
+    }
+    margin: $branding-margin;
+    padding: $branding-base-padding;
+  }
+}
+
+// Sets style of logo on large page header and of brand displayed on collapsed
+// nav bar
+// .brandng > .logo is a custom class
+// .navbar-brand overrides bootstrap class
+.branding > .logo,
+.navbar-brand {
+  font-family: $branding-logo-font-family;
+  font-weight: bold;
+  color: $branding-logo-color;
+  opacity: $branding-logo-opacity;
+  text-shadow: $branding-logo-shadow;
+  a,
+  a:link,
+  a:hover,
+  a:visited {
+    color: $branding-logo-color;
+    text-decoration: none;
+  }
+}
+
+// Set size of logo displayed on larger screens (not displayed when menu
+// collapsed)
+// Custom class
+.branding > .logo {
+  font-size: $branding-logo-font-size;
+}
+
+// Shows and hides navbar brand (logo on collapsed menu) and reduces size of
+// logo text on tiny screens
+.navbar-brand {
+  display: inline;
+  font-size: $branding-logo-font-size-xs;
+  @media (min-width: $screen-xs-min) {
+    font-size: $branding-logo-font-size-sm;
+  }
+  @media (min-width: $screen-sm-min) {
+    display: none;
+  }
+}
+
+// Sets padding on navbar "toggle" - used to display menu button. Padding is
+// less on tiny screens
+// Overrides bootstrap class
+.navbar-toggle {
+  padding-top: 4px;
+  padding-bottom: 4px;
+
+  @media (min-width: $screen-xs-min) {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+// Sets font size on text of navbar "toggle" - this is the menu button text
+// Custom class (.navbar-toggle comes from bootstrap, .navbar-toggle-caption
+// is custom
+.navbar-toggle > .navbar-toggle-caption {
+  @extend .text-uppercase;
+  font-size: $font-size-small;
+  @media (min-width: $screen-xs-min) {
+    font-size: $font-size-base;
+  }
+}
+
+// Styles the strapline that appears below logo on pages with un-collapsed menus
+// Custom class
+.branding > .strapline {
+  display: none;
+  @extend .strapline;
+  font-size: $branding-strapline-font-size;
+  color: $branding-strapline-color;
+  opacity: $branding-strapline-opacity;
+  text-shadow: $branding-strapline-shadow;
+  letter-spacing: $branding-strapline-letter-spacing;
+  @media (min-width: $screen-sm-min) {
+    display: block;
+  }
+}
