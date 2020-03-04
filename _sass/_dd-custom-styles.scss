@@ -171,7 +171,8 @@ ul.wide li {
     color: $pagefoot-link-color;
   }
 
-  .pagefoot-links {
+  .pagefoot-links,
+  .pagefoot-credits  {
     @extend .text-center;
     & > *:last-child {
       margin-bottom: 0;
@@ -179,11 +180,7 @@ ul.wide li {
   }
 
   .pagefoot-credits {
-    color: $pagefoot-credits-color;
-    @extend .text-center;
-    & > *:last-child {
-      margin-bottom: 0;
-    }
+      color: $pagefoot-credits-color;
   }
 }
 
