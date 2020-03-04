@@ -1,3 +1,8 @@
+/*! Styles that either extend / replace bootstrap styles or are unique to this
+    site.
+    MIT License. Copyright (c) 2020 Peter Johnson <gravatar.com/delphidabbler>
+*/
+
 // Customise appearance of navbar to match branding
 // Overrides bootstrap class
 .navbar {
@@ -145,3 +150,33 @@
     display: block;
   }
 }
+
+// Styles page footer
+// Custom classes
+.pagefoot {
+  padding: $padding-small-vertical $padding-small-horizontal;
+  background-color: $pagefoot-bg;
+  color: $pagefoot-color;
+  @extend .small;
+  margin-bottom: $page-margin-bottom;
+
+  a {
+    color: $pagefoot-link-color;
+  }
+
+  .pagefoot-links {
+    @extend .text-center;
+    & > *:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .pagefoot-credits {
+    color: $pagefoot-credits-color;
+    @extend .text-center;
+    & > *:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
