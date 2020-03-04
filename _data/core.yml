@@ -17,6 +17,9 @@ articles-link-title: "Articles page"
 about-link: "/about.html"
 about-link-title: "About page"
 
+credits-link: "/credits.html"
+credits-link-title: "Credits page"
+
 bootstrap-link: "/assets/scripts/bootstrap.js"
 
 prefix-free-link: "/assets/scripts/prefixfree.min.js"
