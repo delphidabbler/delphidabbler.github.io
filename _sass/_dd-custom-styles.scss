@@ -193,3 +193,51 @@ ul.wide li {
   }
 }
 
+
+// Jumbotron-like box
+// Custom
+.box {
+  background-color: $box-bg;
+  color: $box-color;
+  padding: $box-padding;
+  margin: 0 0 $box-margin-bottom 0;
+  border-radius: $border-radius-large;
+
+  > .strapline {
+   @extend .strapline;
+    opacity: 0.75;
+  }
+
+  p {
+    font-size: $box-font-size;
+  }
+
+  h1 {
+    margin-top: 0;
+  }
+  
+  a {
+    color: $box-color;
+  }
+
+  // remove bottom margin from last child in box
+  > *:last-child {
+    margin-bottom: 0;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    padding-top:    ($box-padding * 1.6);
+    padding-bottom: ($box-padding * 1.6);
+    margin-bottom:  ($box-margin-bottom * 1.6);
+
+    p {
+      font-size: ceil($box-font-size * 1.2);
+    }
+
+    h1,
+    .h1 {
+      font-size: ceil($font-size-h1 * 1.2);
+    }
+  }
+
+}
