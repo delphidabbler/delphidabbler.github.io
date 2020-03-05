@@ -69,21 +69,20 @@ $blockquote-border-color: $gray-lighter; //** bootstrap default
 // custom style: $blockquote-footer-font-size: 90%;
 // custom style: $blockquote-small-font-size: floor((100% * $font-size-small / $font-size-base));
 
-$navbar-default-border: transparent;
-$navbar-border-radius: 0;
-$navbar-default-color: $global-branding-color;
-$navbar-default-bg:  #44447F;
-$navbar-default-link-color: $navbar-default-color;
-$navbar-default-link-hover-bg: $global-branding-bg-stop;
-$navbar-default-link-hover-color: $navbar-default-link-color;
-$navbar-default-link-active-color: $navbar-default-link-color;
-$navbar-default-link-active-bg: lighten($navbar-default-bg, 6.5%);
+$navbar-border-radius: 0; //** custom [orig:$border-radius-base]
+$navbar-default-color: $global-branding-color; //** custom [orig:#777]
+$navbar-default-bg:  #44447F; // custom [orig:#f8f8f8]
+$navbar-default-link-color: $navbar-default-color; //** custom [orig:#777]
+$navbar-default-link-hover-bg: $global-branding-bg-stop; //** custom [orig:transparent]
+$navbar-default-link-hover-color: $navbar-default-link-color; //** custom [orig:#333]
+$navbar-default-link-active-color: $navbar-default-link-color;  //** custom [orig:#555]
+$navbar-default-link-active-bg: lighten($navbar-default-bg, 6.5%); //** custom [orig:darken($navbar-default-bg, 6.5%)]
 
-$navbar-default-toggle-bg: $navbar-default-bg;
-$navbar-default-toggle-color: $navbar-default-color;
-$navbar-default-toggle-hover-bg: $navbar-default-link-hover-bg;
-$navbar-default-toggle-border-color: $navbar-default-toggle-color;
-$navbar-default-toggle-icon-bar-bg: $navbar-default-color;
+$navbar-default-toggle-bg: $navbar-default-bg;  // <<< not in bootstrap
+$navbar-default-toggle-color: $navbar-default-color;  // <<< not in bootstrap
+$navbar-default-toggle-hover-bg: $navbar-default-link-hover-bg; //** custom [orig:#ddd]
+$navbar-default-toggle-border-color: $navbar-default-toggle-color; //** custom [orig:#ddd]
+$navbar-default-toggle-icon-bar-bg: $navbar-default-color; //** custom [orig:#888]
 
 $jumbotron-bg: lighten($navbar-default-bg, 20%);
 $jumbotron-color: #ffffff;
