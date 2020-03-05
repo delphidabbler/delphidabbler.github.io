@@ -15,8 +15,8 @@ title: Articles
   <article role="section" aria-labelledby="art-{{ article.id | escape }}-head">
     <div class="col-md-6">
       <div class="panel panel-default">
-        <header class="panel-heading lead" id="art-{{ article.id | escape }}-head">
-          {{ article.title | escape }}
+        <header class="panel-heading" id="art-{{ article.id | escape }}-head">
+          <h2>{{ article.title | escape }}</h2>
         </header>
         <div class="panel-body">
           <p>{{ article.summary | escape }}</p>
