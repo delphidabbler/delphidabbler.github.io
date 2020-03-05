@@ -4,6 +4,12 @@
 */
 
 //// Basic typography
+
+// Remove top margin of 1st child element of <main id="content">
+main#content > *:first-child {
+  margin-top: 0;
+}
+
 ol.wide li,
 ul.wide li {
   // margin based on bootstrap's styling of the p tag
@@ -16,6 +22,9 @@ ul.wide li {
 // Custom
 .fa-x-pad-right {
   padding-right: 5px;
+}
+.fa-x-pad-left {
+  padding-left: 5px;
 }
 
 // Customise appearance of navbar to match branding
@@ -114,6 +123,7 @@ ul.wide li {
   font-size: $branding-logo-font-size;
 }
 
+
 // Shows and hides navbar brand (logo on collapsed menu) and reduces size of
 // logo text on tiny screens
 .navbar-brand {
@@ -133,10 +143,17 @@ ul.wide li {
 .navbar-toggle {
   padding-top: 4px;
   padding-bottom: 4px;
+  
+  .navbar-toggle-caption-text {
+    display: none;
+  }
 
   @media (min-width: $screen-xs-min) {
     padding-top: 8px;
     padding-bottom: 8px;
+    .navbar-toggle-caption-text {
+      display: inline;
+    }
   }
 }
 
@@ -178,6 +195,11 @@ ul.wide li {
     color: $pagefoot-link-color;
   }
 
+  p {
+    margin-top: 0;
+    margin-bottom: ($line-height-computed ) / 4;
+  }
+  
   .pagefoot-links,
   .pagefoot-credits  {
     @extend .text-center;
@@ -191,6 +213,33 @@ ul.wide li {
   }
 }
 
+.panel {
+  
+  .panel-body {
+    > *:last-child {
+      margin-bottom: 0;
+    }
+  }
+  h2 {
+    font-size: floor($font-size-h2 * 0.8);
+  }
+  h3 {
+    font-size: floor($font-size-h3 * 0.9);
+  }
+  .panel-body {
+    h2, h3 {
+      margin-top: ($line-height-computed / 2);
+      margin-bottom: ($line-height-computed / 2);
+    }
+  }
+  .panel-heading {
+    h2, h3 {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+  }
+}
+
 
 // Jumbotron-like box
 // Custom
@@ -198,7 +247,7 @@ ul.wide li {
   background-color: $box-bg;
   color: $box-color;
   padding: $box-padding;
-  margin: 0 0 $box-margin-bottom 0;
+  margin: $box-margin-top 0 $box-margin-bottom 0;
   border-radius: $border-radius-large;
 
   > .strapline {
