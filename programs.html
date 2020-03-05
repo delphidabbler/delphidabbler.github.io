@@ -17,7 +17,7 @@ title: Applications
     <div class="col-sm-6">
       <div class="panel panel-default {% if program.mothballed %}panel-warning{% endif %}">
         <header class="panel-heading" id="{{ program.id | escape }}-head">
-          <h3>{{ program.title | escape }}</h3>
+          <h2>{{ program.title | escape }}</h2>
         </header>
         <div class="panel-body">
           <p>{{ program.summary | escape }}</p>
