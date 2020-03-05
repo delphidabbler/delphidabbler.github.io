@@ -140,10 +140,17 @@ ul.wide li {
 .navbar-toggle {
   padding-top: 4px;
   padding-bottom: 4px;
+  
+  .navbar-toggle-caption-text {
+    display: none;
+  }
 
   @media (min-width: $screen-xs-min) {
     padding-top: 8px;
     padding-bottom: 8px;
+    .navbar-toggle-caption-text {
+      display: inline;
+    }
   }
 }
 
