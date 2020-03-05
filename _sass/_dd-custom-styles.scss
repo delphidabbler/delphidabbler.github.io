@@ -114,6 +114,7 @@ ul.wide li {
   font-size: $branding-logo-font-size;
 }
 
+
 // Shows and hides navbar brand (logo on collapsed menu) and reduces size of
 // logo text on tiny screens
 .navbar-brand {
@@ -204,7 +205,7 @@ ul.wide li {
     }
   }
   h2 {
-    font-size: floor($font-size-h2 * 0.9);
+    font-size: floor($font-size-h2 * 0.8);
   }
   h3 {
     font-size: floor($font-size-h3 * 0.9);
