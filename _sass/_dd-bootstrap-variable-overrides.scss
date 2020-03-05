@@ -1,10 +1,65 @@
-$font-size-base: $global-font-size-base;
+$gray-base:               #000000;  //** bootstrap default
+$gray-darker:             #222222;  //** bootstrap default 
+$gray-dark:               #333333;  //** bootstrap default 
+$gray:                    #555555;  //** bootstrap default 
+$gray-light:              #777777;  //** bootstrap default 
+$gray-lighter:            #eeeeee;  //** bootstrap default 
 
-$brand-primary:   #505095;  //#666699;
-$brand-success:   #70ac36;
-$brand-info:      #9696BF;  //#8484b5;  //#bfbfd6;
-//$brand-warning:
-//$brand-danger:
+$brand-primary:           #505095;  //** custom [orig: #337ab7] 
+$brand-success:           #70ac36;  //** custom [orig: #5cb85c]
+$brand-info:              #9696BF;  //** custom [orig: #5bc0de]
+$brand-warning:           #f0ad4e;  //** bootstrap default
+$brand-danger:            #d9534f;  //** bootstrap default
+
+
+$text-color:              #3a3a3a;  //** custom [orig: $gray-dark]
+$font-size-base:          14px;     //** bootstrap default
+$font-size-large:         ceil(($font-size-base * 1.25)); //** bootstrap default ~18px
+$font-size-small:         ceil(($font-size-base * 0.85)); //** bootstrap default ~12px
+$font-family-serif:       Georgia, "Times New Roman", Times, serif; //** bootstrap default
+$font-family-sans-serif:  'Open Sans', Helvetica, Arial, sans-serif; //** custom [orig: "Helvetica Neue", Helvetica, Arial, sans-serif]
+$font-family-monospace:   'Source Code Pro', Consolas, "Courier New", monospace; //** custom [orig: $font-family-monospace: Menlo, Monaco, Consolas, "Courier New", monospace]
+
+$headings-font-family:    'Open Sans Condensed', $font-family-sans-serif; //** custom [orig: inherit]
+$headings-font-weight:    bold; //** custom [orig: 500]
+
+$line-height-base:        1.6; //** custom [orig: 1.428571429 (i.e 20/14)]
+
+$link-color:              $brand-primary; //** bootstrap default
+
+$state-success-text:      #56852a; //** custom [orig: #3c763d]
+$state-success-bg:        #e1f1d2; //** custom [orig: #dff0d8]
+$state-success-border:    darken(adjust-hue($state-success-bg, -10), 5%); //** bootstrap default
+
+$state-info-text:         #44447f;  //** custom [orig: #31708f]
+$state-info-bg:           #eeeef4;  //** custom [orig: #d9edf7]
+$state-info-border:       darken(adjust-hue($state-info-bg, -10), 7%);  //** bootstrap default
+
+$state-warning-text:      #5a4b1d;  //** custom [orig: #8a6d3b]
+$state-warning-bg:        #ffefbf;  //** custom [orig: #fcf8e3]
+$state-warning-border:    darken(adjust-hue($state-warning-bg, -10), 5%); //** bootstrap default
+
+$state-danger-text:       #a94442;  //** bootstrap default
+$state-danger-bg:         #f2dede;  //** bootstrap default
+$state-danger-border:     darken(adjust-hue($state-danger-bg, -10), 5%);  //** bootstrap default
+
+$code-color:              $gray;  //** custom [orig: #c7254e]
+$code-bg:                 $gray-lighter;  //** custom [orig: #f9f2f4]
+
+$kbd-color:               #ffffff;; //** bootstrap default
+$kbd-bg:                  #333333; //** bootstrap default
+
+$pre-bg:                  #f5f5f5; //** bootstrap default
+$pre-color:               $gray-dark; //** bootstrap default
+$pre-border-color:        #cccccc; //** bootstrap default !default;
+$pre-scrollable-max-height: 340px; //** bootstrap default
+
+$blockquote-small-color:  $gray-light;  //** bootstrap default
+$blockquote-font-size:    $font-size-base; //** custom [orig: ($font-size-base * 1.25)]
+$blockquote-border-color: $gray-lighter; //** bootstrap default
+
+// custom style: $blockquote-footer-font-size: 90%;
+// custom style: $blockquote-small-font-size: floor((100% * $font-size-small / $font-size-base));
 
 $navbar-default-border: transparent;
 $navbar-border-radius: 0;
