@@ -11,19 +11,27 @@ $brand-info:              #9696BF;  //** custom [orig: #5bc0de]
 $brand-warning:           #f0ad4e;  //** bootstrap default
 $brand-danger:            #d9534f;  //** bootstrap default
 
-
-$text-color:              #3a3a3a;  //** custom [orig: $gray-dark]
-$font-size-base:          14px;     //** bootstrap default
-$font-size-large:         ceil(($font-size-base * 1.25)); //** bootstrap default ~18px
-$font-size-small:         ceil(($font-size-base * 0.85)); //** bootstrap default ~12px
 $font-family-serif:       Georgia, "Times New Roman", Times, serif; //** bootstrap default
 $font-family-sans-serif:  'Open Sans', Helvetica, Arial, sans-serif; //** custom [orig: "Helvetica Neue", Helvetica, Arial, sans-serif]
 $font-family-monospace:   'Source Code Pro', Consolas, "Courier New", monospace; //** custom [orig: $font-family-monospace: Menlo, Monaco, Consolas, "Courier New", monospace]
+
+$font-size-base:          16px; //** custom: [orig: 14px;]
+$font-size-large:         ceil(($font-size-base * 1.25));   //** bootstrap default ~18px
+$font-size-small:         ceil(($font-size-base * 0.85));   //** bootstrap default ~12px
+
+$font-size-h1:            floor(($font-size-base * 2.25));  //** custom [orig: floor(($font-size-base * 2.6)) ] (~36px)
+$font-size-h2:            floor(($font-size-base * 1.875)); //** custom [orig: floor(($font-size-base * 2.15)) ] (~30px)
+$font-size-h3:            ceil(($font-size-base * 1.5));    //** custom [orig: ceil(($font-size-base * 1.7)) ] (~24px)
+$font-size-h4:            ceil(($font-size-base * 1.125));  //** custom [orig: ceil(($font-size-base * 1.25)) ] (~18px)
+$font-size-h5:            $font-size-base;                  //** bootstrap default (was 14px, now 16px)
+$font-size-h6:            ceil(($font-size-base * .85))     //** bootstrap default (was ~12px, now ~14px)
 
 $headings-font-family:    'Open Sans Condensed', $font-family-sans-serif; //** custom [orig: inherit]
 $headings-font-weight:    bold; //** custom [orig: 500]
 
 $line-height-base:        1.6; //** custom [orig: 1.428571429 (i.e 20/14)]
+
+$text-color:              #3a3a3a;  //** custom [orig: $gray-dark]
 
 $link-color:              $brand-primary; //** bootstrap default
 
