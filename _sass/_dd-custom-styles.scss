@@ -15,9 +15,8 @@ ul.wide li {
 // with Font Awesome/
 // Custom
 .fa-x-pad-right {
-  padding-right: .25em;
+  padding-right: 5px;
 }
-
 
 // Customise appearance of navbar to match branding
 // Overrides bootstrap class
@@ -219,6 +218,13 @@ ul.wide li {
     color: $box-color;
   }
 
+  > .link-boxes {
+    @extend .text-right;
+    .label {
+      padding: $box-label-padding;
+    }
+  }
+
   // remove bottom margin from last child in box
   > *:last-child {
     margin-bottom: 0;
@@ -237,6 +243,13 @@ ul.wide li {
     .h1 {
       font-size: ceil($font-size-h1 * 1.2);
     }
+    
+    > .link-boxes {
+      .label {
+        padding: $box-label-padding * 1.5;
+      }
+  }
+    
   }
 
 }
