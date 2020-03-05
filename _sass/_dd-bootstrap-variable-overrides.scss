@@ -24,7 +24,7 @@ $font-size-h2:            floor(($font-size-base * 1.875)); //** custom [orig: f
 $font-size-h3:            ceil(($font-size-base * 1.5));    //** custom [orig: ceil(($font-size-base * 1.7)) ] (~24px)
 $font-size-h4:            ceil(($font-size-base * 1.125));  //** custom [orig: ceil(($font-size-base * 1.25)) ] (~18px)
 $font-size-h5:            $font-size-base;                  //** bootstrap default (was 14px, now 16px)
-$font-size-h6:            ceil(($font-size-base * .85))     //** bootstrap default (was ~12px, now ~14px)
+$font-size-h6:            ceil(($font-size-base * .85));    //** bootstrap default (was ~12px, now ~14px)
 
 $headings-font-family:    'Open Sans Condensed', $font-family-sans-serif; //** custom [orig: inherit]
 $headings-font-weight:    bold; //** custom [orig: 500]
