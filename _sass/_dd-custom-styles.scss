@@ -4,6 +4,12 @@
 */
 
 //// Basic typography
+
+// Remove top margin of 1st child element of <main id="content">
+main#content > *:first-child {
+  margin-top: 0;
+}
+
 ol.wide li,
 ul.wide li {
   // margin based on bootstrap's styling of the p tag
