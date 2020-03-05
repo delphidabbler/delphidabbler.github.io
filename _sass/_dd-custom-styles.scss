@@ -193,6 +193,11 @@ ul.wide li {
 
 .panel {
   
+  .panel-body {
+    > *:last-child {
+      margin-bottom: 0;
+    }
+  }
   h2 {
     font-size: floor($font-size-h2 * 0.9);
   }
