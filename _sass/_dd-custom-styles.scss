@@ -178,6 +178,11 @@ ul.wide li {
     color: $pagefoot-link-color;
   }
 
+  p {
+    margin-top: 0;
+    margin-bottom: ($line-height-computed ) / 4;
+  }
+  
   .pagefoot-links,
   .pagefoot-credits  {
     @extend .text-center;
