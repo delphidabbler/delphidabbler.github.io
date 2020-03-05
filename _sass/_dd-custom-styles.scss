@@ -230,7 +230,7 @@ ul.wide li {
   background-color: $box-bg;
   color: $box-color;
   padding: $box-padding;
-  margin: 0 0 $box-margin-bottom 0;
+  margin: $box-margin-top 0 $box-margin-bottom 0;
   border-radius: $border-radius-large;
 
   > .strapline {
