@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.4.2 - 2020-03-06
+
+### Fixed
+
+* "Errors on _Credits_ page" - fixed typos and links (commit 94e36f7, issue #18).
+* "Update license details in _README_" - provided link to relevant anchor on _Credits_ page (commit a847e9e, issue #17).
+* "No license details for 3rd party prefixfree script" - added to _Credits_ page (commit 1239aa8, issue #16),
+
+### Changed
+
+* Renamed heading on _Credits_ page.
+* Changed footers to refer to _Credits & License_ page instead of _Credits_ page.
+
 ## v0.4.1 - 2020-03-06
 
 ### Fixed
