@@ -4,7 +4,41 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v0.3.0 - 2020-02-02
+## v0.4.0 - 2020-03-6
+
+### Added
+
+* Glyphs added to some actions and links.
+* Social media links, using glyphs, added to strapline in body of home page.
+* Favicon added to be displayed by browsers.
+* New _Credits_ page linked to from page footer. Provides license and copyright information for site and 3rd party code.
+* New social media links added to footer.
+
+### Fixed
+
+* "Menu does not drop down on Android Chrome" bug fixed as a side-effect of redesign (commit 19b4821 / issue #13).
+
+### Changed
+
+* Completely overhauled site styling (see issue #7):
+    * changed fonts used in site - uses fonts from Google Fonts for text and Font Awesome for glyphs;
+    * styled main header and navigation;
+    * styled main strap line on home page;
+    * styled footer;
+    * styled page typography;
+    * re-styled panels used to display sections on _Home_, _Applications_, _Code Library_ and _Articles_ pages;
+    * logo and drop down menu used when menu is collapsed now change on tiny phone screens to use less real estate.
+* Revised content of page footer.
+* _Home_ item in main menu replaced by a glyph in uncollapsed menu.
+* Updated _Licenses_ section of `README.md` to add references to site's source code license and Font Awesome license.
+* Improved accessibility for speech reader users.
+* Internal changes:
+    * centralised many literal links and associated information into constants;
+    * overrode many Bootstrap defaults to aid in restyling;
+    * added some new SASS code to customise styling;
+    * improved semantics of HTML.
+
+## v0.3.0 - 2020-03-02
 
 ### Added
 
@@ -19,7 +53,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Changed
 
 * Complete re-write of `README.md` (commits f0da675 & eb57483 / issue #6)
-* Re-ordered releases in `CHANGELOG.md` file (commit 165c76f) 
+* Re-ordered releases in `CHANGELOG.md` file (commit 165c76f)
 
 ## v0.2.0 - 2020-03-01
 

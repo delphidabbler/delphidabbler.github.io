@@ -1,7 +1,7 @@
 ---
 title: Applications
 ---
-<h1>
+<h1 roll="heading">
   Applications
 </h1>
 
@@ -13,18 +13,18 @@ title: Applications
 {% for program in supported-programs %}
 {% assign test = forloop.index | modulo: 2 %}
 {% if test <> 0 %}<div class="row">{% endif %}
-  <section>
+  <section role="section" aria-labelledby="{{ program.id | escape }}-head">
     <div class="col-sm-6">
-      <div class="panel panel-default {% if program.mothballed %}panel-warning{% endif %}">
-        <div class="panel-heading">
-          <h3>{{ program.title | escape }}</h3>
-        </div>
+      <div class="panel panel-primary">
+        <header class="panel-heading" id="{{ program.id | escape }}-head">
+          <h2>{{ program.title | escape }}</h2>
+        </header>
         <div class="panel-body">
           <p>{{ program.summary | escape }}</p>
-          {% if program.mothballed %}<p class="text-warning"><strong>Note:</strong> this program is mothballed. It is being neither developed nor supported.</p>{% endif %}
+          {% if program.mothballed %}<p class="alert alert-warning small" role="alert"><span class="fa fa-flag fa-lg fa-x-pad-right" aria-hidden="true"></span><span class="sr-only">Note</span> This program is mothballed. It is being neither developed nor supported.</p>{% endif %}
         </div>
         <div class="panel-footer text-right">
-          <a href="{{ program.more-info }}" class="btn btn-default">More info</a>
+          <a href="{{ program.more-info }}" aria-label="{{ program.title | escape }} page on {{ site.data.core.orig-site-name | escape }}">More info<sup><span class="fa fa-external-link fa-x-pad-left" title="offsite link" aria-hidden="true"></span></sup></a>
         </div>
       </div>
     </div>
@@ -32,7 +32,7 @@ title: Applications
 {% if test == 0 or forloop.last %}
 </div> <!-- ./row -->
 <!-- Clear the lg cols if their content doesn't match in height -->
-<div class="clearfix visible-sm-block"></div>
+<div class="clearfix visible-sm-block" role="presentation"></div>
 {% endif %}
 {%endfor %}
 

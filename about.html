@@ -2,7 +2,7 @@
 title: About
 ---
 
-<h1>About</h1>
+<h1 roll="heading">About</h1>
 
 <p>
   One hobbyist programmer's dabblings in the world of open source Delphi programming.
@@ -12,13 +12,23 @@ title: About
   My online presence:
 </p>
 
-<div class="well">
-<ul>
-  <li><a href="http://delphidabbler.blogspot.com/">DelphiDabbler's Blog</a></li>
-  <li><a href="http://codesnip-app.blogspot.com/">CodeSnip Blog</a></li>
-  <li><a href="https://github.com/delphidabbler">GitHub</a></li>
-  <li><a href="https://sourceforge.net/u/delphidabbler/profile/">SourceForge</a> (inactive)</li>
-  <li><a href="https://twitter.com/delphidabbler">Twitter</a></li>
-  <li><a href="http://gravatar.com/delphidabbler">Gravatar</a></li>
-</ul> 
-</div> <!-- /.well -->
+<ul class="list-group">
+  <li class="list-group-item">
+    <a href="{{ site.data.core.dd-blog-url }}" aria-label="{{ site.data.core.dd-blog-link-title }}"><span class="fa fa-pencil-square-o fa-lg fa-fw fa-x-pad-right" aria-hidden="true"></span>DelphiDabbler's Blog</a><sup><span class="fa fa-external-link fa-x-pad-left" title="offsite link" aria-hidden="true"></span></sup>
+  </li>
+  <li class="list-group-item">
+    <a href="{{ site.data.core.cs-blog-url }}" aria-label="{{ site.data.core.cs-blog-link-title }}"><span class="fa fa-pencil-square-o fa-lg fa-fw fa-x-pad-right" aria-hidden="true"></span>CodeSnip Blog</a><sup><span class="fa fa-external-link fa-x-pad-left" title="offsite link" aria-hidden="true"></span></sup>
+  </li>
+  <li class="list-group-item">
+    <a href="{{ site.data.core.github-url }}" aria-label="{{ site.data.core.github-link-title }}"><span class="fa fa-github fa-lg fa-fw fa-x-pad-right" aria-hidden="true"></span>GitHub</a><sup><span class="fa fa-external-link fa-x-pad-left" title="offsite link" aria-hidden="true"></span></sup>
+  </li>
+  <li class="list-group-item">
+    <a href="{{ site.data.core.sourceforge-url }}" aria-label="{{ site.data.core.sourceforge-link-title }}"><span class="fa fa-code fa-lg fa-fw fa-x-pad-right" aria-hidden="true"></span>SourceForge</a><sup><span class="fa fa-external-link fa-x-pad-left" title="offsite link" aria-hidden="true"></span></sup> (inactive)
+  </li>
+  <li class="list-group-item">
+    <a href="{{ site.data.core.twitter-url }}" aria-label="{{ site.data.core.twitter-link-title }}"><span class="fa fa-twitter fa-lg fa-fw fa-x-pad-right" aria-hidden="true"></span>Twitter</a><sup><span class="fa fa-external-link fa-x-pad-left" title="offsite link" aria-hidden="true"></span></sup>
+  </li>
+  <li class="list-group-item">
+    <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}"><span class="fa fa-info-circle fa-lg fa-fw fa-x-pad-right" aria-hidden="true"></span>Gravatar</a><sup><span class="fa fa-external-link fa-x-pad-left" title="offsite link" aria-hidden="true"></span></sup>
+  </li>
+</ul>

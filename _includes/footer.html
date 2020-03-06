@@ -1,6 +1,29 @@
-<div class="well well-sm">
-  <p>Website content licensed under the Creative Commons Attribution 4.0 International (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY-4.0</a>) license. Copyright &copy; {{ 'now' | date: "%Y" }} by <a href="http://en.gravatar.com/delphidabbler">Peter Johnson</a>.</p>
-  
-  <p>Version: {{ site.data.version }}{% if jekyll.environment == "development" %} [dev]{% endif %}</p>
-  
-</div>
+<!-- BEGIN footer -->
+<footer class="pagefoot" role="contentinfo">
+
+  <div class="pagefoot-links">
+    <div class="row">
+      <div class="col-xs-4">
+        <p><a href="{{ site.data.core.github-url }}" aria-label="{{ site.data.core.github-link-title }}"><span class="fa fa-github fa-x-pad-right fa-lg" aria-hidden="true"></span>GitHub</a>
+      </div>
+      <div class="col-xs-4">
+        <p><a href="{{ site.data.core.twitter-url }}" aria-label="{{ site.data.core.twitter-link-title }}"><span class="fa fa-twitter fa-x-pad-right fa-lg" aria-hidden="true"></span>Twitter</a>
+      </div>
+      <div class="col-xs-4">
+        <p><a href="{{ site.data.core.dd-blog-url }}" aria-label="{{ site.data.core.dd-blog-link-title }}"><span class="fa fa-pencil-square-o fa-x-pad-right fa-lg" aria-hidden="true"></span>Blog</a>
+      </div>
+    </div> <!-- /.row -->
+  </div> <!-- /.pagefoot-links -->
+
+  <div class="pagefoot-credits">
+    <p>
+      <span role="license" class="hidden-xs">Website content licensed under the Creative Commons Attribution 4.0 International (<a href="{{ site.data.core.cc-40-url }}" aria-label="{{ site.data.core.cc-40-link-title }}">CC BY-4.0</a>) license.</span>
+      Copyright <span class="fa fa-github fa-copyright" aria-hidden="true"></span> {{ 'now' | date: "%Y" }} by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter Johnson</a>. For full details of license and 3rd party code see the <a href="{{ site.data.core.credits-link }}" aria-label="{{ site.data.core.credits-link-title }}">credits page</a>.
+    </p>
+    <p>
+      Version: {{ site.data.version }}{% if jekyll.environment == "development" %} [dev]{% endif %}
+    </p>
+  </div> <!-- .pagefoot-credits -->
+
+</footer> <!-- /.pagefoot -->
+<!-- END footer -->

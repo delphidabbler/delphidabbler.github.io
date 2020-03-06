@@ -12,26 +12,21 @@
 
 <div class="container-fluid">
 
-<!-- BEGIN header -->
-<header>
-
-<!-- BEGIN common page header -->
+<!-- BEGIN page header -->
 {% include header.html %}
-<!-- END common page header -->
+<!-- END page header -->
 
 <!-- BEGIN main navigation -->
 {% include navigation.html %}
 <!-- END main navigation -->
-
-</header>
-<!-- END header -->
 
 </div><!-- /.container-fluid -->
 
 <div class="container">
 
 <!-- BEGIN main -->
-<main>
+<!-- ACCESSIBILITY: main id is used as target to skip navigation -->
+<main id="content" roll="main"> 
 
 <!-- BEGIN page content -->
 {{ content }}
@@ -40,13 +35,7 @@
 </main>
 <!-- END main -->
 
-<!-- BEGIN footer -->
-<footer>
-
 {% include footer.html %}
-
-</footer>
-<!-- END footer -->
 
 </div><!-- /.container -->
 
