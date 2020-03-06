@@ -68,11 +68,11 @@ apache-20-license-link-title: "Apache License v2.0 on apache.org"
 sil-ofl-11-license-url: "http://scripts.sil.org/OFL"
 sil-ofl-11-license-link-title: "SIL Open Font license v1.1 on sil.org"
 
-google-fonts-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro|Open+Sans+Condensed:700|Libre+Baskerville:400italic"
+google-fonts-url: "http://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro|Open+Sans+Condensed:700|Libre+Baskerville:400italic"
 
 font-awesome-url: "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
 
-jquery-url: "https://code.jquery.com/jquery-1.11.1.min.js"
+jquery-url: "http://code.jquery.com/jquery-1.11.1.min.js"
 
 
 # Original site name
