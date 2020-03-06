@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v0.4.0 - 2020-03-6
+## v0.4.1 - 2020-03-06
+
+### Fixed
+
+* Fix critical Javascript and font loading issues:
+    * "Menu does not drop down on Android Chrome" bug (issue #13).
+    * "Fonts not loading on published site" bug (issue #20).
+    * "Collapsed menu drop-down not working on published site" bug (issue #21).
+* Fix typos in `CHANGELOG.md`
+
+## v0.4.0 - 2020-03-06
 
 ### Added
 
@@ -13,10 +23,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 * Favicon added to be displayed by browsers.
 * New _Credits_ page linked to from page footer. Provides license and copyright information for site and 3rd party code.
 * New social media links added to footer.
-
-### Fixed
-
-* "Menu does not drop down on Android Chrome" bug fixed as a side-effect of redesign (commit 19b4821 / issue #13).
 
 ### Changed
 
