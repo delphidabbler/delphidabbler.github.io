@@ -32,4 +32,4 @@ The following licenses apply:
 
 * The content of the website is licensed under the Creative Commons Attribution 4.0 International ([CC BY-4.0](https://creativecommons.org/licenses/by/4.0/)) license
 * The site's underlying source code is licensed under the [MIT license](LICENSE.md).
-* The site uses Font Awesome v4, &copy; Dave Gandy. The font is licensed under the [SIL OFL 1.1 license](http://scripts.sil.org/OFL) and the CSS code is licensed under the [MIT license](https://opensource.org/licenses/mit-license.html).
+* Several open source code libraries and fonts are used. For full details see https://delphidabbler.github.io/credits#3rdparty
