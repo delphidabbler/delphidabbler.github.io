@@ -41,10 +41,35 @@ ul.wide li {
 a[href^="http"]::after {
   font-family: "FontAwesome";
   margin-left: 4px;
-  content:"\f08e";
+  content: "\f08e";
   font-size: 70%;
-
 }
+
+// Prepends an appropriate glyph to messages in alert boxes when .glyph class included.
+// Custom
+.glyph {
+  &.alert { 
+    &.alert-info::before,
+    &.alert-success::before,
+    &.alert-warning::before,
+    &.alert-danger::before {
+      font-family: "FontAwesome";
+      margin-right: 0.25em;
+    }
+    &.alert-info::before {
+      content: "\f05a";
+    }
+    &.alert-success::before {
+      content: "\f058";
+    }
+    &.alert-warning::before {
+      content: "\f024";
+    }
+    &.alert-danger::before {
+      content: "\f071";
+    }
+  }
+} 
 
 // Extra style for Font Awesome to pad glyphs on right
 // Any class whose name begins with fa-x provides additional classes for use
