@@ -1,0 +1,38 @@
+---
+layout: default
+---
+<!-- BEGIN program page content -->
+
+<div class="sw-page-header">
+  <header>
+    <h1>{{ page.title | escape }}</h1>
+    <p class="strapline">{{ page.precis | escape }}</p>
+    <div class="row">
+      <div class="col-lg-offset-3 col-lg-3 col-sm-offset-2 col-sm-4 col-xs-6">
+        <a href="#" class="btn btn-primary btn-block"><span class="fa fa-download"></span> Download</a>
+      </div>
+      <div class="col-lg-3 col-sm-4 col-xs-6">
+        <a href="#" class="btn btn-primary btn-block"><span class="fa fa-github"></span> <span class="hidden-xs">View On </span>GitHub</a>
+      </div>
+    </div>
+  </header>
+</div>
+
+<table class="sw-meta">
+  <tr>
+    <td><strong>Version:</strong></td>
+    <td>{{ page.version | escape }}</td>
+  </tr>
+  <tr>
+    <td><strong>Released:</strong></td>
+    <td>{{ page.release-date | escape }}</td>
+  </tr>
+  <tr>
+    <td><strong>Operating System:</strong></td>
+    <td>{{ page.os | escape }}</td>
+  </tr>
+</table>
+
+{{ content }}
+
+<!-- END program page content -->
