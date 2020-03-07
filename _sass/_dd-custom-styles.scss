@@ -318,3 +318,35 @@ ul.wide li {
   }
 
 }
+
+// Box used to display software page title and download buttons etc.
+// Custom
+.sw-page-header {
+  @extend .box;
+  @extend .text-center;
+
+  //margin-top: 0;
+  
+  .strapline {
+    font-size: $sw-page-header-strapline-font-size;
+  }
+
+  h1,
+  .h1 {
+    font-size: ceil($font-size-h1 * 0.8);
+  }
+  
+  a {
+    font-size: $font-size-small;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    .strapline {
+      font-size: $sw-page-header-strapline-font-size * 1.3;
+    }
+    h1,
+    .h1 {
+      font-size: ceil($font-size-h1);
+     }
+  }
+}
