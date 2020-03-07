@@ -3,8 +3,6 @@
     MIT License. Copyright (c) 2020 Peter Johnson <gravatar.com/delphidabbler>
 */
 
-//// Basic typography
-
 // Remove top margin of 1st child element of <main id="content">
 main#content > *:first-child {
   margin-top: 0;
@@ -175,7 +173,7 @@ a[href^="http"]::after {
 .navbar-toggle {
   padding-top: 4px;
   padding-bottom: 4px;
-  
+
   .navbar-toggle-caption-text {
     display: none;
   }
@@ -231,7 +229,7 @@ a[href^="http"]::after {
     margin-top: 0;
     margin-bottom: ($line-height-computed ) / 4;
   }
-  
+
   .pagefoot-links,
   .pagefoot-credits  {
     @extend .text-center;
@@ -245,8 +243,10 @@ a[href^="http"]::after {
   }
 }
 
+// Custom panel styling
+// Bootstrap override
 .panel {
-  
+
   .panel-body {
     > *:last-child {
       margin-bottom: 0;
@@ -272,7 +272,6 @@ a[href^="http"]::after {
   }
 }
 
-
 // Jumbotron-like box
 // Custom
 .box {
@@ -294,7 +293,7 @@ a[href^="http"]::after {
   h1 {
     margin-top: 0;
   }
-  
+
   a {
     color: $box-color;
   }
@@ -324,13 +323,13 @@ a[href^="http"]::after {
     .h1 {
       font-size: ceil($font-size-h1 * 1.2);
     }
-    
+
     > .link-boxes {
       .label {
         padding: $box-label-padding * 1.5;
       }
   }
-    
+
   }
 
 }
@@ -342,7 +341,7 @@ a[href^="http"]::after {
   @extend .text-center;
 
   //margin-top: 0;
-  
+
   .strapline {
     font-size: $sw-page-header-strapline-font-size;
   }
@@ -351,7 +350,7 @@ a[href^="http"]::after {
   .h1 {
     font-size: ceil($font-size-h1 * 0.8);
   }
-  
+
   a {
     font-size: $font-size-small;
   }
@@ -364,5 +363,28 @@ a[href^="http"]::after {
     .h1 {
       font-size: ceil($font-size-h1);
      }
+  }
+}
+
+// Stying of div that wraps software meta data
+// Custom
+div.sw-meta, {
+  border: 1px $panel-default-border solid;
+  border-radius: $border-radius-base;
+  margin-bottom: $line-height-computed;
+  table {
+    width: 100%;
+    padding: 0;
+    border-collapse: collapse;
+    td, th {
+      border: none;
+      padding: 4px 10px;
+    }
+    th {
+      text-align: right;
+      width: 10%;
+      border-right: 1px $panel-default-border solid;
+      background-color: $panel-default-heading-bg;
+    }
   }
 }
