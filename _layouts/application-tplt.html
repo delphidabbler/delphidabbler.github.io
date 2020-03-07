@@ -18,20 +18,22 @@ layout: default
   </header>
 </div>
 
-<table class="sw-meta">
+<div class="sw-meta">
+<table>
   <tr>
-    <td><strong>Version:</strong></td>
+    <th>Version</th>
     <td>{{ page.version | escape }}</td>
   </tr>
   <tr>
-    <td><strong>Released:</strong></td>
+    <th>Released</td>
     <td>{{ page.release-date | escape }}</td>
   </tr>
   <tr>
-    <td><strong>Operating System:</strong></td>
+    <th>O/S</td>
     <td>{{ page.os | escape }}</td>
   </tr>
 </table>
+</div>
 
 {{ content }}
 
