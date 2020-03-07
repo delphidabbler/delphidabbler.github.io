@@ -26,10 +26,7 @@ ul.wide li {
 // Custom
 .todo,
 .tochange {
-  background-color: $state-warning-bg;
-  padding: 0 4px;
   &::after {
-    color: $state-warning-text;
     vertical-align: super;
     font-size: 80%;
   }
