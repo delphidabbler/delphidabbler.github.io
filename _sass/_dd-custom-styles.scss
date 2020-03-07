@@ -10,10 +10,26 @@ main#content > *:first-child {
   margin-top: 0;
 }
 
+// Lists with spaced list items
+// Custom
 ol.wide li,
 ul.wide li {
   // margin based on bootstrap's styling of the p tag
   margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
+}
+
+// Class that indicates that a link doesn't lead anywhere yet: use with spans rather than <a>tags.
+// Custom
+.todo {
+  background-color: $state-warning-bg;
+  color: $link-color;
+  padding: 0 4px;
+  &::after {
+    color: $state-warning-text;
+    content: " [TODO]";
+    vertical-align: super;
+    font-size: 80%;
+  }
 }
 
 // Extra style for Font Awesome to pad glyphs on right
