@@ -38,8 +38,18 @@ ul.wide li {
     content: " [TO-CHANGE]";
 }
 
+// Adds an offsite link glyph to links whose hrefs start with http:// or https://
+// Custom
+a[href^="http"]::after {
+  font-family: "FontAwesome";
+  margin-left: 4px;
+  content:"\f08e";
+  font-size: 70%;
+
+}
+
 // Extra style for Font Awesome to pad glyphs on right
-// Any class whose name begins with fa-x provides additional classes for use 
+// Any class whose name begins with fa-x provides additional classes for use
 // with Font Awesome/
 // Custom
 .fa-x-pad-right {
