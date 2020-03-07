@@ -18,11 +18,10 @@ ul.wide li {
   margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
 }
 
-// Class that indicates that a link doesn't lead anywhere yet: use with spans rather than <a>tags.
+// Class that indicates a text placeholder where there is more to do. Use mainly with <span> and <a> tags.
 // Custom
 .todo {
   background-color: $state-warning-bg;
-  color: $link-color;
   padding: 0 4px;
   &::after {
     color: $state-warning-text;
