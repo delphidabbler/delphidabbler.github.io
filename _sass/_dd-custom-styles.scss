@@ -18,17 +18,27 @@ ul.wide li {
   margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
 }
 
-// Class that indicates a text placeholder where there is more to do. Use mainly with <span> and <a> tags.
+// Pair of classes used to mark text or links where something remains to be done.
+// .todo indicates something is incomplete - e.g. a link is required or more content is needed.
+// .tochange indicates someting needs to be changed - e.g. a link needs to change.
+// Use a title attribute to explain what's to be done if necessary
+// Mainly for use with <span> and <a> tags.
 // Custom
-.todo {
+.todo,
+.tochange {
   background-color: $state-warning-bg;
   padding: 0 4px;
   &::after {
     color: $state-warning-text;
-    content: " [TODO]";
     vertical-align: super;
     font-size: 80%;
   }
+}
+.todo::after {
+    content: " [TO-DO]";
+}
+.tochange::after {
+    content: " [TO-CHANGE]";
 }
 
 // Extra style for Font Awesome to pad glyphs on right
