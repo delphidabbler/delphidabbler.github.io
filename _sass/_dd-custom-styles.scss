@@ -82,6 +82,51 @@ a[href^="http"]::after {
   padding-left: 5px;
 }
 
+// Callouts
+// Custom
+.callout {
+  padding: $alert-padding;
+  margin-bottom: $line-height-computed;
+  border: 1px solid $gray-lighter;
+  border-left-width: 5px;
+  border-radius: 3px;
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+  }
+}
+.callout p:last-child {
+  margin-bottom: 0;
+}
+.callout+.callout {
+  margin-top: -5px;
+}
+.callout-danger {
+  border-left-color: $brand-danger;
+  h1, h2, h3, h4, h5, h6 {
+    color: $brand-danger;
+  }
+}
+.callout-warning {
+  border-left-color: $brand-warning;
+  h1, h2, h3, h4, h5, h6 {
+    color: $brand-warning;
+  }
+}
+.callout-info {
+  border-left-color: $brand-info;
+  h1, h2, h3, h4, h5, h6 {
+    color: $brand-info;
+  }
+}
+.callout.pullout,
+.callout.pullout-lg,
+.callout.pullout-sm {
+  margin-top: 0;
+  margin-left: $padding-base-horizontal;
+  padding: ceil($line-height-computed / 2);
+}
+
 // Customise appearance of navbar to match branding
 // Overrides bootstrap class
 .navbar {
