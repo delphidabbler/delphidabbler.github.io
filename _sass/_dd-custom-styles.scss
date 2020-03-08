@@ -37,17 +37,29 @@ ul.wide li {
     content: " [TO-CHANGE]";
 }
 
-// Adds an offsite link glyph to links whose hrefs start with http:// or https://
-// Custom
-a[href^="http"]::after {
-  font-family: $font-family-glyph;
-  margin-left: 4px;
-  content: "\f08e";
-  font-size: 70%;
+// Adds an external link glyph to links whose hrefs start with http:// or 
+// https://
+// If the link is a direct download that does not load another page then you can
+// specify the .direct-dl class replace the external link glyph with a cloud 
+// download glyph.
+//** Custom
+a[href^="http"] {
+  &::after {
+    font-family: $font-family-glyph;
+    margin-left: 4px;
+    content: "\f08e";
+    font-size: 70%;
+  }
+  &.direct-dl::after {
+    content: "\f0ed";
+    font-size: 100%;
+    margin-left: 4px;
+  }
+  
 }
 
 // Prepends an appropriate glyph to messages in alert boxes when .glyph class included.
-// Custom
+//** Custom
 .glyph {
   &.alert { 
     &.alert-info::before,
