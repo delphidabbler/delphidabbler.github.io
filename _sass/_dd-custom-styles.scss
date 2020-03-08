@@ -84,23 +84,25 @@ a[href^="http"]::after {
 }
 
 // Callouts
-// Custom
+//** Custom
 .callout {
-  padding: $alert-padding;
+  padding: floor($alert-padding / 2) $alert-padding;
   margin-bottom: $line-height-computed;
   border: 1px solid $gray-lighter;
   border-left-width: 5px;
   border-radius: 3px;
 
-  h1, h2, h3, h4, h5, h6 {
-    margin-top: 0;
+  *:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
-}
-.callout p:last-child {
-  margin-bottom: 0;
-}
-.callout+.callout {
-  margin-top: -5px;
+  *:first-child {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  & + .callout {
+    margin-top: -5px;
+  }
 }
 .callout-danger {
   border-left-color: $brand-danger;
