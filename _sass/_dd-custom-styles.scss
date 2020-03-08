@@ -4,12 +4,13 @@
 */
 
 // Remove top margin of 1st child element of <main id="content">
+//** Custom
 main#content > *:first-child {
   margin-top: 0;
 }
 
 // Lists with spaced list items
-// Custom
+//** Custom
 ol.wide li,
 ul.wide li {
   // margin based on bootstrap's styling of the p tag
@@ -21,7 +22,7 @@ ul.wide li {
 // .tochange indicates someting needs to be changed - e.g. a link needs to change.
 // Use a title attribute to explain what's to be done if necessary
 // Mainly for use with <span> and <a> tags.
-// Custom
+//** Custom
 .todo,
 .tochange {
   &::after {
@@ -74,7 +75,7 @@ a[href^="http"]::after {
 // Extra style for Font Awesome to pad glyphs on right
 // Any class whose name begins with fa-x provides additional classes for use
 // with Font Awesome/
-// Custom
+//** Custom
 .fa-x-pad-right {
   padding-right: 5px;
 }
@@ -119,6 +120,7 @@ a[href^="http"]::after {
     color: $brand-info;
   }
 }
+/*
 .callout.pullout,
 .callout.pullout-lg,
 .callout.pullout-sm {
@@ -126,9 +128,10 @@ a[href^="http"]::after {
   margin-left: $padding-base-horizontal;
   padding: ceil($line-height-computed / 2);
 }
+*/
 
 // Customise appearance of navbar to match branding
-// Overrides bootstrap class
+//** Overrides bootstrap class
 .navbar {
 //  #gradient > .horizontal($branding-bg-start, $branding-bg-stop, 35%, 100%);
   #gradient > .horizontal {
@@ -154,14 +157,14 @@ a[href^="http"]::after {
 */
 
 // Change background colour of Menu button used on collapsed menu
-// Overrides bootstrap class
+//** Overrides bootstrap class
 .navbar-default .navbar-toggle {
   background-color: $navbar-default-toggle-bg;
   color: $navbar-default-toggle-color;
 }
 
 // Reset page header margins and borders
-// Overrides bootstrap class
+//** Overrides bootstrap class
 .page-header {
   margin: $page-margin-top 0 0 0;
   padding: 0;
@@ -169,7 +172,7 @@ a[href^="http"]::after {
 }
 
 // General strapline
-// Custom
+//** Custom
 .strapline {
   font-family: $branding-strapline-font-family;
   font-style: italic; // MUST be italic, no other style available for this font
@@ -177,7 +180,7 @@ a[href^="http"]::after {
 }
 
 // Styling of logo and strapline etc.
-// Custom
+//** Custom
 .branding {
   display: none;
   @media (min-width: $screen-sm-min) {
@@ -198,8 +201,8 @@ a[href^="http"]::after {
 
 // Sets style of logo on large page header and of brand displayed on collapsed
 // nav bar
-// .brandng > .logo is custom
-// .navbar-brand overrides a bootstrap class
+//** .brandng > .logo is custom
+//** .navbar-brand overrides a bootstrap class
 .branding > .logo,
 .navbar-brand {
   font-family: $branding-logo-font-family;
@@ -218,7 +221,7 @@ a[href^="http"]::after {
 
 // Set size of logo displayed on larger screens (not displayed when menu
 // collapsed)
-// Custom
+//** Custom
 .branding > .logo {
   font-size: $branding-logo-font-size;
 }
@@ -226,6 +229,7 @@ a[href^="http"]::after {
 
 // Shows and hides navbar brand (logo on collapsed menu) and reduces size of
 // logo text on tiny screens
+//** Overrides bootstrap class
 .navbar-brand {
   display: inline;
   font-size: $branding-logo-font-size-xs;
@@ -239,7 +243,7 @@ a[href^="http"]::after {
 
 // Sets padding on navbar "toggle" - used to display menu button. Padding is
 // less on tiny screens
-// Overrides bootstrap class
+//** Overrides bootstrap class
 .navbar-toggle {
   padding-top: 4px;
   padding-bottom: 4px;
@@ -258,7 +262,7 @@ a[href^="http"]::after {
 }
 
 // Sets font size on text of navbar "toggle" - this is the menu button text
-// Custom (.navbar-toggle comes from bootstrap, .navbar-toggle-caption is custom
+//** Custom (.navbar-toggle comes from bootstrap, .navbar-toggle-caption is custom
 .navbar-toggle > .navbar-toggle-caption {
   @extend .text-uppercase;
   font-size: $font-size-small;
@@ -268,7 +272,7 @@ a[href^="http"]::after {
 }
 
 // Styles the strapline that appears below logo on pages with un-collapsed menus
-// Custom
+//** Custom
 .branding > .strapline {
   display: none;
   @extend .strapline;
@@ -283,7 +287,7 @@ a[href^="http"]::after {
 }
 
 // Styles page footer
-// Custom
+//** Custom
 .pagefoot {
   padding: $padding-small-vertical $padding-small-horizontal;
   background-color: $pagefoot-bg;
@@ -313,8 +317,8 @@ a[href^="http"]::after {
   }
 }
 
-// Custom panel styling
-// Bootstrap override
+// Customise panel styling
+//** Bootstrap override
 .panel {
 
   .panel-body {
@@ -343,7 +347,7 @@ a[href^="http"]::after {
 }
 
 // Jumbotron-like box
-// Custom
+//** Custom
 .box {
   background-color: $box-bg;
   color: $box-color;
@@ -405,7 +409,7 @@ a[href^="http"]::after {
 }
 
 // Box used to display software page title and download buttons etc.
-// Custom
+//** Custom
 .sw-page-header {
   @extend .box;
   @extend .text-center;
@@ -437,7 +441,7 @@ a[href^="http"]::after {
 }
 
 // Stying of div that wraps software meta data
-// Custom
+//** Custom
 div.sw-meta, {
   border: 1px $panel-default-border solid;
   border-radius: $border-radius-base;
