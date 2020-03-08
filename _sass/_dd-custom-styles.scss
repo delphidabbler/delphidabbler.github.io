@@ -39,7 +39,7 @@ ul.wide li {
 // Adds an offsite link glyph to links whose hrefs start with http:// or https://
 // Custom
 a[href^="http"]::after {
-  font-family: "FontAwesome";
+  font-family: $font-family-glyph;
   margin-left: 4px;
   content: "\f08e";
   font-size: 70%;
@@ -53,7 +53,7 @@ a[href^="http"]::after {
     &.alert-success::before,
     &.alert-warning::before,
     &.alert-danger::before {
-      font-family: "FontAwesome";
+      font-family: $font-family-glyph;
       margin-right: 0.25em;
     }
     &.alert-info::before {
