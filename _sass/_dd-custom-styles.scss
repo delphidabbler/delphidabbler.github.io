@@ -73,18 +73,41 @@ a[href^="http"] {
       font-family: $font-family-glyph;
       margin-right: 0.25em;
     }
-    &.alert-info::before {
       content: "\f05a";
     }
-    &.alert-success::before {
       content: "\f058";
     }
-    &.alert-warning::before {
       content: "\f024";
     }
-    &.alert-danger::before {
       content: "\f071";
     }
+*/
+  &.alert-info::before,
+  &.alert-success::before,
+  &.alert-warning::before,
+  &.alert-danger::before,
+  &.text-info::before,
+  &.text-success::before,
+  &.text-warning::before,
+  &.text-danger::before {
+    font-family: $font-family-glyph;
+    margin-right: 0.25em;
+  }
+  &.alert-info::before,
+  &.text-info::before {
+    content: "\f05a";
+  }
+  &.alert-success::before,
+  &.text-success::before {
+    content: "\f058";
+  }
+  &.alert-warning::before,
+  &.text-warning::before {
+    content: "\f024";
+  }
+  &.alert-danger::before,
+  &.text-danger::before {
+    content: "\f071";
   }
 } 
 
