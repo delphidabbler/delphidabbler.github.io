@@ -8,9 +8,20 @@ theme: null
 
 exclude: [README.md, LICENSE.md, CHANGELOG.md, Gemfile, Gemfile.lock]
 
+collections:
+  applications:
+    output: true
+    
 defaults:
+  -
+    scope:
+      path: ""
+      type: "applications"
+    values:
+      layout: "application-tplt"
   -
     scope:
       path: ""
     values:
       layout: "default"
+

@@ -3,23 +3,91 @@
     MIT License. Copyright (c) 2020 Peter Johnson <gravatar.com/delphidabbler>
 */
 
-//// Basic typography
-
 // Remove top margin of 1st child element of <main id="content">
+//** Custom
 main#content > *:first-child {
   margin-top: 0;
 }
 
+// Lists with spaced list items
+//** Custom
 ol.wide li,
 ul.wide li {
   // margin based on bootstrap's styling of the p tag
   margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
 }
 
+// Pair of classes used to mark text or links where something remains to be done.
+// .todo indicates something is incomplete - e.g. a link is required or more content is needed.
+// .tochange indicates someting needs to be changed - e.g. a link needs to change.
+// Use a title attribute to explain what's to be done if necessary
+// Mainly for use with <span> and <a> tags.
+//** Custom
+.todo,
+.tochange {
+  &::after {
+    vertical-align: super;
+    font-size: 80%;
+  }
+}
+.todo::after {
+    content: " [TO-DO]";
+}
+.tochange::after {
+    content: " [TO-CHANGE]";
+}
+
+// Adds an external link glyph to links whose hrefs start with http:// or 
+// https://
+// If the link is a direct download that does not load another page then you can
+// specify the .direct-dl class replace the external link glyph with a cloud 
+// download glyph.
+//** Custom
+a[href^="http"] {
+  &::after {
+    font-family: $font-family-glyph;
+    margin-left: 4px;
+    content: "\f08e";
+    font-size: 70%;
+  }
+  &.direct-dl::after {
+    content: "\f0ed";
+    font-size: 100%;
+    margin-left: 4px;
+  }
+  
+}
+
+// Prepends an appropriate glyph to messages in alert boxes when .glyph class included.
+//** Custom
+.glyph {
+  &.alert { 
+    &.alert-info::before,
+    &.alert-success::before,
+    &.alert-warning::before,
+    &.alert-danger::before {
+      font-family: $font-family-glyph;
+      margin-right: 0.25em;
+    }
+    &.alert-info::before {
+      content: "\f05a";
+    }
+    &.alert-success::before {
+      content: "\f058";
+    }
+    &.alert-warning::before {
+      content: "\f024";
+    }
+    &.alert-danger::before {
+      content: "\f071";
+    }
+  }
+} 
+
 // Extra style for Font Awesome to pad glyphs on right
-// Any class whose name begins with fa-x provides additional classes for use 
+// Any class whose name begins with fa-x provides additional classes for use
 // with Font Awesome/
-// Custom
+//** Custom
 .fa-x-pad-right {
   padding-right: 5px;
 }
@@ -27,8 +95,57 @@ ul.wide li {
   padding-left: 5px;
 }
 
+// Callouts
+//** Custom
+.callout {
+  padding: floor($alert-padding / 2) $alert-padding;
+  margin-bottom: $line-height-computed;
+  border: 1px solid $gray-lighter;
+  border-left-width: 5px;
+  border-radius: 3px;
+
+  *:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  *:first-child {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  & + .callout {
+    margin-top: -5px;
+  }
+}
+.callout-danger {
+  border-left-color: $brand-danger;
+  h1, h2, h3, h4, h5, h6 {
+    color: $brand-danger;
+  }
+}
+.callout-warning {
+  border-left-color: $brand-warning;
+  h1, h2, h3, h4, h5, h6 {
+    color: $brand-warning;
+  }
+}
+.callout-info {
+  border-left-color: $brand-info;
+  h1, h2, h3, h4, h5, h6 {
+    color: $brand-info;
+  }
+}
+/*
+.callout.pullout,
+.callout.pullout-lg,
+.callout.pullout-sm {
+  margin-top: 0;
+  margin-left: $padding-base-horizontal;
+  padding: ceil($line-height-computed / 2);
+}
+*/
+
 // Customise appearance of navbar to match branding
-// Overrides bootstrap class
+//** Overrides bootstrap class
 .navbar {
 //  #gradient > .horizontal($branding-bg-start, $branding-bg-stop, 35%, 100%);
   #gradient > .horizontal {
@@ -54,14 +171,14 @@ ul.wide li {
 */
 
 // Change background colour of Menu button used on collapsed menu
-// Overrides bootstrap class
+//** Overrides bootstrap class
 .navbar-default .navbar-toggle {
   background-color: $navbar-default-toggle-bg;
   color: $navbar-default-toggle-color;
 }
 
 // Reset page header margins and borders
-// Overrides bootstrap class
+//** Overrides bootstrap class
 .page-header {
   margin: $page-margin-top 0 0 0;
   padding: 0;
@@ -69,7 +186,7 @@ ul.wide li {
 }
 
 // General strapline
-// Custom
+//** Custom
 .strapline {
   font-family: $branding-strapline-font-family;
   font-style: italic; // MUST be italic, no other style available for this font
@@ -77,7 +194,7 @@ ul.wide li {
 }
 
 // Styling of logo and strapline etc.
-// Custom
+//** Custom
 .branding {
   display: none;
   @media (min-width: $screen-sm-min) {
@@ -98,8 +215,8 @@ ul.wide li {
 
 // Sets style of logo on large page header and of brand displayed on collapsed
 // nav bar
-// .brandng > .logo is custom
-// .navbar-brand overrides a bootstrap class
+//** .brandng > .logo is custom
+//** .navbar-brand overrides a bootstrap class
 .branding > .logo,
 .navbar-brand {
   font-family: $branding-logo-font-family;
@@ -118,7 +235,7 @@ ul.wide li {
 
 // Set size of logo displayed on larger screens (not displayed when menu
 // collapsed)
-// Custom
+//** Custom
 .branding > .logo {
   font-size: $branding-logo-font-size;
 }
@@ -126,6 +243,7 @@ ul.wide li {
 
 // Shows and hides navbar brand (logo on collapsed menu) and reduces size of
 // logo text on tiny screens
+//** Overrides bootstrap class
 .navbar-brand {
   display: inline;
   font-size: $branding-logo-font-size-xs;
@@ -139,11 +257,11 @@ ul.wide li {
 
 // Sets padding on navbar "toggle" - used to display menu button. Padding is
 // less on tiny screens
-// Overrides bootstrap class
+//** Overrides bootstrap class
 .navbar-toggle {
   padding-top: 4px;
   padding-bottom: 4px;
-  
+
   .navbar-toggle-caption-text {
     display: none;
   }
@@ -158,7 +276,7 @@ ul.wide li {
 }
 
 // Sets font size on text of navbar "toggle" - this is the menu button text
-// Custom (.navbar-toggle comes from bootstrap, .navbar-toggle-caption is custom
+//** Custom (.navbar-toggle comes from bootstrap, .navbar-toggle-caption is custom
 .navbar-toggle > .navbar-toggle-caption {
   @extend .text-uppercase;
   font-size: $font-size-small;
@@ -168,7 +286,7 @@ ul.wide li {
 }
 
 // Styles the strapline that appears below logo on pages with un-collapsed menus
-// Custom
+//** Custom
 .branding > .strapline {
   display: none;
   @extend .strapline;
@@ -183,7 +301,7 @@ ul.wide li {
 }
 
 // Styles page footer
-// Custom
+//** Custom
 .pagefoot {
   padding: $padding-small-vertical $padding-small-horizontal;
   background-color: $pagefoot-bg;
@@ -199,7 +317,7 @@ ul.wide li {
     margin-top: 0;
     margin-bottom: ($line-height-computed ) / 4;
   }
-  
+
   .pagefoot-links,
   .pagefoot-credits  {
     @extend .text-center;
@@ -213,8 +331,10 @@ ul.wide li {
   }
 }
 
+// Customise panel styling
+//** Bootstrap override
 .panel {
-  
+
   .panel-body {
     > *:last-child {
       margin-bottom: 0;
@@ -240,9 +360,8 @@ ul.wide li {
   }
 }
 
-
 // Jumbotron-like box
-// Custom
+//** Custom
 .box {
   background-color: $box-bg;
   color: $box-color;
@@ -262,7 +381,7 @@ ul.wide li {
   h1 {
     margin-top: 0;
   }
-  
+
   a {
     color: $box-color;
   }
@@ -292,13 +411,68 @@ ul.wide li {
     .h1 {
       font-size: ceil($font-size-h1 * 1.2);
     }
-    
+
     > .link-boxes {
       .label {
         padding: $box-label-padding * 1.5;
       }
   }
-    
+
   }
 
+}
+
+// Box used to display software page title and download buttons etc.
+//** Custom
+.sw-page-header {
+  @extend .box;
+  @extend .text-center;
+
+  //margin-top: 0;
+
+  .strapline {
+    font-size: $sw-page-header-strapline-font-size;
+  }
+
+  h1,
+  .h1 {
+    font-size: ceil($font-size-h1 * 0.8);
+  }
+
+  a {
+    font-size: $font-size-small;
+  }
+
+  @media screen and (min-width: $screen-sm-min) {
+    .strapline {
+      font-size: $sw-page-header-strapline-font-size * 1.3;
+    }
+    h1,
+    .h1 {
+      font-size: ceil($font-size-h1);
+     }
+  }
+}
+
+// Stying of div that wraps software meta data
+//** Custom
+div.sw-meta, {
+  border: 1px $panel-default-border solid;
+  border-radius: $border-radius-base;
+  margin-bottom: $line-height-computed;
+  table {
+    width: 100%;
+    padding: 0;
+    border-collapse: collapse;
+    td, th {
+      border: none;
+      padding: 4px 10px;
+    }
+    th {
+      text-align: right;
+      width: 10%;
+      border-right: 1px $panel-default-border solid;
+      background-color: $panel-default-heading-bg;
+    }
+  }
 }

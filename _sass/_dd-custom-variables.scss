@@ -37,3 +37,7 @@ $box-margin-top: ceil($line-height-computed / 1.25);
 $box-font-size: ceil(($font-size-base * 1.2));
 $box-strapline-font-size: $box-font-size;
 $box-label-padding: 6px;
+
+$sw-page-header-strapline-font-size: $font-size-base;
+
+$font-family-glyph: "FontAwesome";

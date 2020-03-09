@@ -1,0 +1,113 @@
+---
+id: vibindata
+priority: 9
+version: "1.0.5"
+os: "Windows 2000 & later"
+release-date: "2007/08/26"
+title: "Version Information Manipulator Library"
+precis: "A DLL for manipulating binary version information"
+summary: "A DLL that can access, manipulate and update binary version information data."
+download-base-url: "https://github.com/delphidabbler/vilib/releases/tag/v"
+repo-url: "https://github.com/delphidabbler/vilib"
+want-header-buttons: true
+mothballed: false
+---
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The Version Information Manipulator Library is a DLL that can be used to access and manipulate binary version information from executable and binary resource files and to update and write version information to binary resource files.
+    </p>
+    <p>
+      The advantage of using this library over the Windows API for reading version information is that the library can cope with badly formed version information that would defeat the API routines. Furthermore the library can enumerate the contents of string tables and list and access non-standard string table entries. It also works with string tables in multiple languages (aka translations).
+    </p>
+    <p>
+      The library's advantage in writing version information resources is that it can generate binary streams suitable for writing to binary resource files. This removes the need to create <code>.rc</code> files and, consequently, the need to use a resource compiler.
+    </p>
+    <p>
+      A detailed user guide, setting out the DLL's programming interface,  downloaded from the <em>Documentation</em> section below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      Each release gives the option of downloading either the DLL's executable code or the source code. Your options are:
+    </p>
+    <ul>
+      <li>
+        Choose <code>vilib-exe-{{page.version}}.zip</code> to download a zip file containing the DLL and documentation. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.txt</code> file explains how to install the DLL.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a gzip-ped tarball.
+      </li>
+    </ul>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The following documentation is available. All of it opens on GitHub.
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/master/Docs/ReadMe.txt">Read Me<span class="sr-only"> (text file)</span></a> &ndash; contains details of how to install the DLL along with other information.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/master/Docs/License.txt">License<span class="sr-only"> (text file)</span></a> &ndash; the DLL's end user license.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/master/Docs/ChangeLog.txt">Change Log<span class="sr-only"> (text file)</span></a> &ndash; lists significant changes made in each DLL release.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/develop/Docs/ReadMe-Src.txt">Build File<span class="sr-only"> (text file)</span></a> &ndash; provides information on how to build the DLL from source.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-pdf-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/vilib/blob/develop/Docs/UserGuide.pdf">User Guide<span class="sr-only"> (PDF file)</span></a> &ndash; provides detailed information on how to use the DLL.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Bugs &amp; Feature Requests
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can report bugs or suggest new features using the <em>{{ page.title }}</em> <a href="https://github.com/delphidabbler/vilib/issues" class="offsite">issue tracker</a> on GitHub.
+    </p>
+    <p>
+      Please review existing bug reports and feature requests before creating a
+      new issue. If an issue already exists you may be able to help by adding a
+      further comment.
+    </p>
+    <p class="alert alert-warning glyph">
+      You will need a GitHub account if you want to create or edit an issue.
+    </p>
+  </div>
+</section>
