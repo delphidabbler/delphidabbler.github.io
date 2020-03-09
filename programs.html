@@ -53,7 +53,7 @@ title: Applications
         </header>
         <div class="panel-body">
           <p>{{ program.summary | escape }}</p>
-          {% if program.mothballed %}<p class="alert alert-warning small" role="alert"><span class="fa fa-flag fa-lg fa-x-pad-right" aria-hidden="true"></span><span class="sr-only">Note</span> This program is mothballed. It is being neither developed nor supported.</p>{% endif %}
+          {% if program.mothballed %}<p class="alert alert-warning small glyph" role="alert"><span class="sr-only">Note</span> This program is mothballed. It is being neither developed nor supported.</p>{% endif %}
         </div>
         <div class="panel-footer text-right">
           <a href="{{ program.more-info }}" aria-label="{{ program.title | escape }} page on {{ site.data.core.orig-site-name | escape }}">More info</a>
