@@ -65,7 +65,7 @@ a[href^="http"] {
 // Prepends an appropriate glyph to messages in alert boxes when .glyph class included.
 //** Custom
 .glyph {
-  &.alert { 
+/*
     &.alert-info::before,
     &.alert-success::before,
     &.alert-warning::before,
