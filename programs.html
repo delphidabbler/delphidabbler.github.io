@@ -9,6 +9,38 @@ title: Applications
 
 <p>Each program's page provides links that can be used to download the program and its source code.</p>
 
+{% assign sorted-apps = site.applications | sort: "priority" %}
+{% for program in sorted-apps %}
+{% assign test = forloop.index | modulo: 2 %}
+{% if test <> 0 %}<div class="row">{% endif %}
+  <section role="section" aria-labelledby="{{ program.id | escape }}-head">
+    <div class="col-sm-6">
+      <div class="panel panel-primary">
+        <header class="panel-heading" id="{{ program.id | escape }}-head">
+          <h2>{{ program.title | escape }}</h2>
+        </header>
+        <div class="panel-body">
+          <p>{{ program.summary | escape }}</p>
+          {% if program.mothballed %}<p class="alert alert-warning small" role="alert"><span class="fa fa-flag fa-lg fa-x-pad-right" aria-hidden="true"></span><span class="sr-only">Note</span> This program is mothballed. It is being neither developed nor supported.</p>{% endif %}
+        </div>
+        <div class="panel-footer text-right">
+          <a href="{{ program.url }}" aria-label="{{ program.title | escape }} page on {{ site.data.core.orig-site-name | escape }}">More info</a>
+        </div>
+      </div>
+    </div>
+  </section>
+{% if test == 0 or forloop.last %}
+</div> <!-- ./row -->
+<!-- Clear the lg cols if their content doesn't match in height -->
+<div class="clearfix visible-sm-block" role="presentation"></div>
+{% endif %}
+{%endfor %}
+
+<!-- TEMPORARY: Now loop through collection in _data/programs
+     Following code will eventually be removed when each program has its own
+     page.
+-->
+
 {% assign supported-programs = site.data.programs %}
 {% for program in supported-programs %}
 {% assign test = forloop.index | modulo: 2 %}
@@ -35,4 +67,4 @@ title: Applications
 <div class="clearfix visible-sm-block" role="presentation"></div>
 {% endif %}
 {%endfor %}
-
+<!-- END TEMPORARY section -->
