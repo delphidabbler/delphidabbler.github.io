@@ -30,7 +30,7 @@ layout: default
     <th>Released</td>
     <td>{{ page.release-date | date_to_string }}</td>
   </tr>
-  {% if page.os %}
+  {% if page.os != "" %}
   <tr>
     <th>O/S</td>
     <td>{{ page.os | escape }}</td>
