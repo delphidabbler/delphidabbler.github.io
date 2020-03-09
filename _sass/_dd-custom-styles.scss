@@ -9,12 +9,43 @@ main#content > *:first-child {
   margin-top: 0;
 }
 
+// Lists
+//** Bootstrap override
+ol,
+ul {
+  margin-left: $list-indent;
+  padding-left: 0;
+  
+  li {
+    padding-left: $list-item-offset;
+  }
+  ol,
+  ul {
+    margin-left: $list-item-offset;
+  }
+  &.wide li {
+    // margin based on bootstrap's styling of the p tag
+    margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
+  }
+  &.list-group {
+    margin-left: 0;
+  }
+}
 // Lists with spaced list items
 //** Custom
-ol.wide li,
-ul.wide li {
-  // margin based on bootstrap's styling of the p tag
-  margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
+
+// Definition lists
+//** Bootstrap override
+dl {
+  margin-left: $dl-indent;
+  dt {
+    margin-top: ($line-height-computed / 2);
+  }
+  dd {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: $dd-indent;
+  }
 }
 
 // Pair of classes used to mark text or links where something remains to be done.
