@@ -7,14 +7,16 @@ layout: default
   <header>
     <h1>{{ page.title | escape }}</h1>
     <p class="strapline">{{ page.precis | escape }}</p>
+    {% if page.want-header-buttons %}
     <div class="row">
       <div class="col-lg-offset-3 col-lg-3 col-sm-offset-2 col-sm-4 col-xs-6">
-        <a href="#" class="btn btn-primary btn-block"><span class="fa fa-download"></span> Download</a>
+        <a href="{{ page.download-base-url }}{{ page.version }}" class="btn btn-primary btn-block"><span class="fa fa-download fa-x-pad-right"></span> Download<span class="hidden-xs"> v{{ page.version }}</span></a>
       </div>
       <div class="col-lg-3 col-sm-4 col-xs-6">
-        <a href="#" class="btn btn-primary btn-block"><span class="fa fa-github"></span> <span class="hidden-xs">View On </span>GitHub</a>
+        <a href="{{ page.repo-url }}" aria-label="View on GitHub" class="btn btn-primary btn-block"><span class="fa fa-github fa-x-pad-right"></span><span class="hidden-xs">View On </span>GitHub</a>
       </div>
     </div>
+    {% endif %}
   </header>
 </div>
 
