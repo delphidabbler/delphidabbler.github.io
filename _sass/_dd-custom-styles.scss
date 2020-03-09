@@ -55,7 +55,11 @@ a[href^="http"] {
     font-size: 100%;
     margin-left: 4px;
   }
-  
+  &.btn::after,
+  &.label::after,
+  &.no-external-glyph::after {
+    content: "";
+  }
 }
 
 // Prepends an appropriate glyph to messages in alert boxes when .glyph class included.
