@@ -9,16 +9,16 @@ theme: null
 exclude: [README.md, LICENSE.md, CHANGELOG.md, Gemfile, Gemfile.lock]
 
 collections:
-  applications:
+  software:
     output: true
     
 defaults:
   -
     scope:
       path: ""
-      type: "applications"
+      type: "software"
     values:
-      layout: "application-tplt"
+      layout: "software-tplt"
   -
     scope:
       path: ""
