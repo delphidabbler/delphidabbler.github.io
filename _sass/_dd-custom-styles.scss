@@ -38,6 +38,7 @@ ul {
 //** Bootstrap override
 dl {
   margin-left: $dl-indent;
+  margin-bottom: ($line-height-computed / 2);
   dt {
     margin-top: ($line-height-computed / 2);
   }
