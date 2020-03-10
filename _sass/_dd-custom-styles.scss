@@ -15,7 +15,7 @@ ol,
 ul {
   margin-left: $list-indent;
   padding-left: 0;
-  
+
   li {
     padding-left: $list-item-offset;
   }
@@ -46,6 +46,13 @@ dl {
     margin-bottom: 0;
     margin-left: $dd-indent;
   }
+}
+
+// Class that can be applied to <pre> tags to make them appear similar to <kbd> tags
+//** Custom
+pre.kbd {
+  color: $kbd-color;
+  background-color: $kbd-bg;
 }
 
 // Pair of classes used to mark text or links where something remains to be done.
