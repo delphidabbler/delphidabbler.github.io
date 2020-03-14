@@ -99,6 +99,12 @@ h3.collapsible {
     content: " [TO-CHANGE]";
 }
 
+// Additional typography: extends typographic classes exposed by Bootstrap
+//** Custom
+.text-smallcaps {
+  font-variant: small-caps;
+}
+
 // Adds an external link glyph to links whose hrefs start with http:// or 
 // https://
 // If the link is a direct download that does not load another page then you can
