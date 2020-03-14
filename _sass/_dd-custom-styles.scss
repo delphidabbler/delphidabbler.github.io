@@ -49,6 +49,13 @@ dl {
   }
 }
 
+// Scalable images
+//** Custom
+img.scale {
+  max-width: 100%;
+  object-fit: fit;
+}
+
 // Class that can be applied to <pre> tags to make them appear similar to <kbd> tags
 //** Custom
 pre.kbd {
