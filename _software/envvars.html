@@ -1,0 +1,243 @@
+---
+dl-file-prefix: "dd-envvars-"
+layout: "codelib-tplt"
+group: lib
+priority: 9
+version: "3.0.0"
+release-date: "2014-01-30"
+platforms: ["Win32", "Win64"]
+frameworks: ["VCL", "FMX"]
+compatibility: "Delphi 7 & later"
+title: "Environment Variables Unit"
+precis: "Code to help manage and access environment variables"
+summary: "Source code of a unit containing a component and routines to help manage and access environment variables."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/envvars/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/envvars/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This unit provides a static class for reading and modifying the environment variables available to the current process, along with a class that can be used to enumerate environment variable names.
+    </p>
+    <p class="alert alert-info glyph">
+      The unit also contains a component and a set of routines that duplicate some of the features provided by the static class. These are now <strong>deprecated</strong> and are provided for backward compatibility reasons only: they should no longer be used in new code.
+    </p>
+    <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
+      Features
+    </h3>
+    <div id="features" class="collapse"> <!-- begin collapsible #features section -->
+      <p>
+        The static class has methods to:
+      </p>
+      <ul>
+        <li>
+          Read, write and delete environment variables.
+        </li>
+        <li>
+          Query whether an environment variable exists.
+        </li>
+        <li>
+          Get the number of environment variables in the environment block along with the size of the block.
+        </li>
+        <li>
+          List and enumerate the names, or names and value, of all environment variables in the environment block.
+        </li>
+        <li>
+          Create a new environment block suitable for passing to a child process.
+        </li>
+      </ul>
+      <p>
+        There is also an enumerator class the provides an alternative way to enumerate environment variable names.
+      </p>
+    </div> <!-- /#features -->
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        Two different demo programs are included in the <code>Demos\1</code> and <code>Demos\2</code> sub-directories. There are VCL and FireMonkey 2 versions of each demo.
+      </p>
+      <p>
+        The demo programs are documented in the file <code>DemosReadMe.htm</code> that can be found in the <code>Demos</code> directory.
+      </p>
+    </div> <!-- /#demo -->
+    <h3 data-toggle="collapse" data-target="#how-it-works" class="collapsible collapsed">
+      How the components work
+    </h3>
+    <div id="how-it-works" class="collapse"> <!-- begin collapsible #how-it-works section -->
+      <p>
+        This unit uses ideas from my article &quot;<span class="tochange" title="Change link once articles moved to this site"><a href="http://delphidabbler.com/articles?article=6">How to access environment variables</a>,/span>&quot;. The article shows how to develop routines similar to some of those in this unit and discusses their operation.
+      </p>
+    </div> <!-- /#how-it-works -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a
+        class="btn btn-primary"
+        role="button"
+        href="{{ dl-url }}"
+        aria-label="Go to SourceForge and download latest version automatically"
+      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/envvars/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The code is developed in the <code><a
+        href="{{ page.repo-url }}"
+        aria-title="Go to the envvars project in the Subversion repo"
+      >trunk/projects/envvars</a></code> branch of the repository.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/envvars codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Environment Variables Unit</em> is supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJEnvVars.pas</code></strong> &ndash; the <em>Environment Variables Unit</em> contains all source code, including the deprecated component, but excluding the component registration code.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJEnvVars.dcr</code></strong> &ndash; component palette
+        glyph for the deprecated component.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJEnvVarsDsgn.pas</code></strong> &ndash; registration code for the deprecated component.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; project change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the source code for various demo projects in the <code>Demos</code> directory.
+    </p>
+    <p>
+      There are three possible ways to use the unit:
+    </p>
+    <ol>
+      <li>
+        The simplest way is the add a copy of <code>PJEnvVas.pas</code> to your projects whenever the unit is needed.
+      </li>
+      <li>
+        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder containing the unit to the Delphi Search path. You then simply use the unit as required without needing to add it to your project.
+      </li>
+      <li>
+        For maximum portability you can add <code>PJEnvVars.pas</code> to a Delphi package.
+      </li>
+    </ol>
+    <p class="alert alert-warning glyph">
+      None of the above methods will install the deprecated component into the Delphi IDE. To do this you need to add <code>PJEnvVars.pas</code>, <code>PJEnvVars.dcr</code> and <code>PJEnvVarsDsgn.pas</code> should be added to a design time package. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Environment Variables Unit</em> is comprehensively documented online
+      <a href="http://wiki.delphidabbler.com/index.php/Docs/EnvVars" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/envvars/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>envvars</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the components please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/EnvVars">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
+      The <em>Environment Variables Unit</em> is open source. They are copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

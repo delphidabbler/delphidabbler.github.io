@@ -1,0 +1,314 @@
+---
+dl-file-prefix: "dd-wdwstate-"
+layout: "codelib-tplt"
+# id: wdwstate - id gets overridden by system with name of collection
+group: lib
+priority: 2
+version: "5.6.1"
+release-date: "2014/10/28"
+platforms: ["Win32", "Win64"]
+frameworks: ["VCL"]
+compatibility: "Delphi 5 and later"
+title: "Window State Components"
+precis: "Components that save and restore window size, location & state"
+summary: "Three components that save and restore window size, state and position using either, ini files, the registry or user-defined storage."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/wdwstate/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/wdwstate/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The window state components can save and restore a window's size, position and state (minimized, maximized or normal) between program executions. Three components are provided that use different means of storing the information. They are:
+    </p>
+    <dl>
+      <dt id="TPJWdwState">
+        TPJWdwState
+      </dt>
+      <dd>
+        <p>
+          Records window information in an ini file. The user has control over the ini file name (via the <var>IniFileName</var> property) and the name of the section of the ini file where window information is recorded (using the <var>Section</var> property). Alternatively the ini file and section names can be configured by handling the <var>OnGetIniData</var> event that is triggered immediately before the ini file is read or written.
+        </p>
+      </dd>
+      <dt id="TPJRegWdwState">
+        TPJRegWdwState
+      </dt>
+      <dd>
+        <p>
+          Uses the registry to record window information. The registry root key and sub key where the information is stored are controlled by the <var>RootKey(Ex)</var> and <var>SubKey</var> properties, or by handling the <var>OnGetRegData(Ex)</var> event. This event is triggered just before the registry is accessed. Additional application defined data can be read from or written to the registry by handling the <var>OnGettingRegData</var> and <var>OnPuttingRegData</var> events that are triggered after the component reads or writes the registry.
+        </p>
+        <p class="alert alert-warning glyph">
+          You are discouraged from using <var>TPJRegWdwState</var> for programs compiled with Delphi 5 and earlier that may be run on 64 bit Windows, because the component may not be able to access the 64 bit registry view correctly and window state may be lost.
+        </p>
+      </dd>
+      <dt id="TPJUserWdwState">
+        TPJUserWdwState
+      </dt>
+      <dd>
+        <p>
+        When using this component the user must handle saving and reading the window state data to or from persistent storage. The component gives the most flexibility of all the components at the expense of placing the storage burden on the user. The component triggers <var>OnReadData</var> and <var>OnSaveData</var> events when it is ready to read or save data.
+        </p>
+      </dd>
+    </dl>
+    <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
+      Features
+    </h3>
+    <div id="features" class="collapse"> <!-- begin collapsible #features section -->
+      <p>
+        All components implement the same functionality, controlled by some common properties and events, as follows:
+      </p>
+      <ul class="wide">
+        <li>
+          The components can automatically restore and save windows when the program starts up and closes down (using the <var>AutoSaveRestore</var> property). If <var>AutoSaveRestore</var> is set to False then the <var>Restore</var> and <var>Save</var> methods must be called from the host application.
+        </li>
+        <li>
+          The <var>Options</var> property can be used to customise the way the window is restored:
+          <ul class="wide">
+            <li>
+              The components can be instructed to ignore the saved window state &ndash; the window is then displayed in the normal state.
+            </li>
+            <li>
+              The window's saved size can be ignored and the default size of the form used instead. This is useful for dialog boxes and fixed size windows.
+            </li>
+            <li>
+              The window can be kept within the current work area of the desktop. If this option is used the window also appears on the correct monitor on multi-monitor systems. If the form containing the window state component is a MDI child form this option keeps the window within the parent form's client area, after allowing for any menu, toolbars or status bar etc.
+            </li>
+          </ul>
+        </li>
+        <li>
+          When the form is to be restored in a minimized state it briefly appears on screen in the normal state before being minimized. The <var>MinimizeDelay</var> property controls the delay between the window appearing and being minimized.
+        </li>
+      </ul>
+      <p>
+        <var>TPJWdwState</var> and <var>TPJRegWdwState</var> also support the <var>OnReadWdwState</var> event. Handling this event enables the stored window's state, size and position values to be changed before the window is restored. This event is called after reading the data and before sizing the window. <var>TPJUserWdwState</var> does not expose this event because the user is in charge of reading the data and can modify it in the <var>OnReadData</var> event.
+      </p>
+      <p>
+        All the components derive from an abstract base class named <var>TPJCustomWdwState</var>. This class provides the core window handling and sizing functionality. It provides abstract methods for accessing the required storage medium. Therefore it is quite straightforward to create further components that use alternative storage systems. All that needs to be provided are methods to read/write the window information along with any additional properties that are required to configure the storage medium.
+      </p>
+    </div> <!-- /#features -->
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        There are four demo projects included with these components. They are:
+      </p>
+
+      <ol class="wide">
+        <li>
+          <code>StandardDemo.dpr</code> &ndash; Demonstrates how to use the components in the standard way, i.e.  dropped on a form from the component palette. This demo uses <var>TPJRegWdwState</var>.
+        </li>
+        <li>
+          <code>StandAloneDemo.dpr</code> &ndash; Demonstrates how to create and use the components dynamically using the <var>CreateStandAlone</var> constructor. This demo uses <var>TPJWdwState</var>.
+        </li>
+        <li>
+          <code>UserDemo.dpr</code> &ndash; Demonstrates how to use <var>TPJUserWdwState</var> and load and save
+          data in the <var>OnReadData</var> and <var>OnSaveData</var> events.
+        </li>
+        <li>
+          <code>MDIDemo.dpr</code> &ndash; Demonstrates the use of <var>TPJWdwState</var> with MDI applications.
+        </li>
+      </ol>
+    </div> <!-- /#demo -->
+    <h3 data-toggle="collapse" data-target="#how-it-works" class="collapsible collapsed">
+      How the components work
+    </h3>
+    <div id="how-it-works" class="collapse"> <!-- begin collapsible #how-it-works section -->
+      <p>
+        The underlying principle used in the code is described in the article <span class="tochange" title="Change link once articles moved to this site">&quot;<a href="http://delphidabbler.com/articles?article=4">How to remember a window's size, state and position</a>&quot;.</span>
+      </p>
+      <p>
+        We can't rely on Delphi's own <var>Width</var> and <var>Height</var> properties for recording window size, since these do not maintain size of the normalised window size when the window is maximized. Instead we have to use the <var>GetWindowPlacement</var> and <var>SetWindowPlacement</var> Windows API calls.
+      </p>
+      <p>
+        Finding the right time to restore a window on application startup has proved problematic. It is not possible to call the <var>Restore</var> method before the form's window handle has been created. We therefore need to delay any such restoration until the form has been shown. A hook class is used to peek at the Windows messages sent to the parent form. This class forwards relevant messages to the component.
+      </p>
+      <p class="alert alert-info glyph">
+        One side effect of this complexity is that you can't create instances of the components at run time using the standard constructor. The code is not initialised properly unless the component is added to a form at design time. A special constructor &ndash; <var>CreateStandAlone</var> &ndash; has been provided that makes dynamic construction possible.
+      </p>
+    </div> <!-- /#how-it-works -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a
+        class="btn btn-primary"
+        role="button"
+        href="{{ dl-url }}"
+        aria-label="Go to SourceForge and download latest version automatically"
+      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/wdwstate/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The code is developed in the <code><a
+        href="{{ page.repo-url }}"
+        aria-title="Goto the wdwstate project in the Subversion repo"
+      >trunk/projects/wdwstate</a></code> branch of the repository.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/wdwstate codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Drop Files Components</em> are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJWdwState.pas</code></strong> &ndash; component source code.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJWdwState.dcr</code></strong> &ndash; resource file containing component palette glyphs.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; the project's change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+      </li>
+      <li class="list-group-item">
+        <code>PJWdwState.hlp</code> &ndash; component help file that integrates with the Delphi 4 to 7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+      </li>
+      <li class="list-group-item">
+        <code>PJWdwState.als</code> &ndash; a-link keyword file for integration
+        with the Delphi 6 or 7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the the source code of four demo projects along with readme files in the <code>Demos</code> directory and its <code>1</code>, <code>2</code>, <code>3</code> and <code>4</code> sub-directories. Read <code>DemoReadMe.htm</code> for details of the demos. Although the components are known to compile with Delphi 5 and later, the demos require Delphi 7 as a minimum.
+    </p>
+    <p>
+      You can now install the components into the Delphi IDE. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Window State Components</em> are comprehensively documented online
+      <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/WindowStateComponents.md" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/wdwstate/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+    <div class="alert alert-info">
+      <p>
+        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <span class="tochange" title="change URL once articles have been brought over"><a href="http://delphidabbler.com/articles?article=15">this article</a></span> explains how to do it.
+      </p>
+      <p class="alert alert-warning glyph">
+        This help file is deprecated and is no longer being updated. The last update was in the v5.4.1 release.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>wdwstate</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/WindowStateComponents.md">documentation</a> and/or <span class="tochange" title="Need to move FAQ over to GitHub"><a href="http://wiki.delphidabbler.com/index.php/FAQs/WindowStateComponents">FAQ</a></span>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
+      The <em>Window State Components</em> are open source. They are copyright &copy; 1999-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+    <p>
+      The following people contributed to the project:
+      <ul>
+        <li>
+          Stefan Winter
+        </li>
+        <li>
+          Enrico Bortolazzi
+        </li>
+        <li>
+          Bruce J Miller
+        </li>
+        <li>
+          Craig Symons
+        </li>
+      </ul>
+    </p>
+  </div>
+</section>

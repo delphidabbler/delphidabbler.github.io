@@ -1,0 +1,55 @@
+---
+layout: default
+---
+{% assign dl-url = page.download-base-url | append: page.dl-file-prefix | append: page.version | append: ".zip" %}
+<!-- BEGIN code library page content -->
+<div class="sw-page-header">
+  <header>
+    <h1>{{ page.title | escape }}</h1>
+    <p class="strapline">{{ page.precis | escape }}</p>
+    {% if page.want-header-buttons %}
+    <div class="text-center">
+      <a
+        href="{{ dl-url }}"
+        class="btn btn-primary"
+        aria-label="Go to SourceForge and download latest version automatically"
+        title="Go to SourceForge and download latest version automatically"
+      ><span 
+        class="fa fa-download fa-x-pad-right" 
+        aria-hidden="true">
+      </span> Download v{{ page.version }}</a>
+    </div>
+    {% endif %}
+  </header>
+</div>
+
+<div class="sw-meta">
+  <table>
+    <tr>
+      <th>Version</th>
+      <td>{{ page.version | escape }}</td>
+    </tr>
+    <tr>
+      <th>Released</td>
+      <td>{{ page.release-date | date_to_string }}</td>
+    </tr>
+    <tr>
+      <th>Platforms</th>
+      <td>{{ page.platforms | join: " & " | escape }}</td>
+    </tr>
+    <tr>
+      <th>Framework</th>
+      <td>{{ page.frameworks | join: " & " | escape }}</td>
+      </td>
+    </tr>
+    <tr>
+      <th>Compatibilty</th>
+      <td>{{ page.compatibility | escape }}</td>
+      </td>
+    </tr>
+  </table>
+</div>
+
+{{ content }}
+
+<!-- END code library page content -->

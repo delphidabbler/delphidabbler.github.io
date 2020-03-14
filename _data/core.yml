@@ -41,6 +41,12 @@ github-link-title: "DelphiDabbler GitHub account"
 sourceforge-url: "https://sourceforge.net/u/delphidabbler/profile/"
 sourceforge-link-title: "DelphiDabbler SourceForge account"
 
+sourceforge-ddlib-project-url: "https://sourceforge.net/projects/ddablib/"
+sourceforge-ddlib-project-link-title: "D Dab Lib project page on SourceForge"
+
+sourceforge-ddlib-repo-url: "https://sourceforge.net/p/ddablib/code/HEAD/tree/"
+sourceforge-ddlib-repo-link-title: "D Dab Lib project repo on SourceForge"
+
 dd-blog-url: "http://delphidabbler.blogspot.com/"
 dd-blog-link-title: "DelphiDabbler Blog on Blogspot"
 

@@ -9,12 +9,74 @@ main#content > *:first-child {
   margin-top: 0;
 }
 
+// Lists
+//** Bootstrap override
+ol,
+ul {
+  margin-left: $list-indent;
+  padding-left: 0;
+
+  li {
+    padding-left: $list-item-offset;
+  }
+  ol,
+  ul {
+    margin-left: $list-item-offset;
+  }
+  &.wide li {
+    // margin based on bootstrap's styling of the p tag
+    margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
+  }
+  &.list-group {
+    margin-left: 0;
+  }
+}
 // Lists with spaced list items
 //** Custom
-ol.wide li,
-ul.wide li {
-  // margin based on bootstrap's styling of the p tag
-  margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
+
+// Definition lists
+//** Bootstrap override
+dl {
+  margin-left: $dl-indent;
+  margin-bottom: ($line-height-computed / 2);
+  dt {
+    margin-top: ($line-height-computed / 2);
+  }
+  dd {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: $dd-indent;
+  }
+}
+
+// Scalable images
+//** Custom
+img.scale {
+  max-width: 100%;
+  object-fit: fit;
+}
+
+// Class that can be applied to <pre> tags to make them appear similar to <kbd> tags
+//** Custom
+pre.kbd {
+  color: $kbd-color;
+  background-color: $kbd-bg;
+}
+
+// Styling for a collapsible <h3> tag: displays + when closed and - when open
+//** Custom
+h3.collapsible {
+  cursor: pointer;
+  &.collapsed:after {
+    font-family: $font-family-glyph;
+    font-size: 80%;
+    content: "  \f196";
+  }
+  &:after {
+    font-family: $font-family-glyph;
+    font-size: 80%;
+    content: "  \f147";
+  }
 }
 
 // Pair of classes used to mark text or links where something remains to be done.
@@ -35,6 +97,12 @@ ul.wide li {
 }
 .tochange::after {
     content: " [TO-CHANGE]";
+}
+
+// Additional typography: extends typographic classes exposed by Bootstrap
+//** Custom
+.text-smallcaps {
+  font-variant: small-caps;
 }
 
 // Adds an external link glyph to links whose hrefs start with http:// or 
@@ -65,7 +133,7 @@ a[href^="http"] {
 // Prepends an appropriate glyph to messages in alert boxes when .glyph class included.
 //** Custom
 .glyph {
-  &.alert { 
+/*
     &.alert-info::before,
     &.alert-success::before,
     &.alert-warning::before,
@@ -73,18 +141,41 @@ a[href^="http"] {
       font-family: $font-family-glyph;
       margin-right: 0.25em;
     }
-    &.alert-info::before {
       content: "\f05a";
     }
-    &.alert-success::before {
       content: "\f058";
     }
-    &.alert-warning::before {
       content: "\f024";
     }
-    &.alert-danger::before {
       content: "\f071";
     }
+*/
+  &.alert-info::before,
+  &.alert-success::before,
+  &.alert-warning::before,
+  &.alert-danger::before,
+  &.text-info::before,
+  &.text-success::before,
+  &.text-warning::before,
+  &.text-danger::before {
+    font-family: $font-family-glyph;
+    margin-right: 0.25em;
+  }
+  &.alert-info::before,
+  &.text-info::before {
+    content: "\f05a";
+  }
+  &.alert-success::before,
+  &.text-success::before {
+    content: "\f058";
+  }
+  &.alert-warning::before,
+  &.text-warning::before {
+    content: "\f024";
+  }
+  &.alert-danger::before,
+  &.text-danger::before {
+    content: "\f071";
   }
 } 
 
@@ -110,11 +201,9 @@ a[href^="http"] {
 
   *:last-child {
     margin-bottom: 0;
-    padding-bottom: 0;
   }
   *:first-child {
     margin-top: 0;
-    padding-top: 0;
   }
   & + .callout {
     margin-top: -5px;

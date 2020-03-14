@@ -1,0 +1,278 @@
+---
+dl-file-prefix: "dd-sysinfo-"
+layout: "codelib-tplt"
+group: lib
+priority: 11
+version: "5.3.0"
+release-date: "2016/09/12"
+platforms: ["Win32", "Win64"]
+frameworks: ["RTL"]
+compatibility: "Delpi 7 & later"
+title: "System Information Unit"
+precis: "Gets information about the host computer and operating system"
+summary: "Source code of a unit containing static classes, constant, type definitions and routines to provide information about the host computer and operating system."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/sysinfo/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/sysinfo/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This unit contains a group of static classes and some global variables that provide information about the user's computer system and operating system. Some useful constants and type definitions are also included. The static classes are:
+    </p>
+    <dl>
+      <dt>
+        TPJComputerInfo
+      </dt>
+      <dd>
+        Provides information about the host computer and current user.
+      </dd>
+      <dt>
+        TPJSystemFolders
+      </dt>
+      <dd>
+        Gets the full path to certain system folders.
+      </dd>
+      <dt>
+        TPJOSInfo
+      </dt>
+      <dd>
+        Supplies information about the operating system information including the platform, product name, product ID code, version and service packs.
+      </dd>
+    </dl>
+    <p>
+      In addition, the unit extends the information provided by the <code>SysUtils</code> unit's <var>Win32xxx</var> variables (such as <var>Win32Platform</var>) by defining further <var>Win32xxx</var> variables that store the extended operating system information available on later NT platform OSs.
+    </p>
+
+    <h3 data-toggle="collapse" data-target="#compat-mode" class="collapsible collapsed text-warning glyph">
+      Compatibility Mode Issues
+    </h3>
+    <div id="compat-mode" class="collapse callout callout-warning"> <!-- begin collapsible #compat-mode section -->
+      <p>
+        With the introduction of Windows 8.1 Microsoft deprecated the <var>GetVersion</var> and <var>GetVersionEx</var> API functions that <var>PJSysInfo</var> uses to get operating system version information. These API functions always return information about the reported operating system, which, when the program is running in compatibility mode, may be different to the true operating system. Furthermore <var>GetVersion</var> will not detect Windows 8.1 correctly in all cases.
+      </p>
+      <p>
+        From version 5 of the unit, to avoid using the deprecated API functions, a different approach is used to obtain version information when running on Windows 8.1 or later. This new method always returns information about the true operating system, regardless of any compatibility mode.
+      </p>
+      <p>
+        These changes mean that some of <var>TPJOSInfo</var>'s methods and some global variables are affected by compatibility mode when run on operating systems prior to Windows 8.1, but will ignore compatibility mode on Windows 8.1 and later.
+      </p>
+      <p>
+        To help decide if compatibility mode will affect the returned information the <var>TPJOSInfo.CanSpoof</var> method was added in v5.0.
+      </p>
+      <p>
+        It is unfortunate that the class's behaviour is no longer consistent across operating systems, but there is no choice if the code is to abide by Microsoft's much criticised decision to deprecate and possibly remove the old API.
+      </p>
+      <p>
+        v5.0 also adds some new methods to <var>TPJOSInfo</var> that can be used to detect operating systems that always ignore compatibility mode &ndash; i.e. they can't be spoofed.
+      </p>
+      <p>
+        In summary, there are several inconsistencies in <var>TPJOSInfo</var> all
+        because of some incomprehensible decisions made by Microsoft. They are:
+      </p>
+      <ul>
+        <li>
+          On OSs up to and including Windows 7 SP 1 the reported operating system can be &quot;spoofed&quot; by setting the host program's compatibility mode. The exception is that the <var>TPJOSInfo.IsReallyWindowsXXXOrGreater</var> methods for Windows 2000 and later will detect the actual operating system.
+        </li>
+        <li>
+          For Windows 8 and 8.1 the reported operating system cannot be spoofed using compatibility modes, and neither does the presence of a suitable manifest file affect the returned values. This also applies to the relevant <var>TPJOSInfo.IsReallyWindowsXXXOrGreater</var> methods.
+        </li>
+        <li>
+          For Windows 10 the reported operating system cannot be spoofed regardless of whether a suitable manifest is compiled into resource. However, in absence of a such a manifest the version will be reported as Windows 8 instead of Windows 10. This also affects <var>TPJOSInfo.IsReallyWindows10OrGreater</var>, meaning it's not so well named any more!
+        </li>
+      </ul>
+      <p>
+        After exploring and testing a lot of options this really is the best solution I can find. Thanks a bundle Microsoft!
+      </p>
+      <p>
+        For the final word on this, see the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/SystemInformationUnit.md">project documentation</a>.
+      </p>
+    </div> <!-- /#compat-mode -->
+
+    <h3 data-toggle="collapse" data-target="#deleted-code" class="collapsible collapsed text-danger glyph">
+      Deleted Code
+    </h3>
+    <div id="deleted-code" class="collapse callout callout-danger"> <!-- begin collapsible #deleted-code section -->
+      <p>
+        Version 2 and earlier of the unit provided the <em>TPJSysInfo</em> component and various <var>SIGetxxx</var> functions. As of v3.0 these were deprecated and included only if a certain symbol was defined. From v4.0 all the deprecated code was removed.
+      </p>
+      <p class="alert alert-danger glyph">
+        If you are still using the deprecated code you must either update your code to use the new classes or to revert to using the last v3.x release.
+      </p>
+    </div> <!-- /#deleted-code -->
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        Two demo projects are included in the download in the <code>Demos\VCL</code> and the <code>Demos\FMX</code> directories. The former compiles to a VCL application while the latter uses the FireMonkey 2 framework and requires Delphi XE3 as a minimum. Both projects can be compiled to either Windows 32 bit or 64 bit targets.
+      </p>
+      <p>
+        Each project contains a tab set where each tab displays the information from one of the classes or the global variables.
+      </p>
+      <p>
+        The VCL demo has been tested with Delphi XE and XE4 but should compile with Delphi 7 (and maybe even Delphi 4) or later, although some unrecognised form properties may need to be ignored. The FireMonkey demo was tested with Delphi XE4.
+      </p>
+    </div> <!-- /#demo -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a
+        class="btn btn-primary"
+        role="button"
+        href="{{ dl-url }}"
+        aria-label="Go to SourceForge and download latest version automatically"
+      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/sysinfo/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The code is developed in the <code><a
+        href="{{ page.repo-url }}"
+        aria-title="Go to the sysinfo project in the Subversion repo"
+      >trunk/projects/sysinfo</a></code> branch of the repository.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/sysinfo codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>System Information Unit</em> is supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJSysInfo.pas</code></strong> &ndash; the source
+        code.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; project change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the source code of two demo projects and their read-me file in the <code>Demos</code> directory.
+    </p>
+    <p>
+      There are three possible ways to use the unit.
+    </p>
+    <ol class="wide">
+      <li>
+        The simplest way is to add <code>PJSysInfo.pas</code> to your projects as you need it.
+      </li>
+      <li>
+        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder where you extracted the unit to the search path. You then simply use the unit as required without needing to add it to your project.
+      </li>
+      <li>
+        For maximum portability you can add the unit to a Delphi package. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>System Information Unit</em> is comprehensively documented online
+      <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/SystemInformationUnit.md" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/sysinfo/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>sysinfo</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/SystemInformationUnit.md">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
+      The <em>System Information Unit</em> is open source. It is copyright &copy; 2001-2016 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

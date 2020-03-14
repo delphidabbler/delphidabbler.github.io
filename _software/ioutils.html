@@ -1,0 +1,212 @@
+---
+dl-file-prefix: "dd-ioutils-"
+layout: "codelib-tplt"
+group: lib
+priority: 14
+version: "1.0.1"
+release-date: "2014-01-11"
+platforms: ["Win32", "Win64"]
+frameworks: ["VCL"]
+compatibility: "Delphi 2005 & later"
+title: "I/O Utility Classes"
+precis: "Classes to assist in various I/O related tasks"
+summary: "Various Delphi Pascal classes designed to assist in various I/O related tasks."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/ioutils/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/ioutils/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      These classes are designed to assist in various I/O related tasks. Classes are provided to:
+    </p>
+
+    <ul class="wide">
+      <li>
+        Simplify the opening of files in various different modes with specified security attributes and to provide access to the file handle.
+      </li>
+      <li>
+        Simplify working with un-named pipes.
+      </li>
+      <li>
+        Handle the formatting of data read from pipes, for example reading Unicode strings.
+      </li>
+    </ul>
+    <p class="alert alert-info glyph">
+      These classes used to be included in the <em><a href="{{ site.base-rule }}/software/consoleapp.html">Console Application Runner Classes</a></em> project to help handle standard I/O redirection but were pulled out into their own project because they have wider uses.
+    </p>
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        There are no demo projects included with the download. However, much of the
+        code is used in some of the demos included with the <a
+          href="{{ site.base-url }}/software/consoleapp.html"
+        >Console Application Runner Classes</a>.
+      </p>
+    </div> <!-- /#demo -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a
+        class="btn btn-primary"
+        role="button"
+        href="{{ dl-url }}"
+        aria-label="Go to SourceForge and download latest version automatically"
+      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/ioutils/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The code is developed in the <code><a
+        href="{{ page.repo-url }}"
+        aria-title="Go to the ioutils project in the Subversion repo"
+      >trunk/projects/ioutils</a></code> branch of the repository.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/ioutils codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>I/O Utility Classes</em> are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJFileHandle.pas</code></strong> &ndash; source code of the class used to open files in various sharing and security modes.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJPipe.pas</code></strong> &ndash; source code of class used to encapsulate un-named pipes.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJPipeFilters.pas</code></strong> &ndash; source code of classes that can be used to filter output from pipes.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; project change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+      </li>
+    </ul>
+    <p>
+      There are three possible ways to use the units.
+    </p>
+    <ol class="wide">
+      <li>
+        The simplest way is to add <code>PJFileHandle.pas</code>, <code>PJPipe.pas</code> and <code>PJPipeFilters.pas</code>to your projects as you need them.
+      </li>
+      <li>
+        To make the units easier to re-use you can either copy them to a folder on your Delphi search path, or add the folder where you extracted the units to the search path. You then simply use the units as required without needing to add them to your project.
+      </li>
+      <li>
+        For maximum portability you can add the units to a Delphi design time package. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>I/O Utility Classes</em> are comprehensively documented online
+      <a href="http://wiki.delphidabbler.com/index.php/Docs/IOUtilsAPI" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/ioutils/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>ioutils</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the components please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/IOUtilsAPI">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
+      The <em>I/O Utility Classes</em> are open source. They are copyright &copy; 2013-20414 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

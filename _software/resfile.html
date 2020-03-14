@@ -1,0 +1,218 @@
+---
+dl-file-prefix: "dd-resfile-"
+layout: "codelib-tplt"
+group: lib
+priority: 15
+version: "1.1.0"
+release-date: "2014/01/16"
+platforms: ["Win32", "Win64"]
+frameworks: ["RTL"]
+compatibility: "Delphi 7 & later"
+title: "Resource File Unit"
+precis: "Classes for manipulating Windows 32 bit resource files"
+summary: "Delphi unit that defines classes that encapsulate the Windows 32 bit resource file format and helper functions to assist in compiling and decompiling binary resource files."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/resfile/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/resfile/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This unit contains classes that encapsulate Windows 32 bit binary resource files and the resources contained in them. The main functionality is provided by two classes:
+    </p>
+    <dl>
+      <dt>
+        TPJResourceFile
+      </dt>
+      <dd>
+        <p>
+          Encapsulates the contents of a whole resource file and provides methods and properties for reading, finding, editing, adding and deleting resources. Resource files can be read from and written to files or streams.
+        </p>
+      </dd>
+      <dt>
+        TPJResourceEntry
+      </dt>
+      <dd>
+        <p>
+          Encapsulates a single resource within the file and provides properties to access its header record and its raw data. The class also has methods to check the identity of the resource. The resource's raw data is accessible both as an array of bytes and via a <var>TStream</var> interface.
+        </p>
+        <p class="alert alert-info glyph">
+          This class has no knowledge of resource data formats and sees the data simply as a raw sequence of bytes. It is for the user of the class to interpret the data correctly.
+        </p>
+      </dd>
+    </dl>
+    <p>
+      In addition to the two main classes, some helper functions are also provided that assist in working with resource identifiers.
+    </p>
+    <p>
+      An exception class &ndash; <var>EPJResourceFile</var> &ndash; is also defined. Exceptions of this class are raised by both the main classes when errors are encountered.
+    </p>
+    <p>
+      Some constants are defined for use with the memory flags field of resource header records. The <var>RT_HTML</var> and <var>RT_MANIFEST</var> resource types are also defined since they are not defined by Delphi.
+    </p>
+
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        No demo programs are included in the download. However the online documentation contains numerous <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ResFileExamples.md">worked examples</a>.
+      </p>
+    </div> <!-- /#demo -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a
+        class="btn btn-primary"
+        role="button"
+        href="{{ dl-url }}"
+        aria-label="Go to SourceForge and download latest version automatically"
+      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/resfile/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The code is developed in the <code><a
+        href="{{ page.repo-url }}"
+        aria-title="Go to the resfile project in the Subversion repo"
+      >trunk/projects/resfile</a></code> branch of the repository.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/resfile codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Resource File Unit</em> is supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJResFile.pas</code></strong> &ndash; source code.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; project change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+      </li>
+    </ul>
+    <p>
+      There are three possible ways to use the unit.
+    </p>
+    <ol class="wide">
+      <li>
+        The simplest way is to add <code>PJResFile.pas</code> to your projects as you need it.
+      </li>
+      <li>
+        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder where you extracted the unit to the Delphi Search path. You then simply use the unit as required without needing to add it to your project.
+      </li>
+      <li>
+        For maximum portability you can add the unit to a Delphi design time package. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+      </li>
+    </ol>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Resource File Unit</em> is comprehensively documented online
+      <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ResFileUnit.md" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/resfile/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>resfile</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ResFileUnit.md">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
+      The <em>Resource File Unit</em> is open source. It is copyright &copy; 2004-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>
