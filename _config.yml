@@ -16,12 +16,6 @@ defaults:
   -
     scope:
       path: ""
-      type: "software"
-    values:
-      layout: "software-tplt"
-  -
-    scope:
-      path: ""
     values:
       layout: "default"
 
