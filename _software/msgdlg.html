@@ -43,6 +43,7 @@ mothballed: false
         This component uses the Delphi VCL <var>CreateMessageDialog</var> function to create a form based message box. (<var>CreateMessageDialog</var> is used by the standard Delphi <var>MessageDlgXXX</var> functions). The component provides more flexibility than either the Delphi functions or <var>TPJWinMsgDlg</var>. It should be used when it is necessary to display buttons or combinations of buttons that are not supported by the Windows API message box or when a finer degree of control over the appearance and behaviour of the message box is required. <var>TPJVCLMsgDlg</var> supports all the features of <var>TPJWinMsgDlg</var> and extends them. The dialogue box component's form can be customised by handling the <var>OnShow</var> and <var>OnHide</var> events.
       </dd>
     </dl>
+
     <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
       Demo code
     </h3>
@@ -65,12 +66,7 @@ mothballed: false
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
-      <a
-        class="btn btn-primary"
-        role="button"
-        href="{{ dl-url }}"
-        aria-label="Go to SourceForge and download latest version automatically"
-      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
       <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
@@ -83,10 +79,7 @@ mothballed: false
       where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
     </p>
     <p>
-      The code is developed in the <code><a
-        href="{{ page.repo-url }}"
-        aria-title="Go to the msgdlg project in the Subversion repo"
-      >trunk/projects/msgdlg</a></code> branch of the repository.
+      The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the msgdlg project in the Subversion repo">trunk/projects/msgdlg</a></code> branch of the repository.
     </p>
     <p>
       The latest development tree can be checked out using:
@@ -110,12 +103,10 @@ mothballed: false
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <strong><code>PJMessageDialog.pas</code></strong> &ndash; component source
-        code.
+        <strong><code>PJMessageDialog.pas</code></strong> &ndash; component source code.
       </li>
       <li class="list-group-item">
-        <strong><code>PJMessageDialog.dcr</code></strong> &ndash; component palette
-        glyphs.
+        <strong><code>PJMessageDialog.dcr</code></strong> &ndash; component palette glyphs.
       </li>
       <li class="list-group-item">
         <code>ReadMe.htm</code> &ndash; read-me file.
@@ -147,8 +138,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Message Dialogue Components</em> are comprehensively documented online
-      <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/MessageDialogComponents.md" aria-title="View the online documentation">here</a>
+      The <em>Message Dialogue Components</em> are comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/MessageDialogComponents.md" aria-title="View the online documentation">here</a>
     </p>
     <p>
       The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/msgdlg/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>

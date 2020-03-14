@@ -54,10 +54,11 @@ mothballed: false
       </dt>
       <dd>
         <p>
-        When using this component the user must handle saving and reading the window state data to or from persistent storage. The component gives the most flexibility of all the components at the expense of placing the storage burden on the user. The component triggers <var>OnReadData</var> and <var>OnSaveData</var> events when it is ready to read or save data.
+          When using this component the user must handle saving and reading the window state data to or from persistent storage. The component gives the most flexibility of all the components at the expense of placing the storage burden on the user. The component triggers <var>OnReadData</var> and <var>OnSaveData</var> events when it is ready to read or save data.
         </p>
       </dd>
     </dl>
+
     <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
       Features
     </h3>
@@ -94,6 +95,7 @@ mothballed: false
         All the components derive from an abstract base class named <var>TPJCustomWdwState</var>. This class provides the core window handling and sizing functionality. It provides abstract methods for accessing the required storage medium. Therefore it is quite straightforward to create further components that use alternative storage systems. All that needs to be provided are methods to read/write the window information along with any additional properties that are required to configure the storage medium.
       </p>
     </div> <!-- /#features -->
+
     <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
       Demo code
     </h3>
@@ -101,7 +103,6 @@ mothballed: false
       <p>
         There are four demo projects included with these components. They are:
       </p>
-
       <ol class="wide">
         <li>
           <code>StandardDemo.dpr</code> &ndash; Demonstrates how to use the components in the standard way, i.e.  dropped on a form from the component palette. This demo uses <var>TPJRegWdwState</var>.
@@ -110,14 +111,14 @@ mothballed: false
           <code>StandAloneDemo.dpr</code> &ndash; Demonstrates how to create and use the components dynamically using the <var>CreateStandAlone</var> constructor. This demo uses <var>TPJWdwState</var>.
         </li>
         <li>
-          <code>UserDemo.dpr</code> &ndash; Demonstrates how to use <var>TPJUserWdwState</var> and load and save
-          data in the <var>OnReadData</var> and <var>OnSaveData</var> events.
+          <code>UserDemo.dpr</code> &ndash; Demonstrates how to use <var>TPJUserWdwState</var> and load and save data in the <var>OnReadData</var> and <var>OnSaveData</var> events.
         </li>
         <li>
           <code>MDIDemo.dpr</code> &ndash; Demonstrates the use of <var>TPJWdwState</var> with MDI applications.
         </li>
       </ol>
     </div> <!-- /#demo -->
+
     <h3 data-toggle="collapse" data-target="#how-it-works" class="collapsible collapsed">
       How the components work
     </h3>
@@ -149,12 +150,7 @@ mothballed: false
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
-      <a
-        class="btn btn-primary"
-        role="button"
-        href="{{ dl-url }}"
-        aria-label="Go to SourceForge and download latest version automatically"
-      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
       <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
@@ -167,10 +163,7 @@ mothballed: false
       where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
     </p>
     <p>
-      The code is developed in the <code><a
-        href="{{ page.repo-url }}"
-        aria-title="Goto the wdwstate project in the Subversion repo"
-      >trunk/projects/wdwstate</a></code> branch of the repository.
+      The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Goto the wdwstate project in the Subversion repo">trunk/projects/wdwstate</a></code> branch of the repository.
     </p>
     <p>
       The latest development tree can be checked out using:
@@ -236,8 +229,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Window State Components</em> are comprehensively documented online
-      <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/WindowStateComponents.md" aria-title="View the online documentation">here</a>
+      The <em>Window State Components</em> are comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/WindowStateComponents.md" aria-title="View the online documentation">here</a>
     </p>
     <p>
       The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/wdwstate/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>

@@ -58,6 +58,7 @@ mothballed: false
     <p class="alert alert-info glyph">
       The algorithm and reference code are copyright &copy; 1991-2, RSA Data Security, Inc. Created 1991. All rights reserved.
     </p>
+
     <h3 data-toggle="collapse" data-target="#testing" class="collapsible collapsed">
       Testing
     </h3>
@@ -66,6 +67,7 @@ mothballed: false
         <em>DUnit</em> tests for the unit are supplied in the download. The tests include all those specified in <a href="http://www.faqs.org/rfcs/rfc1321.html">RFC 1321</a>.
       </p>
     </div> <!-- /#testing -->
+
     <h3 data-toggle="collapse" data-target="#rationale" class="collapsible collapsed">
       Rationale
     </h3>
@@ -77,7 +79,7 @@ mothballed: false
         Well, I'd been searching for an up-to-date implementation of the MD5 algorithm that meets these criteria:
       </p>
       <ol class="wide">
-         <li>
+        <li>
           No dependency on <code>.obj</code> files or DLLs. I want pure Pascal code.
         </li>
         <li>
@@ -111,12 +113,7 @@ mothballed: false
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
-      <a
-        class="btn btn-primary"
-        role="button"
-        href="{{ dl-url }}"
-        aria-label="Go to SourceForge and download latest version automatically"
-      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
       <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
@@ -129,10 +126,7 @@ mothballed: false
       where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
     </p>
     <p>
-      The code is developed in the <code><a
-        href="{{ page.repo-url }}"
-        aria-title="Go to the md5 project in the Subversion repo"
-      >trunk/projects/md5</a></code> branch of the repository.
+      The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the md5 project in the Subversion repo">trunk/projects/md5</a></code> branch of the repository.
     </p>
     <p>
       The latest development tree can be checked out using:
