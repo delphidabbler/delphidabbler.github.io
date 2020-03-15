@@ -20,6 +20,8 @@ about-link-title: "About page"
 credits-link: "/credits.html"
 credits-link-title: "Credits page"
 
+software-base-url: "/software"
+
 bootstrap-link: "/assets/scripts/bootstrap.js"
 
 prefix-free-link: "/assets/scripts/prefixfree.min.js"
