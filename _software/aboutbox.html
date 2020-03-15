@@ -32,6 +32,9 @@ mothballed: false
     <p class="text-center">
       <img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/aboutbox.png" alt="Vista screenshot of About dialog box" title="About dialog box" class="scale" style="width:360px;" />
     </p>
+    <p>
+      The dialogue box can either display information stored in its properties or from the host program's version information resources.
+    </p>
     <p class="alert alert-warning glyph">
       <var>TPJAboutBoxDlg</var> requires that a DelphiDabbler <a href="{{ site.base-url }}{{ site.data.core.software-base-url}}/verinfo">Version Information Component</a> is already installed in order to compile.
     </p>
@@ -45,7 +48,7 @@ mothballed: false
       </p>
       <ul>
         <li>
-          <var>Title</var> &ndash; Contents appear in the window title. The default value is 'About'.
+          <var>Title</var> &ndash; The dialogue box's window caption. The default value is 'About'.
         </li>
         <li>
           <var>ProgramName</var> &ndash; The name of the program. This is the title  of the application. The default value is the same as <var>TApplications</var>'s <var>Title</var> property.
@@ -61,10 +64,10 @@ mothballed: false
         </li>
       </ul>
       <p>
-        Alternatively, the about box can display information from a VERSIONINFO resource included in the program. This is accessed via a linked <var>TPJVersionInfo</var> component. The values of the <var>ProgramName</var>, <var>Version</var>, <var>Copyright</var> and <var>Notes</var> properties are ignored and relevant strings from the program's version information is used in their stead.
+        Alternatively, the about box can display information from a VERSIONINFO resource included in the program. This is accessed via a linked <var>TPJVersionInfo</var> component. The values of the <var>ProgramName</var>, <var>Version</var>, <var>Copyright</var> and <var>Notes</var> properties are ignored and relevant strings from the program's version information are used in their stead.
       </p>
       <p>
-        The dialog's position can be specified relative to the screen, desktop or parent application. The dialog has a single close button whose appearance and position is customised. The About box also displays the program's icon.
+        The dialog's position can be specified relative to the screen, desktop or parent application. The dialog has a single close button whose appearance and position can be customised. The About box also displays the program's icon.
       </p>
       <p>
         Finally, the dialog box's font can be specified using the component's <var>Font</var> property.
@@ -133,16 +136,16 @@ mothballed: false
         <strong><code>PJAbout.pas</code></strong> &ndash; component source code.
       </li>
       <li class="list-group-item">
-        <strong><code>PJAbout.dfm</code></strong> &ndash; for file containing the about box.
+        <strong><code>PJAbout.dfm</code></strong> &ndash; form file containing the about box.
       </li>
       <li class="list-group-item">
-        <strong><code>PJAbout.dcr</code></strong> &ndash; component palette glyphs.
+        <strong><code>PJAbout.dcr</code></strong> &ndash; component palette glyph.
       </li>
       <li class="list-group-item">
         <code>ReadMe.htm</code> &ndash; read-me file.
       </li>
       <li class="list-group-item">
-        <code>ChangeLog.txt</code> &ndash; component's change log.
+        <code>ChangeLog.txt</code> &ndash; project change log.
       </li>
       <li class="list-group-item">
         <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
@@ -161,7 +164,7 @@ mothballed: false
       In addition to the above files you will find the the source code of a demo project in the <code>Demo</code> sub-directory.
     </p>
     <p>
-      You can now install the components into the Delphi IDE. To do this, the files <code>PJAbout.pas</code>, <code>PJAbout.dfm</code> and <code>PJAbout.dcr</code> should be added to a design time package. If you need help doing this <a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a>.
+      You must install the components into the Delphi IDE. To do this, the files <code>PJAbout.pas</code>, <code>PJAbout.dfm</code> and <code>PJAbout.dcr</code> should be added to a design time package. If you need help doing this <a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a>.
     </p>
   </div>
 </section>
@@ -213,7 +216,7 @@ mothballed: false
       If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/AboutBoxComponent.md">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+      Should you have any queries about using the component please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/AboutBoxComponent.md">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
     </p>
   </div>
 </section>
@@ -226,7 +229,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>About Box Component</em> is open source. They are copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>About Box Component</em> is open source. It is copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
   </div>
 </section>

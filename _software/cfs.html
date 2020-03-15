@@ -29,17 +29,20 @@ mothballed: false
     </p>
     <ul class="wide">
       <li>
-        Code &ndash; this is the identifier used to represent the clipboard format. It is displayed in hexadecimal.
+        <em>Code</em> &ndash; this is the identifier used to represent the clipboard format. It is displayed in hexadecimal.
       </li>
       <li>
-        Description &ndash; this is the description of the clipboard format. Symbolic constants are displayed for the Windows standard clipboard formats.
+        <em>Description</em> &ndash; this is the description of the clipboard format. Symbolic constants are displayed for the Windows standard clipboard formats.
       </li>
       <li>
-        Size &ndash; this is the size of the data on the clipboard. No value is displayed if the clipboard contents are not stored in global memory. The display can be sorted in ascending or descending order on any column.
+        <em>Size</em> &ndash; this is the size of the data on the clipboard. No value is displayed if the clipboard contents are not stored in global memory.
       </li>
     </ul>
     <p>
-      Clipboard formats can be viewed by selecting the required format in the main display and right-clicking to display a pop-up menu. Select the required viewer from the menu. If the format can't be viewed &quot;no viewer&quot; will be displayed in the menu.
+      The display can be sorted in ascending or descending order on any column.
+    </p>
+    <p>
+      Clipboard formats can be viewed by selecting the required format in the main display and right-clicking to display a pop-up menu. Select the required viewer from the menu. If the format can't be viewed then &quot;no viewer&quot; will be displayed in the menu.
     </p>
     <p>
       The file name of the process that owns the clipboard is displayed in the status bar.
@@ -55,11 +58,14 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      Each release gives the option of downloading either the programs's installer or the source code. Your options are:
+      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/cfs</a></code> repository. The program can be downloaded from the repository's <em>Release</em> tab.
+    </p>
+    <p>
+      Each release gives the option of downloading either the program in executable format or the source code. Your options are:
     </p>
     <ul>
       <li>
-        Choose <code>cfs-exe-{{page.version}}.zip</code> to download a zip file containing the program's installer. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.txt</code> file explains how to install the programs.
+        Choose <code>cfs-exe-{{page.version}}.zip</code> to download a zip file containing the program's installer. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.txt</code> file explains how to install the program.
       </li>
       <li>
         Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
@@ -109,7 +115,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      You can report bugs or suggest new features using the <em>Version Information Editor</em> <a href="https://github.com/delphidabbler/vied/issues" class="offsite">issue tracker</a> on GitHub.
+      You can report bugs or suggest new features using the <em>Clipboard Format Spy</em> <a href="https://github.com/delphidabbler/cfs/issues" class="offsite">issue tracker</a> on GitHub.
     </p>
     <p>
       Please review existing bug reports and feature requests before creating a new issue. If an issue already exists you may be able to help by adding a further comment.
