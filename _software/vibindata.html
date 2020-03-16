@@ -21,16 +21,16 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The Version Information Manipulator Library is a DLL that can be used to access and manipulate binary version information from executable and binary resource files and to update and write version information to binary resource files.
+      The Version Information Manipulator Library is a DLL that can be used to access and manipulate binary version information from executable and binary resource files. It can also update and write version information to binary resource files.
     </p>
     <p>
-      The advantage of using this library over the Windows API for reading version information is that the library can cope with badly formed version information that would defeat the API routines. Furthermore the library can enumerate the contents of string tables and list and access non-standard string table entries. It also works with string tables in multiple languages (aka translations).
+      The advantage of using this library over the Windows API for reading version information is that the library can cope with badly formed version information that would defeat the API routines. Furthermore the library can enumerate the contents of string tables and access non-standard string table entries. It also works with string tables in multiple languages (a.k.a. translations).
     </p>
     <p>
       The library's advantage in writing version information resources is that it can generate binary streams suitable for writing to binary resource files. This removes the need to create <code>.rc</code> files and, consequently, the need to use a resource compiler.
     </p>
     <p>
-      A detailed user guide, setting out the DLL's programming interface,  downloaded from the <em>Documentation</em> section below.
+      A detailed user guide, setting out the DLL's programming interface, can be viewed in the <em>Documentation</em> section below.
     </p>
   </div>
 </section>
@@ -42,6 +42,9 @@ mothballed: false
     </h2>
   </div>
   <div class="panel-body">
+    <p>
+      This library is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/vilib</a></code> repository. The library can be downloaded from the repository's <em>Release</em> tab.
+    </p>
     <p>
       Each release gives the option of downloading either the DLL's executable code or the source code. Your options are:
     </p>
@@ -74,7 +77,7 @@ mothballed: false
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/master/Docs/ReadMe.txt">Read Me<span class="sr-only"> (text file)</span></a> &ndash; contains details of how to install the DLL along with other information.
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/master/Docs/ReadMe.txt">Read Me<span class="sr-only"> (text file)</span></a> &ndash; contains details of how to install the DLL, along with other information.
       </li>
       <li class="list-group-item">
         <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/master/Docs/License.txt">License<span class="sr-only"> (text file)</span></a> &ndash; the DLL's end user license.
