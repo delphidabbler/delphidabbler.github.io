@@ -97,6 +97,15 @@ mothballed: false
       </p>
     </div> <!-- /#compat-mode -->
 
+    <h3 data-toggle="collapse" data-target="#registry" class="collapsible collapsed text-warning glyph">
+      Registry Issues With Old Delphis
+    </h3>
+    <div id="registry" class="collapse callout callout-warning"> <!-- begin collapsible #registry section -->
+      <p>
+        Although the stated compatibilty for the unit is Delphi 7 &amp; later, the unit was designed to compile with Delphi 4 &amp; later, but was not fully tested on those compilers. However there is a known issue with some of the older versions of Delphi that do not support setting registry access flags via the <var>TRegistry</var> object: some of this code may not work correctly when running on 64 bit Windows.
+      </p>
+    </div> <!-- /#registry -->
+    
     <h3 data-toggle="collapse" data-target="#deleted-code" class="collapsible collapsed text-danger glyph">
       Deleted Code
     </h3>
