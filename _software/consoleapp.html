@@ -27,10 +27,10 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Console Application Runner</em> classes are designed to be used to control the execution of child console application processes. There are two classes: a class named <var>TPJCustomConsoleApp</var> that is provided a base class for user-defined sub-classes, and <var>TPJConsoleApp</var> that is used to provide a general way to run and manipulate console applications. Both classes are provided in a single unit, <var>PJConsoleApp</var>.
+      The <em>Console Application Runner</em> classes are designed to be used to control the execution of child console application processes. There are two classes: a class named <var>TPJCustomConsoleApp</var> that is provided as a base class for user-defined sub-classes, and <var>TPJConsoleApp</var> that is used to provide a general way to run and manipulate console applications. Both classes are provided in a single unit, <var>PJConsoleApp</var>.
     </p>
     <p>
-      The classes enable the console application's standard input, standard output and standard error to be redirected to and from files or pipes. They can also timeslice the running of the console application to enable the calling application to continue processing and to enable redirected piped output to be processed.
+      The classes enable the console application's standard input, standard output and standard error to be redirected to and from files or pipes. They can also timeslice the running of the console application to enable the calling application to continue processing in parallel and to enable redirected output to be processed.
     </p>
 
     <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
@@ -58,7 +58,7 @@ mothballed: false
     </h3>
     <div id="deleted-code" class="collapse callout callout-danger"> <!-- begin collapsible #deleted-code section -->
       <p>
-        As of v3.0 the <var>TPJPipe</var>, <var>TPJPipeFilters</var> &amp; <var>TPJFileHandle</var> classes were removed from the project into a separate project: <a href="{{ site.base-url }}{{ site.data.core.software-base-url}}/ioutils.html">I/O Utility Classes</a>.
+        As of v3.0 the <var>TPJPipe</var>, <var>TPJPipeFilters</var> &amp; <var>TPJFileHandle</var> classes were removed from the project into <a href="{{ site.base-url }}{{ site.data.core.software-base-url}}/ioutils.html">I/O Utility Classes</a>.
       </p>
     </div> <!-- /#deleted-code -->
   </div>
@@ -136,7 +136,7 @@ mothballed: false
         The simplest way is to add <code>PJConsoleApp.pas</code> to your projects as and when you need it.
       </li>
       <li>
-        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder where you extracted the units to the search path. You then simply use the units as required without needing to add them to your project.
+        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder where you extracted the unit to the search path. You then simply use the unit as required without needing to add them to your project.
       </li>
       <li>
         For maximum portability you can add the unit to a Delphi design time package. If you need help doing this <a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a>.

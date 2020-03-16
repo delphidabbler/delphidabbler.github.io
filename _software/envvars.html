@@ -29,8 +29,8 @@ mothballed: false
     <p>
       This unit provides a static class for reading and modifying the environment variables available to the current process, along with a class that can be used to enumerate environment variable names.
     </p>
-    <p class="alert alert-info glyph">
-      The unit also contains a component and a set of routines that duplicate some of the features provided by the static class. These are now <strong>deprecated</strong> and are provided for backward compatibility reasons only: they should no longer be used in new code.
+    <p class="alert alert-warning glyph">
+      The unit also contains a component and a set of routines that duplicate some of the features provided by the static class. These are now <strong>deprecated</strong> and are provided for backward compatibility reasons only: they should no longer be used in new code and may be removed from future releases.
     </p>
     <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
       Features
@@ -50,7 +50,7 @@ mothballed: false
           Get the number of environment variables in the environment block along with the size of the block.
         </li>
         <li>
-          List and enumerate the names, or names and value, of all environment variables in the environment block.
+          List and enumerate the names, or names and values, of all environment variables in the environment block.
         </li>
         <li>
           Create a new environment block suitable for passing to a child process.
@@ -78,7 +78,7 @@ mothballed: false
     </h3>
     <div id="how-it-works" class="collapse"> <!-- begin collapsible #how-it-works section -->
       <p>
-        This unit uses ideas from my article &quot;<a href="http://delphidabbler.com/articles?article=6">How to access environment variables</a>&quot;. The article shows how to develop routines similar to some of those in this unit and discusses their operation.
+        This unit uses ideas from my article &quot;<a href="http://delphidabbler.com/articles?article=6">How to access environment variables</a>&quot;. The article shows how to develop routines similar to some of the methods in this unit and discusses their operation.
       </p>
     </div> <!-- /#how-it-works -->
   </div>
@@ -129,14 +129,14 @@ mothballed: false
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <strong><code>PJEnvVars.pas</code></strong> &ndash; the <em>Environment Variables Unit</em> contains all source code, including the deprecated component, but excluding the component registration code.
+        <strong><code>PJEnvVars.pas</code></strong> &ndash; contains all source code, including the deprecated component, but excluding the component registration code.
       </li>
       <li class="list-group-item">
         <strong><code>PJEnvVars.dcr</code></strong> &ndash; component palette
-        glyph for the deprecated component.
+        glyph for the deprecated component. <span class="text-warning bg-warning glyph">Deprecated</span>
       </li>
       <li class="list-group-item">
-        <strong><code>PJEnvVarsDsgn.pas</code></strong> &ndash; registration code for the deprecated component.
+        <strong><code>PJEnvVarsDsgn.pas</code></strong> &ndash; registration code for the deprecated component. <span class="text-warning bg-warning glyph">Deprecated</span>
       </li>
       <li class="list-group-item">
         <code>ReadMe.htm</code> &ndash; read-me file.
@@ -227,7 +227,7 @@ mothballed: false
   <div class="panel-body">
     <p>
       <span class="fa fa-copyright fa-pull-left fa-3x"></span>
-      The <em>Environment Variables Unit</em> is open source. They are copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      The <em>Environment Variables Unit</em> is open source. It is copyright &copy; 2001-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
   </div>
 </section>

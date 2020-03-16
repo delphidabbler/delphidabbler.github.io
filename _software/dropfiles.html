@@ -74,7 +74,7 @@ mothballed: false
       Some design time assistance is provided by component and property editors.
     </p>
     <p class="alert alert-warning glyph">
-      For security reasons in Windows Vista and later, drag/drop is disallowed between windows with different security permissions. This means that applications that processes drag and drop may not be able to receive files dragged and droppped from another window if the security permissions are not compatible. <strong>This is not a bug.</strong>
+      For security reasons in Windows Vista and later, drag/drop is disallowed between windows with different security permissions. This means that applications that processes drag and drop may not be able to receive files dragged and droppped from another window if the security permissions are not compatible.<br><strong><span class="fa fa-times-circle fa-x-pad-right" aria-hidden="true"></span>Please do not report this behaviour as a bug<span class="fa fa-times-circle fa-x-pad-left" aria-hidden="true"></span></strong>
     </p>
 
     <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
@@ -84,7 +84,7 @@ mothballed: false
       <p>
         Key features of <var>TPJDropFiles</var>, <var>TPJCtrlDropFiles</var> and <var>TPJFormDropFiles</var> are:
       </p>
-      <ul>
+      <ul class="wide">
         <li>
           An <var>OnDropFiles</var> event is triggered when files are dropped.
         </li>
@@ -143,7 +143,7 @@ mothballed: false
         <var>TPJDropFiles</var> notifies Windows that it accepts file drop operations by using the <var>DragAcceptFiles</var> API call. It then responds to <var>WM_DROPFILES</var> messages sent by Windows whenever files are dropped on its window.
       </p>
       <p>
-        <var>TPJFormDropFiles</var> and <var>TPJCtrlDropFiles</var> act in a similar way to <var>TPJDropFiles</var> except that they subclass an associated window and respond to <var>WM_DROPFILES</var> messages on the window's behalf. <var>TPJFormDropFiles</var> subclasses its owner form while <var>TPJCtrlDropFiles</var> subclasses the window of an associated <var>TWinControl</var>. These last components derive from a common abstract base class.
+        <var>TPJFormDropFiles</var> and <var>TPJCtrlDropFiles</var> act in a similar way to <var>TPJDropFiles</var> except that they subclass an associated window and respond to <var>WM_DROPFILES</var> messages on the window's behalf. <var>TPJFormDropFiles</var> subclasses its owner form while <var>TPJCtrlDropFiles</var> subclasses the window of an associated <var>TWinControl</var>. The last two components derive from a common abstract base class.
       </p>
       <p>
         For further information about how to handle files dropped on an application from Explorer, please see my article &quot;<a href="http://delphidabbler.com/articles?article=11">How to catch files dragged and dropped on an application from Explorer</a>&quot;.
