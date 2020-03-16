@@ -27,7 +27,10 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      This unit contains an implementation of the MD5 message digest algorithm Delphi class named <var>TPJMD5</var> provides overloaded methods for calculating the MD5 of
+      This unit contains an object-oriented implementation of the MD5 message digest algorithm.
+    </p>
+    <p>
+      A Delphi class named <var>TPJMD5</var> provides overloaded methods for calculating the MD5 of:
     </p>
     <ul>
       <li>
@@ -47,10 +50,10 @@ mothballed: false
       </li>
     </ul>
     <p>
-      Data types can be mixed and matched. Class methods provide quick shortcuts to taking the MD5 of a single file or single data item without having to create and free a <var>TPJMD5</var> instance.
+      Data types can be mixed and matched. Class methods provide quick shortcuts to taking the MD5 of a single file or single data item without having to explicitly create and free a <var>TPJMD5</var> instance.
     </p>
     <p>
-      There is also an &quot;advanced&quot; record, <var>TPJMD5Digest</var>, that encapsulutes a MD5 digest. Operator overloads for assigning digests to and from strings and bytes arrays are provided. The digest can also be read in long words chunks.
+      There is also an &quot;advanced&quot; record, <var>TPJMD5Digest</var>, that encapsulutes a MD5 digest. Operator overloads for assigning digests to and from strings and byte arrays are provided. The digest can also be read in long words chunks.
     </p>
     <p>
       The code was developed from scratch based on the algorithm presented in <a href="http://www.faqs.org/rfcs/rfc1321.html">RFC 1321</a>. Portions of the code are translated from the reference C code supplied in the RFC. However the code is <strong>not</strong> a literal translation into Pascal from the reference C code.
@@ -76,14 +79,14 @@ mothballed: false
         So why write this code?
       </p>
       <p>
-        Well, I'd been searching for an up-to-date implementation of the MD5 algorithm that meets these criteria:
+        Well, I'd been searching for an up-to-date implementation of the MD5 algorithm that met these criteria:
       </p>
       <ol class="wide">
         <li>
-          No dependency on <code>.obj</code> files or DLLs. I want pure Pascal code.
+          No dependency on <code>.obj</code> files or DLLs. I wanted pure Pascal code.
         </li>
         <li>
-          Open source with a license compatible with the Mozilla Public License because I want to use it in an MPLd application of mine, so GPL-only code is ruled out.
+          Open source with a license compatible with the Mozilla Public License because I want to use it in an MPLd application of mine, so GPL-only code was ruled out.
         </li>
         <li>
           Compiles and works with the Unicode Delphi Compilers.
@@ -96,7 +99,7 @@ mothballed: false
         </li>
       </ol>
       <p>
-        I couldn't find anything that suited, so it seemed easier to start again. After a couple of false starts, this unit is the result.
+        I couldn't find anything that suited, so it seemed easier to start from scratch. After a couple of false starts, this unit is the result.
       </p>
     </div> <!-- /#rationale -->
   </div>
