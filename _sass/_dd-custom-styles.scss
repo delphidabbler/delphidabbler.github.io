@@ -456,6 +456,42 @@ a[href^="http"] {
   }
 }
 
+// Accordion control with plus-minus buttons
+//** Custom - based on code from https://tinyurl.com/rsb2vha
+.accordion {
+  .panel-title {
+    > a:before {
+      float: right !important;
+      font-family: $font-family-glyph;
+      content: " \f147";
+      padding-right: 5px;
+    }
+    > a.collapsed:before {
+      float: right !important;
+      content: " \f196";
+    }
+  }
+  a {
+    text-decoration: none;
+  }
+}
+
+// Heading that collapses associated text
+//** Custom
+h3.collapsible {
+  cursor: pointer;
+  &.collapsed:after {
+    font-family: $font-family-glyph;
+    font-size: 80%;
+    content: "  \f196";
+  }
+  &:after {
+    font-family: $font-family-glyph;
+    font-size: 80%;
+    content: "  \f147";
+  }
+}
+
 // Jumbotron-like box
 //** Custom
 .box {
