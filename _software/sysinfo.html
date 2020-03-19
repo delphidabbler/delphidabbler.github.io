@@ -40,13 +40,13 @@ mothballed: false
         TPJSystemFolders
       </dt>
       <dd>
-        Gets the full path to certain system folders.
+        Gets the full path of certain system folders.
       </dd>
       <dt>
         TPJOSInfo
       </dt>
       <dd>
-        Supplies information about the operating system information including the platform, product name, product ID code, version and service packs.
+        Supplies information about the operating system including the platform, product name, product ID, version and service packs.
       </dd>
     </dl>
     <p>
@@ -86,7 +86,7 @@ mothballed: false
           For Windows 8 and 8.1 the reported operating system cannot be spoofed using compatibility modes, and neither does the presence of a suitable manifest file affect the returned values. This also applies to the relevant <var>TPJOSInfo.IsReallyWindowsXXXOrGreater</var> methods.
         </li>
         <li>
-          For Windows 10 the reported operating system cannot be spoofed regardless of whether a suitable manifest is compiled into resource. However, in absence of a such a manifest the version will be reported as Windows 8 instead of Windows 10. This also affects <var>TPJOSInfo.IsReallyWindows10OrGreater</var>, meaning it's not so well named any more!
+          For Windows 10 the reported operating system cannot be spoofed regardless of whether a suitable manifest is compiled into resource. However, in absence of a such a manifest the version will be always be reported as Windows 8 instead of Windows 10. This also affects <var>TPJOSInfo.IsReallyWindows10OrGreater</var>, meaning it's not so well named any more!
         </li>
       </ul>
       <p>
@@ -102,7 +102,13 @@ mothballed: false
     </h3>
     <div id="registry" class="collapse callout callout-warning"> <!-- begin collapsible #registry section -->
       <p>
-        Although the stated compatibilty for the unit is Delphi 7 &amp; later, the unit was designed to compile with Delphi 4 &amp; later, but was not fully tested on those compilers. However there is a known issue with some of the older versions of Delphi that do not support setting registry access flags via the <var>TRegistry</var> object: some of this code may not work correctly when running on 64 bit Windows.
+        The stated compatibilty for the unit is Delphi 7 &amp; later. However it is possible that the unit may compile with earlier versions.
+      </p>
+      <p>
+        <strong>But be warned,</strong> there is a known issue with some of these old versions in that they do not support setting registry access flags via the <var>TRegistry</var> object. This means that some of this code may not work correctly when running 32 bit programs on 64 bit Windows.
+      </p>
+      <p class="text-warning bg-warning">
+        Consequently, using Delphi 6 or earlier is not recommended and is not supported.
       </p>
     </div> <!-- /#registry -->
     
@@ -114,7 +120,7 @@ mothballed: false
         Version 2 and earlier of the unit provided the <em>TPJSysInfo</em> component and various <var>SIGetxxx</var> functions. As of v3.0 these were deprecated and included only if a certain symbol was defined. From v4.0 all the deprecated code was removed.
       </p>
       <p class="alert alert-danger glyph">
-        If you are still using the deprecated code you must either update your code to use the new classes or to revert to using the last v3.x release.
+        If you are still using the deprecated code you need to update your code to use the new classes.
       </p>
     </div> <!-- /#deleted-code -->
 
@@ -129,7 +135,7 @@ mothballed: false
         Each project contains a tab set where each tab displays the information from one of the classes or the global variables.
       </p>
       <p>
-        The VCL demo has been tested with Delphi XE and XE4 but should compile with Delphi 7 (and maybe even Delphi 4) or later, although some unrecognised form properties may need to be ignored. The FireMonkey demo was tested with Delphi XE4.
+        The VCL demo has been tested with Delphi XE and XE4 but should compile with Delphi 7 or later, although some unrecognised form properties may need to be ignored. The FireMonkey demo was tested with Delphi XE4.
       </p>
     </div> <!-- /#demo -->
   </div>
@@ -268,7 +274,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>System Information Unit</em> is open source. It is copyright &copy; 2001-2016 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>System Information Unit</em> is open source. It is copyright &copy; 2001-2020 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
     <p>
       The following people contributed to the development of the code:

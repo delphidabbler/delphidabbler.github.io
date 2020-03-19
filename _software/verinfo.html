@@ -27,19 +27,19 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      <var>TPJVersionInfo</var> is a non-visual component that reads any version information contained in a 32 bit or 64 bit Windows executable file.
+      <var>TPJVersionInfo</var> is a non-visual component that reads version information contained in a 32 bit or 64 bit Windows executable file.
     </p>
     <p>
-      The component reads information from a designated file's <var>VERSIONINFO</var> resource. The required file is specified in the component's <var>FileName</var> property. Setting <var>FileName</var> to the empty string fetches version information for the executable file containing the component. The boolean <var>HaveInfo</var> property indicates whether the file contains version information. This component can access variable file information for each language provided in the resource.
+      The component reads information from a designated file's <var>VERSIONINFO</var> resource. The required file is specified in the component's <var>FileName</var> property. Setting <var>FileName</var> to the empty string fetches the version information of the executable file containing the component. The Boolean <var>HaveInfo</var> property indicates whether the file contains version information. This component can access variable file information for each language provided in the resource.
     </p>
     <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
       Features
     </h3>
     <div id="features" class="collapse"> <!-- begin collapsible #features section -->
       <p>
-        Run-time properties enable access to to version information. Properties enable:
+        Run-time properties enable access to the version information. Properties enable:
       </p>
-      <ul>
+      <ul class="wide">
         <li>
           Access to fixed file information, either by field or the whole record.
         </li>
@@ -57,7 +57,7 @@ mothballed: false
         </li>
       </ul>
       <p>
-        Version numbers are encapsulated in <var>TPJVersionNumber</var> records which, on Delphi 2006 or later, can be directly assigned to a string and can be compared using the normal equality operators. Helper functions are also provided for use with earlier Delphis that can format version numbers as text and can compare them.
+        Version numbers are encapsulated in <var>TPJVersionNumber</var> records which, on Delphi 2006 or later, can be directly assigned to a string and can be compared using the normal equality operators. Helper functions that can compare and format version numbers as text are provided for use with Delphi 2005 and earlier.
       </p>
       <p>
         The component makes calls to the Windows API when reading version information. Therefore the version information being read must follow the Microsoft guidelines. <span class="text-warning bg-warning glyph">Be warned that not all software complies!</span>
@@ -139,7 +139,7 @@ mothballed: false
         <strong><code>PJVersionInfo.pas</code></strong> &ndash; component source code.
       </li>
       <li class="list-group-item">
-        <strong><code>PJVersionInfo.dcr</code></strong> &ndash; resource file containing component palette glyphs.
+        <strong><code>PJVersionInfo.dcr</code></strong> &ndash; resource file containing the component palette glyph.
       </li>
       <li class="list-group-item">
         <code>ReadMe.htm</code> &ndash; read-me file.
@@ -216,7 +216,7 @@ mothballed: false
       If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/VerInfoAPI">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>
+      Should you have any queries about using the component please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/VerInfoAPI">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>
     </p>
   </div>
 </section>
@@ -230,7 +230,7 @@ mothballed: false
   <div class="panel-body">
     <p>
       <span class="fa fa-copyright fa-pull-left fa-3x"></span>
-      The <em>Version Information Component</em> is open source. They are copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      The <em>Version Information Component</em> is open source. It is copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
   </div>
 </section>

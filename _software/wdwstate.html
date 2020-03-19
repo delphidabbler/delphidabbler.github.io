@@ -27,7 +27,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The window state components can save and restore a window's size, position and state (minimized, maximized or normal) between program executions. Three components are provided that use different means of storing the information. They are:
+      The window state components can save and restore a window's size, position and state between program executions. Three components are provided that use different means of storing the information. They are:
     </p>
     <dl>
       <dt id="TPJWdwState">
@@ -46,7 +46,7 @@ mothballed: false
           Uses the registry to record window information. The registry root key and sub key where the information is stored are controlled by the <var>RootKey(Ex)</var> and <var>SubKey</var> properties, or by handling the <var>OnGetRegData(Ex)</var> event. This event is triggered just before the registry is accessed. Additional application defined data can be read from or written to the registry by handling the <var>OnGettingRegData</var> and <var>OnPuttingRegData</var> events that are triggered after the component reads or writes the registry.
         </p>
         <p class="alert alert-warning glyph">
-          You are discouraged from using <var>TPJRegWdwState</var> for programs compiled with Delphi 5 and earlier that may be run on 64 bit Windows, because the component may not be able to access the 64 bit registry view correctly and window state may be lost.
+          You are discouraged from using <var>TPJRegWdwState</var> for programs compiled with Delphi 5 and earlier that may be run on 64 bit Windows, because the component may not be able to access the 64 bit registry correctly and window state may be lost.
         </p>
       </dd>
       <dt id="TPJUserWdwState">
@@ -77,7 +77,7 @@ mothballed: false
               The components can be instructed to ignore the saved window state &ndash; the window is then displayed in the normal state.
             </li>
             <li>
-              The window's saved size can be ignored and the default size of the form used instead. This is useful for dialog boxes and fixed size windows.
+              The window's saved size can be ignored and the default size of the form used instead. This is useful for dialogue boxes and fixed size windows.
             </li>
             <li>
               The window can be kept within the current work area of the desktop. If this option is used the window also appears on the correct monitor on multi-monitor systems. If the form containing the window state component is a MDI child form this option keeps the window within the parent form's client area, after allowing for any menu, toolbars or status bar etc.
@@ -180,7 +180,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Drop Files Components</em> are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+      The <em>Window State Components</em> are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
     </p>
     <ul class="list-group">
       <li class="list-group-item">
