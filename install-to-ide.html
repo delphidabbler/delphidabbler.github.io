@@ -5,19 +5,23 @@ title: How To Install Components Into Delphi IDE
 <h1 roll="heading">Install components, classes and IDE extensions in Delphi</h1>
 
 <p>
-  This page presents information on how to install components into the Delphi IDE for various Win32 versions of Delphi. The notes also cover how to install IDE extensions or make simple units available in design time packages. The tip assumes you are installing source code, not pre-compiled units or packages.
+  This page presents information on how to install components into the Delphi IDE for various Win32 versions of Delphi. The notes also cover how to install IDE extensions or make simple units available in design time packages.
+</p>
+
+<p class="alert alert-info glyph">
+  It is assumed you are installing source code, not pre-compiled units or packages.
 </p>
 
 <p>
   Before you start, copy all the files needed to install the component, IDE
   extension or unit into some suitable location on your hard disk. Files should
-  include <code>.pas</code> files and any associated <code>.dfm</code>,
-  <code>.res</code>, <code>.dfm</code> and, for components, <code>.dcr</code>
+  include <code>.pas</code> files and any associated <code>.dfm</code> and
+  <code>.res</code> files and, for components, <code>.dcr</code>
   files.
 </p>
 
 <p>
-  You proceed differently depending on the version of Delphi you are using. Click on the required section below to display the appropriate instructions.
+  You proceed differently depending on the version of Delphi you are using. Click on the appropriate section below to display the relevant instructions.
 </p>
 
 <div class="accordion">
@@ -37,7 +41,7 @@ title: How To Install Components Into Delphi IDE
           </p>
           <ol class="wide">
             <li>
-              Open the required package. Select <em>File | Open</em> menu and choose a suitable package source file (<code>.dpk</code> extension. You may decide to install into the &quot;user&quot; package that is often supplied with Delphi.
+              Open the required package. Select <em>File | Open</em> menu and choose a suitable package source file (<code>.dpk</code> extension). You may decide to install into the &quot;user&quot; package that is often supplied with Delphi.
             </li>
             <li>
               The selected package (with <code>.bpl</code> extension) will now be displayed in the Project Manager. If the package has not been installed yet right click the <code>.bpl</code> entry in the Project Manager and select <em>Install</em>. Dismiss any resulting message dialogue.
@@ -106,11 +110,11 @@ title: How To Install Components Into Delphi IDE
       <div id="d3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="d3-heading">
         <div class="panel-body">
           <p>
-            To add a component or IDE extenstion to the IDE it must be included in a design package. You can either create a new design package or add the component to an existing one. These instructions assume you will be installing into an existing package. See the Delphi help for information on how to create a new package. If your component came with its own package, use that.
+            To add a component or IDE extension to the IDE it must be included in a design package. You can either create a new design package or add the component or extension to an existing one. These instructions assume you will be installing into an existing package. See the Delphi help for information on how to create a new package. If your component came with its own package, use that.
           </p>
           <ol class="wide">
             <li>
-              Open the required package. Select <em>File | Open</em> menu, make sure that files with the <code>*.dpk</code> extenstion are being displayed, and choose a suitable package source file. You may decide to install into the &quot;user&quot; package. This is found in the <code>Lib</code> sub-directory of your Delphi installation and is named <code>dclusr.dpk</code> or <code>dclusrXX.dpk</code> where <code>XX</code> is a version number.
+              Open the required package. Select the <em>File | Open</em> menu option, make sure that files with the <code>*.dpk</code> extenstion are being displayed, then choose a suitable package source file. You may decide to install into the &quot;user&quot; package. This is found in the <code>Lib</code> sub-directory of your Delphi installation and is named <code>dclusr.dpk</code> or <code>dclusrXX.dpk</code> where <code>XX</code> is a version number.
             </li>
             <li>
               The package editor will now be displayed. If its <em>Install</em> button is not disabled then click it to ensure the package is installed into Delphi. Dismiss any resulting message dialogue.
@@ -148,7 +152,7 @@ title: How To Install Components Into Delphi IDE
               Click the <em>Add</em> button to display the &quot;Add Module&quot; dialogue box.
             </li>
             <li>
-              Click the <em>Browse</em> button and choose the required <code>.pas</code> file from the resulting standard file open dialogue box and click <em>Open</em>.
+              Click the <em>Browse</em> button and choose the required <code>.pas</code> file from the resulting standard file open dialogue box, then click <em>Open</em>.
             </li>
             <li>
               This returns you to the &quot;Install Components&quot; dialogue box. Click <em>OK</em> here to rebuild the component library. If you were installing component it should now appear on the component palette (which will be named &quot;DelphiDabbler&quot; when installing one of the components from the <a href="{{ site.base-url }}{{ site.data.core.lib-link }}">DelphiDabbler Code Library</a>).
