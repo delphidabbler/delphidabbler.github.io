@@ -27,7 +27,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      This unit provides various components, classes and routines for handling Windows shell folders. Features are:
+      This unit provides various components, classes and routines for handling Windows shell folders. Included are:
     </p>
     <dl>
       <dt>
@@ -37,19 +37,19 @@ mothballed: false
         A component that encapsulates the Windows <em>Browse for Folder</em> dialogue box. This component, which provides a wrapper round theWindows API <var>SHBrowseForFolder</var> function, permits a degree of customisation of the dialogue box.
       </dd>
       <dt>
-        TPJShellFolderInfo
+        TPJSpecialFolderInfo
       </dt>
       <dd>
         A component that provides information about a specified special shell folder. Information is extracted from the Windows <var>SHGetSpecialFolderLocation</var> function and is presented in a usable form via the component's properties.
       </dd>
       <dt>
-        TPJShellFolderEnum
+        TPJSpecialFolderEnum
       </dt>
       <dd>
-        A class that enumerates all the special shell folders (implements <var>IPJShellFolderEnum</var> below).
+        A class that enumerates all the special shell folders (implements <var>IPJSpecialFolderEnum</var> below).
       </dd>
       <dt>
-        IPJShellFolderEnum
+        IPJSpecialFolderEnum
       </dt>
       <dd>
         An interface to an object that enumerates all the special shell folders.
@@ -164,17 +164,17 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Shell Folders Unit</em>, its components and classes and associated property editors, documentation and demo program are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+      The <em>Shell Folders Unit</em>, its property editor, documentation and demo program are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <strong><code>PJShellFolders.pas</code></strong> &ndash; classes, routines and component source code.
+        <strong><code>PJShellFolders.pas</code></strong> &ndash; classes, routines, constants and component source code.
       </li>
       <li class="list-group-item">
         <strong><code>PJShellFolders.dcr</code></strong> &ndash; component palette glyphs.
       </li>
       <li class="list-group-item">
-        <strong><code>PJShellFoldersDsgn.pas</code></strong> &ndash; property editors and component registration source code.
+        <strong><code>PJShellFoldersDsgn.pas</code></strong> &ndash; property editor and component registration source code.
       </li>
       <li class="list-group-item">
         <code>ReadMe.htm</code> &ndash; read-me file.
@@ -192,7 +192,7 @@ mothballed: false
         <code>PJShellFolders.hlp</code> &ndash; help file that integrates with the Delphi 3-7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
       </li>
       <li class="list-group-item">
-        <code>PJShellFolders.als</code> &ndash; a-link keyword file for integration with the Delphi 3-7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+        <code>PJShellFolders.als</code> &ndash; a-link keyword file for integration with the Delphi 6 or 7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
       </li>
     </ul>
     <p>
