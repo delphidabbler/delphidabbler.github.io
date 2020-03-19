@@ -1,7 +1,6 @@
 ---
 dl-file-prefix: "dd-wdwstate-"
 layout: "codelib-tplt"
-# id: wdwstate - id gets overridden by system with name of collection
 group: lib
 priority: 2
 version: "5.6.1"
@@ -28,7 +27,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The window state components can save and restore a window's size, position and state (minimized, maximized or normal) between program executions. Three components are provided that use different means of storing the information. They are:
+      The window state components can save and restore a window's size, position and state between program executions. Three components are provided that use different means of storing the information. They are:
     </p>
     <dl>
       <dt id="TPJWdwState">
@@ -47,7 +46,7 @@ mothballed: false
           Uses the registry to record window information. The registry root key and sub key where the information is stored are controlled by the <var>RootKey(Ex)</var> and <var>SubKey</var> properties, or by handling the <var>OnGetRegData(Ex)</var> event. This event is triggered just before the registry is accessed. Additional application defined data can be read from or written to the registry by handling the <var>OnGettingRegData</var> and <var>OnPuttingRegData</var> events that are triggered after the component reads or writes the registry.
         </p>
         <p class="alert alert-warning glyph">
-          You are discouraged from using <var>TPJRegWdwState</var> for programs compiled with Delphi 5 and earlier that may be run on 64 bit Windows, because the component may not be able to access the 64 bit registry view correctly and window state may be lost.
+          You are discouraged from using <var>TPJRegWdwState</var> for programs compiled with Delphi 5 and earlier that may be run on 64 bit Windows, because the component may not be able to access the 64 bit registry correctly and window state may be lost.
         </p>
       </dd>
       <dt id="TPJUserWdwState">
@@ -55,10 +54,11 @@ mothballed: false
       </dt>
       <dd>
         <p>
-        When using this component the user must handle saving and reading the window state data to or from persistent storage. The component gives the most flexibility of all the components at the expense of placing the storage burden on the user. The component triggers <var>OnReadData</var> and <var>OnSaveData</var> events when it is ready to read or save data.
+          When using this component the user must handle saving and reading the window state data to or from persistent storage. The component gives the most flexibility of all the components at the expense of placing the storage burden on the user. The component triggers <var>OnReadData</var> and <var>OnSaveData</var> events when it is ready to read or save data.
         </p>
       </dd>
     </dl>
+
     <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
       Features
     </h3>
@@ -77,7 +77,7 @@ mothballed: false
               The components can be instructed to ignore the saved window state &ndash; the window is then displayed in the normal state.
             </li>
             <li>
-              The window's saved size can be ignored and the default size of the form used instead. This is useful for dialog boxes and fixed size windows.
+              The window's saved size can be ignored and the default size of the form used instead. This is useful for dialogue boxes and fixed size windows.
             </li>
             <li>
               The window can be kept within the current work area of the desktop. If this option is used the window also appears on the correct monitor on multi-monitor systems. If the form containing the window state component is a MDI child form this option keeps the window within the parent form's client area, after allowing for any menu, toolbars or status bar etc.
@@ -95,6 +95,7 @@ mothballed: false
         All the components derive from an abstract base class named <var>TPJCustomWdwState</var>. This class provides the core window handling and sizing functionality. It provides abstract methods for accessing the required storage medium. Therefore it is quite straightforward to create further components that use alternative storage systems. All that needs to be provided are methods to read/write the window information along with any additional properties that are required to configure the storage medium.
       </p>
     </div> <!-- /#features -->
+
     <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
       Demo code
     </h3>
@@ -102,7 +103,6 @@ mothballed: false
       <p>
         There are four demo projects included with these components. They are:
       </p>
-
       <ol class="wide">
         <li>
           <code>StandardDemo.dpr</code> &ndash; Demonstrates how to use the components in the standard way, i.e.  dropped on a form from the component palette. This demo uses <var>TPJRegWdwState</var>.
@@ -111,20 +111,20 @@ mothballed: false
           <code>StandAloneDemo.dpr</code> &ndash; Demonstrates how to create and use the components dynamically using the <var>CreateStandAlone</var> constructor. This demo uses <var>TPJWdwState</var>.
         </li>
         <li>
-          <code>UserDemo.dpr</code> &ndash; Demonstrates how to use <var>TPJUserWdwState</var> and load and save
-          data in the <var>OnReadData</var> and <var>OnSaveData</var> events.
+          <code>UserDemo.dpr</code> &ndash; Demonstrates how to use <var>TPJUserWdwState</var> and load and save data in the <var>OnReadData</var> and <var>OnSaveData</var> events.
         </li>
         <li>
           <code>MDIDemo.dpr</code> &ndash; Demonstrates the use of <var>TPJWdwState</var> with MDI applications.
         </li>
       </ol>
     </div> <!-- /#demo -->
+
     <h3 data-toggle="collapse" data-target="#how-it-works" class="collapsible collapsed">
       How the components work
     </h3>
     <div id="how-it-works" class="collapse"> <!-- begin collapsible #how-it-works section -->
       <p>
-        The underlying principle used in the code is described in the article <span class="tochange" title="Change link once articles moved to this site">&quot;<a href="http://delphidabbler.com/articles?article=4">How to remember a window's size, state and position</a>&quot;.</span>
+        The underlying principle used in the code is described in the article &quot;<a href="http://delphidabbler.com/articles?article=4">How to remember a window's size, state and position</a>&quot;.
       </p>
       <p>
         We can't rely on Delphi's own <var>Width</var> and <var>Height</var> properties for recording window size, since these do not maintain size of the normalised window size when the window is maximized. Instead we have to use the <var>GetWindowPlacement</var> and <var>SetWindowPlacement</var> Windows API calls.
@@ -150,15 +150,10 @@ mothballed: false
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
-      <a
-        class="btn btn-primary"
-        role="button"
-        href="{{ dl-url }}"
-        aria-label="Go to SourceForge and download latest version automatically"
-      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
-      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Goto the wdwstate project in the Subversion repo">trunk/projects/wdwstate</a></code> branch.
     </p>
     <p>
       Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
@@ -166,12 +161,6 @@ mothballed: false
     <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/wdwstate/release-{{ page.version }} codedir</pre>
     <p>
       where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
-    </p>
-    <p>
-      The code is developed in the <code><a
-        href="{{ page.repo-url }}"
-        aria-title="Goto the wdwstate project in the Subversion repo"
-      >trunk/projects/wdwstate</a></code> branch of the repository.
     </p>
     <p>
       The latest development tree can be checked out using:
@@ -191,7 +180,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Drop Files Components</em> are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+      The <em>Window State Components</em> are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
     </p>
     <ul class="list-group">
       <li class="list-group-item">
@@ -224,7 +213,7 @@ mothballed: false
       In addition to the above files you will find the the source code of four demo projects along with readme files in the <code>Demos</code> directory and its <code>1</code>, <code>2</code>, <code>3</code> and <code>4</code> sub-directories. Read <code>DemoReadMe.htm</code> for details of the demos. Although the components are known to compile with Delphi 5 and later, the demos require Delphi 7 as a minimum.
     </p>
     <p>
-      You can now install the components into the Delphi IDE. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+      You can now install the components into the Delphi IDE. If you need help doing this <a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a>.
     </p>
   </div>
 </section>
@@ -237,8 +226,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Window State Components</em> are comprehensively documented online
-      <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/WindowStateComponents.md" aria-title="View the online documentation">here</a>
+      The <em>Window State Components</em> are comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/WindowStateComponents.md" aria-title="View the online documentation">here</a>
     </p>
     <p>
       The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/wdwstate/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
@@ -248,12 +236,15 @@ mothballed: false
     </p>
     <div class="alert alert-info">
       <p>
-        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <span class="tochange" title="change URL once articles have been brought over"><a href="http://delphidabbler.com/articles?article=15">this article</a></span> explains how to do it.
+        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <a href="http://delphidabbler.com/articles?article=15">this article</a> explains how to do it.
       </p>
       <p class="alert alert-warning glyph">
-        This help file is deprecated and is no longer being updated. The last update was in the v5.4.1 release.
+        This help file is deprecated and is no longer being updated. The last update was in the v5.4.1 release. The help file may be removed from any future release.
       </p>
     </div>
+    <p>
+      There is also an <a href="http://wiki.delphidabbler.com/index.php/FAQs/WindowStateComponents">FAQ</a>.
+    </p>
   </div>
 </section>
 
@@ -277,7 +268,7 @@ mothballed: false
       If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/WindowStateComponents.md">documentation</a> and/or <span class="tochange" title="Need to move FAQ over to GitHub"><a href="http://wiki.delphidabbler.com/index.php/FAQs/WindowStateComponents">FAQ</a></span>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>
+      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/WindowStateComponents.md">documentation</a> and/or <a href="http://wiki.delphidabbler.com/index.php/FAQs/WindowStateComponents">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>
     </p>
   </div>
 </section>

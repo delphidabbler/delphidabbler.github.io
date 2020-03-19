@@ -10,7 +10,7 @@ frameworks: ["VCL", "FMX"]
 compatibility: "Delphi 7 & later"
 title: "Environment Variables Unit"
 precis: "Code to help manage and access environment variables"
-summary: "Source code of a unit containing a component and routines to help manage and access environment variables."
+summary: "Source code of a unit containing a static class and other code to help manage and access environment variables."
 download-base-url: "https://sourceforge.net/projects/ddablib/files/envvars/"
 repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/envvars/
 want-header-buttons: true
@@ -29,8 +29,8 @@ mothballed: false
     <p>
       This unit provides a static class for reading and modifying the environment variables available to the current process, along with a class that can be used to enumerate environment variable names.
     </p>
-    <p class="alert alert-info glyph">
-      The unit also contains a component and a set of routines that duplicate some of the features provided by the static class. These are now <strong>deprecated</strong> and are provided for backward compatibility reasons only: they should no longer be used in new code.
+    <p class="alert alert-warning glyph">
+      The unit also contains a component and a set of routines that duplicate some of the features provided by the static class. These are now <strong>deprecated</strong> and are provided for backward compatibility reasons only: they should no longer be used in new code and may be removed from future releases.
     </p>
     <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
       Features
@@ -50,7 +50,7 @@ mothballed: false
           Get the number of environment variables in the environment block along with the size of the block.
         </li>
         <li>
-          List and enumerate the names, or names and value, of all environment variables in the environment block.
+          List and enumerate the names, or names and values, of all environment variables in the environment block.
         </li>
         <li>
           Create a new environment block suitable for passing to a child process.
@@ -60,6 +60,7 @@ mothballed: false
         There is also an enumerator class the provides an alternative way to enumerate environment variable names.
       </p>
     </div> <!-- /#features -->
+
     <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
       Demo code
     </h3>
@@ -71,12 +72,13 @@ mothballed: false
         The demo programs are documented in the file <code>DemosReadMe.htm</code> that can be found in the <code>Demos</code> directory.
       </p>
     </div> <!-- /#demo -->
+
     <h3 data-toggle="collapse" data-target="#how-it-works" class="collapsible collapsed">
-      How the components work
+      How the code works
     </h3>
     <div id="how-it-works" class="collapse"> <!-- begin collapsible #how-it-works section -->
       <p>
-        This unit uses ideas from my article &quot;<span class="tochange" title="Change link once articles moved to this site"><a href="http://delphidabbler.com/articles?article=6">How to access environment variables</a>,/span>&quot;. The article shows how to develop routines similar to some of those in this unit and discusses their operation.
+        This unit uses ideas from my article &quot;<a href="http://delphidabbler.com/articles?article=6">How to access environment variables</a>&quot;. The article shows how to develop routines similar to some of the methods in this unit and discusses their operation.
       </p>
     </div> <!-- /#how-it-works -->
   </div>
@@ -93,15 +95,10 @@ mothballed: false
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
-      <a
-        class="btn btn-primary"
-        role="button"
-        href="{{ dl-url }}"
-        aria-label="Go to SourceForge and download latest version automatically"
-      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
-      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the envvars project in the Subversion repo">trunk/projects/envvars</a></code> branch.
     </p>
     <p>
       Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
@@ -109,12 +106,6 @@ mothballed: false
     <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/envvars/release-{{ page.version }} codedir</pre>
     <p>
       where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
-    </p>
-    <p>
-      The code is developed in the <code><a
-        href="{{ page.repo-url }}"
-        aria-title="Go to the envvars project in the Subversion repo"
-      >trunk/projects/envvars</a></code> branch of the repository.
     </p>
     <p>
       The latest development tree can be checked out using:
@@ -138,14 +129,14 @@ mothballed: false
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <strong><code>PJEnvVars.pas</code></strong> &ndash; the <em>Environment Variables Unit</em> contains all source code, including the deprecated component, but excluding the component registration code.
+        <strong><code>PJEnvVars.pas</code></strong> &ndash; contains all source code, including the deprecated component, but excluding the component registration code.
       </li>
       <li class="list-group-item">
         <strong><code>PJEnvVars.dcr</code></strong> &ndash; component palette
-        glyph for the deprecated component.
+        glyph for the deprecated component. <span class="text-warning bg-warning glyph">Deprecated</span>
       </li>
       <li class="list-group-item">
-        <strong><code>PJEnvVarsDsgn.pas</code></strong> &ndash; registration code for the deprecated component.
+        <strong><code>PJEnvVarsDsgn.pas</code></strong> &ndash; registration code for the deprecated component. <span class="text-warning bg-warning glyph">Deprecated</span>
       </li>
       <li class="list-group-item">
         <code>ReadMe.htm</code> &ndash; read-me file.
@@ -157,7 +148,7 @@ mothballed: false
         <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
       </li>
       <li class="list-group-item">
-        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+        <code>Documentation.URL</code> &ndash; short-cut to the unit's online documentation.
       </li>
     </ul>
     <p>
@@ -178,7 +169,7 @@ mothballed: false
       </li>
     </ol>
     <p class="alert alert-warning glyph">
-      None of the above methods will install the deprecated component into the Delphi IDE. To do this you need to add <code>PJEnvVars.pas</code>, <code>PJEnvVars.dcr</code> and <code>PJEnvVarsDsgn.pas</code> should be added to a design time package. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+      None of the above methods will install the deprecated component into the Delphi IDE. To do this you need to add <code>PJEnvVars.pas</code>, <code>PJEnvVars.dcr</code> and <code>PJEnvVarsDsgn.pas</code> should be added to a design time package. If you need help doing this <a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a>.
     </p>
   </div>
 </section>
@@ -191,8 +182,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Environment Variables Unit</em> is comprehensively documented online
-      <a href="http://wiki.delphidabbler.com/index.php/Docs/EnvVars" aria-title="View the online documentation">here</a>
+      The <em>Environment Variables Unit</em> is comprehensively documented online <a href="http://wiki.delphidabbler.com/index.php/Docs/EnvVars" aria-title="View the online documentation">here</a>
     </p>
     <p>
       The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/envvars/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
@@ -223,7 +213,7 @@ mothballed: false
       If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/EnvVars">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+      Should you have any queries about using the unit please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/EnvVars">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
     </p>
   </div>
 </section>
@@ -237,7 +227,7 @@ mothballed: false
   <div class="panel-body">
     <p>
       <span class="fa fa-copyright fa-pull-left fa-3x"></span>
-      The <em>Environment Variables Unit</em> is open source. They are copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      The <em>Environment Variables Unit</em> is open source. It is copyright &copy; 2001-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
   </div>
 </section>

@@ -1,7 +1,6 @@
 ---
 dl-file-prefix: "dd-aboutbox-"
 layout: "codelib-tplt"
-# id: aboutbox - id gets overridden by system with name of collection
 group: lib
 priority: 7
 version: "3.6.1"
@@ -31,11 +30,15 @@ mothballed: false
       This  non-visual component encapsulates an About Box. When displayed the About Box appears like this:
     </p>
     <p class="text-center">
-      <img src="{{ site.base-url }}/assets/images/software/aboutbox.png" alt="Vista screenshot of About dialog box" title="About dialog box" class="scale" style="width:360px;" />
+      <img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/aboutbox.png" alt="Vista screenshot of About dialog box" title="About dialog box" class="scale" style="width:360px;" />
+    </p>
+    <p>
+      The dialogue box can either display information stored in its properties or from the host program's version information resources.
     </p>
     <p class="alert alert-warning glyph">
-      <var>TPJAboutBoxDlg</var> requires that a DelphiDabbler <a href="{{ site.base-url }}/software/verinfo">Version Information Component</a> is already installed in order to compile.
+      <var>TPJAboutBoxDlg</var> requires that a DelphiDabbler <a href="{{ site.base-url }}{{ site.data.core.software-base-url}}/verinfo">Version Information Component</a> is already installed in order to compile.
     </p>
+
     <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
       Features
     </h3>
@@ -45,7 +48,7 @@ mothballed: false
       </p>
       <ul>
         <li>
-          <var>Title</var> &ndash; Contents appear in the window title. The default value is 'About'.
+          <var>Title</var> &ndash; The dialogue box's window caption. The default value is 'About'.
         </li>
         <li>
           <var>ProgramName</var> &ndash; The name of the program. This is the title  of the application. The default value is the same as <var>TApplications</var>'s <var>Title</var> property.
@@ -61,15 +64,16 @@ mothballed: false
         </li>
       </ul>
       <p>
-        Alternatively, the about box can display information from a VERSIONINFO resource included in the program. This is accessed via a linked <var>TPJVersionInfo</var> component. The values of the <var>ProgramName</var>, <var>Version</var>, <var>Copyright</var> and <var>Notes</var> properties are ignored and relevant strings from the program's version information is used in their stead.
+        Alternatively, the about box can display information from a VERSIONINFO resource included in the program. This is accessed via a linked <var>TPJVersionInfo</var> component. The values of the <var>ProgramName</var>, <var>Version</var>, <var>Copyright</var> and <var>Notes</var> properties are ignored and relevant strings from the program's version information are used in their stead.
       </p>
       <p>
-        The dialog's position can be specified relative to the screen, desktop or parent application. The dialog has a single close button whose appearance and position is customised. The About box also displays the program's icon.
+        The dialog's position can be specified relative to the screen, desktop or parent application. The dialog has a single close button whose appearance and position can be customised. The About box also displays the program's icon.
       </p>
       <p>
         Finally, the dialog box's font can be specified using the component's <var>Font</var> property.
       </p>
     </div> <!-- /#features -->
+
     <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
       Demo code
     </h3>
@@ -92,15 +96,10 @@ mothballed: false
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
-      <a
-        class="btn btn-primary"
-        role="button"
-        href="{{ dl-url }}"
-        aria-label="Go to SourceForge and download latest version automatically"
-      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
-      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the aboutbox project in the Subversion repo">trunk/projects/aboutbox</a></code> branch.
     </p>
     <p>
       Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
@@ -108,12 +107,6 @@ mothballed: false
     <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/aboutbox/release-{{ page.version }} codedir</pre>
     <p>
       where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
-    </p>
-    <p>
-      The code is developed in the <code><a
-        href="{{ page.repo-url }}"
-        aria-title="Go to the aboutbox project in the Subversion repo"
-      >trunk/projects/aboutbox</a></code> branch of the repository.
     </p>
     <p>
       The latest development tree can be checked out using:
@@ -137,21 +130,19 @@ mothballed: false
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <strong><code>PJAbout.pas</code></strong> &ndash; component source
-        code.
+        <strong><code>PJAbout.pas</code></strong> &ndash; component source code.
       </li>
       <li class="list-group-item">
-        <strong><code>PJAbout.dfm</code></strong> &ndash; for file containing the about box.
+        <strong><code>PJAbout.dfm</code></strong> &ndash; form file containing the about box.
       </li>
       <li class="list-group-item">
-        <strong><code>PJAbout.dcr</code></strong> &ndash; component palette
-        glyphs.
+        <strong><code>PJAbout.dcr</code></strong> &ndash; component palette glyph.
       </li>
       <li class="list-group-item">
         <code>ReadMe.htm</code> &ndash; read-me file.
       </li>
       <li class="list-group-item">
-        <code>ChangeLog.txt</code> &ndash; component's change log.
+        <code>ChangeLog.txt</code> &ndash; project change log.
       </li>
       <li class="list-group-item">
         <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
@@ -160,19 +151,17 @@ mothballed: false
         <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
       </li>
       <li class="list-group-item">
-        <code>PJAbout.hlp</code> &ndash; component help file that integrates
-        with the Delphi 3-7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+        <code>PJAbout.hlp</code> &ndash; component help file that integrates with the Delphi 3-7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
       </li>
       <li class="list-group-item">
-        <code>PJAbout.als</code> &ndash; a-link keyword file for integration
-        with the Delphi 6 or 7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+        <code>PJAbout.als</code> &ndash; a-link keyword file for integration with the Delphi 6 or 7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
       </li>
     </ul>
     <p>
       In addition to the above files you will find the the source code of a demo project in the <code>Demo</code> sub-directory.
     </p>
     <p>
-      You can now install the components into the Delphi IDE. To do this, the files <code>PJAbout.pas</code>, <code>PJAbout.dfm</code> and <code>PJAbout.dcr</code> should be added to a design time package. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+      You may now install the component into the Delphi IDE. To do this, the files <code>PJAbout.pas</code>, <code>PJAbout.dfm</code> and <code>PJAbout.dcr</code> should be added to a design time package. If you need help doing this <a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a>.
     </p>
   </div>
 </section>
@@ -185,8 +174,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>About Box Component</em> is comprehensively documented online
-      <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/AboutBoxComponent.md" aria-title="View the online documentation">here</a>
+      The <em>About Box Component</em> is comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/AboutBoxComponent.md" aria-title="View the online documentation">here</a>
     </p>
     <p>
       The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/aboutbox/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
@@ -196,10 +184,10 @@ mothballed: false
     </p>
     <div class="alert alert-info">
       <p>
-        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <span class="tochange" title="change URL once articles have been brought over"><a href="http://delphidabbler.com/articles?article=15">this article</a></span> explains how to do it.
+        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <a href="http://delphidabbler.com/articles?article=15">This article</a> explains how to do it.
       </p>
       <p class="alert alert-warning glyph">
-        This help file is deprecated and is no longer being updated. The last update was in the v3.6.1 release.
+        This help file is deprecated and is no longer being updated. The last update was in the v3.6.1 release. The help file may be removed from any future release.
       </p>
     </div>
   </div>
@@ -225,7 +213,7 @@ mothballed: false
       If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/AboutBoxComponent.md">documentation</a> and/or <span class="tochange" title="Need to move FAQ over to GitHub"><a href="http://wiki.delphidabbler.com/index.php/FAQs/AboutBoxComponent">FAQ</a></span>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+      Should you have any queries about using the component please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/AboutBoxComponent.md">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
     </p>
   </div>
 </section>
@@ -238,8 +226,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
-      The <em>About Box Component</em> is open source. They are copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>About Box Component</em> is open source. It is copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
   </div>
 </section>

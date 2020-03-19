@@ -30,7 +30,7 @@ mothballed: false
       This unit, named <code>DelphiDabbler.Lib.Fractions.pas</code>, provides a single Delphi Pascal &quot;Advanced&quot; record, <var>TFraction</var>, that encapsulates a fraction and a number of operations on it.
     </p>
     <p>
-      A whole bunch of operator overloads make it straightforward to perform all the usual arithmetic operations on a fraction and to cast a <var>TFraction</var> to a from an integer or floating point value.
+      A whole bunch of operator overloads make it straightforward to perform all the usual arithmetic operations on a fraction and to cast a <var>TFraction</var> to and from an integer or floating point value.
     </p>
     <h3>
       Testing
@@ -52,15 +52,10 @@ mothballed: false
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
-      <a
-        class="btn btn-primary"
-        role="button"
-        href="{{ dl-url }}"
-        aria-label="Go to SourceForge and download latest version automatically"
-      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
-      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the fractions project in the Subversion repo">trunk/projects/fractions</a></code> branch.
     </p>
     <p>
       Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
@@ -68,12 +63,6 @@ mothballed: false
     <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/fractions/release-{{ page.version }} codedir</pre>
     <p>
       where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
-    </p>
-    <p>
-      The code is developed in the <code><a
-        href="{{ page.repo-url }}"
-        aria-title="Go to the fractions project in the Subversion repo"
-      >trunk/projects/fractions</a></code> branch of the repository.
     </p>
     <p>
       The latest development tree can be checked out using:
@@ -109,7 +98,7 @@ mothballed: false
         <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
       </li>
       <li class="list-group-item">
-        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+        <code>Documentation.URL</code> &ndash; short-cut to the class' online documentation.
       </li>
     </ul>
     <p>
@@ -123,10 +112,10 @@ mothballed: false
         The simplest way is to add <code>DelphiDabbler.Lib.Fractions.pas</code> to your projects as you need it.
       </li>
       <li>
-        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder where you extracted the unit to the Delphi Search path. You then simply use the unit as required without needing to add it to your project.
+        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder where you extracted the unit to the search path. You then simply use the unit as required without needing to add it to your project.
       </li>
       <li>
-        For maximum portability you can add the unit to a Delphi design time package. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+        For maximum portability you can add the unit to a Delphi design time package. If you need help doing this <a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a>.
       </li>
     </ol>
   </div>
@@ -140,8 +129,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Fractions Unit</em> is comprehensively documented online
-      <a href="http://wiki.delphidabbler.com/index.php/Docs/Fractions" aria-title="View the online documentation">here</a>
+      The <em>Fractions Unit</em> is comprehensively documented online <a href="http://wiki.delphidabbler.com/index.php/Docs/Fractions" aria-title="View the online documentation">here</a>
     </p>
     <p>
       The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/fractions/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
@@ -172,7 +160,7 @@ mothballed: false
       If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/Fractions">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+      Should you have any queries about using the unit please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/Fractions">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
     </p>
   </div>
 </section>
@@ -185,8 +173,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
-      The <em>Fractions Unit</em> is open source. It is copyright &copy; 2013-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>Fractions Unit</em> is open source. It is copyright &copy; 2013-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
   </div>
 </section>

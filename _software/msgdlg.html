@@ -27,7 +27,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      This unit provides various customisable message dialog box components. Three components are installed on the component palette. They are:
+      This unit provides various customisable message dialogue box components. Three components are installed on the component palette. They are:
     </p>
     <dl class="wide">
       <dt>
@@ -43,6 +43,7 @@ mothballed: false
         This component uses the Delphi VCL <var>CreateMessageDialog</var> function to create a form based message box. (<var>CreateMessageDialog</var> is used by the standard Delphi <var>MessageDlgXXX</var> functions). The component provides more flexibility than either the Delphi functions or <var>TPJWinMsgDlg</var>. It should be used when it is necessary to display buttons or combinations of buttons that are not supported by the Windows API message box or when a finer degree of control over the appearance and behaviour of the message box is required. <var>TPJVCLMsgDlg</var> supports all the features of <var>TPJWinMsgDlg</var> and extends them. The dialogue box component's form can be customised by handling the <var>OnShow</var> and <var>OnHide</var> events.
       </dd>
     </dl>
+
     <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
       Demo code
     </h3>
@@ -65,15 +66,10 @@ mothballed: false
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
-      <a
-        class="btn btn-primary"
-        role="button"
-        href="{{ dl-url }}"
-        aria-label="Go to SourceForge and download latest version automatically"
-      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
-      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the msgdlg project in the Subversion repo">trunk/projects/msgdlg</a></code> branch.
     </p>
     <p>
       Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
@@ -81,12 +77,6 @@ mothballed: false
     <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/msgdlg/release-{{ page.version }} codedir</pre>
     <p>
       where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
-    </p>
-    <p>
-      The code is developed in the <code><a
-        href="{{ page.repo-url }}"
-        aria-title="Go to the msgdlg project in the Subversion repo"
-      >trunk/projects/msgdlg</a></code> branch of the repository.
     </p>
     <p>
       The latest development tree can be checked out using:
@@ -110,12 +100,10 @@ mothballed: false
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <strong><code>PJMessageDialog.pas</code></strong> &ndash; component source
-        code.
+        <strong><code>PJMessageDialog.pas</code></strong> &ndash; component source code.
       </li>
       <li class="list-group-item">
-        <strong><code>PJMessageDialog.dcr</code></strong> &ndash; component palette
-        glyphs.
+        <strong><code>PJMessageDialog.dcr</code></strong> &ndash; component palette glyphs.
       </li>
       <li class="list-group-item">
         <code>ReadMe.htm</code> &ndash; read-me file.
@@ -127,14 +115,14 @@ mothballed: false
         <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
       </li>
       <li class="list-group-item">
-        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+        <code>Documentation.URL</code> &ndash; short-cut to the components' online documentation.
       </li>
     </ul>
     <p>
       In addition to the above files you will find the source code of the demo project in the <code>Demo</code> sub-directory.
     </p>
     <p>
-      You can now install the components into the Delphi IDE. To do this, the files <code>PJMessageDialog.pas</code> and <code>PJMessageDialog.dcr</code> should be added to a design time package. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>.
+      You can now install the components into the Delphi IDE. To do this, the files <code>PJMessageDialog.pas</code> and <code>PJMessageDialog.dcr</code> should be added to a design time package. If you need help doing this <a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a>.
     </p>
   </div>
 </section>
@@ -147,8 +135,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Message Dialogue Components</em> are comprehensively documented online
-      <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/MessageDialogComponents.md" aria-title="View the online documentation">here</a>
+      The <em>Message Dialogue Components</em> are comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/MessageDialogComponents.md" aria-title="View the online documentation">here</a>
     </p>
     <p>
       The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/msgdlg/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
@@ -157,7 +144,7 @@ mothballed: false
       A read-me file (<code>ReadMe.htm</code>) is included in the project download.
     </p>
     <p>
-      There is also an <span class="tochange" title="Need to move FAQ over to GitHub"><a href="http://wiki.delphidabbler.com/index.php/FAQs/MessageDialogComponents">FAQ</a></span>.
+      There is also an <a href="http://wiki.delphidabbler.com/index.php/FAQs/MessageDialogComponents">FAQ</a>.
     </p>
   </div>
 </section>
@@ -182,7 +169,7 @@ mothballed: false
       If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/MessageDialogComponents.md">documentation</a> and/or <span class="tochange" title="Need to move FAQ over to GitHub"><a href="http://wiki.delphidabbler.com/index.php/FAQs/MessageDialogComponents">FAQ</a></span>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/MessageDialogComponents.md">documentation</a> and/or <a href="http://wiki.delphidabbler.com/index.php/FAQs/MessageDialogComponents">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
     </p>
   </div>
 </section>

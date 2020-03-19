@@ -27,6 +27,9 @@ ul {
     // margin based on bootstrap's styling of the p tag
     margin: ($line-height-computed / 2) 0 ($line-height-computed / 2) 0;
   }
+  &.narrow li {
+    margin: 0;
+  }
   &.list-group {
     margin-left: 0;
   }

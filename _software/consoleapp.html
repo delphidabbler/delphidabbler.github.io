@@ -27,10 +27,10 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Console Application Runner</em> classes are designed to be used to control the execution of child console application processes. There are two classes: a class named <var>TPJCustomConsoleApp</var> that is provided a base class for user-defined sub-classes, and <var>TPJConsoleApp</var> that is used to provide a general way to run and manipulate console applications. Both classes are provided in a single unit, <var>PJConsoleApp</var>.
+      The <em>Console Application Runner</em> classes are designed to be used to control the execution of child console application processes. There are two classes: a class named <var>TPJCustomConsoleApp</var> that is provided as a base class for user-defined sub-classes, and <var>TPJConsoleApp</var> that is used to provide a general way to run and manipulate console applications. Both classes are provided in a single unit, <var>PJConsoleApp</var>.
     </p>
     <p>
-      The classes enable the console application's standard input, standard output and standard error to be redirected to and from files or pipes. They can also timeslice the running of the console application to enable the calling application to continue processing and to enable redirected piped output to be processed.
+      The classes enable the console application's standard input, standard output and standard error to be redirected to and from files or pipes. They can also timeslice the running of the console application to enable the calling application to continue processing in parallel and to enable redirected output to be processed.
     </p>
 
     <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
@@ -42,16 +42,14 @@ mothballed: false
       </p>
       <div class="alert alert-info">
         <p>
-          <span class="fa fa-info-circle fa-fw fa-pull-left"></span>
-          Please note that some of the demos use units and classes from the DelphiDabbler <a href="{{ site.base-url }}/software/ioutils.html">IO Utility Classes</a> project. Before attempting to compile the affected demos you need to download this project and copy the required units to the <code>Demos\IOUtils</code> directory.
+          <span class="fa fa-info-circle fa-fw fa-pull-left"></span> Please note that some of the demos use units and classes from the DelphiDabbler <a href="{{ site.base-url }}{{ site.data.core.software-base-url}}/ioutils.html">IO Utility Classes</a> project. Before attempting to compile the affected demos you need to download this project and copy the required units to the <code>Demos\IOUtils</code> directory.
         </p>
         <p class="alert alert-warning glyph">
           Users of Delphi XE5 and later must use IO Utility Classes v1.0.1 or later.
         </p>
       </div>
       <p>
-        For more information see the file <code>README.txt</code> in the
-        <code>Demos</code> directory of the download.
+        For more information see the file <code>README.txt</code> in the <code>Demos</code> directory of the download.
       </p>
     </div> <!-- /#demo -->
 
@@ -60,7 +58,7 @@ mothballed: false
     </h3>
     <div id="deleted-code" class="collapse callout callout-danger"> <!-- begin collapsible #deleted-code section -->
       <p>
-        As of v3.0 the <var>TPJPipe</var>, <var>TPJPipeFilters</var> &amp; <var>TPJFileHandle</var> classes were removed from the project into a separate project: <a href="{{ site.base-url }}/software/ioutils.html">I/O Utility Classes</a>.
+        As of v3.0 the <var>TPJPipe</var>, <var>TPJPipeFilters</var> &amp; <var>TPJFileHandle</var> classes were removed from the project into <a href="{{ site.base-url }}{{ site.data.core.software-base-url}}/ioutils.html">I/O Utility Classes</a>.
       </p>
     </div> <!-- /#deleted-code -->
   </div>
@@ -77,15 +75,10 @@ mothballed: false
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
-      <a
-        class="btn btn-primary"
-        role="button"
-        href="{{ dl-url }}"
-        aria-label="Go to SourceForge and download latest version automatically"
-      >Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}"  aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
-      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the consoleapp project in the Subversion repo">trunk/projects/consoleapp</a></code> branch.
     </p>
     <p>
       Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
@@ -93,12 +86,6 @@ mothballed: false
     <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/consoleapp/release-{{ page.version }} codedir</pre>
     <p>
       where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
-    </p>
-    <p>
-      The code is developed in the <code><a
-        href="{{ page.repo-url }}"
-        aria-title="Go to the consoleapp project in the Subversion repo"
-      >trunk/projects/consoleapp</a></code> branch of the repository.
     </p>
     <p>
       The latest development tree can be checked out using:
@@ -149,10 +136,10 @@ mothballed: false
         The simplest way is to add <code>PJConsoleApp.pas</code> to your projects as and when you need it.
       </li>
       <li>
-        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder where you extracted the units to the search path. You then simply use the units as required without needing to add them to your project.
+        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder where you extracted the unit to the search path. You then simply use the unit as required without needing to add them to your project.
       </li>
       <li>
-        For maximum portability you can add the unit to a Delphi design time package. If you need help doing this <span class="tochange" title="if tips don't come over to new site may need to delete this link"><a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a></span>..
+        For maximum portability you can add the unit to a Delphi design time package. If you need help doing this <a href="http://delphidabbler.com/tips/106" aria-title="see a tip on working with design time packages">see here</a>.
       </li>
     </ol>
   </div>
@@ -166,8 +153,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      The <em>Console Application Runner Classes</em> are comprehensively documented online
-      <a href="http://wiki.delphidabbler.com/index.php/Docs/ConsoleAppAPI" aria-title="View the online documentation">here</a>
+      The <em>Console Application Runner Classes</em> are comprehensively documented online <a href="http://wiki.delphidabbler.com/index.php/Docs/ConsoleAppAPI" aria-title="View the online documentation">here</a>
     </p>
     <p>
       The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/consoleapp/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
@@ -176,7 +162,7 @@ mothballed: false
       A read-me file (<code>ReadMe.htm</code>) is included in the project download.
     </p>
     <p>
-      The is also an <span class="tochange" title="Need to move FAQ over to GitHub"><a href="http://wiki.delphidabbler.com/index.php/FAQs/ConsoleAppClasses">FAQ</a></span>.
+      The is also an <a href="http://wiki.delphidabbler.com/index.php/FAQs/ConsoleAppClasses">FAQ</a>.
     </p>
   </div>
 </section>
@@ -201,7 +187,7 @@ mothballed: false
       If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/ConsoleAppAPI">documentation</a> and/or <span class="tochange" title="Need to move FAQ over to GitHub"><a href="http://wiki.delphidabbler.com/index.php/FAQs/ConsoleAppClasses">FAQ</a></span>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+      Should you have any queries about using the classes please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/ConsoleAppAPI">documentation</a> and/or <a href="http://wiki.delphidabbler.com/index.php/FAQs/ConsoleAppClasses">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
     </p>
   </div>
 </section>
@@ -214,8 +200,7 @@ mothballed: false
   </div>
   <div class="panel-body">
     <p>
-      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
-      The <em>Console Application Runner Classes</em> are open source. They are copyright &copy; 2007-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>Console Application Runner Classes</em> are open source. They are copyright &copy; 2007-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
   </div>
 </section>
