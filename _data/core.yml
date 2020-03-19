@@ -20,6 +20,8 @@ about-link-title: "About page"
 credits-link: "/credits.html"
 credits-link-title: "Credits page"
 
+install-to-ide-link: "/install-to-ide.html"
+
 software-base-url: "/software"
 
 bootstrap-link: "/assets/scripts/bootstrap.js"
