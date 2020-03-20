@@ -1,0 +1,106 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 5
+version: "2.0.0"
+release-date: "2014/07/20"
+os: "Windows 2000 & later"
+title: "File Date Comparison Utility"
+precis: "Compares the last modification date of two files"
+summary: "Compares the last modification date of two files. For use in batch files etc."
+download-base-url: "https://github.com/delphidabbler/compfiledate/releases/tag/v"
+repo-url: "https://github.com/delphidabbler/compfiledate"
+want-header-buttons: true
+mothballed: false
+---
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This console application compares the last modification dates of two files whose names are passed on the command line and returns an exit code that indicates the result.
+    </p>
+    <p>
+      The type of comparison required can be customised. The program can compare either the last modification date or the creation date of files. In the case of shortcut files either the date of the shortcut file itself or that of the file it references can be compared.
+    </p>
+    <p>
+      For details of how to use the programs read <code>ReadMe.txt</code> &ndash; the file is linked to in the <a href="#docs">documentation section</a> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/compfiledate</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+    </p>
+    <p>
+      Each release gives the option of downloading either the program in executable format or the source code. Your options are:
+    </p>
+    <ul>
+      <li>
+        Choose <code>compfiledate-exe-{{page.version}}.zip</code> to download a zip file containing the program. Extract the content of the <code>.zip</code> file. The included read-me file (<code>ReadMe.txt</code>) explains how to install and use the program.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a g-zipped tarball.
+      </li>
+    </ul>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default" id="docs">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The following documentation is available. All the links open on GitHub.
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/compfiledate/blob/master/README.md">Read Me<span class="sr-only"> (markdown format text file)</span></a> &ndash; contains details of how to install the program, along with other information.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/compfiledate/master/LICENSE.txt">License<span class="sr-only"> (text file)</span></a> &ndash; the program's end user license agreement.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/compfiledate/master/Docs/ChangeLog.txt">Change Log<span class="sr-only"> (text file)</span></a> &ndash; lists significant changes made in each program release.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/compfiledate/master/Build.txt">Build File<span class="sr-only"> (text file)</span></a> &ndash; provides detailed information on how to build the program from source.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Bugs &amp; Feature Requests
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please use the GitHub project's <a href="https://github.com/delphidabbler/compfiledate/issues">issue tracker</a>. You can browse existing issues to see if a similar one has already been raised. If so please add any further information as comments. If there is no similar issue please raise new one.
+    </p>
+    <p class="alert alert-warning glyph">
+      You will need a GitHub account if you want to create or edit an issue.
+    </p>
+  </div>
+</section>

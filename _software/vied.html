@@ -1,0 +1,115 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 3
+version: "2.13.1"
+os: "Windows XP & later"
+release-date: "2014/10/14"
+title: "Version Information Editor"
+precis: "Creates version information resource files from templates."
+summary: "Creates version information resource files from templates that can be compiled and embedded in executable programs."
+download-base-url: "https://github.com/delphidabbler/vied/releases/tag/v"
+repo-url: "https://github.com/delphidabbler/vied"
+want-header-buttons: true
+mothballed: false
+---
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <em>Version Information Editor</em> enables version information to be edited. It also creates version information resource source (<code>.rc</code>) files. The program stores details of the version information in its own project (<code>.vi</code>) files. Simple macros can be used to help automate the updating of version information files.
+    </p>
+    <p>
+      The program can also create binary resource (<code>.res</code>) files containing version information. To do this it needs to use a 3rd party resource compiler such as Borland's <em>BRCC32</em>.
+    </p>
+    <p>
+      From v2.11 the program supports a command line switch, <code>-makerc</code>,  that silently creates a <code>.rc</code> file from a native <code>.vi</code> file passed on the command line. The program simply creates the <code>.rc</code> file and exits, without displaying a window. This option has been made available to enable <em>Version Information Editor</em> to be used in automated build processes.
+    </p>
+    <p class="callout callout-info">
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span><em>Version Information Editor</em> is copyright &copy; 1998-2014 by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter Johnson</a>. The executable version of the program is made available under the terms of the <a href="{{ site.data.core.mpl-2-license-url }}" aria-label="{{ site.data.core.mpl-2-license-link-title }}">Mozilla Public License v2.0</a>. This means you can use, copy and distribute <em>Version Information Editor</em> as you wish.
+    </p>
+    <p class="alert alert-info glyph">
+      If you need to extract version information from an existing program without editing it you need the DelphiDabbler <a href="{{ site.base-url }}{{ site.data.core.software-base-url}}/vis">Version Information Spy</a>. This program can extract and display version information from executable programs or binary resource files. It can also decompile binary version information into resource source code.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/vied</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+    </p>
+    <p>
+      Each release gives the option of downloading either the programs's installer or the source code. Your options are:
+    </p>
+    <ul>
+      <li>
+        Choose <code>vied-exe-{{page.version}}.zip</code> to download a zip file containing the program. Extract the content of the <code>.zip</code> file. The included read-me file (<code>ReadMe.txt</code>) explains how to install and use the program.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a g-zipped tarball.
+      </li>
+    </ul>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The following documentation is available. All of it opens on GitHub.
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vied/master/Docs/ReadMe.txt">Read Me<span class="sr-only"> (text file)</span></a> &ndash; contains details of how to install the program, along with other information.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vied/master/Docs/ChangeLog.txt">Change Log<span class="sr-only"> (text file)</span></a> &ndash; lists significant changes made in each program release.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-code-o" aria-hidden="true"></span><a href="http://htmlpreview.github.io/?https://github.com/delphidabbler/vied/blob/master/Build.html">Build File<span class="sr-only"> (HTML file)</span></a> &ndash; provides detailed information on how to build the program from source.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Bugs &amp; Feature Requests
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can report bugs or suggest new features using the <em>Version Information
+      Editor</em> <a href="https://github.com/delphidabbler/vied/issues" class="offsite">issue tracker</a> on GitHub.
+    </p>
+    <p>
+      Please review existing bug reports and feature requests before creating a
+      new issue. If an issue already exists you may be able to help by adding a
+      further comment.
+    </p>
+    <p class="alert alert-warning glyph">
+      You will need a GitHub account if you want to create or edit an issue.
+    </p>
+  </div>
+</section>

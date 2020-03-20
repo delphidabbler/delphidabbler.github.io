@@ -1,0 +1,213 @@
+---
+dl-file-prefix: "dd-streams-"
+layout: "codelib-tplt"
+group: lib
+priority: 16
+version: "3.1.2"
+release-date: "2014-01-12"
+platforms: ["Win32", "Win64"]
+frameworks: ["RTL"]
+compatibility: "Delphi 4 & later"
+title: "Stream Extension Classes"
+precis: "Several classes to wrap and operate on TStream classes"
+summary: "Source code of classes that provide a means to wrap TStream classes. Provides a stream wrapper, classes to help with writing resource files and IStream wrappers for various TStream classes."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/streams/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/streams/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This library provides some classes that can be used to extend the functionality of Delphi's <var>TStream</var> classes.
+    </p>
+    <p>
+      The classes provided are:
+    </p>
+    <ul class="wide">
+      <li>
+        A <var>TStream</var> derived class which can wrap another <var>TStream</var>. This is useful as a base class for filters to wrap round existing stream classes.
+      </li>
+      <li>
+        A set of classes that wrap existing streams and provide an <var>IStream</var> interface to them &ndash; like Delphi's previously undocumented <var>TStreamAdapter</var> class. Also included is a class that provides a <var>IStream</var> interface to any file or any handle stream.
+      </li>
+    </ul>
+
+    <h3 data-toggle="collapse" data-target="#unit-tests" class="collapsible collapsed">
+      Unit tests
+    </h3>
+    <div id="unit-tests" class="collapse"> <!-- begin collapsible #unit-tests section -->
+      <p>
+        Unit tests are provided for the classes in the <code>Tests</code> directory. You need to have DUnit installed in order to run these tests.
+      </p>
+    </div> <!-- /#unit-tests -->
+
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+    <p>
+      Three demo projects are provided in the download:
+    </p>
+      <ol class="wide">
+        <li>
+          <code>IStreamWrap.dpr</code> in the <code>IStreamWrapDemo</code> sub-directory. This is a VCL project that demonstrates the IStream wrapper classes in the <var>PJIStreams</var> unit.
+        </li>
+        <li>
+          <code>IStreamWrapFMX.dpr</code> in the <code>IStreamWrapDemoFMX</code> sub-directory. This is a FireMonkey 2 project that demonstrates the IStream wrapper classes in the <var>PJIStreams</var> unit. It is similar, but not identical, to <code>IStreamWrap.dpr</code>.
+        </li>
+        <li>
+          <code>StreamWrap.dpr</code> in the <code>StreamWrapDemo</code> sub-directory. This is a VCL project that demonstrates the <var>PJStreamWrapper</var> unit.
+        </li>
+      </ol>
+    </div> <!-- /#demo -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the streams project in the Subversion repo">trunk/projects/streams</a></code> branch.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/streams/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/streams codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Stream Extension Classes</em>, documents, demos and unit tests are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJStreamWrapper.pas</code></strong> &ndash; source code of the <var>TPJStreamWrapper</var> class.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJIStreams.pas</code></strong> &ndash; source code of classes that implement the <var>IStream</var> interface.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; project change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the unit's online documentation.
+      </li>
+    </ul>
+    <p>
+      There are also demo projects in the <code>Demos</code> directory and unit tests in the <code>Tests</code> directory.
+    </p>
+    <p>
+      There are three possible ways to use the units.
+    </p>
+    <ol class="wide">
+      <li>
+        The simplest way is to add the units <code>PJStreamWrapper.pas</code> and <code>PJIStreams.pas</code> to your projects as you need them.
+      </li>
+      <li>
+        To make the units easier to re-use you can either copy them to a folder on your Delphi search path, or add the folder where you extracted the units to the search path. You then simply use the units as required without needing to add them to your project.
+      </li>
+      <li>
+        For maximum portability you can add the units to a Delphi design time package. If you need help doing this <a href="{{ site.base-url }}{{ site.data.core.install-to-ide-link }}" aria-title="see a tip on working with design time packages">see here</a>.
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Stream Extension Classes</em> are comprehensively documented online <a href="http://wiki.delphidabbler.com/index.php/Docs/Streams" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/streams/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>streams</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the classes please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/Streams">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>Stream Extension Classes</em> are open source. They are copyright &copy; 2000-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

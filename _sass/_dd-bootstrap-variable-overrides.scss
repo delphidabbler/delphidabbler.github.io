@@ -55,7 +55,7 @@ $code-color:              $gray;  //** custom [orig: #c7254e]
 $code-bg:                 $gray-lighter;  //** custom [orig: #f9f2f4]
 
 $kbd-color:               #ffffff;; //** bootstrap default
-$kbd-bg:                  #333333; //** bootstrap default
+$kbd-bg:                  lighten($brand-primary, 15); //** custom [orig:#333333]
 
 $pre-bg:                  #f5f5f5; //** bootstrap default
 $pre-color:               $gray-dark; //** bootstrap default
@@ -89,3 +89,4 @@ $jumbotron-color: #ffffff;
 $jumbotron-padding: 20px;
 // follow var is not in Bootstrap
 $jumbotron-font-size-xs:            ceil(($font-size-base * 1.2));
+

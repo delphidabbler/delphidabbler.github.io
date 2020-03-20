@@ -1,0 +1,44 @@
+---
+layout: default
+---
+<!-- BEGIN program page content -->
+
+<div class="sw-page-header">
+  <header>
+    <h1>{{ page.title | escape }}</h1>
+    <p class="strapline">{{ page.precis | escape }}</p>
+    {% if page.want-header-buttons %}
+    <div class="row">
+      <div class="col-lg-offset-3 col-lg-3 col-sm-offset-2 col-sm-4 col-xs-6">
+        <a href="{{ page.download-base-url }}{{ page.version }}" class="btn btn-primary btn-block"><span class="fa fa-download fa-x-pad-right"></span> Download<span class="hidden-xs"> v{{ page.version }}</span></a>
+      </div>
+      <div class="col-lg-3 col-sm-4 col-xs-6">
+        <a href="{{ page.repo-url }}" aria-label="View on GitHub" class="btn btn-primary btn-block"><span class="fa fa-github fa-x-pad-right"></span><span class="hidden-xs">View On </span>Github</a>
+      </div>
+    </div>
+    {% endif %}
+  </header>
+</div>
+
+<div class="sw-meta">
+<table>
+  <tr>
+    <th>Version</th>
+    <td>{{ page.version | escape }}</td>
+  </tr>
+  <tr>
+    <th>Released</td>
+    <td>{{ page.release-date | date_to_string }}</td>
+  </tr>
+  {% if page.os != "" %}
+  <tr>
+    <th>O/S</td>
+    <td>{{ page.os | escape }}</td>
+  </tr>
+  {% endif %}
+</table>
+</div>
+
+{{ content }}
+
+<!-- END program page content -->

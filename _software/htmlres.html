@@ -1,0 +1,112 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 2
+version: "1.2.1"
+release-date: "2014/02/20"
+os: Windows 2000 & later
+title: "HTML Resource Compiler"
+precis: "Compiles HTML, JS, image files etc. into RT_HTML resources"
+summary: "Compiles HTML and associated JavaScript and images files etc. into RT_HTML resources in 32 bit resource files suitable for use with Internet Explorer's res:// protocol or with TWebBrowser."
+download-base-url: "https://github.com/delphidabbler/htmlres/releases/tag/v"
+repo-url: "https://github.com/delphidabbler/htmlres"
+want-header-buttons: true
+mothballed: false
+---
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <em>HTML Resource Compiler</em> (or <em>HTMLRes</em>) is a simple command line application for creating 32 bit binary resource files that contain HTML code that can be displayed using Internet Explorer's <code>res://</code> protocol. For details on how to use the protocol see my article &quot;<a href="http://www.delphidabbler.com/articles?article=10">How to create and use HTML resource files</a>&quot;.
+    </p>
+    <p>
+      The application takes a list of HTML and related support files and copies the content of each file into a separate <var>HTML</var> resource within a binary resource file. Each resource has the same name as the source file. This makes porting standard HTML files to embedded resources very easy &ndash; and it is something that Borland's <em>BRCC32</em> resource compiler won't allow!
+    </p>
+    <p>
+      The program can either insert or update existing resources in a pre-existing file or it can overwrite the whole file.
+    </p>
+    <p>
+      <em>HTMLRes</em> is particularly useful for embedding HTML files in the executable file of programs that display information using Delphi's <em>TWebBrowser</em> control. Including HTML files in the program's resources means that is is not necessary to distribute the HTML files separately.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/htmlres</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+    </p>
+    <p>
+      Each release gives the option of downloading either the programs's installer or the source code. Your options are:
+    </p>
+    <ul>
+      <li>
+        Choose <code>htmlres-exe-{{page.version}}.zip</code> to download a zip file containing the program. Extract the content of the <code>.zip</code> file. The included read-me file (<code>ReadMe.txt</code>) explains how to install and the program.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a g-zipped tarball.
+      </li>
+    </ul>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The following documentation is available. All of it opens on GitHub.
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/htmlres/master/Docs/ReadMe.txt">Read Me<span class="sr-only"> (text file)</span></a> &ndash; contains details of how to install the program, along with other information.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-pdf-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/htmlres/blob/master/Docs/UserGuide.pdf">User Guide<span class="sr-only"> (PDF)</span></a> &ndash; describes how to use the program.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/htmlres/master/Docs/License.txt">License<span class="sr-only"> (text file)</span></a> &ndash; the program's end user license agreement.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/htmlres/master/Docs/ChangeLog.txt">Change Log<span class="sr-only"> (text file)</span></a> &ndash; lists significant changes made in each program release.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-code-o" aria-hidden="true"></span><a href="http://htmlpreview.github.io/?https://github.com/delphidabbler/htmlres/blob/master/Build.html">Build File<span class="sr-only"> (HTML file)</span></a> &ndash; provides detailed information on how to build the program from source.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Bugs &amp; Feature Requests
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please use the GitHub project's <a href="https://github.com/delphidabbler/htmlres/issues">issue tracker</a>. You can browse existing issues to see if a similar one has already been raised. If so please add any further information as comments. If there is no similar issue please raise new one.
+    </p>
+    <p class="alert alert-warning glyph">
+      You will need a GitHub account if you want to create or edit an issue.
+    </p>
+  </div>
+</section>

@@ -1,0 +1,270 @@
+---
+dl-file-prefix: "dd-shellfolders-"
+layout: "codelib-tplt"
+group: lib
+priority: 4
+version: "2.3.2"
+release-date: "2014/01/11"
+platforms: ["Win32", "Win64"]
+frameworks: ["VCL"]
+compatibility: "Delphi 7 and later"
+title: "Shell Folders Unit"
+precis: "Browse for Folder dialogue box & other Windows shell folder handlog code"
+summary: "A unit that provides various components, classes and routines for handling Windows shell folders – including the Browse for Folders dialog box."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/shellfolders/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/shellfolders/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This unit provides various components, classes and routines for handling Windows shell folders. Included are:
+    </p>
+    <dl>
+      <dt>
+        TPJBrowseDialog
+      </dt>
+      <dd>
+        A component that encapsulates the Windows <em>Browse for Folder</em> dialogue box. This component, which provides a wrapper round theWindows API <var>SHBrowseForFolder</var> function, permits a degree of customisation of the dialogue box.
+      </dd>
+      <dt>
+        TPJSpecialFolderInfo
+      </dt>
+      <dd>
+        A component that provides information about a specified special shell folder. Information is extracted from the Windows <var>SHGetSpecialFolderLocation</var> function and is presented in a usable form via the component's properties.
+      </dd>
+      <dt>
+        TPJSpecialFolderEnum
+      </dt>
+      <dd>
+        A class that enumerates all the special shell folders (implements <var>IPJSpecialFolderEnum</var> below).
+      </dd>
+      <dt>
+        IPJSpecialFolderEnum
+      </dt>
+      <dd>
+        An interface to an object that enumerates all the special shell folders.
+      </dd>
+      <dt>
+        Support routines
+      </dt>
+      <dd>
+        Various routines are provided that can manipulate special shell folder identifier information and extract display name and path information from <var>PIDL</var>s.
+      </dd>
+      <dt>
+        CSIDL_ Constants
+      </dt>
+      <dd>
+        Various <var>CSIDL_</var> constants that are not provided by all versions of Delphi are declared. These identify all known special folders or are flags that can be combined with special folder ids. MSDN provides information about these constants.
+      </dd>
+      <dt>
+        Property Editor
+      </dt>
+      <dd>
+        A separate design time unit contains a property editor for special shell folder identifiers. This property editor enables the object inspector to display shell folder constant names for relevant properties.
+      </dd>
+    </dl>
+
+    <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
+      Features
+    </h3>
+    <div id="features" class="collapse"> <!-- begin collapsible #features section -->
+      <p>
+        Features of <var>TPJBrowseDialog</var> include:
+      </p>
+      <ul class="wide">
+        <li>
+          The dialogue's <em>OK</em> button can be enabled or disabled according to the currently selected folder.
+        </li>
+        <li>
+          Status text that changes with the currently selected folder can be displayed. This is done by setting an option and handling the <var>OnSelChange</var> or <var>OnSelChangeEx</var> events.
+        </li>
+        <li>
+          The <var>PIDL</var> of the currently selected folder is made available via the <var>OnSelChangeEx</var> event.
+        </li>
+        <li>
+          Virtual and file system folders can be displayed. The display can also be limited to file system folders only.
+        </li>
+        <li>
+          A help button can be included in the dialogue box that is automatically disabled if the component's <var>HelpContext</var> or <var>HelpKeyword</var> properties are null. An <var>OnHelp</var> event can be used to customise help handling.
+        </li>
+        <li>
+          The dialogue box can be customised by handling the <var>OnInitialise</var> event.
+        </li>
+        <li>
+          The &quot;New style&quot; of <em>Browse for Folder</em> dialogue box can be displayed by setting an option. Such a dialogue box is resizeable and can display a <em>Make New Folder</em> button. Status text and the <em>Help</em> button cannot be displayed in the new style dialogue box.
+        </li>
+        <li>
+          Hints on using the dialogue box can be displayed.
+        </li>
+        <li>
+          An edit control in which folder names can be entered can be displayed and actions taken when invalid folders are entered can be customised.
+        </li>
+      </ul>
+    </div> <!-- /#features -->
+
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        A demo program is provided. It lists and provides information about all the special shell folders supported by the unit. A read-me file is included with the demo that explains further.
+      </p>
+    </div> <!-- /#demo -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the shellfolders project in the Subversion repo">trunk/projects/shellfolders</a></code> branch.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/shellfolders/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/shellfolders codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Shell Folders Unit</em>, its property editor, documentation and demo program are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJShellFolders.pas</code></strong> &ndash; classes, routines, constants and component source code.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJShellFolders.dcr</code></strong> &ndash; component palette glyphs.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJShellFoldersDsgn.pas</code></strong> &ndash; property editor and component registration source code.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; unit's change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the unit's online documentation.
+      </li>
+      <li class="list-group-item">
+        <code>PJShellFolders.hlp</code> &ndash; help file that integrates with the Delphi 3-7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+      </li>
+      <li class="list-group-item">
+        <code>PJShellFolders.als</code> &ndash; a-link keyword file for integration with the Delphi 6 or 7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the source code of a demo project in the <code>Demo</code> sub-directory.
+    </p>
+    <p>
+      You can now install the components into the Delphi IDE. To do this, the files <code>PJShellFolders.pas</code>, <code>PJShellFolders.dcr</code> and <code>PJShellFoldersDsgn.pas</code> should be added to a design time package. If you need help doing this <a href="{{ site.base-url }}{{ site.data.core.install-to-ide-link }}" aria-title="see a tip on working with design time packages">see here</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Shell Folders Unit</em> is comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ShellFoldersUnit.md" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/shellfolders/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+    <div class="alert alert-info">
+      <p>
+        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <a href="http://delphidabbler.com/articles?article=15">This article</a> explains how to do it.
+      </p>
+      <p class="alert alert-warning glyph">
+        This help file is deprecated and is no longer being updated. The last update was in the v2.3.1 release. The help file may be removed from any future release.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>shellfolders</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the unit please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ShellFoldersUnit.md">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>Shell Folders Unit</em> is open source. It is copyright &copy; 2001-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

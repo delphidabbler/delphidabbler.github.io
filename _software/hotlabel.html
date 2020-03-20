@@ -1,0 +1,246 @@
+---
+dl-file-prefix: "dd-hotlabel-"
+layout: "codelib-tplt"
+group: lib
+priority: 6
+version: "2.2.1"
+release-date: "2016/02/14"
+platforms: ["Win32", "Win64"]
+frameworks: ["VCL"]
+compatibility: "Delphi 7 and later"
+title: "Hot Label Component"
+precis: "Label component that accesses a URL when clicked"
+summary: "Label component that accesses a URL when clicked."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/hotlabel/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/hotlabel/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <var>TPJHotLabel</var> is a simple Delphi component that descends from <var>TLabel</var>. It provides a clickable label that can start the default browser or email client to access a specific URL.
+    </p>
+    <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
+      Features
+    </h3>
+    <div id="features" class="collapse"> <!-- begin collapsible #features section -->
+      <p>
+        Key features of the component are:
+      </p>
+      <ul class="wide">
+        <li>
+          All properties of <var>TLabel</var> are supported, although the usage and default values of some of the inherited properties have been changed.
+        </li>
+        <li>
+          The <var>URL</var> property is used for storing the URL to be accessed when the label is clicked. The <var>Caption</var> property can either store descriptive text or can reflect the URL, depending on the value of the <var>CaptionIsURL</var> property. The ability to link the Caption and URL makes it easy to display the URL without having to keep two properties synchronised.
+        </li>
+        <li>
+          The URL can be validated to check for supported protocols. This validation is switched on and off using the <var>ValidateURL</var> property. Supported protocols are:
+          <ul class="narrow">
+            <li><code>http://</code></li>
+            <li><code>https://</code></li>
+            <li><code>mailto:</code></li>
+            <li><code>file:</code></li>
+            <li><code>ftp://</code></li>
+          </ul>
+        </li>
+        <li>
+          The label's <var>Font</var> property defaults to navy blue to indicate a link.
+        </li>
+        <li>
+          The label can be highlighted when the mouse passes over it. Highlighting is used if the <var>HighlightURL</var> property is True, and the font used for highlighting is set using the <var>HighlightFont</var> property.
+        </li>
+        <li>
+          The label can also display differently when its &quot;link&quot; has been clicked successfully. The font to be used is specified via the <var>VistedFont</var> property. The user can switch the visited state on and off via the <var>Visited</var> property or the component can be enabled to track visits automatically using the <var>TrackVisits</var> property.
+        </li>
+        <li>
+          The label displays the &quot;hand point&quot; cursor by default.
+        </li>
+        <li>
+          The component's pop-up hints can be customised as follows, using the   <var>HintStyle</var> property:
+          <ul class="narrow">
+            <li>
+              the hint text can come from the <var>Hint</var> property as normal,<br />&nbsp;&nbsp;<em>or</em>
+            </li>
+            <li>
+              the hint text can come from the <var>URL</var> property with the <var>Hint</var> property being ignored,<br />&nbsp;&nbsp;<em>or</em>
+            </li>
+            <li>
+              the hint text can be modified just before the hint is shown by handling the <var>OnCustomHint</var> event, which is useful for displaying dynamic information in the hint.
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div> <!-- /#features -->
+
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        A demo program is included in the download. See the <code>Demo</code> sub-directory.
+      </p>
+    </div> <!-- /#demo -->
+
+    <h3 data-toggle="collapse" data-target="#how-it-works" class="collapsible collapsed">
+      How the component works
+    </h3>
+    <div id="how-it-works" class="collapse"> <!-- begin collapsible #how-it-works section -->
+      <p>
+        The component functions mainly as a standard <var>TLabel</var> except that:
+      </p>
+      <ol class="wide">
+        <li>
+          It handles the Delphi-specific <var>CM_MOUSEENTER</var> and <var>CM_MOUSELEAVE</var> messages to highlight the label when the mouse is over it.
+        </li>
+        <li>
+          It handles Delphi's <var>CM_HINTSHOW</var> message to provide customised hints.
+        </li>
+        <li>
+          The <var>Caption</var> property may automatically change when the optionally linked <var>URL</var> property changes.
+        </li>
+      </ol>
+      <p>
+        <var>TPJHotLabel</var> uses the Windows ShellAPI <var>ShellExecute</var> function to start the default browser or email client when a URL is clicked.
+      </p>
+    </div> <!-- /#how-it-works -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the hotlabel project in the Subversion repo">trunk/projects/hotlabel</a></code> branch.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/hotlabel/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/hotlabel codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Hot Label Component</em> is supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJHotLabel.pas</code></strong> &ndash; component source code.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJHotLabel.dcr</code></strong> &ndash; component palette glyphs.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; project change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the source code of the demo project the <code>Demo</code> sub-directory.
+    </p>
+    <p>
+      You can now install the components into the Delphi IDE. To do this, the files <code>PJHotLabel.pas</code> and <code>PJHotLabel.dcr</code> should be added to a design time package. If you need help doing this <a href="{{ site.base-url }}{{ site.data.core.install-to-ide-link }}" aria-title="see a tip on working with design time packages">see here</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Hot Label Component</em> is comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/HotLabelComponent.md" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/hotlabel/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>hotlabel</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the component please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/HotLabelComponent.md">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>Hot Label Component</em> is open source. It is copyright &copy; 1999-2016 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

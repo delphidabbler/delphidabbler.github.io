@@ -1,0 +1,189 @@
+---
+dl-file-prefix: "dd-messagedlg-"
+layout: "codelib-tplt"
+group: lib
+priority: 8
+version: "3.0.0"
+release-date: "2014-02-08"
+platforms: ["Win32", "Win64"]
+frameworks: ["VCL"]
+compatibility: "Delphi 7 & later"
+title: "Message Dialogue Components"
+precis: "Components used to display message dialogue boxes"
+summary: "Components that can display message dialogues that wrap either the Windows API or the Delphi VCL message box code."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/msgdlg/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/msgdlg/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This unit provides various customisable message dialogue box components. Three components are installed on the component palette. They are:
+    </p>
+    <dl class="wide">
+      <dt>
+        TPJWinMsgDlg
+      </dt>
+      <dd>
+        This component wraps the Windows <em>MessageBoxIndirect</em> API call and displays a message box based on that provided by Windows. It will be suitable for most purposes and has the lighter footprint.
+      </dd>
+      <dt>
+        TPJVCLMsgDlg
+      </dt>
+      <dd>
+        This component uses the Delphi VCL <var>CreateMessageDialog</var> function to create a form based message box. (<var>CreateMessageDialog</var> is used by the standard Delphi <var>MessageDlgXXX</var> functions). The component provides more flexibility than either the Delphi functions or <var>TPJWinMsgDlg</var>. It should be used when it is necessary to display buttons or combinations of buttons that are not supported by the Windows API message box or when a finer degree of control over the appearance and behaviour of the message box is required. <var>TPJVCLMsgDlg</var> supports all the features of <var>TPJWinMsgDlg</var> and extends them. The dialogue box component's form can be customised by handling the <var>OnShow</var> and <var>OnHide</var> events.
+      </dd>
+    </dl>
+
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        A demo program that exercises the components is included in the download in the <code>Demo</code> directory. An included <code>ReadMe.txt</code> provides more information.
+      </p>
+    </div> <!-- /#demo -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the msgdlg project in the Subversion repo">trunk/projects/msgdlg</a></code> branch.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/msgdlg/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/msgdlg codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Message Dialogue Components</em> are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJMessageDialog.pas</code></strong> &ndash; component source code.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJMessageDialog.dcr</code></strong> &ndash; component palette glyphs.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; project change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the components' online documentation.
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the source code of the demo project in the <code>Demo</code> sub-directory.
+    </p>
+    <p>
+      You can now install the components into the Delphi IDE. To do this, the files <code>PJMessageDialog.pas</code> and <code>PJMessageDialog.dcr</code> should be added to a design time package. If you need help doing this <a href="{{ site.base-url }}{{ site.data.core.install-to-ide-link }}" aria-title="see a tip on working with design time packages">see here</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Message Dialogue Components</em> are comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/MessageDialogComponents.md" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/msgdlg/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+    <p>
+      There is also an <a href="http://wiki.delphidabbler.com/index.php/FAQs/MessageDialogComponents">FAQ</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>msgdlg</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/MessageDialogComponents.md">documentation</a> and/or <a href="http://wiki.delphidabbler.com/index.php/FAQs/MessageDialogComponents">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
+      The <em>Message Dialogue Components</em> are open source. They are copyright &copy; 2001-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

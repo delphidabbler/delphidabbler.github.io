@@ -1,0 +1,134 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 7
+version: "2.0.0"
+release-date: "2016/09/22"
+os: "Windows 2000 & later"
+title: "Pascal Syntax Highlighter"
+precis: "Command line program to syntax highlighte for Pascal code."
+summary: "Command line program (with optional GUI) that highlights Pascal source code using HTML, styled by CSS. It has the facility to work with the clipboard and to generate code fragments for pasting into other HTML documents."
+download-base-url: "https://github.com/delphidabbler/pashi/releases/tag/v"
+repo-url: "https://github.com/delphidabbler/pashi"
+want-header-buttons: true
+mothballed: false
+---
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <h3>
+      PasHi command line program
+    </h3>
+    <p>
+      <em>PasHi</em> is a fully featured command line program that highlights Pascal source code. It reads the original source code from standard input, files or the clipboard and writes the highlighted code as HTML to standard output, a file, or the clipboard.
+    </p>
+    <p>
+      HTML 4, XHTML and HTML 5 are all supported. CSS is used for styling. Style sheets may be external or can be embedded in the HTML document. Several predefined style sheets may be installed with the program. You can also create your own.
+    </p>
+    <p>
+      <em>PasHi</em> can either generate complete HTML documents or just fragments of HTML code. Output files can be in UTF-8, UTF-16, ISO-8859-1 or Windows-1252 format.
+    </p>
+    <p>
+      HTML fragments make it easy to embed highlighted code in existing web pages. Web page authors simply need to ensure that the necessary CSS classes are available. The easiest way to do this is to use an external style sheet.
+    </p>
+    <p>
+      The ability to highlight code via the clipboard is the program's most unique feature and it makes <em>PasHi</em> very easy to use. You simply copy the required source code to the clipboard and run <em>PasHi</em> with the necessary parameters. The highlighted code will replace the original source on the clipboard ready for pasting into a document. This is particularly useful when combined with the option that creates HTML fragments because it simplifies writing documents that contain several Pascal source examples.
+    </p>
+
+    <h3>
+      Optional GUI
+    </h3>
+    <p>
+      <em>PasHiGUI</em>, an optional GUI front end for <em>PasHi</em>, is included in the release. This provides a point and click interface to <em>PasHi</em>. Most, but not all, of <em>PasHi</em>'s command line options are supported. Files and text can be dragged and dropped onto the GUI to highlight them.
+    </p>
+    <h3>
+      User guide
+    </h3>
+    <p>
+      A user guide is installed with the program that explains the usage of the program and all its parameters. The user guide also has an explanation of the CSS classes required by <em>PasHi</em>-generated HTML. If <em>PasHiGUI</em> is installed the user guide can be displayed from <em>PasHiGUI</em>'s help menu.
+    </p>
+    <p class="alert alert-info glyph">
+      You can also view the user guide by clicking the link in the Download section below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/pashi</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+    </p>
+    <p>
+      Each release gives the option of downloading either the program's installer in executable format or the source code. Your options are:
+    </p>
+    <ul>
+      <li>
+        Choose <code>pashi-exe-{{page.version}}.zip</code> to download a zip file containing the program's installer. Extract the content of the <code>.zip</code> file and run the installer. Included in the zip file is <code>ReadMe.txt</code> that, among other things, explains how to install and use the program.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a g-zipped tarball.
+      </li>
+    </ul>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default" id="docs">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The following documentation is available. All the links open on GitHub.
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/pashi/master/Docs/ReadMe.txt">Read Me<span class="sr-only"> (text file)</span></a> &ndash; provides information about the program, including installation instructions.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/pashi/master/LICENSE">License<span class="sr-only"> (text file)</span></a> &ndash; the program's end user license agreement.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/pashi/master/Docs/ChangeLog.txt">Change Log<span class="sr-only"> (text file)</span></a> &ndash; lists significant changes made in each program release.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-code-o" aria-hidden="true"></span><a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/delphidabbler/pashi/master/Docs/UserGuide.html">User Guide<span class="sr-only"> (HTML)</span></a> &ndash; comprehensive guide to using the program.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-code-o" aria-hidden="true"></span><a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/delphidabbler/pashi/master/Build.html">Build File<span class="sr-only"> (HTML)</span></a> &ndash; provides detailed information on how to build the program from source.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Bugs &amp; Feature Requests
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please use the GitHub project's <a href="https://github.com/delphidabbler/pashi/issues">issue tracker</a>. You can browse existing issues to see if a similar one has already been raised. If so please add any further information as comments. If there is no similar issue please raise new one.
+    </p>
+    <p class="alert alert-warning glyph">
+      You will need a GitHub account if you want to create or edit an issue.
+    </p>
+  </div>
+</section>

@@ -1,0 +1,127 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 6
+version: "4.1.1"
+os: "Windows 2000 & later"
+release-date: "2104-03-21"
+title: "Clipboard Format Spy"
+precis: "Displays various formats currently on the clipboard"
+summary: "Displays the names of formats currently on the clipboard and enables common formats to be viewed."
+download-base-url: "https://github.com/delphidabbler/cfs/releases/tag/v"
+repo-name: "GitHub"
+repo-url: "https://github.com/delphidabbler/cfs"
+want-header-buttons: true
+mothballed: false
+---
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <em>Clipboard Format Spy</em> lists the available formats for any data that is currently stored on the clipboard. It automatically updates the information displayed as the contents of the clipboard change. For certain formats you can also view the clipboard contents. The clipboard can also be cleared.
+    </p>
+    <p>
+      For each format displayed on the clipboard, the following information is displayed in the main window.
+    </p>
+    <ul class="wide">
+      <li>
+        <em>Code</em> &ndash; this is the identifier used to represent the clipboard format. It is displayed in hexadecimal.
+      </li>
+      <li>
+        <em>Description</em> &ndash; this is the description of the clipboard format. Symbolic constants are displayed for the Windows standard clipboard formats.
+      </li>
+      <li>
+        <em>Size</em> &ndash; this is the size of the data on the clipboard. No value is displayed if the clipboard contents are not stored in global memory.
+      </li>
+    </ul>
+    <p>
+      The display can be sorted in ascending or descending order on any column.
+    </p>
+    <p>
+      Clipboard formats can be viewed by selecting the required format in the main display and right-clicking to display a pop-up menu. Select the required viewer from the menu. If the format can't be viewed then &quot;no viewer&quot; will be displayed in the menu.
+    </p>
+    <p>
+      The file name of the process that owns the clipboard is displayed in the status bar.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/cfs</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+    </p>
+    <p>
+      Each release gives the option of downloading either the program in executable format or the source code. Your options are:
+    </p>
+    <ul>
+      <li>
+        Choose <code>cfs-exe-{{page.version}}.zip</code> to download a zip file containing the program's installer. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.txt</code> file explains how to install the program.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a gzip-ped tarball.
+      </li>
+    </ul>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The following documentation is available. All the links open on GitHub.
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/cfs/blob/master/README.md">Read Me<span class="sr-only"> (mardown format text file)</span></a> &ndash; contains details of how to install the program along with other information.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/cfs/master/Docs/License.txt">License<span class="sr-only"> (text file)</span></a> &ndash; the program's end user license agreement.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/cfs/master/Docs/ChangeLog.txt">Change Log<span class="sr-only"> (text file)</span></a> &ndash; lists significant changes made in each program release.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/cfs/master/Docs/ReadMe-Src.txt">Build File<span class="sr-only"> (text file)</span></a> &ndash; provides detailed information on how to build the program from source.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Bugs &amp; Feature Requests
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can report bugs or suggest new features using the <em>Clipboard Format Spy</em> <a href="https://github.com/delphidabbler/cfs/issues" class="offsite">issue tracker</a> on GitHub.
+    </p>
+    <p>
+      Please review existing bug reports and feature requests before creating a new issue. If an issue already exists you may be able to help by adding a further comment.
+    </p>
+    <p class="alert alert-warning glyph">
+      You will need a GitHub account if you want to create or edit an issue.
+    </p>
+  </div>
+</section>

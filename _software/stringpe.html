@@ -1,0 +1,259 @@
+---
+dl-file-prefix: "dd-stringpe-"
+layout: "codelib-tplt"
+group: lib
+priority: 17
+version: "2.0.3"
+release-date: "2014-01-12"
+platforms: ["Win32"]
+frameworks: ["IDE"]
+compatibility: "Delphi 6 & later"
+title: "Extended String Property Editor"
+precis: "Extended property editor for string and TCaption properties"
+summary: "Property editor for properties of type string and TCaption that extends the default editor to provide a dialogue box for editing multi-line strings."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/stringpe/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/stringpe/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This extension of Delphi's string property editor has been designed to get round two limitations of the standard property editor:
+    </p>
+    <ol class="wide">
+      <li>
+        You can't enter multi-line strings with embedded CR/LF characters via the object inspector. Such strings can only be assigned at run-time.
+      </li>
+      <li>
+        Although Delphi strings have a 2Gb size limit, the standard property editor only accepts strings up to 255 characters long. Once again, longer strings must be assigned at run-time.
+      </li>
+    </ol>
+    <p>
+      The enhanced property editor works with <strong>string</strong> and <var>TCaption</var> properties. It adds an ellipsis button to the right hand side of the data entry area in the object inspector. Clicking this button displays a dialogue box in which the property's value can be entered. Pressing <span class="text-smallcaps">Return</span> in the dialogue box starts a new line. There is no practical limit to the length of strings that can be entered.
+    </p>
+    <p>
+      Clicking <em>OK</em> (or pressing <span class="text-smallcaps">Ctrl+Return</span>) causes the entered text to be assigned to the property. If, or how, any newline characters will be displayed in the object inspector depends on the version of Delphi being used, but they will be retained.
+    </p>
+    <p>
+      The edit dialogue is resizable. Word wrapping can be switched on or off. Both the word-wrapping and dialogue box size and position are persistent. The dialogue box has a toolbar that provides buttons to:
+    </p>
+    <ul>
+      <li>
+        Select all the text in the editor.
+      </li>
+      <li>
+        Clear all the text from the editor.
+      </li>
+      <li>
+        Overwrite the editor's existing text with text from the clipboard.
+      </li>
+      <li>
+        Copy all the text from the editor to the clipboard.
+      </li>
+      <li>
+        Undo the last edit.
+      </li>
+      <li>
+        Load text into the editor from a file.
+      </li>
+      <li>
+        Save the contents of the editor to a file.
+      </li>
+      <li>
+        Display online help.
+      </li>
+    </ul>
+    <p>
+      In addition the normal cut, copy and paste operations are available via a context menu and the usual keywboard shortcuts.
+    </p>
+
+    <h3 data-toggle="collapse" data-target="#screenshots" class="collapsible collapsed">
+      Screen shots
+    </h3>
+    <div id="screenshots" class="collapse"> <!-- begin collapsible #screenshots section -->
+      <p>
+        Our first screen shot is of the extended string editor dialogue box, called from Delphi 2010, displaying a two line string.
+      </p>
+      <p class="text-center">
+        <img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/stringpe-1.png" alt="Extended String Property Editor Screen Shot" title="Extended String Property Editor" class="scale" style="width:380px;">
+      </p>
+      <p>
+        The second screen shot shows the object inspector displaying a multi-line string in a label's caption. This caption has been entered using the extended string property editor. The ellipsis button displays the editor when clicked.
+      </p>
+      <p class="text-center">
+        <img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/stringpe-2.png" alt="Object Inpsector Screen Shot" title="Object Inspector showing elipsis leading to property editor" class="scale" style="width:347px;">
+      </p>
+      <p>
+        As can be seen above we are editing a <var>TLabel</var>. The final screenshot shows the label on a form at design time, displaying the two lines of text.
+      </p>
+      <p class="text-center">
+        <img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/stringpe-3.png" alt="Form screen shot" title="Two line label in form" class="scale" style="width:175px;">
+      </p>
+    </div> <!-- /#screenshots -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the stringpe project in the Subversion repo">trunk/projects/stringpe</a></code> branch.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/stringpe/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/stringpe codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Extended String Property Editor</em> is supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJStringPE.pas</code></strong> &ndash; property editor source code.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJStringPE.dfm</code></strong> &ndash; property editor form file.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; project change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the editor's online documentation.
+      </li>
+    </ul>
+    <p>
+      <code>PJStringPE.pas</code> and <code>PJStringPE.dfm</code> must be included in a design time package that is then installed into the IDE. If you need help doing this <a href="{{ site.base-url }}{{ site.data.core.install-to-ide-link }}" aria-title="see a tip on working with design time packages">see here</a>.
+    </p>
+    <p class="alert alert-info glyph">
+      Ensure that the package containing the property editor includes the <em>DesignIDE</em> package in its <strong>requires</strong> clauses.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Extended String Property Editor</em> is documented online
+      <a href="http://wiki.delphidabbler.com/index.php/Docs/StringPE" aria-title="View the online documentation">here</a>. If presented with a choice of versions, choose version 2.
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/stringpe/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>stringpe</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the editor please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/StringPE">documentation</a> for version 2. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License &amp; Credits
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>Extended String Property Editor</em> is open source. It is copyright &copy; 2004-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+    <p>
+      Thanks to the following who have contributed to this project:
+    </p>
+    <ul>
+      <li>
+        Richard C Haven
+      </li>
+      <li>
+        Bino
+      </li>
+    </ul>
+
+    <h3>
+      Acknowledgements
+    </h3>
+    <p>
+      The property editor uses or adapts icons from the following collections:
+    </p>
+    <ul>
+      <li>
+        The 16&times;16 Free Application Icons packs by Creative Commons Attribution-Share Alike 3.0 <a href="http://www.aha-soft.com/">Aha-soft</a>, licensed under a (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>) license.
+      </li>
+      <li>
+        The Free Pixelbox icon sets from <a href="http://www.icojam.com/">Icojam</a>, free to use in any kind of commercial or non-commercial project.
+      </li>
+    </ul>
+  </div>
+</section>

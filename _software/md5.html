@@ -1,0 +1,250 @@
+---
+dl-file-prefix: "dd-md5-"
+layout: "codelib-tplt"
+group: lib
+priority: 10
+version: "1.1.1"
+release-date: "2014-01-11"
+platforms: ["Win32", "Win64"]
+frameworks: ["RTL"]
+compatibility: "Delphi 2009 & later"
+title: "MD5 Message Digest Unit"
+precis: "Implements the MD5 Message Digest Algorithm"
+summary: "Object oriented implementation of the MD5 Message Digest Algorithm"
+download-base-url: "https://sourceforge.net/projects/ddablib/files/md5/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/md5/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      This unit contains an object-oriented implementation of the MD5 message digest algorithm.
+    </p>
+    <p>
+      A Delphi class named <var>TPJMD5</var> provides overloaded methods for calculating the MD5 of:
+    </p>
+    <ul>
+      <li>
+        Files.
+      </li>
+      <li>
+        Byte arrays.
+      </li>
+      <li>
+        Strings: Unicode, ANSI and short strings are all supported.
+      </li>
+      <li>
+        Streams.
+      </li>
+      <li>
+        Untyped data buffers (useful for getting the MD5 of ordinal values).
+      </li>
+    </ul>
+    <p>
+      Data types can be mixed and matched. Class methods provide quick shortcuts to taking the MD5 of a single file or single data item without having to explicitly create and free a <var>TPJMD5</var> instance.
+    </p>
+    <p>
+      There is also an &quot;advanced&quot; record, <var>TPJMD5Digest</var>, that encapsulutes a MD5 digest. Operator overloads for assigning digests to and from strings and byte arrays are provided. The digest can also be read in long words chunks.
+    </p>
+    <p>
+      The code was developed from scratch based on the algorithm presented in <a href="http://www.faqs.org/rfcs/rfc1321.html">RFC 1321</a>. Portions of the code are translated from the reference C code supplied in the RFC. However the code is <strong>not</strong> a literal translation into Pascal from the reference C code.
+    </p>
+    <p class="alert alert-info glyph">
+      The algorithm and reference code are copyright &copy; 1991-2, RSA Data Security, Inc. Created 1991. All rights reserved.
+    </p>
+
+    <h3 data-toggle="collapse" data-target="#testing" class="collapsible collapsed">
+      Testing
+    </h3>
+    <div id="testing" class="collapse"> <!-- begin collapsible #testing section -->
+      <p>
+        <em>DUnit</em> tests for the unit are supplied in the download. The tests include all those specified in <a href="http://www.faqs.org/rfcs/rfc1321.html">RFC 1321</a>.
+      </p>
+    </div> <!-- /#testing -->
+
+    <h3 data-toggle="collapse" data-target="#rationale" class="collapsible collapsed">
+      Rationale
+    </h3>
+    <div id="rationale" class="collapse"> <!-- begin collapsible #rationale section -->
+      <p>
+        So why write this code?
+      </p>
+      <p>
+        Well, I'd been searching for an up-to-date implementation of the MD5 algorithm that met these criteria:
+      </p>
+      <ol class="wide">
+        <li>
+          No dependency on <code>.obj</code> files or DLLs. I wanted pure Pascal code.
+        </li>
+        <li>
+          Open source with a license compatible with the Mozilla Public License because I want to use it in an MPLd application of mine, so GPL-only code was ruled out.
+        </li>
+        <li>
+          Compiles and works with the Unicode Delphi Compilers.
+        </li>
+        <li>
+          Object oriented.
+        </li>
+        <li>
+          Easy to get an MD5 digest from all sorts of data without messing about converting it and playing around with contexts etc.
+        </li>
+      </ol>
+      <p>
+        I couldn't find anything that suited, so it seemed easier to start from scratch. After a couple of false starts, this unit is the result.
+      </p>
+    </div> <!-- /#rationale -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the md5 project in the Subversion repo">trunk/projects/md5</a></code> branch.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/md5/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/md5 codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>MD5 Message Digest Unit</em>, documentation and test suite are supplied in a zip file. Before installing you need to extract all the files, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJMD5.pas</code></strong> &ndash; source code.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; project change log.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the unit's online documentation.
+      </li>
+      <li class="list-group-item">
+        <code>License.txt</code> &ndash; the project's license.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>MD5-Notice.txt</code> &ndash; MD5 algorithm licensing notice.
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the <em>DUnit</em> tests for <code>PJMD5.pas</code> in the <code>Test</code> sub-directory.
+    </p>
+    <p>
+      There are three possible ways to use the unit.
+    </p>
+    <ol class="wide">
+      <li>
+        The simplest way is to add <code>PJMD5.pas</code> to your projects as you need it.
+      </li>
+      <li>
+        To make the unit easier to re-use you can either copy it to a folder on your Delphi search path, or add the folder where you extracted the unit to the Delphi Search path. You then simply use the unit as required without needing to add it to your project.
+      </li>
+      <li>
+        For maximum portability you can add the unit to a Delphi 32 bit or 64 bit Windows package. If you need help doing this <a href="{{ site.base-url }}{{ site.data.core.install-to-ide-link }}" aria-title="see a tip on working with design time packages">see here</a>.
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>MD5 Message Digest Unit</em> is comprehensively documented online <a href="http://wiki.delphidabbler.com/index.php/Docs/MD5API" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/md5/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>md5</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the unit please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/MD5API">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
+      The <em>MD5 Message Digest Unit</em> is open source. It is copyright &copy; 2010-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

@@ -1,0 +1,305 @@
+---
+dl-file-prefix: "dd-dropfiles-"
+layout: "codelib-tplt"
+group: lib
+priority: 1
+version: "5.0.5"
+release-date: "2014/01/11"
+platforms: ["Win32", "Win64"]
+frameworks: ["VCL"]
+compatibility: "Delphi 7 and later"
+title: "Drop Files Components"
+precis: "Components that handle drag and drop of files"
+summary: "Components that get and filter names of files and folders dragged and dropped from Explorer."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/dropfiles/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/dropfiles/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Drop Files Components</em> pack includes three components that support drag and drop from Windows Explorer along with subsidiary components that can filter dropped files.
+    </p>
+    <p>
+      The components are:
+    </p>
+    <dl>
+      <dt>
+        TPJDropFiles
+      </dt>
+      <dd>
+         A container control that catches files dragged and dropped onto its client area or the client area of child controls.
+      </dd>
+      <dt>
+        TPFormDropFiles
+      </dt>
+      <dd>
+        A non-visual component that catches files dragged and dropped from Explorer onto the form that contains the component.
+      </dd>
+      <dt>
+        TPJCtrlDropFiles
+      </dt>
+      <dd>
+        A non-visual component that catches files dragged and dropped from Explorer onto an associated control.
+      </dd>
+      <dt>
+        TPJExtFileFilter
+      </dt>
+      <dd>
+        A file filter component that filters files according to their extension.
+      </dd>
+      <dt>
+        TPJWildCardFileFilter
+      </dt>
+      <dd>
+        A file filter component that filters files according to a DOS-style wild card.
+      </dd>
+      <dt>
+        TPJFileFilter
+      </dt>
+      <dd>
+        An abstract base class for file filter components. Developers should derive any new filter components from this class.
+      </dd>
+    </dl>
+    <p>
+      Some design time assistance is provided by component and property editors.
+    </p>
+    <p class="alert alert-warning glyph">
+      For security reasons in Windows Vista and later, drag/drop is disallowed between windows with different security permissions. This means that applications that processes drag and drop may not be able to receive files dragged and droppped from another window if the security permissions are not compatible.<br><strong><span class="fa fa-times-circle fa-x-pad-right" aria-hidden="true"></span>Please do not report this behaviour as a bug<span class="fa fa-times-circle fa-x-pad-left" aria-hidden="true"></span></strong>
+    </p>
+
+    <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
+      Features
+    </h3>
+    <div id="features" class="collapse"> <!-- begin collapsible #features section -->
+      <p>
+        Key features of <var>TPJDropFiles</var>, <var>TPJCtrlDropFiles</var> and <var>TPJFormDropFiles</var> are:
+      </p>
+      <ul class="wide">
+        <li>
+          An <var>OnDropFiles</var> event is triggered when files are dropped.
+        </li>
+        <li>
+          The names of dropped files are made available through the <var>Files</var> array property. For convenience, the name of the first such file is also stored in the <var>FileName</var> property.
+        </li>
+        <li>
+          The list of dropped files can be configured to include only files, only folders or all files and folders.
+        </li>
+        <li>
+          Dropped folders can be recursed so that all the files and sub-folders in each of the dropped folders are listed.
+        </li>
+        <li>
+          Filters can be applied to the dropped files and folders. This is done either by linking to a filter component (see above) or by handling the <var>OnFileFilter</var> event and deciding which files and folders to pass through the filter in the event handler.
+        </li>
+        <li>
+          The mouse co-ordinates where the files were dropped can be retrieved, as can a reference to any control under the mouse cursor at the time.
+        </li>
+        <li>
+          The <var>OnBeforeDrop</var> event can be used to perform pre-processing before the files are actually dropped.
+        </li>
+        <li>
+          The <var>IsFolder</var> array property tells if the equivalent item from <var>Files</var> array is a file or a folder.
+        </li>
+        <li>
+          The owning window can be brought to the front when files are dropped.
+        </li>
+        <li>
+          Some design time assistance is provided by component and property editors.
+        </li>
+      </ul>
+    </div> <!-- /#features -->
+
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        The source code for two demo programs is included:
+      </p>
+      <ol>
+        <li>
+          The main demo program exercises all three drop files components and the filter components.
+        </li>
+        <li>
+          A program that demonstrates how to use <var>TPJCtrlDropFiles</var> with frames.
+        </li>
+      </ol>
+    </div> <!-- /#demo -->
+
+    <h3 data-toggle="collapse" data-target="#how-it-works" class="collapsible collapsed">
+      How the components work
+    </h3>
+    <div id="how-it-works" class="collapse"> <!-- begin collapsible #how-it-works section -->
+      <p>
+        <var>TPJDropFiles</var> notifies Windows that it accepts file drop operations by using the <var>DragAcceptFiles</var> API call. It then responds to <var>WM_DROPFILES</var> messages sent by Windows whenever files are dropped on its window.
+      </p>
+      <p>
+        <var>TPJFormDropFiles</var> and <var>TPJCtrlDropFiles</var> act in a similar way to <var>TPJDropFiles</var> except that they subclass an associated window and respond to <var>WM_DROPFILES</var> messages on the window's behalf. <var>TPJFormDropFiles</var> subclasses its owner form while <var>TPJCtrlDropFiles</var> subclasses the window of an associated <var>TWinControl</var>. The last two components derive from a common abstract base class.
+      </p>
+      <p>
+        For further information about how to handle files dropped on an application from Explorer, please see my article &quot;<a href="http://delphidabbler.com/articles?article=11">How to catch files dragged and dropped on an application from Explorer</a>&quot;.
+      </p>
+    </div> <!-- /#how-it-works -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the dropfiles project in the Subversion repo">trunk/projects/dropfiles</a></code> branch.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/dropfiles/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/dropfiles codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Drop Files Components</em> are supplied in a zip file. Before installing you need to extract all the files from the zip file, preserving the directory structure. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJDropFiles.pas</code></strong> &ndash; component source code.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJDropFiles.dcr</code></strong> &ndash; component palette glyphs.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJDropFilesDsgn.pas</code></strong> &ndash; property editors and component registration source code.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJDropFilesDsgn.dfm</code></strong> &ndash; property editor form.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; component's change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+      </li>
+      <li class="list-group-item">
+        <code>PJDropFiles.hlp</code> &ndash; component help file that integrates with the Delphi 3-7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+      </li>
+      <li class="list-group-item">
+        <code>PJDropFiles.als</code> &ndash; a-link keyword file for integration with the Delphi 6 or 7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the source code of the two demo projects in the <code>Demo\1</code> and <code>Demo\2</code> sub-directories.
+    </p>
+    <p>
+      You may now install the components into the Delphi IDE. To do this, the files <code>PJDropFiles.pas</code>, <code>PJDropFiles.dcr</code>, <code>PJDropFilesDsgn.pas</code> and <code>PJDropFilesDsgn.dfm</code> should be added to a design time package. If you need help doing this <a href="{{ site.base-url }}{{ site.data.core.install-to-ide-link }}" aria-title="see a tip on working with design time packages">see here</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>Drop Files Components</em> are comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/DropFilesComponents.md" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/dropfiles/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+    <div class="alert alert-info">
+      <p>
+        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <a href="http://delphidabbler.com/articles?article=15">This article</a> explains how to do it.
+      </p>
+      <p class="alert alert-warning glyph">
+        This help file is deprecated and is no longer being updated. The last update was in the v5.0.3 release. The help file may be removed from any future release.
+      </p>
+    </div>
+    <p>
+      There is also an <a href="http://wiki.delphidabbler.com/index.php/FAQs/DropFilesComponents">FAQ</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>dropfiles</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/DropFilesComponents.md">documentation</a> and/or <a href="http://wiki.delphidabbler.com/index.php/FAQs/DropFilesComponents">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>Drop Files Components</em> are open source. They are copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

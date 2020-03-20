@@ -20,11 +20,17 @@ about-link-title: "About page"
 credits-link: "/credits.html"
 credits-link-title: "Credits page"
 
+install-to-ide-link: "/install-to-ide.html"
+
+software-base-url: "/software"
+
 bootstrap-link: "/assets/scripts/bootstrap.js"
 
 prefix-free-link: "/assets/scripts/prefixfree.min.js"
 
 style-link: "/assets/css/style.css"
+
+software-images-base-url: "/assets/images/software" 
 
 
 # External links
@@ -40,6 +46,12 @@ github-link-title: "DelphiDabbler GitHub account"
 
 sourceforge-url: "https://sourceforge.net/u/delphidabbler/profile/"
 sourceforge-link-title: "DelphiDabbler SourceForge account"
+
+sourceforge-ddlib-project-url: "https://sourceforge.net/projects/ddablib/"
+sourceforge-ddlib-project-link-title: "D Dab Lib project page on SourceForge"
+
+sourceforge-ddlib-repo-url: "https://sourceforge.net/p/ddablib/code/HEAD/tree/"
+sourceforge-ddlib-repo-link-title: "D Dab Lib project repo on SourceForge"
 
 dd-blog-url: "http://delphidabbler.blogspot.com/"
 dd-blog-link-title: "DelphiDabbler Blog on Blogspot"
@@ -67,6 +79,9 @@ apache-20-license-link-title: "Apache License v2.0 on apache.org"
 
 sil-ofl-11-license-url: "http://scripts.sil.org/OFL"
 sil-ofl-11-license-link-title: "SIL Open Font license v1.1 on sil.org"
+
+mpl-2-license-url: "http://www.mozilla.org/MPL/2.0/"
+mpl-2-license-link-title: "Mozilla Public License v2.0 on mozilla.org"
 
 google-fonts-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro|Open+Sans+Condensed:700|Libre+Baskerville:400italic"
 

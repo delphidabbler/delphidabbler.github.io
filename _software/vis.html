@@ -1,0 +1,143 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 8
+version: "7.2.0"
+os: "Windows 2000 & later"
+release-date: "2011/08/02"
+title: "Version Information Spy"
+precis: "Displays version information from an executable file"
+summary: "Displays the version information from any file that contains it. Includes shell extensions for easy access to version information from Windows Explorer."
+download-base-url: "https://github.com/delphidabbler/vispy/releases/tag/v"
+repo-url: "https://github.com/delphidabbler/vispy"
+want-header-buttons: true
+mothballed: false
+---
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <em>Version Information Spy</em> displays the version information contained in an executable file or DLL. The program makes version information details available in several ways:
+    </p>
+    <ul class="wide">
+      <li>
+        Firstly there is a Windows application that displays detailed version information in its main window. The program can generate and display reports about the version information. It can also decompile version information into <code>.rc</code> source code. Version information that departs from the Microsoft recommended standard can be highlighted and details of how to revise the source code to meet the standard can be displayed.
+      </li>
+      <li>
+        There is a command line version of the application that writes text reports or decompiled source code to standard output. The reports can be redirected to output files.
+      </li>
+      <li>
+        Two configurable Explorer extensions are also provided:
+        <ul>
+          <li>
+            A menu item is added to the Windows Explorer context menu for registered file types. Clicking this menu item displays the selected file's version information in the main application.
+          </li>
+          <li>
+            Additionally, a new tab is added to property sheets associated with specified file types, providing the selected file contains version information. This new tab is named <em>Version Extra</em>. It provides more comprehensive details of a file's version information than is available from the existing <em>Version</em> tab.
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <p>
+      Version information can be extracted from any Windows NE or PE format executable files (i.e. 16 and 32 bit exes, dlls etc). The program can also extract version information from 32 bit binary resource files that contain a version information resource. Multi-lingual version information resources are supported. The program can read version information from most of the many programs that don't follow the Windows version information specification.
+    </p>
+
+    <h3>
+      Editing Version Information
+    </h3>
+    <p>
+      You can edit version information in two ways:
+    </p>
+    <ol class="wide">
+      <li>
+        &quot;Decompile&quot; a program's version information to RC source code using <em>Version Information Spy</em>. Edit the RC source code manually. Recompile using a resource compiler such as Borland's <code>BRCC32</code>.
+      </li>
+      <li>
+        Use my <a href="{{ site.base-url }}{{ site.data.core.software-base-url}}/vied">Version Information Editor</a>.
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <em>Version Information Spy</em> is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/vispy</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+    </p>
+    <p>
+      Each release gives the option of downloading either the programs's installer or the source code. Your options are:
+    </p>
+    <ul>
+      <li>
+        Choose <code>vispy-exe-{{page.version}}.zip</code> to download a zip file containing the program's installer. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.htm</code> file explains how to install the program.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+      </li>
+      <li>
+        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a gzip-ped tarball.
+      </li>
+    </ul>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The following documentation is available. All of it opens on GitHub.
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-code-o" aria-hidden="true"></span><a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/delphidabbler/vispy/master/Docs/ReadMe.htm">Read Me<span class="sr-only"> (HTml)</span></a> &ndash; contains details of how to install the program, along with other information.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vispy/master/Docs/License.txt">License<span class="sr-only"> (text file)</span></a> &ndash; the program's end user license.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vispy/master/Docs/ChangeLog.txt">Change Log<span class="sr-only"> (text file)</span></a> &ndash; lists significant changes made in each program release.
+      </li>
+      <li class="list-group-item">
+        <span class="fa fa-fw fa-x-pad-right fa-file-code-o" aria-hidden="true"></span><a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/delphidabbler/vispy/master/Build.html">Build File<span class="sr-only"> (HTML file)</span></a> &ndash; provides detailed information on how to build the program from source.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Bugs &amp; Feature Requests
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can report bugs or suggest new features using the <em>Version Information
+      Spy</em> <a href="https://github.com/delphidabbler/vispy/issues" class="offsite">issue tracker</a> on GitHub.
+    </p>
+    <p>
+      Please review existing bug reports and feature requests before creating a
+      new issue. If an issue already exists you may be able to help by adding a
+      further comment.
+    </p>
+    <p class="alert alert-warning glyph">
+      You will need a GitHub account if you want to create or edit an issue.
+    </p>
+  </div>
+</section>

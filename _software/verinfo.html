@@ -1,0 +1,236 @@
+---
+dl-file-prefix: "dd-verinfo-"
+layout: "codelib-tplt"
+group: lib
+priority: 3
+version: "3.3.2"
+release-date: "2014/01/11"
+platforms: ["Win32", "Win64"]
+frameworks: ["VCL", "FMX"]
+compatibility: "Delphi 2 and later"
+title: "Version Information Component"
+precis: "Component to read a program's version information."
+summary: "Component that accesses version information embedded in program files, DLLs etc."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/verinfo/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/verinfo/
+want-header-buttons: true
+mothballed: false
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <var>TPJVersionInfo</var> is a non-visual component that reads version information contained in a 32 bit or 64 bit Windows executable file.
+    </p>
+    <p>
+      The component reads information from a designated file's <var>VERSIONINFO</var> resource. The required file is specified in the component's <var>FileName</var> property. Setting <var>FileName</var> to the empty string fetches the version information of the executable file containing the component. The Boolean <var>HaveInfo</var> property indicates whether the file contains version information. This component can access variable file information for each language provided in the resource.
+    </p>
+    <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
+      Features
+    </h3>
+    <div id="features" class="collapse"> <!-- begin collapsible #features section -->
+      <p>
+        Run-time properties enable access to the version information. Properties enable:
+      </p>
+      <ul class="wide">
+        <li>
+          Access to fixed file information, either by field or the whole record.
+        </li>
+        <li>
+          Access to the number of translations stored in the version information.
+        </li>
+        <li>
+          Selection of the translation for which information is to be returned by other properties.
+        </li>
+        <li>
+          Access to the language and code page of the current translation &ndash; by code and by name.
+        </li>
+        <li>
+          Access to the string file information for the current translation &ndash; named properties access the Microsoft-defined string information, while an array property gives access to any string item by name.
+        </li>
+      </ul>
+      <p>
+        Version numbers are encapsulated in <var>TPJVersionNumber</var> records which, on Delphi 2006 or later, can be directly assigned to a string and can be compared using the normal equality operators. Helper functions that can compare and format version numbers as text are provided for use with Delphi 2005 and earlier.
+      </p>
+      <p>
+        The component makes calls to the Windows API when reading version information. Therefore the version information being read must follow the Microsoft guidelines. <span class="text-warning bg-warning glyph">Be warned that not all software complies!</span>
+      </p>
+      <p class="callout callout-info">
+        For detailed information about version information refer to the Windows SDK.
+      </p>
+    </div> <!-- /#features -->
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        The source code for two demo projects is included. The demos are:
+      </p>
+      <ol class="wide">
+        <li>
+          <code>VIDemo.dpr</code> is an application that can extract and display version information from any program, provided that the program has valid version information.
+        </li>
+        <li>
+          <code>HelpEgs.dpr</code> implements all the examples from the component help file.
+        </li>
+      </ol>
+      <p>
+        The demos required Delphi 7 and higher.
+      </p>
+    </div> <!-- /#demo -->
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the verinfo project in the Subversion repo">trunk/projects/verinfo</a></code> branch.
+    </p>
+    <p>
+      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
+    </p>
+    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/verinfo/release-{{ page.version }} codedir</pre>
+    <p>
+      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
+    </p>
+    <p>
+      The latest development tree can be checked out using:
+    </p>
+    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/verinfo codedir</pre>
+    <p>
+      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p class="alert alert-warning glyph">
+      If you are updating from an earlier version of this component and have installed the DelphiDabbler <a href="{{ site.base-url }}{{ site.data.core.software-base-url}}/aboutbox.html">About Box Component</a> (<var>TPJAboutBoxDlg</var>) you may need to uninstall it before updating this component, and re-install the about box component once the update has been installed. If the About Box Component is earlier that v3.2 it will need to be updated to the most recent version.
+    </p>
+    <p>
+      The <em>Version Information Component</em> is supplied in a zip file. Before installing you need to extract all the files from the zip file. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>PJVersionInfo.pas</code></strong> &ndash; component source code.
+      </li>
+      <li class="list-group-item">
+        <strong><code>PJVersionInfo.dcr</code></strong> &ndash; resource file containing the component palette glyph.
+      </li>
+      <li class="list-group-item">
+        <code>ReadMe.htm</code> &ndash; read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>ChangeLog.txt</code> &ndash; the project's change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; the Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; short-cut to the component's online documentation.
+      </li>
+      <li class="list-group-item">
+        <code>PJVersionInfo.hlp</code> &ndash; component help file that integrates with the Delphi 4 to 7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+      </li>
+      <li class="list-group-item">
+        <code>PJVersionInfo.als</code> &ndash; a-link keyword file for integration with the Delphi 6 or 7 OpenHelp system. <span class="text-warning bg-warning glyph">Deprecated</span>
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the the source code of two demo projects along with read-me files in the <code>Demos\1</code> and <code>Demos\2</code> sub-directories.
+    </p>
+    <p>
+      For Delphi 3 onwards you must include <code>PJVersionInfo.pas</code> and <code>PJVersionInfo.dcr</code> in a design time package that is installed into the Delphi IDE. If you need help doing this <a href="{{ site.base-url }}{{ site.data.core.install-to-ide-link }}" aria-title="see a tip on working with design time packages">see here</a>.
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The <em>{{ page.title }}</em> is comprehensively documented online <a href="http://wiki.delphidabbler.com/index.php/Docs/VerInfoAPI" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/verinfo/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+    </p>
+    <p>
+      A read-me file (<code>ReadMe.htm</code>) is included in the project download.
+    </p>
+    <div class="alert alert-info">
+      <p>
+        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <a href="http://delphidabbler.com/articles?article=15">This article</a> explains how to do it.
+      </p>
+      <p class="alert alert-warning glyph">
+        This help file is deprecated and is no longer being updated. It may be removed from any future release.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
+    </p>
+    <p>
+      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+    </p>
+    <p class="alert alert-info glyph">
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>verinfo</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+    </p>
+    <p>
+      Should you have any queries about using the component please read the <a href="http://wiki.delphidabbler.com/index.php/Docs/VerInfoAPI">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>
+    </p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
+      The <em>Version Information Component</em> is open source. It is copyright &copy; 1998-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>
