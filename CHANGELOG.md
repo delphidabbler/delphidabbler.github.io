@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.5.0 - 2020-03-20
+
+### Added
+
+* A page for each non-mothballed application and linked to them from `programs.html` (issue #24).
+* A page for each non-mothballed code library project and linked to them from `codelib.html` (issue #25).
+* A page explaining how to install code library projects into the Delphi IDE (issue #29). Linked from Code Library Pages.
+
+### Changed
+
+* Minor restyling of glyphs that indicate external links.
+* Modified list margins and indents.
+* Minor changes to site styling.
+* Internal changes:
+    * Modified CSS for unique styles used on application and code library project pages.
+    * Glyphs on external links now displayed automatically for `http:\\` and `https:\\` URLs, except on link buttons.
+    * Glyphs in alerts now displayed via a CSS class rather than being added explicitly in HTML.
+
 ## v0.4.2 - 2020-03-06
 
 ### Fixed
