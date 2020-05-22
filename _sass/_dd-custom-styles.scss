@@ -652,8 +652,11 @@ div.sw-meta {
 .frame {
 	margin-bottom: ceil($line-height-computed / 2);
 }
-.frame table,
-.frame pre.source-body {
+.frame > pre {
+	@extend .pre-scrollable;
+}
+.frame > table,
+.frame > pre.source-body {
 	margin-bottom: 0;
 }
 .frame table code {
@@ -661,7 +664,8 @@ div.sw-meta {
 }
 .frame .caption {
 	color: $gray-light;
-	text-align: right;
+	background-color: $frame-caption-bg;
+	text-align: center;
 	margin-top: 0;
 	margin-bottom: 0;
 	padding-top: 0;
