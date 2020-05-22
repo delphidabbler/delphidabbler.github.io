@@ -671,4 +671,11 @@ div.sw-meta {
 	padding-top: 0;
 	padding-bottom: 0;
 	font-size: $font-size-small;
+	font-variant: small-caps;
+}
+
+// Styling for references to figures (tables, listings etc.) Used mainly in articles
+// ** Custom
+.figureref {
+	font-variant: small-caps;
 }
