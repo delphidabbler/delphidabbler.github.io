@@ -11,8 +11,16 @@ exclude: [README.md, LICENSE.md, CHANGELOG.md, Gemfile, Gemfile.lock]
 collections:
   software:
     output: true
-    
+  articles:
+    output: true
+
 defaults:
+  -
+    scope:
+      path: ""
+      type: "articles"
+    values:
+      layout: "article"
   -
     scope:
       path: ""
