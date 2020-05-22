@@ -4,25 +4,26 @@ title: Articles
 <h1 role="heading">
   Articles
 </h1>
-{% assign articles = site.data.articles %}
-<p>This page lists {{ articles | size }} articles and tutorials that discuss various aspects of programming. Choose articles of interest from the list below. Many articles include source code examples in Delphi Pascal.</p>
+
+<p>This page lists {{ site.articles | size }} articles and tutorials that discuss various aspects of programming. Choose articles of interest from the list below. Many articles include source code examples in Delphi Pascal.</p>
 
 <p>Full details of copyright are displayed at the bottom of each article.</p>
 
-{% for article in articles %}
+{% assign sorted_articles = site.articles | sort: "article" | reverse %}
+{% for article in sorted_articles %}
 {% assign test = forloop.index | modulo: 2 %}
 {% if test <> 0 %}<div class="row">{% endif %}
-  <article role="section" aria-labelledby="art-{{ article.id | escape }}-head">
+  <article role="section" aria-labelledby="art-{{ article.article | escape }}-head">
     <div class="col-md-6">
       <div class="panel panel-primary">
-        <header class="panel-heading" id="art-{{ article.id | escape }}-head">
+        <header class="panel-heading" id="art-{{ article.article | escape }}-head">
           <h2>{{ article.title | escape }}</h2>
         </header>
         <div class="panel-body">
           <p>{{ article.summary | escape }}</p>
         </div>
         <footer class="panel-footer text-right">
-          <a href="{{ article.more-info }}" aria-label="Read &quot;{{ article.title | escape }}&quot; over on {{ site.data.core.orig-site-name | escape }}">Read the article</a>
+          <a href="articles/article-{{ article.article }}" aria-label="Read &quot;{{ article.title | escape }}&quot;">Read the article</a>
         </footer>
       </div>
     </div>
@@ -32,5 +33,5 @@ title: Articles
 <!-- Clear the lg cols if their content doesn't match in height -->
 <div class="clearfix visible-md-block" role="presentation"></div>
 {% endif %}
-{%endfor %}
+{% endfor %}
 

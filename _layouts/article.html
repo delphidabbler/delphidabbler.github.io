@@ -1,0 +1,46 @@
+---
+layout: default
+---
+<!-- BEGIN article page content -->
+
+<header>
+  <h1>{{ page.title | escape }}</h1>
+<!--
+  <div class="box">
+    <p class="strapline">{{ page.summary | escape }}</p>
+  </div>
+-->
+</header>
+
+{% if page.offsite %}
+{% assign pdf-url-base = "https://github.com/delphidabbler/articles/blob/master/article-" %}
+
+<div class="well ">
+
+	<p>
+		This article is not yet available to read on this site.
+	</p>
+{% if page.pages == 1 %}
+	<p>
+		However, you can <strong><a href="{{ pdf-url-base }}{{ page.article }}.pdf">read the article</a></strong> as a PDF on GitHub.
+	</p>
+{% else %}
+	<p>
+		However the article is available in {{ page.pages }} parts, each in it's own PDF file on GitHub.
+	</p>
+
+	<ul>
+{% for part in (1..page.pages) %}
+		<li>
+			<a href="{{ pdf-url-base }}{{ page.article }}-pt{{ part }}.pdf">Part {{ part }}</a>
+		</li>
+{% endfor %}
+	</ul>
+{% endif %}
+
+</div>
+{% endif %}
+
+{{ content }}
+
+<!-- END article page content -->
