@@ -588,7 +588,7 @@ h3.collapsible {
 
 // Stying of div that wraps software meta data
 //** Custom
-div.sw-meta, {
+div.sw-meta {
   border: 1px $panel-default-border solid;
   border-radius: $border-radius-base;
   margin-bottom: $line-height-computed;
@@ -607,4 +607,75 @@ div.sw-meta, {
       background-color: $panel-default-heading-bg;
     }
   }
+}
+
+// Table styling
+// ** Bootstrap override
+.table {
+	border-collapse: collapse;
+	
+	// Set table head background
+	> thead {
+		background-color: $table-head-bg;
+	}
+	
+  // Middle align for column headings
+  > thead > tr > th {
+    vertical-align: middle;
+		border-bottom: $table-border-color solid 1px;
+  }
+  // Add top border to thead
+  > caption + thead,
+  > colgroup + thead,
+  > thead:first-child {
+    > tr:first-child {
+      > th,
+      > td {
+        border-top: $table-border-color solid 2px;
+      }
+    }
+  }
+	// Add bottom border to tbody
+	> tbody:last-child {
+		> tr:last-child {
+			> th,
+			> td {
+				border-bottom: $table-border-color solid 2px;
+			}
+		}
+	}
+}
+
+
+// Styling for source code example frames (mainly used in articles)
+// ** Custom
+.frame {
+	margin-bottom: ceil($line-height-computed / 2);
+}
+.frame > pre {
+	@extend .pre-scrollable;
+}
+.frame > table,
+.frame > pre.source-body {
+	margin-bottom: 0;
+}
+.frame table code {
+	background-color: transparent;
+}
+.frame .caption {
+	color: $gray-light;
+	background-color: $frame-caption-bg;
+	text-align: center;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	font-size: $font-size-small;
+	font-variant: small-caps;
+}
+
+// Styling for references to figures (tables, listings etc.) Used mainly in articles
+// ** Custom
+.figureref {
+	font-variant: small-caps;
 }

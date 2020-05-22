@@ -4,5 +4,357 @@ title: "How to integrate help files into the Delphi 3-7 IDE"
 summary: "Information on the changes that have to be made to Delphi's help files in order for your help files to be integrated with the Delphi help system."
 more-info: "http://delphidabbler.com/articles?article=15"
 pages: 1
-offsite: 1
 ---
+<aside>
+	<p class="callout callout-info">
+		We take a slightly different approach in this article to that taken in the others published here. This article is not explicitly about Delphi programming but about using the Delphi system.
+	</p>
+</aside>
+
+<h2>
+  Introduction
+</h2>
+
+<p>
+  This article shows how to manually update Delphi's help system files in order to integrate your component etc. help files with the Delphi IDE. What the article is <strong>not</strong> about is how to write those help files in the first place &ndash; there is plenty of information about that in the Delphi help.
+</p>
+
+<aside>
+	<div class="callout callout-info">
+		<p>
+			My <a href="{{ site.base-url }}/software/chi">Component Help Installer</a> tool uses the techniques presented here when installing help files into the IDE.
+		</p>
+		<p class="alert alert-danger glyph">
+			Component Help Installer is no longer being developed: it is mothballed. However you can stll get a copy, including source code, from the linked page.
+		</p>
+	</div>
+</aside>
+
+<h2>
+  How it's done
+</h2>
+
+
+<h3>
+  Preliminaries
+</h3>
+
+<p>
+  In order for a help file to be able to be integrated into the Delphi IDE the help file must conform to the <em>OpenHelp</em> standard. Please see the Delphi help file on component writing for details on how to create a help file that meets this standard.
+</p>
+
+
+<h3>
+  Registering the help file with Windows
+</h3>
+
+<p>
+  The first thing we need to do is register the help file and any contents files with Windows. To do this:
+</p>
+
+<ol class="wide">
+  <li>
+    Copy the <code>.hlp</code> file (and any <code>.cnt</code> or <code>.toc</code> files) to a suitable folder on your computer and note the folder's path.
+  </li>
+  <li>
+    <p>
+			Now open the Windows <em>RegEdit</em> utility and navigate to the key:
+		</p>
+		<pre class="pre-scrollable">HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\Help</pre>
+  </li>
+  <li>
+    <p>
+      Create a new string (REG_SZ) value and give the value the same name as your help file (just the file name without the path). Set the value to the path to your help file. <span class="figureref">Figure 1</span> below provides an example.
+    </p>
+    <div class="frame">
+      <div>
+				<img class="img-responsive" src="{{ site.base-url }}/assets/images/articles/15.gif" alt="Picture of Edit String dialog in RegEdit" xstyle="width:384px;height:162px;" />
+			</div>
+			<div class="caption">Figure 1</div>
+		</div>
+  </li>
+  <li>
+    Repeat the process for any <code>.cnt</code> or <code>.toc</code> files in your help project.
+  </li>
+</ol>
+
+<p>
+  Alternatively, create a text file with a <code>.reg</code> extension and enter the following into the file:
+</p>
+
+<div class="frame" id="listing-1">
+<pre class="source-body kbd">REGEDIT 4
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\Help]
+&quot;MyHelpFile.hlp&quot;=&quot;C:\\Program Files\\MyCodeFolder\\&quot;
+</pre>
+<div class="caption">Listing 1</div>
+</div>
+
+<p>
+  where <code>MyHelpFile.hlp</code> is the name of the help file being registered and
+</p>
+
+<pre class="pre-scrollable">C:\\Program&nbsp;Files\\MyCodeFolder\\</pre>
+
+<p>
+	is the path to the help file. Notice how we've escaped each backslash in the path by preceeding it with another backslash &ndash; this is required in <code>.reg</code> files since the &quot;\&quot; character has special meaning. Note that additional lines can be added for any <code>.cnt</code> etc. files as follows:
+</p>
+
+<div class="frame" id="listing-2">
+<pre class="source-body kbd">REGEDIT4
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\Help]
+&quot;MyHelpFile.hlp&quot;=&quot;C:\\Program Files\\MyCodeFolder\\&quot;
+&quot;MyHelpFile.cnt&quot;=&quot;C:\\Program Files\\MyCodeFolder\\&quot;
+</pre>
+<div class="caption">Listing 2</div>
+</div>
+
+<p>
+  To register these values simply double click the <code>.reg</code> file.
+</p>
+
+
+<h3>
+  Registering the help file with Delphi
+</h3>
+
+<p>
+  Now that Windows knows all about the help file, we need to register it with Delphi.
+</p>
+
+<p>
+  To do this we must modify three of Delphi's master help files: the Link, Index and Contents files. The files are found in the <code>Help</code> subfolder of a Delphi installation. The file name depends of the version of Delphi being used. <span class="figureref">Table 1</span> lists the file names for Delphi 3 to 7.
+</p>
+
+<div class="frame table-responsive" id="table-1">
+  <table
+	  class="table"
+    summary="table of master help file names in various versions of Delphi"
+  >
+    <col style="width: 25%;" />
+    <col style="width: 25%;" />
+    <col style="width: 25%;" />
+    <col style="width: 25%;" />
+		<thead>
+			<tr>
+				<th>Compiler</th>
+				<th>Master<br />Contents File</th>
+				<th>Link File</th>
+				<th>Index File</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Delphi 3</td>
+				<td><code>Delphi3.cnt</code></td>
+				<td><code>Delphi3.ohl</code></td>
+				<td class="last"><code>Delphi3.ohi</code></td>
+			</tr>
+			<tr>
+				<td>Delphi 4</td>
+				<td><code>Delphi4.cnt</code></td>
+				<td><code>Delphi4.ohl</code></td>
+				<td class="last"><code>Delphi4.ohi</code></td>
+			</tr>
+			<tr>
+				<td>Delphi 5</td>
+				<td><code>Delphi5.cnt</code></td>
+				<td><code>Delphi5.ohl</code></td>
+				<td class="last"><code>Delphi5.ohi</code></td>
+			</tr>
+			<tr>
+				<td>Delphi 6</td>
+				<td><code>Delphi6.cnt</code></td>
+				<td><code>Delphi6.ohl</code></td>
+				<td class="last"><code>Delphi6.ohi</code></td>
+			</tr>
+			<tr>
+				<td>Delphi 7</td>
+				<td><code>d7.cnt</code></td>
+				<td><code>d7.ohl</code></td>
+				<td class="last"><code>d7.ohi</code></td>
+			</tr>
+		</tbody>
+  </table>
+  <div class="caption">
+    Table 1
+  </div>
+</div>
+
+<h4>
+  Updating the contents file
+</h4>
+
+<p>
+  Open the required Delphi contents (<code>.cnt</code>) file in a text editor and check if the following lines appear somewhere in the file:
+</p>
+
+<div class="frame" id="listing-3">
+<pre class="source-body kbd">:Include &lt;ohi-file-name&gt;
+:Include &lt;ohl-file-name&gt;</pre>
+<div class="caption">Listing 3</div>
+</div>
+
+<p>
+  where <code>&lt;ohi-file-name&gt;</code> is the name of the <code>.ohi</code> file and <code>&lt;ohl-file-name&gt;</code> the name of the <code>.ohl</code> file for the version of Delphi in question. E.g. for Delphi 7 the required lines will be:
+</p>
+
+<div class="frame" id="listing-4">
+<pre class="source-body kbd">:Include d7.ohi
+:Include d7.ohl</pre>
+<div class="caption">Listing 4</div>
+</div>
+
+<p>
+  If the lines do not appear in the file, add them to it and save the file.
+</p>
+
+<p>
+  You can also reference any <code>.cnt</code> or <code>.toc</code> file that belongs to your help project by adding an <code>:Include</code> line for each file in the master contents file thus:
+</p>
+
+<div class="frame" id="listing-5">
+<pre class="source-body kbd">:Include MyHelpFile.cnt</pre>
+<div class="caption">Listing 5</div>
+</div>
+
+<p>
+  If you do this remember that the <code>.cnt</code> or <code>.toc</code> file must be registered with Windows.
+</p>
+
+
+<h4>
+  Updating the link file
+</h4>
+
+<p>
+  Open the required link (<code>.ohl</code>) file in a text editor. Add the following line to the end of the file and save it.
+</p>
+
+<div class="frame" id="listing-6">
+<pre class="source-body kbd">:Link MyHelpFile.hlp</pre>
+<div class="caption">Listing 6</div>
+</div>
+
+
+<h4>
+  Updating the index file
+</h4>
+
+<p>
+  Add the following line to the end of the required index (<code>.ohi</code>) file.
+</p>
+
+<div class="frame" id="listing-7">
+<pre class="source-body kbd">:Index A Description=MyHelpFile.hlp</pre>
+<div class="caption">Listing 7</div>
+</div>
+
+<p>
+  Here &quot;<code>A Description</code>&quot; is a brief description of the help file. This description will appear in some help system dialogs when searching for entries, so keep the description brief.
+</p>
+
+
+<h4>
+  Using A-link keyword files
+</h4>
+
+<p>
+  When using Delphi 6 and 7 there is still one more step to take to fully integrate our help file with the Delphi IDE. We must provide a list of all the A-link keywords used in the help file.
+</p>
+
+<p>
+  To begin with you need to create a text file containing a list of all the A-link keywords. This file must contain one keyword per line in lower case. The keywords must be sorted. Some help authoring tools should be able to assist with the creation of this list.
+</p>
+
+<p>
+  Next we must make the list known to Delphi. Some documentation states that the keyword file, with extension <code>.als</code>, should be placed in the Delphi help directory. I have found this approach to be unreliable. The best way to proceed is to merge the keywords from your file into the master
+  Delphi <code>.als</code> file, preserving the sort order. In Delphi 6 the master file is named <code>Delphi6.als</code> and in Delphi 7 it is named <code>d7.als</code>. In both cases the file is located in the Delphi help directory.
+</p>
+
+<aside>
+	<p class="callout callout-info">
+		Note that, from release 2.2, the <a href="{{ site.base-url }}/software/chi">Component Help Installer</a> could automatically merge <code>.als</code> files when installing help files.
+	</p>
+</aside>
+
+<p>
+  This completes the discussion of how to install help files into the Delphi IDE.
+</p>
+
+
+<h3>
+  Uninstalling
+</h3>
+
+<p>
+  Uninstallation is almost a reversal of the installation process discussed above. I.e.:
+</p>
+
+<ul class="wide">
+  <li>
+    Delete the <code>:Index</code> statement you added to Delphi's Index file.
+  </li>
+
+  <li>
+    Delete the <code>:Link</code> statement from the Link file.
+  </li>
+
+  <li>
+    Delete any <code>:Include</code> statement(s) referring to your help project's <code>.cnt</code> and <code>.toc</code> files from the master contents file.
+  </li>
+
+  <li>
+    <p>
+      Delete the entries you made in the registry (unless the help files are being used by other programs). You can either use <em>RegEdit</em> to delete the entries or use a <code>.reg</code> file that does this automatically when run, e.g.:
+    </p>
+    <div class="frame" id="listing-8">
+<pre class="source-body kbd">REGEDIT4
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\Help]
+&quot;MyHelpFile.hlp&quot;=-
+&quot;MyHelpFile.cnt&quot;=-</pre>
+<div class="caption">Listing 8</div>
+    </div>
+  </li>
+</ul>
+
+<p>
+  However, <em>do not delete</em> the following lines from the master contents file, since other help files may depend on the presence of these lines.
+</p>
+
+<div class="frame" id="listing-9">
+<pre class="source-body kbd">:Include &lt;ohi-file-name&gt;
+:Include &lt;ohl-file-name&gt;</pre>
+<div class="caption">Listing 9</div>
+</div>
+
+<p>
+  When working with Delphi 6 and 7 it is probably best not to delete any a-keywords from the master <code>.als</code> file since the keywords may also be used by other help files.
+</p>
+
+
+<h2>
+  Conclusion
+</h2>
+
+<p>
+  In this article we have looked at how to manually register third-party help files with Delphi so that the help files are integrated with the Delphi IDE's help system. We also covered how to register help files with Windows.
+</p>
+
+
+<h2>
+  What, no demo code?
+</h2>
+
+<p>
+  No demonstration code accompanies this article, but if you want to know how to automate the techniques we use here, please see the <a href="{{ site.base-url }}/software/chi">Component Help Installer</a> source code.
+</p>
+
+
+<h2>
+  Feedback
+</h2>
+
+<p>
+  I hope you found this article useful. If you have any comments or queries, or if you wish to report any errors, please <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">create an issue on GitHub</a> (GitHub account required).
+</p>
