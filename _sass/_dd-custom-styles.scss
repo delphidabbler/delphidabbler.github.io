@@ -136,23 +136,6 @@ a[href^="http"] {
 // Prepends an appropriate glyph to messages in alert boxes when .glyph class included.
 //** Custom
 .glyph {
-/*
-    &.alert-info::before,
-    &.alert-success::before,
-    &.alert-warning::before,
-    &.alert-danger::before {
-      font-family: $font-family-glyph;
-      margin-right: 0.25em;
-    }
-      content: "\f05a";
-    }
-      content: "\f058";
-    }
-      content: "\f024";
-    }
-      content: "\f071";
-    }
-*/
   &.alert-info::before,
   &.alert-success::before,
   &.alert-warning::before,
@@ -584,6 +567,11 @@ h3.collapsible {
       font-size: ceil($font-size-h1);
      }
   }
+	
+	&.mothballed {
+		background-color: $state-danger-bg;
+		color: $state-danger-text;
+	}
 }
 
 // Stying of div that wraps software meta data

@@ -28,12 +28,6 @@
   mothballed: true
   more-info: "http://delphidabbler.com/software/boobytrap"
 -
-  id: chi
-  title: "Component Help Installer"
-  summary: "Installs OpenHelp compatible help files for components etc. into Delphi 3 to 7. Available as stand-alone Windows and console applications."
-  mothballed: true
-  more-info: "http://delphidabbler.com/software/chi"
--
   id: sib
   title: "SIBuilder"
   summary: "Creates a self-extracting install program for software releases."
