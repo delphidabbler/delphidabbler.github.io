@@ -1,0 +1,125 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 60
+version: "5.2"
+os: "Windows 2000 and later"
+release-date: "2015-11-29"
+title: "John Conway's Game Of Life"
+precis: "Demonstrates John Conway's Game of Life."
+summary: "Demonstrates John Conway's Game of Life."
+want-header-buttons: false
+mothballed: true
+---
+<section class="panel panel-danger">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Mothballed
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="lead">
+			Development of <em>{{ page.title }}</em> is frozen.
+		</p>
+		<p>
+			This program has roots going back to a Turbo Pascal DOS program from 1992. It's Windows incarnation goes back to 1997 and my first attempts at OOP using Delphi 1. And it shows in the coding!
+		</p>
+		<p>
+			Because this is possibly my oldest surving program I can't bear to dump it, so I gave it a minimal makeover in 2015 and then decided to mothball it, which means I'm not developing it further. In the unlikely event anyone wants to take it over, the source code is available below.
+		</p>
+		<p class="alert alert-warning lead glyph">
+			There is no support available for this program. Please do not report any bugs or contact me about it.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			This program demonstrates John Conway's <em>Game of Life</em> on a 21&times;21 grid. Rules for cellular automata other than the <em>Game of Life</em> can also be created and used.
+		</p>
+		<p class="text-center">
+			<img class="scale" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/life.png" alt="Game of Life v5.2.0" title="Game of Life v5.2.0" />
+		</p>
+		<p>
+			A user manual is included with the program that explains how to use it. This manual can be displayed in the user's default web browser by clicking the program's Help button.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			The following downloads for <em>Game Of Life</em> program are hosted on GoogleDrive.
+		</p>
+		<ul>
+			<li>
+				<p>
+					<strong>The executable program: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJQW9tUnM2LVptRkE/view?usp=sharing">life-exe.zip</a>.</strong>
+				</p>
+				<p>
+					This zip file includes the executable program, a read-me file, the user manual, the program's license and a change log. Just extract the zip file to an empty folder and following the installation instructions in the read-me file. There is no installer.
+				</p>
+			</li>
+			<li>
+				<p>
+					<strong>The source code: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJMHV6SW9ldERRT0U/view?usp=sharing">life-src.zip</a>.</strong>
+				</p>
+				<p>
+					This download includes the source code of the final version of <em>Game Of Life</em>. Create a new folder to hold the source code and then unzip the file into it, preserving the directory structure. To build the code follow the instructions in the included <code>Build.md</code> file.
+				</p>
+			</li>
+			<li>
+				<p>
+					<strong>Subversion repository dump: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJZmtjSlZJeFVyZHc/view?usp=sharing">life-svndump.zip</a>.</strong>
+				</p>
+				<p>
+					This is aimed at anyone wanting to take over development of the program.
+				</p>
+				<p>
+					To use the repository first extract <code>life-svndump</code> from the zip file, then import it into a clean Subversion repository. See the Subversion documentation for details of how to do this.
+				</p>
+				<p>
+					The repository contains branches off the <code>tags</code> branch that contain the source code of releases 5.1.0 to 5.2.0. The <code>trunk</code> branch contains the current development tree which, as supplied, is the same as the v5.2.0 <code>tags</code> branch. You should use <code>trunk</code> to make any changes. The <code>tags</code> branches should be left unchanged. Snapshots of any new releases should be added there.
+				</p>
+				<p>
+					The zip file also contains <code>BUILD.md</code> (provideing instructions on how to build the project) and <code>LICENSE</code> (containing the open source license text).
+				</p>
+			</li>
+		</ul>
+		<p>
+			Some DelphiDabbler library projects are required to build <em>Game Of Life</em> from source. They are:
+		</p>
+		<ul>
+			<li>
+				<a href="{{ site.base-url }}/software/verinfo">Version Information Component</a>.
+			</li>
+			<li>
+				<a href="{{ site.base-url }}/software/aboutbox">About Box Component</a>.
+			</li>
+		</ul>
+	</div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			<em>John Conway's Game Of Life</em> is released under the terms of the <a href="http://delphidabbler.mit-license.org/1992-2015/">MIT License</a>.
+		</p>
+  </div>
+</section>
