@@ -644,7 +644,8 @@ div.sw-meta {
 	@extend .pre-scrollable;
 }
 .frame > table,
-.frame > pre.source-body {
+.frame > pre.source-body,
+.frame > pre.pas-source {
 	margin-bottom: 0;
 }
 .frame table code {
