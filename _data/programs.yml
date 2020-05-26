@@ -10,12 +10,6 @@
 # Only remaining programs here are those that are mothballed
 # All others have been moved to applications collection
 -
-  id: 8queens
-  title: "8 Queens Problem Solver"
-  summary: "Demonstrates all solutions of the 8 queens problem."
-  mothballed: true
-  more-info: "http://delphidabbler.com/software/queens"
--
   id: life
   title: "John Conway's Game Of Life"
   summary: "Demonstrates John Conway's Game of Life."
