@@ -10,12 +10,6 @@
 # Only remaining programs here are those that are mothballed
 # All others have been moved to applications collection
 -
-  id: life
-  title: "John Conway's Game Of Life"
-  summary: "Demonstrates John Conway's Game of Life."
-  mothballed: true
-  more-info: "http://delphidabbler.com/software/life"
--
   id: boobytrap
   title: "BoobyTrap!"
   summary: "A clone of the Minesweeper game written in Delphi Pascal."
