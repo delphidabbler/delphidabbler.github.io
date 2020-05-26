@@ -3,7 +3,7 @@ layout: default
 ---
 <!-- BEGIN program page content -->
 
-<div class="sw-page-header">
+<div class="sw-page-header{% if page.mothballed %} mothballed{% endif %}">
   <header>
     <h1>{{ page.title | escape }}</h1>
     <p class="strapline">{{ page.precis | escape }}</p>
@@ -16,6 +16,9 @@ layout: default
         <a href="{{ page.repo-url }}" aria-label="View on GitHub" class="btn btn-primary btn-block"><span class="fa fa-github fa-x-pad-right"></span><span class="hidden-xs">View On </span>Github</a>
       </div>
     </div>
+    {% endif %}
+		{% if page.mothballed %}
+		<p class=""><strong><span class="fa fa-exclamation-triangle fa-x-pad-right"></span>Mothballed<span class="fa fa-exclamation-triangle fa-x-pad-left"></span></strong></p>
     {% endif %}
   </header>
 </div>
