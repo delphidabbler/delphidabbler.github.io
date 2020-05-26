@@ -10,12 +10,6 @@
 # Only remaining programs here are those that are mothballed
 # All others have been moved to applications collection
 -
-  id: boobytrap
-  title: "BoobyTrap!"
-  summary: "A clone of the Minesweeper game written in Delphi Pascal."
-  mothballed: true
-  more-info: "http://delphidabbler.com/software/boobytrap"
--
   id: sib
   title: "SIBuilder"
   summary: "Creates a self-extracting install program for software releases."
