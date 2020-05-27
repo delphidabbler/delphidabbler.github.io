@@ -102,10 +102,28 @@ h3.collapsible {
     content: " [TO-CHANGE]";
 }
 
+.indent {
+	margin-left: $list-item-offset
+}
+
 // Additional typography: extends typographic classes exposed by Bootstrap
 //** Custom
 .text-smallcaps {
   font-variant: small-caps;
+}
+var, .var {
+	color: $brand-primary;
+	font-style: italic;
+}
+strong, .strong {
+	font-weight: bold;
+}
+samp, .samp, .kbd {
+	@extend kbd;
+}
+samp, .samp {
+	background-color: $samp-bg;
+	color: $samp-color;
 }
 
 // Adds an external link glyph to links whose hrefs start with http:// or 
@@ -643,10 +661,16 @@ div.sw-meta {
 .frame > pre {
 	@extend .pre-scrollable;
 }
-.frame > table,
+.frame > table {
+	margin-bottom: 0;
+}
 .frame > pre.source-body,
 .frame > pre.pas-source {
 	margin-bottom: 0;
+	line-height: 120%;
+}
+.frame > pre.pas-source {
+	@extend samp;
 }
 .frame table code {
 	background-color: transparent;
