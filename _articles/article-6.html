@@ -3,5 +3,579 @@ article: 6
 title: "How to access environment variables"
 summary: "Every Windows process gets a copy of some environment variables. Here's how to read and update them."
 pages: 1
-offsite: 1
 ---
+<h2 id="contents">
+  Contents
+</h2>
+
+<nav>
+	<div class="well">
+		<ul>
+			<li>
+				<a href="#why">Why this article?</a>
+			</li>
+			<li>
+				<a href="#background">A little background information</a>
+			</li>
+			<li>
+				<a href="#how">How it's done</a>
+				<ul class="noprint">
+					<li>
+						<a href="#getenvvarvalue">GetEnvVarValue</a>
+					</li>
+					<li>
+						<a href="#setenvvarvalue">SetEnvVarValue</a>
+					</li>
+					<li>
+						<a href="#deleteenvvar">DeleteEnvVar</a>
+					</li>
+					<li>
+						<a href="#getallenvvars">GetAllEnvVars</a>
+					</li>
+					<li>
+						<a href="#expandenvvars">ExpandEnvVars</a>
+					</li>
+					<li>
+						<a href="#createenvblock">CreateEnvBlock</a>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<a href="#demo">Demo program</a>
+			</li>
+			<li>
+				<a href="#gofurther">Going Further</a>
+			</li>
+			<li>
+				<a href="#feedback">Feedback</a>
+			</li>
+		</ul>
+	</div>
+</nav>
+
+<section id="why">
+
+	<h2>
+		Why this article?
+	</h2>
+
+	<p>
+		Sometimes we need to access some system configuration information that is stored in environment variables &ndash; such as the search path. These are stored in environment variables.
+	</p>
+
+	<p>
+		On other occasions we might want to provide a spawned application with some global information using environment variables.
+	</p>
+
+	<p>
+		The purpose of this article is to explain how to read existing environment variables and how to set up new environment variables to pass to other processes.
+	</p>
+
+</section>
+
+<section id="background">
+
+	<h2>
+		A little background information
+	</h2>
+
+	<p>
+		Before we jump into writing some code to access and update environment variables, let us take a brief look at how Windows handles them.
+	</p>
+
+	<p>
+		When Windows starts a program it provides the program with a <em>copy</em> of its environment variables. The API functions that work with environment variables operate on this copy, <em>not on the original</em> environment variables. This means that any changes you make to environment variables within the program only apply to the program's copy and <em>do not update</em> the underlying Window's environment variables &ndash; such changes are lost when your program terminates.
+	</p>
+
+	<p>
+		Any child process started by your application gets, by default, a copy of <em>your program's</em> current environment, not that of Windows. This means that any changes you make to the environment before starting the child process <em>are</em> reflected in the child's own environment block. This default behaviour can be overridden by defining a custom block of environment variables to be passed to the child process. We discuss how to do this <a href="#createenvblock">below</a>.
+	</p>
+
+	<p>
+		One final point to note is that the block of memory allocated for environment variables is a fixed size. This means that you can't keep adding new environment variables to the block without limit. At some point the attempt to add a variable, or to store more data in an existing one, will fail. The size of the block created for a process depends on the number of environment variables and the size of the data to be passed to it. Back in the days of Windows 98 the block size was small (about 16Kb) and was incremented in 4Kb chunks. On modern Windows systems this size is massively increased.
+	</p>
+
+	<aside>
+		<p class="callout callout-info">
+			For further background material about environment variables, including a list of those created when Windows starts, see <em>Wilson Mar</em>'s  <a href="http://www.wilsonmar.com/1envvars.htm">Environment Variables</a> article.
+		</p>
+	</aside>
+
+</section>
+
+<section id="how">
+
+<h2>
+  How it's done
+</h2>
+
+<p>
+  Now we have an understanding of how Windows handles environment variables, let us move on to look at how we work with them. Windows provides four API functions for accessing and updating environment variables:
+</p>
+
+<ol class="wide">
+
+  <li>
+    <var class='strong'>GetEnvironmentVariable</var><br />
+    Returns the value of a given environment variable.
+  </li>
+
+  <li>
+    <var class='strong'>SetEnvironmentVariable</var><br />
+    Sets an environment variable's value, creating a new variable if necessary. This routine can also be used to delete an environment variable.
+  </li>
+
+  <li>
+    <var class='strong'>GetEnvironmentStrings</var><br />
+    Gets a list of all the environment variables available to a process.
+  </li>
+
+  <li>
+    <var class='strong'>ExpandEnvironmentStrings</var><br />
+    Replaces environment variables delimited by &quot;%&quot; characters in a string with the variable's value.
+  </li>
+</ol>
+
+<p id="routinelist">
+  We will develop six Delphi routines: five that wrap these API calls plus one that can be used to create a new environment block for passing to a child process. They are:
+</p>
+
+<ol class="wide">
+  <li>
+    <var class='strong'><a href="#getenvvarvalue">GetEnvVarValue</a></var><br />
+    Returns the value of a given environment variable.
+  </li>
+
+  <li>
+    <var class='strong'><a href="#setenvvarvalue">SetEnvVarValue</a></var><br />
+    Sets the value of the given environment variable.
+  </li>
+
+  <li>
+    <var class='strong'><a href="#deleteenvvar">DeleteEnvVar</a></var><br />
+    Deletes the given environment variable.
+  </li>
+
+  <li>
+    <var class='strong'><a href="#getallenvvars">GetAllEnvVars</a></var><br />
+    Fills a string list with the names and values of all the program's environment variables.
+  </li>
+
+  <li>
+    <var class='strong'><a href="#expandenvvars">ExpandEnvVars</a></var><br />
+    Replaces all &quot;%&quot; delimited environment variables in a string with their values.
+  </li>
+
+  <li>
+    <var class='strong'><a href="#createenvblock">CreateEnvBlock</a></var><br />
+    Creates a new environment block suitable for passing to a child process.
+  </li>
+</ol>
+
+<p>
+  And so to the code:
+</p>
+
+
+<h3 id="getenvvarvalue">
+  GetEnvVarValue
+</h3>
+
+<p>
+  This routine returns the value of a given environment variable (or returns the empty string if there is no variable with that name). Here's the definition:
+</p>
+
+<div class="frame">
+<!-- Highlighted Pascal code generated by DelphiDabbler PasH -->
+<pre class="pas-source"><span class="pas-kwd">function</span> GetEnvVarValue(<span class="pas-kwd">const</span> VarName: <span class="pas-kwd">string</span>): <span class="pas-kwd">string</span>;
+<span class="pas-kwd">var</span>
+  BufSize: Integer;  <span class="pas-comment">// buffer size required for value</span>
+<span class="pas-kwd">begin</span>
+  <span class="pas-comment">// Get required buffer size (inc. terminal #0)</span>
+  BufSize := GetEnvironmentVariable(
+    PChar(VarName), <span class="pas-kwd">nil</span>, <span class="pas-num">0</span>);
+  <span class="pas-kwd">if</span> BufSize &gt; <span class="pas-num">0</span> <span class="pas-kwd">then</span>
+  <span class="pas-kwd">begin</span>
+    <span class="pas-comment">// Read env var value into result string</span>
+    SetLength(Result, BufSize - <span class="pas-num">1</span>);
+    GetEnvironmentVariable(PChar(VarName),
+      PChar(Result), BufSize);
+  <span class="pas-kwd">end</span>
+  <span class="pas-kwd">else</span>
+    <span class="pas-comment">// No such environment variable</span>
+    Result := <span class="pas-str">''</span>;
+<span class="pas-kwd">end</span>;</pre>
+<div class="caption">Listing 1</div>
+</div>
+
+<p>
+  You'll notice that <var>GetEnvironmentVariable</var> is called twice: once to get the size of the required buffer and the second time to actually read the variable. This is a common Windows idiom.
+</p>
+
+<p class="text-center noprint">
+  <span class="fa fa-arrow-circle-o-up fa-x-pad-right"></span><a href="#routinelist">Back to list</a><span class="fa fa-arrow-circle-o-up fa-x-pad-left">
+</p>
+
+
+<h3 id="setenvvarvalue">
+  SetEnvVarValue
+</h3>
+
+<p>
+  This routine sets the value of an environment variable. If the variable doesn't already exist it is created. Zero is returned if all goes well, otherwise a Windows error code is returned. An error may occur if there is no room in the environment block for the new value. The implementation is very simple:
+</p>
+
+<div class="frame">
+<!-- Highlighted Pascal code generated by DelphiDabbler PasH -->
+<pre class="pas-source"><span class="pas-kwd">function</span> SetEnvVarValue(<span class="pas-kwd">const</span> VarName,
+  VarValue: <span class="pas-kwd">string</span>): Integer;
+<span class="pas-kwd">begin</span>
+  <span class="pas-comment">// Simply call API function</span>
+  <span class="pas-kwd">if</span> SetEnvironmentVariable(PChar(VarName),
+    PChar(VarValue)) <span class="pas-kwd">then</span>
+    Result := <span class="pas-num">0</span>
+  <span class="pas-kwd">else</span>
+    Result := GetLastError;
+<span class="pas-kwd">end</span>;</pre>
+<div class="caption">Listing 2</div>
+</div>
+
+<aside>
+	<p class="callout callout-info">
+		Remember, setting an environment variable only operates on the program's copy of the variable &ndash; it <strong>does not</strong> update the value of Window's copy of the variable. Changes are lost when the program terminates.
+	</p>
+</aside>
+
+<p class="text-center noprint">
+  <span class="fa fa-arrow-circle-o-up fa-x-pad-right"></span><a href="#routinelist">Back to list</a><span class="fa fa-arrow-circle-o-up fa-x-pad-left">
+</p>
+
+
+<h3 id="deleteenvvar">
+  DeleteEnvVar
+</h3>
+
+<p>
+  This routine deletes the given environment variable. Note that <var>SetEnvVarValue('')</var> has the same effect. Zero is returned on success and a Windows error code on error. The implementation is again simple:
+</p>
+
+<div class="frame">
+<!-- Highlighted Pascal code generated by DelphiDabbler PasH -->
+<pre class="pas-source"><span class="pas-kwd">function</span> DeleteEnvVar(<span class="pas-kwd">const</span> VarName: <span class="pas-kwd">string</span>): Integer;
+<span class="pas-kwd">begin</span>
+  <span class="pas-kwd">if</span> SetEnvironmentVariable(PChar(VarName), <span class="pas-kwd">nil</span>) <span class="pas-kwd">then</span>
+    Result := <span class="pas-num">0</span>
+  <span class="pas-kwd">else</span>
+    Result := GetLastError;
+<span class="pas-kwd">end</span>;</pre>
+<div class="caption">Listing 3</div>
+</div>
+
+<aside>
+	<p class="callout callout-info">
+    Once again, this function has <strong>no effect</strong> on Window's own copy of the environment variable.
+  </p>
+</aside>
+
+<p class="text-center noprint">
+  <span class="fa fa-arrow-circle-o-up fa-x-pad-right"></span><a href="#routinelist">Back to list</a><span class="fa fa-arrow-circle-o-up fa-x-pad-left">
+</p>
+
+
+<h3 id="getallenvvars">
+  GetAllEnvVars
+</h3>
+
+<p>
+  This routine returns all of a program's environment variables in a string list. Each entry in the list is of the form <code>Name=Value</code>. You can use the <var>TStrings</var> <var>Names[]</var> and <var>Values[]</var> properties to extract the variable names and value from the string. The function returns the amount of space taken by the strings in the environment block. If you just want to know the size of the environment variables, pass a nil parameter. Here's the definition:
+</p>
+
+<div class="frame">
+<!-- Highlighted Pascal code generated by DelphiDabbler PasH -->
+<pre class="pas-source"><span class="pas-kwd">function</span> GetAllEnvVars(<span class="pas-kwd">const</span> Vars: TStrings): Integer;
+<span class="pas-kwd">var</span>
+  PEnvVars: PChar;    <span class="pas-comment">// pointer to start of environment block</span>
+  PEnvEntry: PChar;   <span class="pas-comment">// pointer to an env string in block</span>
+<span class="pas-kwd">begin</span>
+  <span class="pas-comment">// Clear the list</span>
+  <span class="pas-kwd">if</span> Assigned(Vars) <span class="pas-kwd">then</span>
+    Vars.Clear;
+  <span class="pas-comment">// Get reference to environment block for this process</span>
+  PEnvVars := GetEnvironmentStrings;
+  <span class="pas-kwd">if</span> PEnvVars &lt;&gt; <span class="pas-kwd">nil</span> <span class="pas-kwd">then</span>
+  <span class="pas-kwd">begin</span>
+    <span class="pas-comment">// We have a block: extract strings from it</span>
+    <span class="pas-comment">// Env strings are #0 separated and list ends with #0#0</span>
+    PEnvEntry := PEnvVars;
+    <span class="pas-kwd">try</span>
+      <span class="pas-kwd">while</span> PEnvEntry^ &lt;&gt; <span class="pas-str">#0</span> <span class="pas-kwd">do</span>
+      <span class="pas-kwd">begin</span>
+        <span class="pas-kwd">if</span> Assigned(Vars) <span class="pas-kwd">then</span>
+          Vars.Add(PEnvEntry);
+        Inc(PEnvEntry, StrLen(PEnvEntry) + <span class="pas-num">1</span>);
+      <span class="pas-kwd">end</span>;
+      <span class="pas-comment">// Calculate length of block</span>
+      Result := (PEnvEntry - PEnvVars) + <span class="pas-num">1</span>;
+    <span class="pas-kwd">finally</span>
+      <span class="pas-comment">// Dispose of the memory block</span>
+      Windows.FreeEnvironmentStrings(PEnvVars);
+    <span class="pas-kwd">end</span>;
+  <span class="pas-kwd">end</span>
+  <span class="pas-kwd">else</span>
+    <span class="pas-comment">// No block =&gt; zero length</span>
+    Result := <span class="pas-num">0</span>;
+<span class="pas-kwd">end</span>;</pre>
+<div class="caption">Listing 4</div>
+</div>
+
+<aside>
+	<p class="callout callout-info">
+		Often there will be an entry in the environment block not in the form <code>Name=Value</code> (it may have format <code>=Value</code>). The data can be read from the string list via its <var>Items[]</var> property, but not from the <var>Names[]</var> property.
+	</p>
+</aside>
+
+<p class="text-center noprint">
+  <span class="fa fa-arrow-circle-o-up fa-x-pad-right"></span><a href="#routinelist">Back to list</a><span class="fa fa-arrow-circle-o-up fa-x-pad-left">
+</p>
+
+
+<h3 id="expandenvvars">
+  ExpandEnvVars
+</h3>
+
+<p>
+  This function takes as a parameter a string of text containing one or more environment variables, delimited by &quot;%&quot; characters, and returns the string with each environment variable replaced by its value.
+</p>
+
+<p>
+	For example, if we have two environment variables <code>ME</code> and <code>YOU</code> set to "Peter" and "Gloria" respectively then
+</p>
+
+<div class="indent">
+	<pre class="pre-scrollable">ExpandEnvVars('%ME% say hello to %YOU%');</pre>
+	<p>
+		returns
+	</p>
+	<pre class="pre-scrollable">Peter say hello to Gloria</pre>
+</div>
+
+<div class="frame">
+<!-- Highlighted Pascal code generated by DelphiDabbler PasH -->
+<pre class="pas-source"><span class="pas-kwd">function</span> ExpandEnvVars(<span class="pas-kwd">const</span> Str: <span class="pas-kwd">string</span>): <span class="pas-kwd">string</span>;
+<span class="pas-kwd">var</span>
+  BufSize: Integer; <span class="pas-comment">// size of expanded string</span>
+<span class="pas-kwd">begin</span>
+  <span class="pas-comment">// Get required buffer size </span>
+  BufSize := ExpandEnvironmentStrings(
+    PChar(Str), <span class="pas-kwd">nil</span>, <span class="pas-num">0</span>);
+  <span class="pas-kwd">if</span> BufSize &gt; <span class="pas-num">0</span> <span class="pas-kwd">then</span>
+  <span class="pas-kwd">begin</span>
+    <span class="pas-comment">// Read expanded string into result string</span>
+    SetLength(Result, BufSize - <span class="pas-num">1</span>);
+    ExpandEnvironmentStrings(PChar(Str),
+      PChar(Result), BufSize);
+  <span class="pas-kwd">end</span>
+  <span class="pas-kwd">else</span>
+    <span class="pas-comment">// Trying to expand empty string</span>
+    Result := <span class="pas-str">''</span>;
+<span class="pas-kwd">end</span>;</pre>
+<div class="caption">Listing 5</div>
+</div>
+
+<aside>
+	<p class="callout callout-info">
+    This function can be useful when reading strings of type <var>REG_EXPAND_SZ</var> from the registry since these strings contain un-expanded environment variables. Passing such a string to this function will expand all the variables.
+  </p>
+</aside>
+
+<p class="text-center noprint">
+  <span class="fa fa-arrow-circle-o-up fa-x-pad-right"></span><a href="#routinelist">Back to list</a><span class="fa fa-arrow-circle-o-up fa-x-pad-left">
+</p>
+
+
+<h3 id="createenvblock">
+  CreateEnvBlock
+</h3>
+
+<p>
+  This final function creates an environment block that can be passed to a child process.
+</p>
+
+<p>
+  It creates a new environment block containing the strings from the <var>NewEnv</var> string list. If <var>IncludeCurrent</var> is true then the variables defined in the current process' environment block are included. The new block is stored in the memory pointed to by <var>Buffer</var>, which must be at least <var>BufSize</var> characters. The size of the block is returned. If the provided buffer is nil or is too small then no block is created. The return value gives the required buffer size in characters.
+</p>
+
+<aside>
+	<div class="callout callout-warning">
+		<h4>
+			Be careful
+		</h4>
+		<p>
+			Buffer sizes here are in <strong>characters</strong>, not <strong>bytes</strong>. On Unicode Delphis this is not the same thing.
+		</p>
+		<p>
+			Either allocate memory using <var>StrAlloc</var>, which allows for character size, or use <var>GetMem</var> and mulitply buffer size by <var>SizeOf(Char)</var>.
+		</p>
+	</div>
+</aside>
+
+<div class="frame">
+<!-- Highlighted Pascal code generated by DelphiDabbler PasH -->
+<pre class="pas-source"><span class="pas-kwd">function</span> CreateEnvBlock(<span class="pas-kwd">const</span> NewEnv: TStrings;
+  <span class="pas-kwd">const</span> IncludeCurrent: Boolean;
+  <span class="pas-kwd">const</span> Buffer: Pointer;
+  <span class="pas-kwd">const</span> BufSize: Integer): Integer;
+<span class="pas-kwd">var</span>
+  EnvVars: TStringList; <span class="pas-comment">// env vars in new block</span>
+  Idx: Integer;         <span class="pas-comment">// loops thru env vars</span>
+  PBuf: PChar;          <span class="pas-comment">// start env var entry in block</span>
+<span class="pas-kwd">begin</span>
+  <span class="pas-comment">// String list for new environment vars</span>
+  EnvVars := TStringList.Create;
+  <span class="pas-kwd">try</span>
+    <span class="pas-comment">// include current block if required</span>
+    <span class="pas-kwd">if</span> IncludeCurrent <span class="pas-kwd">then</span>
+      GetAllEnvVars(EnvVars);
+    <span class="pas-comment">// store given environment vars in list</span>
+    <span class="pas-kwd">if</span> Assigned(NewEnv) <span class="pas-kwd">then</span>
+      EnvVars.AddStrings(NewEnv);
+    <span class="pas-comment">// Calculate size of new environment block</span>
+    Result := <span class="pas-num">0</span>;
+    <span class="pas-kwd">for</span> Idx := <span class="pas-num">0</span> <span class="pas-kwd">to</span> Pred(EnvVars.Count) <span class="pas-kwd">do</span>
+      Inc(Result, Length(EnvVars[Idx]) + <span class="pas-num">1</span>);
+    Inc(Result);
+    <span class="pas-comment">// Create block if buffer large enough</span>
+    <span class="pas-kwd">if</span> (Buffer &lt;&gt; <span class="pas-kwd">nil</span>) <span class="pas-kwd">and</span> (BufSize &gt;= Result) <span class="pas-kwd">then</span>
+    <span class="pas-kwd">begin</span>
+      <span class="pas-comment">// new environment blocks are always sorted</span>
+      EnvVars.Sorted := True;
+      <span class="pas-comment">// do the copying</span>
+      PBuf := Buffer;
+      <span class="pas-kwd">for</span> Idx := <span class="pas-num">0</span> <span class="pas-kwd">to</span> Pred(EnvVars.Count) <span class="pas-kwd">do</span>
+      <span class="pas-kwd">begin</span>
+        StrPCopy(PBuf, EnvVars[Idx]);
+        Inc(PBuf, Length(EnvVars[Idx]) + <span class="pas-num">1</span>);
+      <span class="pas-kwd">end</span>;
+      <span class="pas-comment">// terminate block with additional #0</span>
+      PBuf^ := <span class="pas-str">#0</span>;
+    <span class="pas-kwd">end</span>;
+  <span class="pas-kwd">finally</span>
+    EnvVars.Free;
+  <span class="pas-kwd">end</span>;
+<span class="pas-kwd">end</span>;</pre>
+<div class="caption">Listing 6</div>
+</div>
+
+<p>
+  The way we use this function is similar to the idiom used by many Windows API functions (such as <var>GetEnvironmentVariable</var>). We first call the function with a nil buffer to find the required buffer size, then call it again with a buffer of correct size to receive the data.
+</p>
+
+<p>
+  This routine can be used along with the Windows <var>CreateProcess</var> API function to spawn a new process with only one environment variable (<code>FOO=Bar</code>) as follows:
+</p>
+
+<div class="frame">
+<!-- Highlighted Pascal code generated by DelphiDabbler PasH -->
+<pre class="pas-source"><span class="pas-kwd">function</span><span class="pas-space"> </span><span class="pas-ident">ExecProg</span><span class="pas-sym">(</span><span class="pas-kwd">const</span><span class="pas-space"> </span><span class="pas-ident">ProgName</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-kwd">string</span><span class="pas-sym">;</span><span class="pas-space"> </span><span class="pas-ident">EnvBlock</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-ident">Pointer</span><span class="pas-sym">)</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-ident">Boolean</span><span class="pas-sym">;</span>
+<span class="pas-space">  </span><span class="pas-comment">{Creates new process for given program passing any given environment block}</span>
+<span class="pas-kwd">var</span>
+<span class="pas-space">  </span><span class="pas-ident">SI</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-ident">TStartupInfo</span><span class="pas-sym">;</span><span class="pas-space">         </span><span class="pas-comment">// start up info</span>
+<span class="pas-space">  </span><span class="pas-ident">PI</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-ident">TProcessInformation</span><span class="pas-sym">;</span><span class="pas-space">  </span><span class="pas-comment">// process info</span>
+<span class="pas-space">  </span><span class="pas-ident">CreateFlags</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-ident">DWORD</span><span class="pas-sym">;</span><span class="pas-space">       </span><span class="pas-comment">// process creation flags</span>
+<span class="pas-space">  </span><span class="pas-ident">SafeProgName</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-kwd">string</span><span class="pas-sym">;</span><span class="pas-space">     </span><span class="pas-comment">// program name: safe for CreateProcessW</span>
+<span class="pas-kwd">begin</span>
+<span class="pas-space">  </span><span class="pas-comment">// Make ProgName parameter safe for passing to CreateProcessW</span>
+<span class="pas-space">  </span><span class="pas-ident">SafeProgName</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-ident">ProgName</span><span class="pas-sym">;</span>
+<span class="pas-space">  </span><span class="pas-ident">UniqueString</span><span class="pas-sym">(</span><span class="pas-ident">SafeProgName</span><span class="pas-sym">)</span><span class="pas-sym">;</span>
+<span class="pas-space">  </span><span class="pas-comment">// Set up startup info record: all default values</span>
+<span class="pas-space">  </span><span class="pas-ident">FillChar</span><span class="pas-sym">(</span><span class="pas-ident">SI</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-ident">SizeOf</span><span class="pas-sym">(</span><span class="pas-ident">SI</span><span class="pas-sym">)</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-num">0</span><span class="pas-sym">)</span><span class="pas-sym">;</span>
+<span class="pas-space">  </span><span class="pas-ident">SI</span><span class="pas-sym">.</span><span class="pas-ident">cb</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-ident">SizeOf</span><span class="pas-sym">(</span><span class="pas-ident">SI</span><span class="pas-sym">)</span><span class="pas-sym">;</span>
+<span class="pas-space">  </span><span class="pas-comment">// Set up creation flags: special flag required for unicode</span>
+<span class="pas-space">  </span><span class="pas-comment">// environments, which is want when unicode support is enabled.</span>
+<span class="pas-space">  </span><span class="pas-comment">// NOTE: we are assuming that the environment block is in Unicode</span>
+<span class="pas-space">  </span><span class="pas-comment">// on Delphi 2009 or later. CreateProcessW does permits it to be</span>
+<span class="pas-space">  </span><span class="pas-comment">// ANSI, but we don't support that</span>
+<span class="pas-space">  </span><span class="pas-preproc">{$IFDEF UNICODE}</span>
+<span class="pas-space">  </span><span class="pas-ident">CreateFlags</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-ident">CREATE_UNICODE_ENVIRONMENT</span><span class="pas-sym">;</span><span class="pas-space">  </span><span class="pas-comment">// passing a unicode env</span>
+<span class="pas-space">  </span><span class="pas-preproc">{$ELSE}</span>
+<span class="pas-space">  </span><span class="pas-ident">CreateFlags</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-num">0</span><span class="pas-sym">;</span>
+<span class="pas-space">  </span><span class="pas-preproc">{$ENDIF}</span>
+<span class="pas-space">  </span><span class="pas-comment">// Execute the program</span>
+<span class="pas-space">  </span><span class="pas-ident">Result</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-ident">CreateProcess</span><span class="pas-sym">(</span>
+<span class="pas-space">    </span><span class="pas-kwd">nil</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-ident">PChar</span><span class="pas-sym">(</span><span class="pas-ident">SafeProgName</span><span class="pas-sym">)</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-kwd">nil</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-kwd">nil</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-ident">True</span><span class="pas-sym">,</span>
+<span class="pas-space">&#9;</span><span class="pas-ident">CreateFlags</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-ident">EnvBlock</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-kwd">nil</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-ident">SI</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-ident">PI</span>
+<span class="pas-space">  </span><span class="pas-sym">)</span><span class="pas-sym">;</span>
+<span class="pas-kwd">end</span><span class="pas-sym">;</span></pre>
+<div class="caption">Listing 7</div>
+</div>
+
+<aside>
+	<div class="callout callout-danger">
+		<h4>
+			Problems with <var>CreateProcess</var> Unicode API.
+		</h4>
+		<p>
+			When using the Unicode API, <var>CreateProcess</var> maps to <var>CreateProcessW</var> which exhibits some strange behaviour. See <a href="http://msdn.microsoft.com/en-us/library/ms682425.aspx" title="Off-site link" class="offsite">MSDN</a> for an explanation of the problem: look under the
+			<var>lpCommandLine</var> parameter section.
+		</p>
+		<p>
+			We must make the <var>ProgName</var> parameter safe for passing to <var>CreateProcess</var> on Delphi 2009 and later by making sure the memory space occupied by <var>ProgName</var> is writeable. If <var>ExecProg</var> is called with a <var>ProgName</var> parameter with a reference count of -1 the memory is not writeable and <var>CreateProcess</var> will fail.
+		</p>
+		<p>
+			In a <a href="https://forums.codegear.com/thread.jspa?threadID=12826" title="Off-site link" class="offsite">post</a> to the CodeGear forums, Remy Lebeau suggested the <var>UniqueString</var> work-around that we have used. This ensures that <var>ProgName</var> has a reference count of 1.
+		</p>
+	</div>
+</aside>
+
+<p class="text-center noprint">
+  <span class="fa fa-arrow-circle-o-up fa-x-pad-right"></span><a href="#routinelist">Back to list</a><span class="fa fa-arrow-circle-o-up fa-x-pad-left">
+</p>
+
+</summary>
+
+<section id="demo">
+
+	<h2>
+		Demo Code
+	</h2>
+
+	<p>
+		A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.
+	</p>
+
+	<p>
+		You can view the code in the <code>article-06</code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
+	</p>
+
+	<p>
+		The demo is described in the <code>ReadMe.txt</code> that is included with the source code.
+	</p>
+
+	<p class="callout callout-info">
+    <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. The code is open source &ndash; see the source files for any licensing terms.
+  </p>
+
+</section>
+
+<section id="gofurther">
+
+	<h2>
+		Going Further
+	</h2>
+
+	<p>
+		My <a href="/software/envvars">Environment Variables Unit</a> provides a set of routines and a component that use the methods discussed here to access environment variables.
+	</p>
+</section>
+
+<section id="feedback">
+
+<h2>
+  Feedback
+</h2>
+
+<p>
+  I hope you enjoyed this article and found it useful. If you have any observations, comments or have found any errors please <a href="/contact">contact me</a>.
+</p>
+
+</section>
