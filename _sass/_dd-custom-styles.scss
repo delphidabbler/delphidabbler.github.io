@@ -102,16 +102,34 @@ h3.collapsible {
     content: " [TO-CHANGE]";
 }
 
+.indent {
+	margin-left: $list-item-offset
+}
+
 // Additional typography: extends typographic classes exposed by Bootstrap
 //** Custom
 .text-smallcaps {
   font-variant: small-caps;
 }
+var, .var {
+	color: $brand-primary;
+	font-style: italic;
+}
+strong, .strong {
+	font-weight: bold;
+}
+samp, .samp, .kbd {
+	@extend kbd;
+}
+samp, .samp {
+	background-color: $samp-bg;
+	color: $samp-color;
+}
 
-// Adds an external link glyph to links whose hrefs start with http:// or 
+// Adds an external link glyph to links whose hrefs start with http:// or
 // https://
 // If the link is a direct download that does not load another page then you can
-// specify the .direct-dl class replace the external link glyph with a cloud 
+// specify the .direct-dl class replace the external link glyph with a cloud
 // download glyph.
 //** Custom
 a[href^="http"] {
@@ -136,23 +154,6 @@ a[href^="http"] {
 // Prepends an appropriate glyph to messages in alert boxes when .glyph class included.
 //** Custom
 .glyph {
-/*
-    &.alert-info::before,
-    &.alert-success::before,
-    &.alert-warning::before,
-    &.alert-danger::before {
-      font-family: $font-family-glyph;
-      margin-right: 0.25em;
-    }
-      content: "\f05a";
-    }
-      content: "\f058";
-    }
-      content: "\f024";
-    }
-      content: "\f071";
-    }
-*/
   &.alert-info::before,
   &.alert-success::before,
   &.alert-warning::before,
@@ -180,7 +181,7 @@ a[href^="http"] {
   &.text-danger::before {
     content: "\f071";
   }
-} 
+}
 
 // Extra style for Font Awesome to pad glyphs on right
 // Any class whose name begins with fa-x provides additional classes for use
@@ -212,33 +213,37 @@ a[href^="http"] {
     margin-top: -5px;
   }
 }
-.callout-danger {
-  border-left-color: $brand-danger;
-  h1, h2, h3, h4, h5, h6 {
-    color: $brand-danger;
+.callout-primary {
+  border-left-color: $brand-primary;
+  h1, h2, h3, h4, h5, h6, var {
+    color: $brand-primary;
   }
 }
-.callout-warning {
-  border-left-color: $brand-warning;
-  h1, h2, h3, h4, h5, h6 {
-    color: $brand-warning;
+.callout-success {
+  border-left-color: $brand-success;
+  h1, h2, h3, h4, h5, h6, var {
+    color: $brand-success;
   }
 }
 .callout-info {
   border-left-color: $brand-info;
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2, h3, h4, h5, h6, var {
     color: $brand-info;
   }
 }
-/*
-.callout.pullout,
-.callout.pullout-lg,
-.callout.pullout-sm {
-  margin-top: 0;
-  margin-left: $padding-base-horizontal;
-  padding: ceil($line-height-computed / 2);
+.callout-warning {
+  border-left-color: $brand-warning;
+  h1, h2, h3, h4, h5, h6, var {
+    color: $brand-warning;
+  }
 }
-*/
+.callout-danger {
+  border-left-color: $brand-danger;
+  h1, h2, h3, h4, h5, h6, var {
+    color: $brand-danger;
+  }
+}
+
 
 // Customise appearance of navbar to match branding
 //** Overrides bootstrap class
@@ -584,11 +589,20 @@ h3.collapsible {
       font-size: ceil($font-size-h1);
      }
   }
+
+	&.mothballed {
+		background-color: $state-warning-bg;
+		color: $state-warning-text;
+	}
+	&.obsolete {
+		background-color: $state-danger-bg;
+		color: $state-danger-text;
+	}
 }
 
 // Stying of div that wraps software meta data
 //** Custom
-div.sw-meta, {
+div.sw-meta {
   border: 1px $panel-default-border solid;
   border-radius: $border-radius-base;
   margin-bottom: $line-height-computed;
@@ -607,4 +621,82 @@ div.sw-meta, {
       background-color: $panel-default-heading-bg;
     }
   }
+}
+
+// Table styling
+// ** Bootstrap override
+.table {
+	border-collapse: collapse;
+
+	// Set table head background
+	> thead {
+		background-color: $table-head-bg;
+	}
+
+  // Middle align for column headings
+  > thead > tr > th {
+    vertical-align: middle;
+		border-bottom: $table-border-color solid 1px;
+  }
+  // Add top border to thead
+  > caption + thead,
+  > colgroup + thead,
+  > thead:first-child {
+    > tr:first-child {
+      > th,
+      > td {
+        border-top: $table-border-color solid 2px;
+      }
+    }
+  }
+	// Add bottom border to tbody
+	> tbody:last-child {
+		> tr:last-child {
+			> th,
+			> td {
+				border-bottom: $table-border-color solid 2px;
+			}
+		}
+	}
+}
+
+
+// Styling for source code example frames (mainly used in articles)
+// ** Custom
+.frame {
+	margin-bottom: ceil($line-height-computed / 2);
+}
+.frame > pre {
+	@extend .pre-scrollable;
+}
+.frame > table {
+	margin-bottom: 0;
+}
+.frame > pre.source-body,
+.frame > pre.pas-source {
+	margin-bottom: 0;
+	line-height: 120%;
+}
+.frame > pre.pas-source {
+	@extend samp;
+}
+.frame table code {
+	background-color: transparent;
+}
+.frame .caption {
+	color: $gray-light;
+	background-color: $frame-caption-bg;
+	text-align: center;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	font-size: $font-size-small;
+	font-variant: small-caps;
+}
+
+// Styling for references to figures (tables, listings etc.) Used mainly in articles
+// ** Custom
+.figureref {
+	font-variant: small-caps;
 }

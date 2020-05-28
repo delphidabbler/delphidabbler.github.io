@@ -14,7 +14,7 @@ summary: "Three components that save and restore window size, state and position
 download-base-url: "https://sourceforge.net/projects/ddablib/files/wdwstate/"
 repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/wdwstate/
 want-header-buttons: true
-mothballed: false
+status: "current"
 ---
 {% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
 {% assign dl-url = page.download-base-url | append: dl-file %}
@@ -124,7 +124,7 @@ mothballed: false
     </h3>
     <div id="how-it-works" class="collapse"> <!-- begin collapsible #how-it-works section -->
       <p>
-        The underlying principle used in the code is described in the article &quot;<a href="http://delphidabbler.com/articles?article=4">How to remember a window's size, state and position</a>&quot;.
+        The underlying principle used in the code is described in the article &quot;<a href="{{ site.base-url }}/articles/article-4">How to remember a window's size, state and position</a>&quot;.
       </p>
       <p>
         We can't rely on Delphi's own <var>Width</var> and <var>Height</var> properties for recording window size, since these do not maintain size of the normalised window size when the window is maximized. Instead we have to use the <var>GetWindowPlacement</var> and <var>SetWindowPlacement</var> Windows API calls.
@@ -236,7 +236,7 @@ mothballed: false
     </p>
     <div class="alert alert-info">
       <p>
-        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <a href="http://delphidabbler.com/articles?article=15">this article</a> explains how to do it.
+        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <a href="{{ site.base-url }}/articles/article-15">this article</a> explains how to do it.
       </p>
       <p class="alert alert-warning glyph">
         This help file is deprecated and is no longer being updated. The last update was in the v5.4.1 release. The help file may be removed from any future release.

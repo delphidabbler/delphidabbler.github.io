@@ -1,0 +1,155 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 50
+version: "4.1.1"
+os: "Windows 2000 and later"
+release-date: "2016-02-15"
+title: "8 Queens Problem Solver"
+precis: "Demonstrates all solutions of the 8 queens problem"
+summary: "Demonstrates all solutions of the 8 queens problem."
+want-header-buttons: false
+status: "mothballed"
+---
+<section class="panel panel-warning">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Mothballed
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="lead">
+			Development of <em>{{ page.title }}</em> is frozen.
+		</p>
+		<p>
+			This program has roots going back to a Turbo Pascal DOS program from 1991. It's Windows incarnation goes back to the v2 release 1997 and was one of my early attempts at OOP using Delphi 1.
+		</p>
+		<p>
+			The program has been given numerous overhauls over the years through 4 major versions, finally ending up as a heavily redesigned 32 bit Windows program.
+		</p>
+		<p>
+			In 2016 I decided it was time to let it be, so I released one final version in case anyone's interested.
+		</p>
+		<p>
+			The source code remains available should anyone want to develop the program further. See below.
+		</p>
+		<p class="alert alert-warning lead glyph">
+			There is no support available for this program. Please do not report any bugs or contact me about it.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			This program calculates and displays all possible solutions of the &quot;eight queens problem&quot;. This problem asks how many different ways eight queens can be placed on a chess board so that no queen can capture any other.
+		</p>
+		<div class="text-center">
+			<p>
+				<img class="scale" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/8queens.png" alt="Screenshot of 8 Queens Problem Solver program" title="8 Queens Problem Solver"/>
+			</p>
+			<p class="small text-smallcaps">
+				<em>8 Queens Problem Solver v4.1.1 running in manual mode on Windows 10.1.</em>
+			</p>
+		</div>
+		<p>
+			A user guide, in PDF format, is included with the program.
+		</p>
+		<p>
+			The main point of interest in writing this program was learning how to solve the problem. The answer lies in the source code, which is freely available. See below.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			The following downloads for the <em>8 Queens</em> program are hosted on GoogleDrive.
+		</p>
+		<ul>
+			<li>
+				<p>
+					<strong>The executable program: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJU0V3anA0Y2ZfSWc/view?usp=sharing">8queens-exe.zip</a>.</strong>
+				</p>
+				<p>
+					This zip file includes a standard Windows installer which should be extracted from the zip file and run. The installer needs administrator privileges to run and will ask permission on Windows Vista and later. For more information see the read-me file included in the zip file.
+				</p>
+			</li>
+			<li>
+				<p>
+					<strong>The source code: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJUXNodDJHZFAwTzQ/view?usp=sharing">8queens-src.zip</a>.</strong>
+				</p>
+				<p>
+					This download includes the source code of the final version of the program. Create a new folder to hold the source code and then unzip the file into it, preserving the directory structure.
+				</p>
+			</li>
+			<li>
+				<p>
+					<strong>Subversion repository dump: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJSnBUdV81MGxVanM/view?usp=sharing">8queens-svndump.zip</a>.</strong>
+				</p>
+				<p>
+					This is aimed at anyone wanting to take over development of the program.
+				</p>
+				<p>
+					To use the repository first extract <code>8queens-svndump</code> from the zip file, then import it into a clean Subversion repository. See the Subversion documentation for details of how to do this.
+				</p>
+				<p>
+					The repository contains branches off the <code>tags</code> branch that contain the source code of releases 4.0.2 to 4.1.1. The <code>trunk</code> branch contains the current development tree which, as supplied, is the same as the v4.1.1 <code>tags</code> branch. You should use <code>trunk</code> to make any changes. The <code>tags</code> branches should be left unchanged. Snapshots of any new releases should be added there.
+				</p>
+				<p>
+					The zip file also contains <code>BUILD.md</code> (that provides instructions on how to build the project) and <code>LICENSE</code> that contains the open source license text.
+				</p>
+			</li>
+		</ul>
+		<p>
+			Some DelphiDabbler library projects are required to build <em>8 Queens</em> from source. They are:
+		</p>
+		<ul>
+			<li>
+				<a href="{{ site.base-url }}/software/verinfo">Version Information Component</a>.
+			</li>
+			<li>
+				<a href="{{ site.base-url }}/software/aboutbox">About Box Component</a>.
+			</li>
+			<li>
+				<a href="{{ site.base-url }}/software/hotlabel">Hot Label Component</a>.
+			</li>
+		</ul>
+	</div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			<em>8 Queens Problem Solver</em> is released under the terms of the <a href="http://delphidabbler.mit-license.org/1991-2016/">MIT License</a>.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Change Log
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			The program's change log can found on Google Drive in the file <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJbXd4cFdDQUxRbTQ/view?usp=sharing" >8queens-changelog.txt</a>. The source code download and the Subversion dump also contain copies in the file <code>ChangeLog.txt</code>.
+		</p>
+  </div>
+</section>

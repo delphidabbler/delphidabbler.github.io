@@ -1,0 +1,146 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 80
+version: "1.1.2"
+os: "Windows 2000 and later"
+release-date: "2013-10-29"
+title: "BoobyTrap!"
+precis: "A Minesweeper clone"
+summary: "A clone of the Minesweeper game written in Delphi Pascal."
+want-header-buttons: false
+status: "mothballed"
+---
+<section class="panel panel-warning">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Mothballed
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="lead">
+			Development of <em>{{ page.title }}</em> is frozen.
+		</p>
+		<p>
+			This program was written as a programming exercise back in 1999 and it shows in the source code – I wouldn't write that code now! <em>BoobyTrap!</em> received only one main update in 2008 when the help system was changed. Other than that there have only been a few bug fix releases.
+		</p>
+		<p>
+			In October 2013 the program received its final update to make it compile with Delphi XE and support the Unicode Windows API.
+		</p>
+		<p>
+			If you want to take over development, please do so. The source code of v1.1.2, along with a dump of a Subversion repository containing the code, is available below.
+		</p>
+		<p class="alert alert-warning lead glyph">
+			There is no support available for this program. Please do not report any bugs or contact me about it.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			<em>BoobyTrap!</em> is a clone of the Minesweeper game, programmed in Delphi Pascal. The program has user-definable play areas and has high score tables.
+		</p>
+		<div class="text-center">
+			<p>
+				<img class="scale" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/boobytrap.png" alt="Screenshot of BoobyTrap! v1.1.2 running on Windows 7" title="BoobyTrap! v1.1.2 running on Windows 7"/>
+			</p>
+			<p class="small text-smallcaps">
+				<em>BoobyTrap! v1.1.2 running on Windows 7.</em>
+			</p>
+		</div>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Download
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			The following downloads for <em>BoobyTrap!</em> are hosted on GoogleDrive.
+		</p>
+		<ul>
+			<li>
+				<p>
+					<strong>The executable program: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJcFpRT2tRWjNUQTQ/view?usp=sharing">boobytrap-exe.zip</a>.</strong>
+				</p>
+				<p>
+					This zip file includes a standard Windows installer which should be extracted from the zip file and run. The installer needs administrator privileges to run and will ask permission on Windows Vista and later. For more information see the read-me file included in the zip file.
+				</p>
+			</li>
+			<li>
+				<p>
+					<strong>The source code: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJbW1QTTlXMHVRYVU/view?usp=sharing">boobytrap-src.zip</a>.</strong>
+				</p>
+				<p>
+					This download includes the source code of the final version of the program. Create a new folder to hold the source code and then unzip the file into it, preserving the directory structure. Then follow the instructions in the included <code>Compiling.txt</code> file.
+				</p>
+			</li>
+			<li>
+				<p>
+					<strong>Subversion repository dump: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJa0dHTHhEMnozOFU/view?usp=sharing">boobytrap-svndump.zip</a>.</strong>
+				</p>
+				<p>
+					This is aimed at anyone wanting to take over development of the program.
+				</p>
+				<p>
+					To use the repository first extract <code>boobytrap-svndump</code> from the zip file, then import it into a clean Subversion repository. See the Subversion documentation for details of how to do this.
+				</p>
+				<p>
+					The repository contains branches off the <code>tags</code> branch that contain the source code of releases 1.0.0 to 1.1.2. The <code>trunk</code> branch contains the current development tree which, as supplied, is the same as the v1.1.2 <code>tags</code> branch. You should use <code>trunk</code> to make any changes. The <code>tags</code> branches should be left unchanged. Create a new tag branch for each release.
+				</p>
+				<p>
+					The zip file also includes <code>License.txt</code> that contains the program's open source license text.
+				</p>
+			</li>
+		</ul>
+		<p>
+			Some DelphiDabbler library projects are required to build <em>BoobyTrap!</em> from source. They are:
+		</p>
+		<ul>
+			<li>
+				<a href="{{ site.base-url }}/software/verinfo">Version Information Component</a>.
+			</li>
+			<li>
+				<a href="{{ site.base-url }}/software/wdwstate">Window State Components</a>.
+			</li>
+			<li>
+				<a href="{{ site.base-url }}/software/aboutbox">About Box Component</a>.
+			</li>
+		</ul>
+	</div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			<em>BoobyTrap!</em> is released under the terms of the <a href="http://delphidabbler.mit-license.org/1999-2013/">MIT License</a>.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Change Log
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			The program's change log can found on Google Drive in the file <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJMnZtZC1aVlk0SE0/view?usp=sharing" >boobytrap-changelog.txt</a>. The source code download and the Subversion dump also contain copies in the file <code>ChangeLog.txt</code>.
+		</p>
+  </div>
+</section>
