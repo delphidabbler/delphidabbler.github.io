@@ -591,6 +591,10 @@ h3.collapsible {
   }
 
 	&.mothballed {
+		background-color: $state-warning-bg;
+		color: $state-warning-text;
+	}
+	&.obsolete {
 		background-color: $state-danger-bg;
 		color: $state-danger-text;
 	}
