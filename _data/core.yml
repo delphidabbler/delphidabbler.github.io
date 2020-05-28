@@ -31,6 +31,7 @@ prefix-free-link: "/assets/scripts/prefixfree.min.js"
 style-link: "/assets/css/style.css"
 
 software-images-base-url: "/assets/images/software" 
+articles-images-base-url: "/assets/images/articles"
 
 
 # External links

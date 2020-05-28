@@ -126,10 +126,10 @@ samp, .samp {
 	color: $samp-color;
 }
 
-// Adds an external link glyph to links whose hrefs start with http:// or 
+// Adds an external link glyph to links whose hrefs start with http:// or
 // https://
 // If the link is a direct download that does not load another page then you can
-// specify the .direct-dl class replace the external link glyph with a cloud 
+// specify the .direct-dl class replace the external link glyph with a cloud
 // download glyph.
 //** Custom
 a[href^="http"] {
@@ -181,7 +181,7 @@ a[href^="http"] {
   &.text-danger::before {
     content: "\f071";
   }
-} 
+}
 
 // Extra style for Font Awesome to pad glyphs on right
 // Any class whose name begins with fa-x provides additional classes for use
@@ -213,33 +213,37 @@ a[href^="http"] {
     margin-top: -5px;
   }
 }
-.callout-danger {
-  border-left-color: $brand-danger;
-  h1, h2, h3, h4, h5, h6 {
-    color: $brand-danger;
+.callout-primary {
+  border-left-color: $brand-primary;
+  h1, h2, h3, h4, h5, h6, var {
+    color: $brand-primary;
   }
 }
-.callout-warning {
-  border-left-color: $brand-warning;
-  h1, h2, h3, h4, h5, h6 {
-    color: $brand-warning;
+.callout-success {
+  border-left-color: $brand-success;
+  h1, h2, h3, h4, h5, h6, var {
+    color: $brand-success;
   }
 }
 .callout-info {
   border-left-color: $brand-info;
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2, h3, h4, h5, h6, var {
     color: $brand-info;
   }
 }
-/*
-.callout.pullout,
-.callout.pullout-lg,
-.callout.pullout-sm {
-  margin-top: 0;
-  margin-left: $padding-base-horizontal;
-  padding: ceil($line-height-computed / 2);
+.callout-warning {
+  border-left-color: $brand-warning;
+  h1, h2, h3, h4, h5, h6, var {
+    color: $brand-warning;
+  }
 }
-*/
+.callout-danger {
+  border-left-color: $brand-danger;
+  h1, h2, h3, h4, h5, h6, var {
+    color: $brand-danger;
+  }
+}
+
 
 // Customise appearance of navbar to match branding
 //** Overrides bootstrap class
@@ -585,8 +589,12 @@ h3.collapsible {
       font-size: ceil($font-size-h1);
      }
   }
-	
+
 	&.mothballed {
+		background-color: $state-warning-bg;
+		color: $state-warning-text;
+	}
+	&.obsolete {
 		background-color: $state-danger-bg;
 		color: $state-danger-text;
 	}
@@ -619,12 +627,12 @@ div.sw-meta {
 // ** Bootstrap override
 .table {
 	border-collapse: collapse;
-	
+
 	// Set table head background
 	> thead {
 		background-color: $table-head-bg;
 	}
-	
+
   // Middle align for column headings
   > thead > tr > th {
     vertical-align: middle;

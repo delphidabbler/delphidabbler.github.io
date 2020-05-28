@@ -14,7 +14,7 @@ summary: "About box component that can display version information."
 download-base-url: "https://sourceforge.net/projects/ddablib/files/aboutbox/"
 repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/aboutbox/
 want-header-buttons: true
-mothballed: false
+status: "current"
 ---
 {% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
 {% assign dl-url = page.download-base-url | append: dl-file %}
@@ -30,7 +30,7 @@ mothballed: false
       This  non-visual component encapsulates an About Box. When displayed the About Box appears like this:
     </p>
     <p class="text-center">
-      <img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/aboutbox.png" alt="Vista screenshot of About dialog box" title="About dialog box" class="scale" style="width:360px;" />
+      <img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/aboutbox.png" alt="Vista screenshot of About dialog box" title="About dialog box" class="scale" />
     </p>
     <p>
       The dialogue box can either display information stored in its properties or from the host program's version information resources.
