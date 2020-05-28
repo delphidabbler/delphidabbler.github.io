@@ -22,7 +22,11 @@ title: Code Library
         </header>
         <div class="panel-body">
           <p>{{ project.summary | escape }}</p>
-          {% if project.mothballed %}<p class="alert alert-warning small" role="alert"><span class="fa fa-flag fa-lg fa-x-pad-right" aria-hidden="true"></span><span class="sr-only">Note</span> This library project is mothballed. It is being neither developed nor supported.</p>{% endif %}
+					{% if project.status == "mothballed" %}
+					<p class="alert alert-warning small" role="alert"><span class="fa fa-flag fa-lg fa-x-pad-right" aria-hidden="true"></span><span class="sr-only">Note</span> This library project is mothballed. It is being neither developed nor supported.</p>
+          {% elsif project.status == "obsolete" %}
+					<p class="alert alert-danger small" role="alert"><span class="fa fa-exclamation-triangle fa-lg fa-x-pad-right" aria-hidden="true"></span><span class="sr-only">Note</span> This library project is mothballed. It is being neither developed nor supported and is here only for historical reasons.</p>
+					{% endif %}
         </div>
         <div class="panel-footer text-right">
           <a href="{{ project.url }}" aria-label="{{ project.title | escape }} page on {{ site.data.core.orig-site-name | escape }}">More info</a>
