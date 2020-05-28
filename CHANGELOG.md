@@ -4,6 +4,42 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.6.0 - 2020-05-28
+
+### Added
+
+* Article pages:
+    * #4: "How to remember a window's size, state and position".
+    * #6: "How to access environment variables".
+    * #11: "How to catch files dragged and dropped on an application from Explorer".
+    * #15: "How to integrate help files into the Delphi 3-7 IDE."
+    * Placeholder pages for the remaining 21 articles with links to PDF copies of the articles.
+* New scaffolding to enable Jekyll to render the articles pages.
+* All outstanding program pages:
+    * 8 Queens Problem Solver (mothballed).
+    * John Conway's Game Of Life (mothballed).
+    * BoobyTrap! (mothballed).
+    * SIBuilder (obsolete)
+    * Component Help Installer (obsolete)
+
+### Changed
+
+* Updated CSS style sheets:
+    * Added new styles required by article pages.
+    * Modified styling of page headers for software pages to support "mothballed" and "obsolete" styles in addition the the default ("current") style.
+    * Added styling for image captions.
+    * Various tweaks and rationalisation of SASS code.
+* Revised categorisation of software pages: added "obsolete" status to existing "current" and "mothballed" statuses.
+* Revised software page templates to support "mothballed" and "obsolete" page styles.
+* Fixed some images that weren't rescaling to fit small screens.
+* Replaced external links with local links for:
+    * All article pages.
+    * Program pages added in this release.
+
+### Removed
+
+* YAML files made redundant by addition of local articles pages and completion of program page collection.
+
 ## v0.5.0 - 2020-03-20
 
 ### Added
