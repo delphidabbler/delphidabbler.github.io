@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.6.2 - 2020-06-01
+
+### Fixes
+
+* "Broken links on the updated CodeSnip page" - removed privacy statement link and corrected link to the program change log (commit 24107e3, issue #31).
+* "Security alert notified by GitHub" - vulnerability in _activesupport_ gem. Fixed per suggestion in the [alert](https://github.com/delphidabbler/delphidabbler.github.io/network/alert/Gemfile.lock/activesupport/closed) (commit 1b87775, issue #32).
+
 ## v0.6.1 - 2020-05-31
 
 ### Changed
