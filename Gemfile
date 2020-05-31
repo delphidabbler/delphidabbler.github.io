@@ -2,6 +2,8 @@ source "https://rubygems.org"
 
 gem "github-pages", "~> 204", group: :jekyll_plugins
 
+gem "activesupport", ">= 6.0.3.1" # fix security issue
+
 # If you have any plugins, put them here!
 group :jekyll_plugins do
   gem "jekyll-feed"
