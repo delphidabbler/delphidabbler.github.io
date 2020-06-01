@@ -52,11 +52,27 @@ dl {
   }
 }
 
-// Scalable images
+// Images
 //** Custom
-img.scale {
-  max-width: 100%;
-  object-fit: fit;
+img {
+	// Scalable responsive image
+	&.scale {
+		max-width: 100%;
+		object-fit: fit;
+		display: block;
+	}
+	// Float on large screens, centered as a block on small screens
+	&.pull-right-xs {
+		max-width: 100%;
+		object-fit: fit;
+		margin-bottom: ($line-height-computed / 2);
+		@media (min-width: $screen-xs-min) {
+			float: right !important;
+			margin: 0;
+			margin-left: 12px;
+			display: inline;
+		}
+	}
 }
 
 // Class that can be applied to <pre> tags to make them appear similar to <kbd> tags
