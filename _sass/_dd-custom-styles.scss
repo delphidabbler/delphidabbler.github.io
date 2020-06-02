@@ -67,9 +67,6 @@ dl {
 // Images
 //** Custom
 img {
-	.center {
-		@extend .center-block;
-	}
 	// Scalable responsive image
 	&.scale {
 		max-width: 100%;
