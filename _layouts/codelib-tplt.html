@@ -2,8 +2,15 @@
 layout: default
 ---
 {% assign dl-url = page.download-base-url | append: page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% if page.status == "mothballed" %}
+	{% assign headercls = "mothballed" %}
+{% elsif page.status == "obsolete" %}
+	{% assign headercls = "obsolete" %}
+{% else }
+	{% assign headercls = "" %}
+{% endif %}
 <!-- BEGIN code library page content -->
-<div class="sw-page-header">
+<div class="sw-page-header {{ headercls }}">
   <header>
     <h1>{{ page.title | escape }}</h1>
     <p class="strapline">{{ page.precis | escape }}</p>
@@ -19,6 +26,11 @@ layout: default
         aria-hidden="true">
       </span> Download v{{ page.version }}</a>
     </div>
+    {% endif %}
+		{% if page.status == "mothballed" %}
+		<p class=""><strong><span class="fa fa-flag fa-x-pad-right"></span>Mothballed<span class="fa fa-flag fa-x-pad-left"></span></strong></p>
+		{% elsif page.status == "obsolete" %}
+		<p class=""><strong><span class="fa fa-exclamation-triangle fa-x-pad-right"></span>Obsolete<span class="fa fa-exclamation-triangle fa-x-pad-left"></span></strong></p>
     {% endif %}
   </header>
 </div>

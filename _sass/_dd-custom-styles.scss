@@ -9,6 +9,18 @@ main#content > *:first-child {
   margin-top: 0;
 }
 
+// Paragraphs
+p {
+	&.condensed,
+	&.condensed-top {
+		margin-top: 0;
+	}
+	&.condensed,
+	&.condensed-bottom {
+		margin-bottom: 0;
+	}
+}
+
 // Lists
 //** Bootstrap override
 ol,
@@ -52,11 +64,30 @@ dl {
   }
 }
 
-// Scalable images
+// Images
 //** Custom
-img.scale {
-  max-width: 100%;
-  object-fit: fit;
+img {
+	.center {
+		@extend .center-block;
+	}
+	// Scalable responsive image
+	&.scale {
+		max-width: 100%;
+		object-fit: fit;
+		display: block;
+	}
+	// Float on large screens, centered as a block on small screens
+	&.pull-right-xs {
+		max-width: 100%;
+		object-fit: fit;
+		margin-bottom: ($line-height-computed / 2);
+		@media (min-width: $screen-xs-min) {
+			float: right !important;
+			margin: 0;
+			margin-left: 12px;
+			display: inline;
+		}
+	}
 }
 
 // Class that can be applied to <pre> tags to make them appear similar to <kbd> tags
@@ -117,6 +148,9 @@ var, .var {
 }
 strong, .strong {
 	font-weight: bold;
+}
+em, .em {
+	font-style: italic;
 }
 samp, .samp, .kbd {
 	@extend kbd;

@@ -1,0 +1,109 @@
+---
+layout: "codelib-tplt"
+group: lib
+priority: 210
+version: "1.0"
+release-date: "2007-06-10"
+platforms: ["Win32"]
+frameworks: ["IDE"]
+compatibility: "Delphi 7 only"
+title: "Macro Toolbar Display Wizard for Delphi 7"
+precis: "Wizard enables the macro toolbar in Delphi 7 editor windows."
+summary: "Wizard that makes the macro toolbar visible in Delphi 7 editor windows. It also adds a menu item to Delphi to enable the macro toolbars to be toggled on and off."
+want-header-buttons: false
+status: "mothballed"
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-warning">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Mothballed
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="lead">
+			Development of <em>{{ page.title }}</em> is frozen.
+		</p>
+		<p>
+			This wizard works only with Delphi 7, which is now quite old. Furthermore there have never had to be any updates to the wizard since the first and only release &ndash; it is quite simple and seems to just work.
+		</p>
+		<p>
+			Therefore I'm freezing development of this code. If you want to make changes, there is enough code in the download to do that.
+		</p>
+		<p class="alert alert-warning lead glyph">
+			There is no support available for the wizard. Please do not report any bugs or request new features.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			Delphi 7 introduced a macro recording toolbar that can be used to record and play back macros. The toolbar was to be displayed in the bottom left of the editor's status bar. However, the toolbar was hidden in the release version, leaving an empty space in the first panel of the status bar as the following image shows.
+		</p>
+
+		<p class="text-center">
+			<img class="scale" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/mtdwiz-1.png" alt="Delphi Editor without macro toolbar" title="Delphi Editor without macro toolbar" />
+		</p>
+		<p>
+			This wizard causes the hidden toolbar to be displayed in each open edit window:
+		</p>
+		<p class="text-center">
+			<img class="scale" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/mtdwiz-2.png" alt="Delphi Editor with macro toolbar" title="Delphi Editor with macro toolbar" />
+		</p>
+		<p>
+			The Wizard also adds a new <em>Display Macro Toolbar</em> menu item to the end of Delphi's <em>View</em> menu that toggles the toolbar on and off.
+		</p>
+		<p class="alert alert-info">
+			<strong>Please note:</strong> This wizard applies only to Delphi 7. The macro toolbar was not implemented in earlier versions and later versions have a completely different IDE.
+		</p>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      The source code of <em>{{page.title}}</em> is archived on Google Drive.
+		</p>
+		<p>
+			You can download it as <strong><a href="https://drive.google.com/file/d/17QHzQod4wnmfKIIRtv_9ekwE0rGCfsIv/view?usp=sharing">mtdwiz.zip</a></strong>.
+		</p>
+	</div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+			Information about how to install the wizard can be found in the <code>ReadMe.htm</code> file included in the download zip file.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>{{page.title}}</em> is open source. It is copyright &copy; 2007 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/1.1/" aria-label="Mozilla Public License v1.1 on mozilla.org">Mozilla Public License v1.1</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>
