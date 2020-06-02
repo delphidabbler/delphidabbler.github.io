@@ -40,36 +40,3 @@ title: Code Library
 <div class="clearfix visible-sm-block" role="presentation"></div>
 {% endif %}
 {%endfor %}
-
-<!-- TEMPORARY: Now loop through collection in _data/programs
-     Following code will eventually be removed when each program has its own
-     page.
--->
-<!-- Consider if the following code could be extracted as a parameterised include -->
-{% assign supported-codelib = site.data.codelib %}
-{% for item in supported-codelib %}
-{% assign test = forloop.index | modulo: 2 %}
-{% if test <> 0 %}<div class="row">{% endif %}
-  <section role="section" aria-labelledby="{{ item.id | escape }}-head">
-    <div class="col-sm-6">
-      <div class="panel panel-primary">
-        <header class="panel-heading" id="{{ item.id | escape }}-head">
-          <h2>{{ item.title | escape }}</h2>
-        </header>
-        <div class="panel-body">
-          <p>{{ item.summary | escape }}</p>
-          {% if item.mothballed %}<p class="alert alert-warning small glyph" role="alert"><span class="sr-only">Note</span> This item is mothballed. It is being neither developed nor supported.</p>{% endif %}
-        </div>
-        <div class="panel-footer text-right">
-          <a href="{{ item.more-info }}" aria-label="{{ item.title | escape }} page on {{ site.data.core.orig-site-name | escape }}"></span>More info</a>
-        </div>
-      </div>
-    </div>
-  </section>
-{% if test == 0 or forloop.last %}
-</div> <!-- ./row -->
-<!-- Clear the lg cols if their content doesn't match in height -->
-<div class="clearfix visible-sm-block" role="presentation"></div>
-{% endif %}
-{%endfor %}
-
