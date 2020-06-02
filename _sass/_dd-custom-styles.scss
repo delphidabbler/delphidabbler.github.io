@@ -9,6 +9,18 @@ main#content > *:first-child {
   margin-top: 0;
 }
 
+// Paragraphs
+p {
+	&.condensed,
+	&.condensed-top {
+		margin-top: 0;
+	}
+	&.condensed,
+	&.condensed-bottom {
+		margin-bottom: 0;
+	}
+}
+
 // Lists
 //** Bootstrap override
 ol,
@@ -55,6 +67,9 @@ dl {
 // Images
 //** Custom
 img {
+	.center {
+		@extend .center-block;
+	}
 	// Scalable responsive image
 	&.scale {
 		max-width: 100%;
@@ -133,6 +148,9 @@ var, .var {
 }
 strong, .strong {
 	font-weight: bold;
+}
+em, .em {
+	font-style: italic;
 }
 samp, .samp, .kbd {
 	@extend kbd;
