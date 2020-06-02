@@ -1,0 +1,203 @@
+---
+layout: "codelib-tplt"
+group: lib
+priority: 190
+version: "1.2"
+release-date: "2008-08-17"
+platforms: ["Win32"]
+frameworks: ["IDE"]
+compatibility: "Delphi 4 & later"
+title: "Colour Pop-up Menu Component"
+precis: "Pop-up menu to component display a colour palette"
+summary: "A pop-up menu component that displays the basic Windows colours in a menu or palette. Includes a component editor and demo."
+want-header-buttons: false
+status: "mothballed"
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-warning">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Mothballed
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="lead">
+			Development of <em>{{ page.title }}</em> is frozen.
+		</p>
+		<p>
+			This component was originally written back in 2001 when I needed a simple colour menu component for an app I was writing. That was in the pre-XP, pre-themes days. The component has never been updated to adopt the &quot;modern&quot; (XP &amp; later) look and feel, so now it looks rather dated.
+		</p>
+		<p>
+			I have no further need for the component and it would be quite a lot of work to make it themes-aware. Given that there are much better colour menu components out there, it just doesn't seem worth the effort. So I've decided to abandon the project.
+		</p>
+		<p>
+			If you want to take on maintenance please go ahead. The download section below provides everything you need.
+		</p>
+		<p class="alert alert-warning lead glyph">
+			There is no support available for <em>{{ page.title }}</em>. Please do not report any bugs or request new features.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			The colour menu component, <em>TPJColourPopupMenu</em>, is an open source non-visual component that descends from <em>TPopupMenu</em>. It implements a pop-up menu that gives access to the 16 basic Windows colours. The menu can be displayed over one, two, four or eight columns. It can also be displayed in one of the four following styles:
+		</p>
+		<ul>
+			<li>
+				<em>Text only</em> &ndash; the menu displays just the name of each colour.
+			</li>
+			<li>
+				<em>Text and colour</em> &ndash; the menu displays the colour name along with a small bitmap illustrating the colour.
+			</li>
+			<li>
+				<em>Colour only</em> &ndash; colour swatches are displayed without any text (like a palette).
+			</li>
+			<li>
+				<em>Owner draw</em> &ndash; the user provides code that draws the menu items.
+			</li>
+		</ul>
+		<p>
+			The colour names are in English. However, it is easy to provide names in other languages or use Delphi colour identifiers etc. This is done by handling one of the component's events. The accompanying demo program shows how to do this.
+		</p>
+		<p>
+			Here are three examples of how the menu can appear:
+		</p>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-4 text-smallcaps text-center em">
+					<p class="condensed-bottom">
+						Colour only
+					</p>
+					<p class="condensed small">
+						(4 columns)
+					</p>
+					<p>
+						<img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/cmenu-1.gif" alt="Screenshot of TPJColourPopupMenu text only example" title="TPJColourPopupMenu text only example" /> 
+					</p>
+				</div>
+				<div class="col-md-4 text-smallcaps text-center em">
+					<p class="condensed-bottom">
+						Text and Colour
+					</p>
+					<p class="condensed small"> 
+						(2 columns)
+					</p>
+					<p>
+						<img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/cmenu-3.gif" alt="Screenshot of TPJColourPopupMenu colour only example" title="TPJColourPopupMenu colour only example"  />    
+					</p>
+				</div>
+				<div class="col-md-4 text-smallcaps text-center">
+					<p class="condensed-bottom">
+						Text only
+					</p>
+					<p class="condensed small"> 
+						(2 columns)
+					</p>
+					<p>
+						<img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/cmenu-2.gif" alt="Screenshot of TPJColourPopupMenu text and colour example" title="TPJColourPopupMenu text and colour example"  />    
+					</p>
+				</div>
+			</div>
+		</div>
+		<p>
+			Included with the component in the download are:
+		</p>
+		<ul class="wide">
+			<li>
+				<p>
+					A demo project showing how to use the component.
+				</p>
+			</li>
+			<li>
+				<p>
+					Two property editors required by the component &ndash; one to prevent editing of the <em>Items</em> property and the other to limit the <em>SelectedColour</em> property to 16 basic colours.
+				</p>
+			</li>
+			<li>
+				<p>
+					A component editor (accessed from a mouse menu when the component is selected) that gives easy access to all the component's main properties. Here is a screenshot of the component editor:
+				</p>
+				<p>
+					<img class="scale" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/cmenu-4.gif" alt="Screenshot of colour menu component editor" title="Colour menu component editor" />    
+				</p>
+			</li>
+			<li>
+				<div class="alert alert-info condensed-bottom">
+				<p>
+					A legacy help file that can only be integrated with the IDE in Delphi 7 and earlier. <a href="{{ site.base-url }}/articles/article-15">This article</a> explains how to do it.
+				</p>
+				<p class="alert alert-danger glyph condensed-bottom">
+					The help file is in the old WinHelp format that is not supported on Windows 10.
+				</p>
+			</li>
+		</ul>
+	</div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+      The source code of <em>{{page.title}}</em> is archived on Google Drive in two forms:
+		</p>
+		<ul>
+			<li>
+				<p>
+					<strong>The source code: <a href="https://drive.google.com/file/d/1DJ7YjJ-8iWDYFoO4PSV-3Fbh83LV01uW/view?usp=sharing">cmenu.zip</a>.</strong>
+				</p>
+				<p>
+					Source code of the final release of the component. Download this file if you simply want to install and use the component.
+				</p>
+			</li>
+			<li>
+				<p>
+					<strong>Subversion repository dump: <a href="https://drive.google.com/file/d/1gAWrjwhsDyUwkL1Xc9dKfaJRtue65N5l/view?usp=sharing">cmenu-dev.zip</a>.</strong>
+				</p>
+				<p>
+				</p>
+				<p>
+					Complete development source tree for the final (v1.2) release of the component. Download this file if you want to develop the component further. Contains all the files required to modify and rebuild the component and the help file along with additional documentation.
+				</p>
+			</li>
+		</ul>
+	</div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+			Information about how to install the component can be found in the <code>ReadMe.htm</code> file included in the download zip file.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+     <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>{{page.title}}</em> is open source. It is copyright &copy; 2001-2008 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/1.1/" aria-label="Mozilla Public License v1.1 on mozilla.org">Mozilla Public License v1.1</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>
