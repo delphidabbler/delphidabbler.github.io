@@ -1,0 +1,183 @@
+---
+layout: "codelib-tplt"
+group: lib
+priority: 180
+version: "1.1"
+release-date: "2007-08-15"
+platforms: ["Win32"]
+frameworks: ["IDE"]
+compatibility: "Delphi 4 & later"
+title: "Menu Speed Button Components"
+precis: "Specialised speed buttons relating to popup menus"
+summary: "Set of three speed button components that either display associated pop-up menus or form connected button / menu button pairs. Includes demo project."
+want-header-buttons: false
+status: "obsolete"
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-danger">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Obsolete
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="lead">
+			Development of <em>{{ page.title }}</em> is frozen.
+		</p>
+		<p>
+			These components were originally written back in 2001 to get round a well known display problem that Delphi's tool button control had with some display drivers (as on an old Dell machine of mine). I used speed buttons to avoid having to use tool buttons, and needed a button that supported drop down menus, so wrote these components.
+		</p>
+		<p>
+			Now that those driver problems are long gone the original justification has disappeared. These days I use standard tool buttons and action bars.
+			Furthermore, the design of the menu speed button components doesn't lend itself to the easy application of themes from Windows XP onwards. As a result I never developed the components further.
+		</p>
+		<p>
+			The final release was issued as v1.1 on 15th August 2007, adding a new feature requested by a user. At the same time I licensed the code under the Mozilla Public License.
+		</p>
+		<p class="alert alert-danger glyph">
+			Given the above, and the fact that the components have not been tested on modern Delphis, the components could cause more problems than they solve. For that reason I <strong>strongly advise that you do not install these components</strong>.
+		</p>
+		<p>
+			Having said all that, if you want to take on development or simply want to take a look at the code please go ahead.
+		</p>
+		<p class="alert alert-warning lead glyph">
+			There is no support available for <em>{{ page.title }}</em>. Please do not report any bugs or request new features.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			This unit contains a set of three speed button components derived from Delphi's <var>TSpeedButton</var>. The buttons either display associated pop-up menus or link together to form connected button / menu button pairs. The speed buttons are designed for use on toolbars, but have other uses. The components are discussed below.
+		</p>
+
+		<h3> <!-- TODO: make this into a hideable section -->
+			Components
+		</h3>
+
+		<h4>
+			TPJMenuSpeedButton
+		</h4>
+		<!-- TODO: try to create a responsive class to float images right on larger screen and centre them above text on phones -->
+		<div class="clearfix">
+			<img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/menusb-1.gif" alt="TPJMenuSpeedButton example" title="TPJMenuSpeedButton example" class="pull-right-xs" />
+			<p>
+				When this speed button is clicked it displays an associated pop-up menu.
+			</p>
+			<p>
+				A <var>TPopupMenu</var> component is associated with this speed button using the <var>ActiveMenu</var> property. The menu is displayed adjacent to the button. The button can be configured to stay down while the menu is displayed or to return to the up position as soon as it is released.
+			</p>
+			<p class="alert alert-info">
+				The example shown depicts <var>TPJMenuSpeedButton</var> displaying a menu after being clicked. The button has been configured to stay down while the menu is displayed.
+			</p>
+		</div>
+
+		<h4>
+			TPJLinkedSpeedButton
+		</h4>
+		<div class="clearfix">
+			<img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/menusb-2.gif" alt="TPJLinkedSpeedButton example" title="TPJLinkedSpeedButton example" class="pull-right-xs" />
+			<p>
+				This speed button can link to and control a slave button that itself controls a pop-up menu.
+			</p>
+			<p>
+				The button acts like a normal speed button until a <var>TPJLinkedMenuSpeedButton</var> (see below) is linked using the <var>MenuButton</var> property. The <var>TPJLinkedSpeedButton</var> then takes over control of the menu button, with both buttons being depressed together, both being enabled or disabled together and both being moved together.
+			</p>
+			<p>
+				You can configure the button to automatically trigger any the default menu item of the active menu of the linked speed button.
+			</p>
+			<p>
+				To understand more about this component please read about <var>TPJLinkedMenuSpeedButton</var> below.
+			</p>
+			<p class="alert alert-info">
+				The example shown depicts a linked pair of buttons with the <var>TPJLinkedSpeedButton</var> being clicked and causing the linked menu button to also be depressed.
+			</p>
+		</div>
+
+		<h4>
+			TPJLinkedMenuSpeedButton
+		</h4>
+		<div class="clearfix">
+			<img src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/menusb-3.gif" alt="TPJLinkedMenuSpeedButton example" title="TPJLinkedMenuSpeedButton example" class="pull-right-xs" />
+			<p>
+				This component functions like a <var>TPJMenuSpeedButton</var> but can be linked to, and controlled by, a <var>TPJLinkedSpeedButton</var>. By default this button is narrow and displays a down arrow glyph. The button &quot;sticks&quot; to the right hand side of the controlling button and moves with it.
+			</p>
+			<p>
+				This button is designed for those situations where a dual-action button is required: either the main button is clicked to initiate a default action or the attached menu button is clicked to choose from a menu.
+			</p>
+			<p class="alert alert-info">
+				The example shown depicts a linked pair of buttons with the <var>TPJLinkedMenuSpeedButton</var> being clicked and displaying its menu. By setting a property you can align the menu under the <var>TPJLinkedSpeedButton</var> instead.
+			</p>
+		</div>
+
+		<h3>
+			Help file
+		</h3>
+		<p>
+			These components are supplied with an <em>OpenHelp</em> compatible help file that works with the Delphi 4 to 7 IDE. The help file will not integrate with Delphi 2005 and later, but can be used as a stand-alone help file.
+		</p>
+		<p class="alert alert-danger">
+			Note that WinHelp is not available, and does not work, with Windows 10.
+		</p>
+
+		<h3>
+			Demo project
+		</h3>
+		<p>
+			A demo project is also provided in the download.
+		</p>
+	</div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+      The source code of <em>{{page.title}}</em> is archived on Google Drive.
+		</p>
+		<p>
+			You can download it as <strong><a href="https://drive.google.com/file/d/170WfQ9Zgph6p9rwt9qLFueB1tkyB7aO5/view?usp=sharing">menusb.zip</a></strong>.
+		</p>
+	</div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="text-danger strong">
+			<span class="fa fa-exclamation-triangle fa-x-pad-right"></span>Remember, you are strongly advised not to install these components.
+		</p>
+    <p>
+			Information about how to install the components can be found in the <code>ReadMe.htm</code> file included in the download zip file.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+     <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>{{page.title}}</em> are open source. They are copyright &copy; 2001-2007 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/1.1/" aria-label="Mozilla Public License v1.1 on mozilla.org">Mozilla Public License v1.1</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>
