@@ -157,6 +157,26 @@ samp, .samp {
 	color: $samp-color;
 }
 
+// Style links
+//** Bootstrap overrides
+.alert {
+	a {
+		text-decoration: underline;
+	}
+}
+.alert-success {
+	@include alert-link($alert-success-text, $alert-success-bg);
+}
+.alert-info {
+	@include alert-link($alert-info-text, $alert-info-bg);
+}
+.alert-warning {
+	@include alert-link($alert-warning-text, $alert-warning-bg);
+}
+.alert-danger {
+	@include alert-link($alert-danger-text, $alert-danger-bg);
+}
+
 // Adds an external link glyph to links whose hrefs start with http:// or
 // https://
 // If the link is a direct download that does not load another page then you can
@@ -245,49 +265,25 @@ a[href^="http"] {
   }
 }
 .callout-primary {
-  border-left-color: $brand-primary;
-  h1, h2, h3, h4, h5, h6, var {
-    color: $brand-primary;
-  }
+	@include callout-setup($brand-primary);
 }
 .callout-success {
-  border-left-color: $brand-success;
-  h1, h2, h3, h4, h5, h6, var {
-    color: $brand-success;
-  }
+	@include callout-setup($brand-success);
 }
 .callout-info {
-  border-left-color: $brand-info;
-  h1, h2, h3, h4, h5, h6, var {
-    color: $brand-info;
-  }
+	@include callout-setup($brand-info);
 }
 .callout-warning {
-  border-left-color: $brand-warning;
-  h1, h2, h3, h4, h5, h6, var {
-    color: $brand-warning;
-  }
+	@include callout-setup($brand-warning);
 }
 .callout-danger {
-  border-left-color: $brand-danger;
-  h1, h2, h3, h4, h5, h6, var {
-    color: $brand-danger;
-  }
+	@include callout-setup($brand-danger);
 }
 
 
 // Customise appearance of navbar to match branding
 //** Overrides bootstrap class
 .navbar {
-//  #gradient > .horizontal($branding-bg-start, $branding-bg-stop, 35%, 100%);
-  #gradient > .horizontal {
-    @include gradient-horizontal(
-      $start-color: $branding-bg-start,
-      $end-color: $branding-bg-stop,
-      $start-percent: 35%,
-      $end-percent: 100%
-    )
-  }
   border: none;
   border-top: 1px $gray-light solid;
 }
@@ -332,14 +328,7 @@ a[href^="http"] {
   @media (min-width: $screen-sm-min) {
     display: block;
     color: $branding-color;
-    background-color: $branding-bg-start;
-    //#gradient > .horizontal($branding-bg-start, $branding-bg-stop, 35%, 100%);
-    #gradient > .horizontal {
-      @include gradient-horizontal(
-        $start-color: $branding-bg-start,
-        $end-color: $branding-bg-stop
-      )
-    }
+    background-color: $branding-bg;
     margin: $branding-margin;
     padding: $branding-base-padding;
   }

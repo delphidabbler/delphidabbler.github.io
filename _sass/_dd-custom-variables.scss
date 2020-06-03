@@ -9,8 +9,6 @@ $branding-xs-padding-horizontal: $navbar-padding-horizontal;
 $branding-margin:             0;
 $branding-color:              $global-branding-color;
 $branding-bg:                 #333366;
-$branding-bg-start:           $branding-bg;             // start colour for background gradient
-$branding-bg-stop:            $global-branding-bg-stop; // stop colour for background gradient
 $branding-logo-font-family: $headings-font-family;
 $branding-logo-font-size:     ceil($font-size-h1 * 1.1);
 $branding-logo-font-size-sm: $branding-logo-font-size * 0.7;
