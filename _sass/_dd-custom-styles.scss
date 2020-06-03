@@ -279,15 +279,6 @@ a[href^="http"] {
 // Customise appearance of navbar to match branding
 //** Overrides bootstrap class
 .navbar {
-//  #gradient > .horizontal($branding-bg-start, $branding-bg-stop, 35%, 100%);
-  #gradient > .horizontal {
-    @include gradient-horizontal(
-      $start-color: $branding-bg-start,
-      $end-color: $branding-bg-stop,
-      $start-percent: 35%,
-      $end-percent: 100%
-    )
-  }
   border: none;
   border-top: 1px $gray-light solid;
 }
@@ -332,14 +323,7 @@ a[href^="http"] {
   @media (min-width: $screen-sm-min) {
     display: block;
     color: $branding-color;
-    background-color: $branding-bg-start;
-    //#gradient > .horizontal($branding-bg-start, $branding-bg-stop, 35%, 100%);
-    #gradient > .horizontal {
-      @include gradient-horizontal(
-        $start-color: $branding-bg-start,
-        $end-color: $branding-bg-stop
-      )
-    }
+    background-color: $branding-bg;
     margin: $branding-margin;
     padding: $branding-base-padding;
   }
