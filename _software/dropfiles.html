@@ -73,9 +73,27 @@ status: "current"
     <p>
       Some design time assistance is provided by component and property editors.
     </p>
-    <p class="alert alert-warning glyph">
-      For security reasons in Windows Vista and later, drag/drop is disallowed between windows with different security permissions. This means that applications that processes drag and drop may not be able to receive files dragged and droppped from another window if the security permissions are not compatible.<br><strong><span class="fa fa-times-circle fa-x-pad-right" aria-hidden="true"></span>Please do not report this behaviour as a bug<span class="fa fa-times-circle fa-x-pad-left" aria-hidden="true"></span></strong>
-    </p>
+		<aside>
+			<div id="vistaproblem" class="callout callout-warning">
+				<h4>
+					Security Issues (Windows Vista and later)
+				</h4>
+				<p>
+					For security reasons Windows Vista and later may disallow drag and drop between windows that have different security permissions. As a consequence
+					<var>WM_DROPFILES</var> messages may be blocked.
+				</p>
+				<p class="strong">
+					<span class="fa-stack fa-lg">
+						<span class="fa fa-bug fa-stack-1x"></span>
+						<span class="fa fa-ban fa-stack-2x text-danger"></span>
+					</span>
+					If you run into this problem note that it is a feature of Windows, not a bug in the code!
+				</p>
+				<p>
+					You can read more about the problem on this <a href="http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=736086&amp;SiteID=1">Microsoft forum</a>
+				</p>
+			</div>
+		</aside>
 
     <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
       Features
