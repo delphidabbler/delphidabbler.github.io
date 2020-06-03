@@ -157,6 +157,26 @@ samp, .samp {
 	color: $samp-color;
 }
 
+// Style links
+//** Bootstrap overrides
+.alert {
+	a {
+		text-decoration: underline;
+	}
+}
+.alert-success {
+	@include alert-link($alert-success-text, $alert-success-bg);
+}
+.alert-info {
+	@include alert-link($alert-info-text, $alert-info-bg);
+}
+.alert-warning {
+	@include alert-link($alert-warning-text, $alert-warning-bg);
+}
+.alert-danger {
+	@include alert-link($alert-danger-text, $alert-danger-bg);
+}
+
 // Adds an external link glyph to links whose hrefs start with http:// or
 // https://
 // If the link is a direct download that does not load another page then you can

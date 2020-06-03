@@ -1,0 +1,8 @@
+@mixin alert-link($text-colour, $bg-colour) {
+	a {
+		color: $text-colour;
+	}
+	a:hover {
+		background-color: darken($bg-colour, 8%);
+	}
+}
