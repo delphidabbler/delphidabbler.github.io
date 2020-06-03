@@ -33,7 +33,9 @@ $line-height-base:        1.6; //** custom [orig: 1.428571429 (i.e 20/14)]
 
 $text-color:              #3a3a3a;  //** custom [orig: $gray-dark]
 
-$link-color:              $brand-primary; //** bootstrap default
+$link-color:              #2c6ce4;//lighten($link-hover-color, 5%);  //** custom [orig: $brand-primary]
+$link-hover-color:      	darken($link-color, 10%);//** custom [orig: darken($link-color, 15%)]
+$link-hover-decoration: 	underline;	//** bootstrap default
 
 $state-success-text:      #56852a; //** custom [orig: #3c763d]
 $state-success-bg:        #e1f1d2; //** custom [orig: #dff0d8]
