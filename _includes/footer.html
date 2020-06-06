@@ -21,7 +21,7 @@
       Copyright <span class="fa fa-github fa-copyright" aria-hidden="true"></span> {{ 'now' | date: "%Y" }} by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter Johnson</a>. For full details of license and 3rd party code see the <a href="{{ site.data.core.credits-link }}" aria-label="{{ site.data.core.credits-link-title }}">license &amp; credits page</a>.
     </p>
     <p>
-      Build date: {{ page.date }}{% if jekyll.environment == "development" %} [dev]{% endif %}
+      Build date: {{ site.time }}{% if jekyll.environment == "development" %} [dev]{% endif %}
     </p>
   </div> <!-- .pagefoot-credits -->
 
