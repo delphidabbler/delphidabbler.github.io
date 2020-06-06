@@ -4,9 +4,9 @@ This project contains a GitHub Pages project used to build a replacement for the
 
 The current site provides access to all the DelphiDabbler open source programs, code library. There are also numerous articles, hints and tips and collections of snippets. It is due to be taken down on 15 June 2020.
 
-The site is reached at  http://delphidabbler.github.io.
+The development site is reached at  http://delphidabbler.github.io.
 
-> The project is currently in an early stage of development. **Please do not link to it** until it reaches release 1.0.0-beta.
+> The project is currently in an early stage of development. **Please do not link to it yet** -- wait until it is published on delphidabbler.com.
 
 ## Contributing
 
@@ -21,10 +21,6 @@ Please use the project's [issue tracker](https://github.com/delphidabbler/delphi
 > You need a GitHub account to create an issue.
 
 Please provide as much information as possible about any bugs. Include the URL of the page where you noticed the bug and mention if it affects more than one page.
-
-## Change Log
-
-The project's change log can be found in [CHANGELOG.md](CHANGELOG.md).
 
 ## Licenses
 
