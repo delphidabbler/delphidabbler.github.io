@@ -22,10 +22,6 @@ Please use the project's [issue tracker](https://github.com/delphidabbler/delphi
 
 Please provide as much information as possible about any bugs. Include the URL of the page where you noticed the bug and mention if it affects more than one page.
 
-## Change Log
-
-The project's change log can be found in [CHANGELOG.md](CHANGELOG.md).
-
 ## Licenses
 
 The following licenses apply:
