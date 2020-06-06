@@ -4,333 +4,244 @@ title: "How to create and use HTML resource files"
 summary: "A review of the techniques used to create HTML resources for embedding in a program, along with a discussion of Internet Explorer's use of the res:// protocol to access and display embedded HTML."
 pages: 1
 ---
-<h2 id="contents">
-  Contents
-</h2>
+<article>
 
-<div class="well">
-  <ul>
-    <li>
-      <a href="#intro">Introduction</a>
-		</li>
-    <li>
-      <a href="#access">Accessing HTML resources from the browser</a>
-    </li>
-    <li>
-      <a href="#understand">Understanding the res:// protocol</a>
-      <ul>
-        <li>
-          <a href="#understand-overview">Overview</a>
-				</li>
-        <li>
-          <a href="#understand-resid">About resource identifiers</a>
-        </li>
-        <li>
-          <a href="#understand-safeurl">Making res:// protocol URLs safe</a>
-        </li>
-      </ul>
-    </li>
-    <li>
-      <a href="#generate">Generating res:// protocol URLs from Delphi</a>
-      <ul>
-        <li>
-          <a href="#generate-overview">Overview</a>
-        </li>
-        <li>
-          <a href="#generate-resid">Resource identifiers</a>
-        </li>
-        <li>
-          <a href="#generate-safeurl">URL encoding</a>
-        </li>
-        <li>
-          <a href="#generate-buildurl">Building the URL</a>
-        </li>
-        <li>
-          <a href="#generate-rthtml">Defining RT_HTML</a>
-        </li>
-      </ul>
-    </li>
-    <li>
-      <a href="#create">How to create HTML resources</a>
-      <ul>
-        <li>
-          <a href="#create-source">Creating resource file source code</a>
-        </li>
-        <li>
-          <a href="#create-better">Using better resource names</a>
-        </li>
-      </ul>
-    </li>
-    <li>
-      <a href="#conclusion">Conclusion</a>
-    </li>
-    <li>
-      <a href="#demo">Demo programs</a>
-    </li>
-    <li>
-      <a href="#bibliography">Further reading</a>
-    </li>
-  </ul>
-</div>
+<nav>
+	<h2 id="contents">
+		Contents
+	</h2>
+	<div class="well">
+		<ul>
+			<li>
+				<a href="#intro">Introduction</a>
+			</li>
+			<li>
+				<a href="#access">Accessing HTML resources from the browser</a>
+			</li>
+			<li>
+				<a href="#understand">Understanding the res:// protocol</a>
+				<ul>
+					<li>
+						<a href="#understand-overview">Overview</a>
+					</li>
+					<li>
+						<a href="#understand-resid">About resource identifiers</a>
+					</li>
+					<li>
+						<a href="#understand-safeurl">Making res:// protocol URLs safe</a>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<a href="#generate">Generating res:// protocol URLs from Delphi</a>
+				<ul>
+					<li>
+						<a href="#generate-overview">Overview</a>
+					</li>
+					<li>
+						<a href="#generate-resid">Resource identifiers</a>
+					</li>
+					<li>
+						<a href="#generate-safeurl">URL encoding</a>
+					</li>
+					<li>
+						<a href="#generate-buildurl">Building the URL</a>
+					</li>
+					<li>
+						<a href="#generate-rthtml">Defining RT_HTML</a>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<a href="#create">How to create HTML resources</a>
+				<ul>
+					<li>
+						<a href="#create-source">Creating resource file source code</a>
+					</li>
+					<li>
+						<a href="#create-better">Using better resource names</a>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<a href="#conclusion">Conclusion</a>
+			</li>
+			<li>
+				<a href="#demo">Demo program</a>
+			</li>
+			<li>
+				<a href="#bibliography">Further reading</a>
+			</li>
+		</ul>
+	</div>
+</nav>
 
+<section>
+	<h2 id="intro">
+		Introduction
+	</h2>
+	<p>
+		<a href="{{ site.base-url }}/articles/article-2">Article #2</a> noted the benefits of embedding data within your program's executable file or within a DLL. Often this is preferable to supplying a lot of separate support files that the user can accidentally alter or delete. The same principle applies to HTML and related files displayed by your application in a <var>TWebBrowser</var> control.
+	</p>
+	<p>
+		In fact Microsoft&reg; have encouraged this by creating the <code>res://</code> protocol. This is used by <var>TWebBrowser</var> and Internet Explorer to access HTML etc. files that are stored in a module's resources. This protocol makes it very easy to navigate to HTML resources using the <var>TWebBrowser</var> control.
+	</p>
+</section>
 
-<h2 id="intro">
-  Introduction
-</h2>
+<section>
+	<h2 id="access">
+		Accessing HTML resources from the browser
+	</h2>
+	<p>
+		When displaying data from embedded resources we usually have to do some work &ndash; we have to read the data out of resources and display it in a suitable control (see <a href="{{ site.base-url }}/articles/article-3">article #3</a However, with <var>TWebBrowser</var>, Microsoft&reg; has made things easier for us. All we have to do is specify where to find the resource by using the special <code>res://</code> protocol URL. The browser will extract the data from the resource and display it as it would a conventional file.
+	</p>
+	<p>
+		This approach works in both the <var>TWebBrowser</var> control and by typing the <code>res://</code> protocol URLs directly into the <em>Internet Explorer</em> location bar.
+	</p>
+	<aside>
+		<div class="callout callout-warning">
+			<h3>
+				No query strings
+			</h3>
+			<p>
+				The <code>res://</code> protocol doesn't interpret query strings that are appended to the URL. Pity!
+			</p>
+		</div>
+	</aside>
+	<p>
+		By way of an example, the following screenshot shows Internet Explorer displaying one of the web pages included in the resources of this article's <a href="#demo">demo program</a>.
+	</p>
+	<div class="frame">
+		<div>
+			<img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/10.png" alt="IE showing a HTML resource from the demo program" title="IE showing a HTML resource from the demo program" />
+		</div>
+		<div class="caption">Image 1</div>
+	</div>
+	<p>
+		 To replicate this you must first compile the <a href="#demo">demo program</a> then enter the following URL in <em>Internet Explorer</em>'s location bar:
+	</p>
+	<pre class="indent pre-scrollable kbd">res://[Path to Demo]\Article10.exe/INDEX_PAGE</pre>
+	<p>
+		Where <kbd>[Path to Demo]</kbd> is the full path to the demo program. Strictly speaking you should &quot;escape&quot; any backslash, space, hash (&quot;#&quot;) and colon characters in the path &ndash; see <a href="#understand-safeurl">Making res:// protocol URLs safe</a> below for details. If you copy the URL from the demo program it will already be escaped.
+	</p>
+	<p>
+		What is more, if a document is loaded from a <code>res://</code> URL, that URL becomes the browser's base URL.  This means that any relative links in the document refer back into the resources. We can get the same effect by setting a document's <code>&lt;base&gt;</code> address to a <code>res://</code> URL.
+	</p>
+</section>
 
-<p>
-  <a href="{{ site.base-url }}/articles/article-2">Article #2</a> noted the benefits of embedding data within your program's executable
-  file or within a DLL. Often this is preferable to supplying a lot of
-  separate support files that the user can accidentally alter or delete. The
-  same principle applies to HTML and related files displayed by your
-  application in a <var>TWebBrowser</var> control.
-</p>
+<section>
+	<h2 id="understand">
+		Understanding the res:// protocol
+	</h2>
 
-<p>
-  In fact Microsoft&reg; have encouraged this by creating the
-  <code>res://</code> protocol. This is used by <var>TWebBrowser</var> and
-  Internet Explorer to access HTML etc. files that are stored in a module's
-  resources. This protocol makes it very easy to navigate to HTML resources
-  using the <var>TWebBrowser</var> control.
-</p>
-
-<aside>
-	<div class="callout callout-warning">
-		<h3>
-			No query strings
+	<section>
+		<h3 id="understand-overview">
+			Overview
 		</h3>
 		<p>
-			The <code>res://</code> protocol doesn't interpret query strings that
-			are appended to the URL. Pity!
+			Valid <code>res://</code> protocol URLs have the form:
 		</p>
-	</div>
-</aside>
+		<p class="indent">
+			<dfn>res://<strong>module</strong>[/<strong>restype</strong>]/<strong>resid</strong></dfn>
+		</p>
+		<p>
+			where the segments of the URL have the following meanings:
+		</p>
+		<dl>
+			<dt>
+				<dfn>module</dfn>
+			</dt>
+			<dd>
+				The name of the module (DLL or executable program) containing the resource. The full path to the module is required, unless it is on the search path.
+			</dd>
+			<dt>
+				<dfn>restype</dfn>
+			</dt>
+			<dd>
+				An optional segment that specifies the resource type identifier. If the segment is omitted the resource type is assumed to be <var>RT_HTML</var>.
+			</dd>
+			<dt>
+				<dfn>resid</dfn>
+			</dt>
+			<dd>
+				The resource name identifier.
+			</dd>
+		</dl>
+	</section>
 
-
-<h2 id="access">
-  Accessing HTML resources from the browser
-</h2>
-
-<p>
-  When displaying data from embedded resources we usually have to do some work
-  &ndash; we have to read the data out of resources and display it in a
-  suitable control (see <a href="{{ site.base-url }}/articles/article-3">article #3</a>). However, with <var>TWebBrowser</var>, Microsoft&reg; has made things
-  easier for us. All we have to do is specify where to find the resource by
-  using the special <code>res://</code> protocol URL. The browser will extract
-  the data from the resource and display it as it would a conventional file.
-</p>
-
-<p>
-  This approach works in both the <var>TWebBrowser</var> control and by typing
-  the <code>res://</code> protocol URLs directly into the <em>Internet
-  Explorer</em> location bar.
-</p>
-
-<aside>
-	<div class="callout callout-info">
-		<h3>
-			IE based browsers
+	<section>
+		<h3 id="understand-resid">
+			About resource identifiers
 		</h3>
 		<p>
-			Browsers built around the IE web browser control may also support the
-			<code>res://</code> protocol.
+			An attribute of Windows&reg; resource names and resource types is that they can either be identified by a character string or by a numeric value.
 		</p>
-	</div>
-</aside>
-
-<p>
-  By way of an example, the following screenshot shows Internet Explorer
-  displaying one of the web pages included in the resources of this article's
-  demo program.
-</p>
-
-<div class="frame">
-	<div>
-		<img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/10.png" alt="IE showing a HTML resource from the demo program" title="IE showing a HTML resource from the demo program" />
-	</div>
-	<div class="caption">Image 1</div>
-</div>
-
-<p>
-   To replicate this you must first compile the demo program then enter
-   the following URL in <em>Internet Explorer</em>'s location bar:
-</p>
-
-<pre class="indent pre-scrollable kbd">res://[Path to Demo]\Article10.exe/INDEX_PAGE</pre>
-
-<p>
-  Where <kbd>[Path to Demo]</kbd> is the full path to the demo program.
-  Strictly speaking you should &quot;escape&quot; any backslash, space, hash
-  (&quot;#&quot;) and colon characters in the path &ndash; see <a href="#understand-safeurl">Making res:// protocol URLs safe</a> below for details. If you copy the URL from the demo program it will
-  already be escaped.
-</p>
-
-<p>
-  What is more, if a document is loaded from a <code>res://</code> URL, that
-  URL becomes the browser's base URL.  This means that any relative links in
-  the document refer back into the resources. We can get the same effect by
-  setting a document's <code>&lt;base&gt;</code> address to a
-  <code>res://</code> URL.
-</p>
-
-
-<h2 id="understand">
-  Understanding the res:// protocol
-</h2>
-
-
-<h3 id="understand-overview">
-  Overview
-</h3>
-
-<p>
-  Valid <code>res://</code> protocol URLs have the form:
-</p>
-
-<p class="indent">
-  <dfn>res://<strong>module</strong>[/<strong>restype</strong>]/<strong>resid</strong></dfn>
-</p>
-
-<p>
-  where the segments of the URL have the following meanings:
-</p>
-
-<dl>
-  <dt>
-    <dfn>module</dfn>
-  </dt>
-  <dd>
-    The name of the module (DLL
-    or executable program) containing the resource. The full path to the
-    module is required, unless it is on the search path.
-  </dd>
-  <dt>
-    <dfn>restype</dfn>
-  </dt>
-  <dd>
-    An optional segment that
-    specifies the resource type identifier. If the segment is omitted the
-    resource type is assumed to be <var>RT_HTML</var>.
-  </dd>
-
-  <dt>
-    <dfn>resid</dfn>
-  </dt>
-  <dd>
-    The resource name identifier.
-  </dd>
-
-</dl>
-
-
-<h3 id="understand-resid">
-  About resource identifiers
-</h3>
-
-<p>
-  An attribute of Windows&reg; resource names and resource types is that they
-  can either be identified by a character string or by a numeric value.
-</p>
-
-<p>
-  When specifying resource identifiers in URLs we must obviously represent
-  both kinds as strings, but we must also be able to distinguish between the
-  two different kinds. Numeric identifiers are flagged by prepending a
-  &quot;#&quot; character to the decimal value of the identifier. For example
-  the <var>RT_HTML</var> resource type would be represented as
-  &quot;#23&quot;. String identifiers are represented literally.
-</p>
-
-
-<h3 id="understand-safeurl">
-  Making res:// protocol URLs safe
-</h3>
-
-<p>
-  We have to be careful when entering a <code>res://</code> protocol URL into
-  the browser bar, or when embedding the URL as an attribute of a HTML tag
-  such as the <code>&lt;a&gt;</code> tag. The URL must not include
-  &quot;special characters&quot;. Any such characters need to be replaced by
-  URL escape characters.
-</p>
-
-<aside>
-	<div class="callout callout-info">
-		<h4>
-			URL escape characters
-		</h4>
 		<p>
-			These characters have the form <code>%HH</code> where <code>HH</code> is the character code in
-			hexadecimal.
+			When specifying resource identifiers in URLs we must obviously represent both kinds as strings, but we must also be able to distinguish between the two different kinds. Numeric identifiers are flagged by prepending a &quot;#&quot; character to the decimal value of the identifier. For example the <var>RT_HTML</var> resource type would be represented as &quot;#23&quot;. String identifiers are represented literally.
 		</p>
-	</div>
-</aside>
+	</section>
 
-<p>
-  In particular, since our <code>res://</code> protocol URL may contain a
-  path to the module that holds the required resource, we need to escape any
-  back-slashes and spaces in the path. Additionally, since numeric resource
-  identifiers begin with a &quot;#&quot; character, and these have special
-  meaning in a URL, it may be wise to escape these too.
-</p>
+	<section>
+		<h3 id="understand-safeurl">
+			Making res:// protocol URLs safe
+		</h3>
+		<p>
+			We have to be careful when entering a <code>res://</code> protocol URL into the browser bar, or when embedding the URL as an attribute of a HTML tag such as the <code>&lt;a&gt;</code> tag. The URL must not include &quot;special characters&quot;. Any such characters need to be replaced by URL escape characters.
+		</p>
+		<aside>
+			<div class="callout callout-info">
+				<h4>
+					URL escape characters
+				</h4>
+				<p>
+					These characters have the form <code>%HH</code> where <code>HH</code> is the character code in hexadecimal.
+				</p>
+			</div>
+		</aside>
+		<p>
+			In particular, since our <code>res://</code> protocol URL may contain a path to the module that holds the required resource, we need to escape any back-slashes and spaces in the path. Additionally, since numeric resource identifiers begin with a &quot;#&quot; character, and these have special meaning in a URL, it may be wise to escape these too.
+		</p>
+		<p>
+			For example this URL:
+		</p>
+		<pre class="indent code pre-scrollable">res://C:\Program Files\MyModule.dll/#42</pre>
+		<p>
+			would be escaped as:
+		</p>
+		<pre class="indent code pre-scrollable">res://C%3A%5CProgram%20Files%5CMyModule.dll/%2342</pre>
+		<p>
+			The escape codes used are: <code>%3A</code> (&quot;:&quot;), <code>%5C</code> (&quot;\&quot;), <code>%20</code> (space) and <code>%23</code> (&quot;#&quot;).
+		</p>
+	</section>
 
-<p>
-  For example this URL:
-</p>
+</section>
 
-<pre class="indent code pre-scrollable">res://C:\Program Files\MyModule.dll/#42</pre>
+<section>
+	<h2 id="generate">
+		Generating res:// protocol URLs from Delphi
+	</h2>
 
-<p>
-  would be escaped as:
-</p>
+	<section>
+		<h3 id="generate-overview">
+			Overview
+		</h3>
+		<p>
+			When developing an application that uses the web browser control, we may need to build <code>res://</code> protocol URLs programatically. In this section we present the code to do this.
+		</p>
+	</section>
 
-<pre class="indent code pre-scrollable">res://C%3A%5CProgram%20Files%5CMyModule.dll/%2342</pre>
-
-<p>
-  The escape codes used are: %3A (&quot;:&quot;), %5C (&quot;\&quot;), %20
-  (space) and %23 (&quot;#&quot;).
-</p>
-
-
-<h2 id="generate">
-  Generating res:// protocol URLs from Delphi
-</h2>
-
-
-<h3 id="generate-overview">
-  Overview
-</h3>
-
-<p>
-  When developing an application that uses the web browser control, we may
-  need to build <code>res://</code> protocol URLs programatically. In this
-  section we present the code to do this.
-</p>
-
-
-<h3 id="generate-resid">
-  Resource identifiers
-</h3>
-
-<p>
-  Recall that resource names and resource types can be either strings or have
-  a numeric value. In code both kinds of resource identifier are represented
-  by a <var>PChar</var> value. When the identifier is a string the
-  <var>PChar</var> value points to the required string of characters. For
-  numeric identifiers the high order word of the pointer is zero and the low
-  order word contains the value. In a URL we know that the numeric indentifier
-  is a series of digits preceded by a &quot;#&quot; symbol.
-</p>
-
-<p>
-  Our job is to develop a Delphi function that transforms a resource
-  identifier referenced by a <var>PChar</var> into an appropriately formatted
-  string for use in a URL. <span class="figureref">Listing 1</span> shows a
-  solution:
-</p>
-
-<div id="listing-1" class="frame">
-<pre class="pas-source"><span class="pas-kwd">function</span> FormatResNameOrType(ResID: PChar): <span class="pas-kwd">string</span>;
+	<section>
+		<h3 id="generate-resid">
+			Resource identifiers
+		</h3>
+		<p>
+			Recall that resource names and resource types can be either strings or have a numeric value. In code both kinds of resource identifier are represented by a <var>PChar</var> value. When the identifier is a string the <var>PChar</var> value points to the required string of characters. For numeric identifiers the high order word of the pointer is zero and the loworder word contains the value. In a URL we know that the numeric indentifier is a series of digits preceded by a <code>#</code> symbol.
+		</p>
+		<p>
+			Our job is to develop a Delphi function that transforms a resource identifier referenced by a <var>PChar</var> into an appropriately formatted string for use in a URL. <span class="figureref">Listing 1</span> shows a solution:
+		</p>
+		<div id="listing-1" class="frame">
+			<pre class="pas-source"><span class="pas-kwd">function</span> FormatResNameOrType(ResID: PChar): <span class="pas-kwd">string</span>;
 <span class="pas-kwd">begin</span>
   <span class="pas-kwd">if</span> HiWord(LongWord(ResID)) = <span class="pas-num">0</span> <span class="pas-kwd">then</span>
     <span class="pas-comment">// high word = 0 =&gt; numeric resource id</span>
@@ -341,49 +252,33 @@ pages: 1
     <span class="pas-comment">// PChar is implicitly converted to string</span>
     Result := ResID;
 <span class="pas-kwd">end</span>;</pre>
-<div class="caption">Listing 1</div>
-</div>
+			<div class="caption">Listing 1</div>
+		</div>
+		<p>
+			We simply test the resource identifier pointer's high word to see if it is zero. If so we return the value of the low word preceeded by <code>#</code>. Otherwise we return the resource identifier unchanged. Delphi silently converts the result to the compiler's default string type.
+		</p>
+		<div class="callout callout-info">
+			<h4>
+				Using <var>PChar</var>
+			</h4>
+			<p>
+				<var>PChar</var> works here on any version of Delphi, regardless of whether Delphi defines it as <var>PAnsiChar</var> or <var>PWideChar</var>. This is because <var>FormatResNameOrType</var> checks the pointer itself, not the character it points to.
+			</p>
+			<p class="alert alert-warning glyph">
+				Don't try to use the wide char version in non-Unicode Delphis or the ANSI  version on Unicode Delphis &ndash; always use the native <var>PChar</var>.
+			</p>
+		</div>
+	</section>
 
-<p>
-  We simply test the resource identifier pointer's high word to see if it is
-  zero. If so we return the value of the low word preceeded by &quot;#&quot;.
-  Otherwise we return the resource identifier unchanged. Delphi silently
-  converts the result to the compiler's default string type.
-</p>
-
-<div class="callout callout-info">
-  <h4>
-    Using <var>PChar</var>
-  </h4>
-  <p>
-    <var>PChar</var> works here on any version of Delphi, regardless of
-    whether Delphi defines it as <var>PAnsiChar</var> or
-    <var>PWideChar</var>. This is because <var>FormatResNameOrType</var>
-    checks the pointer itself, not the character it points to.
-  </p>
-  <p class="alert alert-warning glyph">
-    Don't try to use the wide char version in non Unicode Delphis and vice
-    versa &ndash; always use the native <var>PChar</var>.
-  </p>
-</div>
-
-
-<h3 id="generate-safeurl">
-  URL encoding
-</h3>
-
-<p>
-  <a href="#understand-safeurl">Earlier</a> we discussed the need to escape special characters in a
-  <code>res://</code> protocol URL. The simple function presented in
-  <span class="figureref">Listing 2</span> takes the safest possible approach
-  and escapes all characters that are neither alphanumeric nor one of
-  &quot;-&quot;, &quot;_&quot; or &quot;.&quot;. Conditional compilation is
-  used to test set membership correctly depending on if an ANSI or Unicode
-  version of Delphi is being used.
-</p>
-
-<div id="listing-2" class="frame">
-<pre class="pas-source"><span class="pas-kwd">function</span><span class="pas-space"> </span><span class="pas-ident">URLEncode</span><span class="pas-sym">(</span><span class="pas-kwd">const</span><span class="pas-space"> </span><span class="pas-ident">S</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-kwd">string</span><span class="pas-sym">)</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-kwd">string</span><span class="pas-sym">;</span>
+	<section>
+		<h3 id="generate-safeurl">
+			URL encoding
+		</h3>
+		<p>
+			<a href="#understand-safeurl">Earlier</a> we discussed the need to escape special characters in a<code>res://</code> protocol URL. The simple function presented in <span class="figureref">Listing 2</span> takes the safest possible approach and escapes all characters that are neither alphanumeric nor one of &quot;-&quot;, &quot;_&quot; or &quot;.&quot;. Conditional compilation is used to test  membership correctly depending on if an ANSI or Unicode version of Delphi is being used.
+		</p>
+		<div id="listing-2" class="frame">
+			<pre class="pas-source"><span class="pas-kwd">function</span><span class="pas-space"> </span><span class="pas-ident">URLEncode</span><span class="pas-sym">(</span><span class="pas-kwd">const</span><span class="pas-space"> </span><span class="pas-ident">S</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-kwd">string</span><span class="pas-sym">)</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-kwd">string</span><span class="pas-sym">;</span>
 <span class="pas-kwd">var</span>
 <span class="pas-space">  </span><span class="pas-ident">Idx</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-ident">Integer</span><span class="pas-sym">;</span><span class="pas-space"> </span><span class="pas-comment">// loops thru characters in string</span>
 <span class="pas-kwd">begin</span>
@@ -400,46 +295,33 @@ pages: 1
 <span class="pas-space">      </span><span class="pas-ident">Result</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-ident">Result</span><span class="pas-space"> </span><span class="pas-sym">+</span><span class="pas-space"> </span><span class="pas-str">'%'</span><span class="pas-space"> </span><span class="pas-sym">+</span><span class="pas-space"> </span><span class="pas-ident">IntToHex</span><span class="pas-sym">(</span><span class="pas-ident">Ord</span><span class="pas-sym">(</span><span class="pas-ident">S</span><span class="pas-sym">[</span><span class="pas-ident">Idx</span><span class="pas-sym">]</span><span class="pas-sym">)</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-num">2</span><span class="pas-sym">)</span><span class="pas-sym">;</span>
 <span class="pas-space">  </span><span class="pas-kwd">end</span><span class="pas-sym">;</span>
 <span class="pas-kwd">end</span><span class="pas-sym">;</span></pre>
-<div class="caption">Listing 2</div>
-</div>
+			<div class="caption">Listing 2</div>
+		</div>
+		<div class="callout callout-info">
+			<h4>
+				Library routine
+			</h4>
+			<p>
+				A more flexible version of this routine see <var>URLEncode</var> in the <a href="https://github.com/delphidabbler/code-snippets">Code Snippets Database</a>.
+			</p>
+		</div>
+	</section>
 
-<div class="callout callout-info">
-  <h4>
-    Library routine
-  </h4>
-  <p>
-    A more flexible version of this routine see <var>URLEncode</var> in the <a href="https://github.com/delphidabbler/code-snippets">Code Snippets Database</a>.
-  </p>
-</div>
-
-
-<h3 id="generate-buildurl">
-  Building the URL
-</h3>
-
-<p>
-  We now move on to take a look at two overloaded functions that can create a
-  <code>res://</code> protocol URL.
-</p>
-
-<p>
-  Both functions take a reference to a module, a resource name and an optional
-  resource type as parameters. If the resource type parameter is omitted, or
-  is nil, it is not included in the URL and a resource type of
-  <var>RT_HTML</var> will be assumed.
-</p>
-
-<p>
-  The routines differ in how they handle the module component of the URL. The
-  first function (<span class="figureref">Listing 3</span>) is passed the
-  module file name as a string while the second routine
-  (<span class="figureref">Listing 4</span>) takes a handle to the required
-  module. First we will consider the function that accepts the module name as
-  a string:
-</p>
-
-<div id="listing-3" class="frame">
-<pre class="pas-source"><span class="pas-kwd">function</span> MakeResourceURL(<span class="pas-kwd">const</span> ModuleName: <span class="pas-kwd">string</span>; <span class="pas-kwd">const</span> ResName: PChar;
+	<section>
+		<h3 id="generate-buildurl">
+			Building the URL
+		</h3>
+		<p>
+			We now move on to take a look at two overloaded functions that can create a <code>res://</code> protocol URL.
+		</p>
+		<p>
+			Both functions take a reference to a module, a resource name and an optional resource type as parameters. If the resource type parameter is omitted, or is nil, it is not included in the URL and a resource type of <var>RT_HTML</var> will be assumed.
+		</p>
+		<p>
+			The routines differ in how they handle the module component of the URL. The first function (<span class="figureref">Listing 3</span>) is passed the module file name as a string while the second routine (<span class="figureref">Listing 4</span>) takes a handle to the required module. First we will consider the function that accepts the module name as a string:
+		</p>
+		<div id="listing-3" class="frame">
+			<pre class="pas-source"><span class="pas-kwd">function</span> MakeResourceURL(<span class="pas-kwd">const</span> ModuleName: <span class="pas-kwd">string</span>; <span class="pas-kwd">const</span> ResName: PChar;
   <span class="pas-kwd">const</span> ResType: PChar = <span class="pas-kwd">nil</span>): <span class="pas-kwd">string</span>; <span class="pas-kwd">overload</span>;
 <span class="pas-kwd">begin</span>
   Assert(ModuleName &lt;&gt; <span class="pas-str">''</span>);
@@ -449,100 +331,74 @@ pages: 1
     Result := Result + <span class="pas-str">'/'</span> + URLEncode(FormatResNameOrType(ResType));
   Result := Result + <span class="pas-str">'/'</span> + URLEncode(FormatResNameOrType(ResName));
 <span class="pas-kwd">end</span>;</pre>
-<div class="caption">Listing 3</div>
-</div>
-
-<p>
-  This function records the protocol name and appends the name of the module
-  to it. It then appends the resource type if specified and finally adds the
-  resource name. URL segments are separated by slash characters. Notice how we
-  call <var><a href="#listing-1">FormatResNameOrType</a></var> to get the resource type and resource name identifiers and we use
-  <var><a href="#listing-2">URLEncode</a></var> to ensure each segment of the URL is URL safe.
-</p>
-
-<p>
-  The second form of the function is for use with loaded modules. Such modules
-  are indentified by means of their module handle rather than by name, as
-  shown in <span class="figureref">Listing 4</span>:
-</p>
-
-<div id="listing-4" class="frame">
-<pre class="pas-source"><span class="pas-kwd">function</span> MakeResourceURL(<span class="pas-kwd">const</span> Module: HMODULE; <span class="pas-kwd">const</span> ResName: PChar;
+			<div class="caption">Listing 3</div>
+		</div>
+		<p>
+			This function records the protocol name and appends the name of the module to it. It then appends the resource type if specified and finally adds the resource name. URL segments are separated by slash characters. Notice how we call <var><a href="#listing-1">FormatResNameOrType</a></var> to get the resource type and resource name identifiers and we use <var><a href="#listing-2">URLEncode</a></var> to ensure each segment of the URL is URL safe.
+		</p>
+		<p>
+			The second form of the function is for use with loaded modules. Such modules are identified by means of their module handle rather than by name, as shown in <span class="figureref">Listing 4</span>:
+		</p>
+		<div id="listing-4" class="frame">
+			<pre class="pas-source"><span class="pas-kwd">function</span> MakeResourceURL(<span class="pas-kwd">const</span> Module: HMODULE; <span class="pas-kwd">const</span> ResName: PChar;
   <span class="pas-kwd">const</span> ResType: PChar = <span class="pas-kwd">nil</span>): <span class="pas-kwd">string</span>; <span class="pas-kwd">overload</span>;
 <span class="pas-kwd">begin</span>
   Result := MakeResourceURL(GetModuleName(Module), ResName, ResType);
 <span class="pas-kwd">end</span>;</pre>
-<div class="caption">Listing 4</div>
-</div>
+			<div class="caption">Listing 4</div>
+		</div>
+		<p>
+			This function simply gets the name of the module by calling the <var>SysUtils</var> unit's <var>GetModuleName</var> function. It then calls the other overloaded function, passing it the module name.
+		</p>
+	</section>
 
-<p>
-  This function simply gets the name of the module by calling the
-  <var>SysUtils</var> unit's <var>GetModuleName</var> function. It then calls
-  the other overloaded function, passing it the module name.
-</p>
-
-
-<h3 id="generate-rthtml">
-  Defining RT_HTML
-</h3>
-
-<p>
-  <var>RT_HTML</var> is a constant that denotes an HTML resource. Unlike other
-  <var>RT_*</var> constants it is not defined in Delphi 7. If needed, the
-  constant should be defined as follows:
-</p>
-
-<div id="listing-5" class="frame">
-<pre class="pas-source"><span class="pas-kwd">const</span>
+	<section>
+		<h3 id="generate-rthtml">
+			Defining RT_HTML
+		</h3>
+		<p>
+			<var>RT_HTML</var> is a constant that denotes an HTML resource. Unlike other <var>RT_*</var> constants it is not defined in Delphi 7. If needed, the constant should be defined as follows:
+		</p>
+		<div id="listing-5" class="frame">
+			<pre class="pas-source"><span class="pas-kwd">const</span>
   RT_HTML = MakeIntResource(<span class="pas-num">23</span>);</pre>
-<div class="caption">Listing 5</div>
-</div>
+			<div class="caption">Listing 5</div>
+		</div>
+	</section>
+</section>
 
+<section>
+	<h2 id="create">
+		How to create HTML resources
+	</h2>
 
-<h2 id="create">
-  How to create HTML resources
-</h2>
+	<section>
+		<h3 id="create-source">
+			Creating resource file source code
+		</h3>
 
+		<p>
+			Although you can embed and access HTML and related files as <var>RCDATA</var> or any other user-defined resource type, it is recommended that they are stored as resource type #23 (<var>RT_HTML</var>). Any type of file that can be displayed in a browser can legitimately be included under this resource type. If you have access to a resource compiler, the easiest way to create a resource file containing HTML resources is as follows:
+		</p>
 
-<h3 id="create-source">
-  Creating resource file source code
-</h3>
-
-<p>
-  Although you can embed and access HTML and related files as RCDATA or any
-  other user-defined resource type, it is recommended that they are stored as
-  resource type #23 (<var>RT_HTML</var>). Any type of file that can be
-  displayed in a browser can legitimately be included under this resource
-  type. If you have access to a resource compiler, the easiest way to create a
-  resource file containing HTML resources is as follows:
-</p>
-
-<ol class="spaced">
-
-  <li>
-    <p class="strong">
-      Assemble the required assets
-    </p>
-
-    <p>
-      Gather together all the files you wish to include in the resource
-      file in a convenient location.
-    </p>
-  </li>
-
-  <li>
-    <p class="strong">
-      Create a resource source file
-    </p>
-
-    <p>
-      Next we create the resource source (<code>.rc</code>) file that,
-      when compiled, embeds the specified files in the binary resource
-      file. Here is an example source file:
-    </p>
-
-<div id="listing-6" class="frame">
-<pre class="pas-source"><span class="pas-comment">/* standard resource # for HTML */</span>
+		<ol>
+			<li>
+				<p class="strong">
+					Assemble the required assets
+				</p>
+				<p>
+					Gather together all the files you wish to include in the resource file in a convenient location.
+				</p>
+			</li>
+			<li>
+				<p class="strong">
+					Create a resource source file
+				</p>
+				<p>
+					Create the resource source (<code>.rc</code>) file. This file tells  resource compiler which files to include in the resource and what resource names  types to use for them. The compiler embeds the files in the resource file Here is an example source file:
+				</p>
+				<div id="listing-6" class="frame">
+					<pre class="pas-source"><span class="pas-comment">/* standard resource # for HTML */</span>
 #define HTML 23
 
 <span class="pas-comment">/* include all resource from external files */</span>
@@ -554,248 +410,182 @@ FILL_GIF       HTML    &quot;fill.gif&quot;
 HELP_GIF       HTML    &quot;help.gif&quot;
 TIPS_JS        HTML    &quot;tips.js&quot;
 STYLE_CSS      HTML    &quot;style.css&quot;</pre>
-<div class="caption">Listing 6</div>
-</div>
-  </li>
+					<div class="caption">Listing 6</div>
+				</div>
+			</li>
+			<li>
+				<p class="strong">
+					Compile the source file
+				</p>
+				<p>
+					Use a resource compiler such as Borland's BRCC32 to compile the source file. The following command line instructs BRCC32 to compile a source file, <code>HTML.rc</code>, into a binary resource file named <code>HTML.res</code>:
+				</p>
+				<pre class="pre-scrollable kbd">BRCC32 -fo&quot;HTML.res&quot; HTML.rc</pre>
+				<p>
+					We assume that the source file is in the current directory and the compiler is on the path. If you don't have a suitable resource compiler then <code>.res</code> files can be generated programmatically &ndash; <a href="{{ site.base-url }}/articles/article-2">article #2</a> explains &ndash; or you can use my open source <a href="{{ site.base-url }}/software/htmlres">HTML resource file compiler</a>.
+				</p>
+			</li>
+			<li>
+				<p class="strong">
+					Link the resource file into your application or DLL.
+				</p>
+				<p>
+					In Delphi we link the resource by adding the following line to a project file or to a convenient unit. For the example given above we would use:
+				</p>
+				<div id="listing-7" class="frame" style="margin-bottom: 0; margin-top: 0;">
+					<pre class="pas-source"><span class="pas-preproc">{$R HTML.res}</span></pre>
+					<div class="caption">Listing 7</div>
+				</div>
+			</li>
+		</ol>
+	</section>
 
-  <li>
-    <p class="strong">
-      Compile the source file
-    </p>
-
-    <p>
-      Use a resource compiler such as Borland's BRCC32 to compile the
-      source file. The following command line instructs BRCC32 to compile
-      a source file, <code>HTML.rc</code>, into a binary resource file
-      named <code>HTML.res</code>:
-    </p>
-
-    <pre class="pre-scrollable kbd">BRCC32 -fo&quot;HTML.res&quot; HTML.rc</pre>
-
-    <p>
-      We assume that the source file is in the current directory and the
-      compiler is on the path. If you don't have a suitable resource
-      compiler then <code>.res</code> files can be generated
-      programmatically &ndash; <a href="{{ site.base-url }}/articles/article-2">article #2</a> explains &ndash; or you can use my open source <a href="{{ site.base-url }}/software/htmlres">HTML resource file compiler</a>.
-    </p>
-  </li>
-
-  <li>
-    <p class="strong">
-      Link the resource file into your application or DLL.
-    </p>
-
-    <p>
-      In Delphi we link the resource by adding the following line to a
-      project file or to a convenient unit. For the example given above we
-      would use:
-    </p>
-
-<div id="listing-7" class="frame" style="margin-bottom: 0; margin-top: 0;">
-<pre class="pas-source"><span class="pas-preproc">{$R HTML.res}</span></pre>
-<div class="caption">Listing 7</div>
-</div>
-
-  </li>
-
-</ol>
-
-
-<h3 id="create-better">
-  Using better resource names
-</h3>
-
-<p>
-  You may find it helpful to name resources with file-like names. Doing this
-  will make it easier to migrate an existing series of interlinked HTML files
-  to resources (providing the files are all in the same directory). Why?
-  because the existing local links in the file will still work after the move!
-</p>
-
-<div class="callout callout-info">
-  <h4>
-    Windows does it!
-  </h4>
-  <p>
-    Several HTML resources in Windows DLLs are named in this way.
-  </p>
-</div>
-
-<p>
-  For example, suppose you have an application that displays local files from
-  a single directory in a <var>TWebBrowser</var> control. Assume the directory
-  contains the following files:
-</p>
-
-<ul>
-  <li>
-    <code>index.html</code>
-  </li>
-  <li>
-    <code>page1.html</code>
-  </li>
-  <li>
-    <code>page2.html</code>
-  </li>
-  <li>
-    <code>logo.gif</code>
-  </li>
-</ul>
-
-<p>
-  Each HTML file displays the logo and so contains an <code>&lt;img&gt;</code>
-  tag such as:
-</p>
-
-<div id="listing-8" class="frame">
-<pre class="source-body">...
+	<section>
+		<h3 id="create-better">
+			Using better resource names
+		</h3>
+		<p>
+			You may find it helpful to name resources with file-like names. Doing this will make it easier to migrate an existing series of interlinked HTML files to resources (providing the files are all in the same directory). Why? because the existing local links in the file will still work after the move!
+		</p>
+		<div class="callout callout-info">
+			<h4>
+				Windows does it!
+			</h4>
+			<p>
+				Several HTML resources in Windows DLLs are named in this way.
+			</p>
+		</div>
+		<p>
+			For example, suppose you have an application that displays local files from a single directory in a <var>TWebBrowser</var> control. Assume the directory contains the following files:
+		</p>
+		<ul>
+			<li>
+				<code>index.html</code>
+			</li>
+			<li>
+				<code>page1.html</code>
+			</li>
+			<li>
+				<code>page2.html</code>
+			</li>
+			<li>
+				<code>logo.gif</code>
+			</li>
+		</ul>
+		<p>
+			Each HTML file displays the logo and so contains an <code>&lt;img&gt;</code> tag such as:
+		</p>
+		<div id="listing-8" class="frame">
+			<pre class="source-body">...
 &lt;<span class="pas-kwd">img</span> src=&quot;logo.gif&quot; ... /&gt;
 ...</pre>
-<div class="caption">Listing 8</div>
-</div>
-
-<p>
-  Additionally, <code>index.html</code> contains a relative link to both
-  <code>page1.html</code> and <code>page2.html</code> thus:
-</p>
-
-<div id="listing-9" class="frame">
-<pre class="source-body">...
+			<div class="caption">Listing 8</div>
+		</div>
+		<p>
+			Additionally, <code>index.html</code> contains a relative link to both <code>page1.html</code> and <code>page2.html</code> thus:
+		</p>
+		<div id="listing-9" class="frame">
+			<pre class="source-body">...
 &lt;<span class="pas-kwd">a</span> href=&quot;page1.html&quot;&gt;Page 1&lt;/<span class="pas-kwd">a</span>&gt;&lt;<span class="pas-kwd">br</span> /&gt;
 &lt;<span class="pas-kwd">a</span> href=&quot;page2.html&quot;&gt;Page 2&lt;/<span class="pas-kwd">a</span>&gt;
 ...</pre>
-<div class="caption">Listing 9</div>
-</div>
-
-<p>
-  You now decide to store the pages within your program's HTML resources and
-  display them using the <code>res://</code> protocol. Suppose you decided to
-  give an arbitrary name to each resource as follows:
-</p>
-
-<div id="listing-10" class="frame">
-<pre class="source-body">INDEX_PAGE  23   &quot;index.html&quot;
+			<div class="caption">Listing 9</div>
+		</div>
+		<p>
+			You now decide to store the pages within your program's HTML resources and display them using the <code>res://</code> protocol. Suppose you decided to give an arbitrary name to each resource as follows:
+		</p>
+		<div id="listing-10" class="frame">
+			<pre class="source-body">INDEX_PAGE  23   &quot;index.html&quot;
 PAGE_1      23   &quot;page1.html&quot;
 PAGE_2      23   &quot;page2.html&quot;
 LOGO_GIF    23   &quot;logo.gif&quot;</pre>
-<div class="caption">Listing 10</div>
-</div>
-
-<p>
-  To get your program working again you will need to track down every link and
-  change it to reference the new resource name rather than the old file name.
-  For example, each of the logo <code>&lt;img&gt;</code> tags will have to be
-  changed to:
-</p>
-
-<div class="frame">
-<pre class="source-body">...
+			<div class="caption">Listing 10</div>
+		</div>
+		<p>
+			To get your program working again you will need to track down every link and change it to reference the new resource name rather than the old file name. For example, each of the logo <code>&lt;img&gt;</code> tags will have to be changed to:
+		</p>
+		<div class="frame">
+			<pre class="source-body">...
 &lt;<span class="pas-kwd">img</span> src=&quot;LOGO_GIF&quot; ... /&gt;
 ...</pre>
-<div class="caption">Listing 11</div>
-</div>
-
-<p>
-  This is obviously prone to error. A far better way would be to name the
-  resources with the same name as the original file, i.e.:
-</p>
-
-<div id="listing-12" class="frame">
-<pre class="source-body">index.html  23   &quot;index.html&quot;
+			<div class="caption">Listing 11</div>
+		</div>
+		<p>
+			This is obviously prone to error. A far better way would be to name the resources with the same name as the original file, i.e.:
+		</p>
+		<div id="listing-12" class="frame">
+			<pre class="source-body">index.html  23   &quot;index.html&quot;
 page1.html  23   &quot;page1.html&quot;
 page2.html  23   &quot;page2.html&quot;
 logo.gif    23   &quot;logo.gif&quot;</pre>
-<div class="caption">Listing 12</div>
-</div>
+			<div class="caption">Listing 12</div>
+		</div>
+		<p>
+			Using this scheme all the original links will continue to work unchanged. Of course this technique only works if all the files are in the same directory.
+		</p>
+		<div class="callout callout-danger">
+			<h4>
+				Problems with BRCC32
+			</h4>
+			<p>
+				There's always a gotcha somewhere isn't there? The BRCC32 resource compiler that ships with Delphi refuses to compile any resource file that has dots in any of its resource names. This means that the naming scheme proposed above is useless for those of us who use BRCC32.
+			</p>
+			<p>
+				To get round the above problem I have written <a href="{{ site.base-url }}/software/htmlres">HTML resource compiler</a>, a command line application that can compile HTML resource files. This compiler automatically names each resource after its associated file.
+			</p>
+			<p>
+				I have never used the Microsoft&reg; RC compiler so can't comment on whether or not it will work in this situation. If you know please please <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">open an issue</a> on GitHub <small>(GitHub account required)</small> and let me know so I can update the article.
+			</p>
+		</div>
+	</section>
 
-<p>
-  Using this scheme all the original links will continue to work unchanged. Of
-  course this technique only works if all the files are in the same directory.
-</p>
+</section>
 
-<div class="callout callout-danger">
-  <h4>
-    Problems with BRCC32
-  </h4>
-  <p>
-    There's always a gotcha somewhere isn't there? The BRCC32 resource
-    compiler that ships with Delphi refuses to compile any resource file
-    that has dots (i.e. full stops, periods) in any of its resource names.
-    This means that the naming scheme proposed above is useless for those of
-    us who use BRCC32.
-  </p>
-  <p>
-    To get round the above problem I have written <a href="{{ site.base-url }}/software/htmlres">HTML resource compiler</a>, a command line application that can compile HTML resource files.
-    This compiler automatically names each resource after its associated
-    file.
-  </p>
-  <p>
-    I have never used the Microsoft&reg; RC compiler so can't comment on
-    whether or not it will work in this situation. If you know please please <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">open an issue</a> on GitHub (GitHub account required) and let me know so I can update the article.
-  </p>
-</div>
+<section>
+	<h2 id="conclusion">
+		Conclusion
+	</h2>
+	<p>
+		In this article we have investigated how to use the Internet Explorer (and hence <var>TWebBrowser</var>) specific <code>res://</code> protocol to view HTML content stored in a module's resources. We first looked at how to access a HTML resource from Internet Explorer. We then examined the component parts of a <code>res://</code> protocol URL before showing how to generate such URLs from Delphi code. The article ended by demonstrating how to create HTML resource files and observed that naming HTML resources after the original file can at times be useful.
+	</p>
+	<p>
+		I hope you found this article useful. If you have any comments or if you've found an error, please <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">open an issue</a> on GitHub <small>(GitHub account required)</small>.
+	</p>
+</section>
 
+<section>
+	<h2 id="demo">
+		Demo program
+	</h2>
+	<p>
+		A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.
+	</p>
+	<p>
+		The demo can be used to test and exercise the code presented here. It stores a series of HTML and other files in its resources and displays them using an embedded <var>TWebBrowser</var> control. The URLs the program is using to load each page are also displayed.
+	</p>
+	<p class="callout callout-info">
+		<span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. The demo code is licensed under the <a href="https://github.com/delphidabbler/article-demos/blob/master/LICENSE.md">MIT License</a>.
+	</p>
+	<p>
+		If you need further demo code, the <a href="{{ site.base-url }}/software/htmlres">HTML Resource Compiler</a> comes with sample HTML files and a Delphi project to create a DLL containing only <var>RT_HTML</var> resources. These resources can be displayed in Internet Explorer by using the <code>res://</code> protocol.
+	</p>
+</section>
 
-<h2 id="conclusion">
-  Conclusion
-</h2>
+<section>
+	<h2 id="bibliography">
+		Further reading
+	</h2>
+	<p>
+		The following articles on this site deal with resources in general:
+	</p>
+	<ul>
+		<li>
+			<a href="{{ site.base-url }}/articles/article-2">How to store files inside an executable program</a>.
+		</li>
+		<li>
+			<a href="{{ site.base-url }}/articles/article-3">How to read data embedded in your program's resources</a>.
+		</li>
+	</ul>
+</section>
 
-<p>
-  In this article we have investigated how to use the Internet Explorer (and
-  hence <var>TWebBrowser</var>) specific <code>res://</code> protocol to view
-  HTML content stored in a module's resources. We first looked at how to
-  access a HTML resource from Internet Explorer. We then examined the
-  component parts of a <code>res://</code> protocol URL before showing how to
-  generate such URLs from Delphi code. The article ended by demonstrating how
-  to create HTML resource files and observed that naming HTML resources after
-  the original file can at times be useful.
-</p>
-
-<p>
-  I hope you found this article useful. If you have any comments or if you've
-  found an error, please <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">open an issue</a> on GitHub (GitHub account required).
-</p>
-
-
-<h2 id="demo">
-  Demo programs
-</h2>
-
-<p>
-	A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.
-</p>
-
-<p>
-	The demo can be used to test and exercise the code presented here. It stores a series of HTML and other files in its
-  resources and displays them using an embedded <var>TWebBrowser</var>
-  control. The URLs the program is using to load each page are also displayed.
-</p>
-
-<p class="callout callout-info">
-	<span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. The code is open source &ndash; see the source files for any licensing terms.
-</p>
-
-<p>
-  If you need further demo code, the <a href="{{ site.base-url }}/software/htmlres">HTML Resource Compiler</a> comes with sample HTML files and a Delphi project to create a DLL
-  containing only <var>RT_HTML</var> resources. These resources can be
-  displayed in Internet Explorer by using the <code>res://</code> protocol.
-</p>
-
-
-<h2 id="bibliography">
-  Further reading
-</h2>
-
-<p>
-  The following articles on this site deal
-  with resources in general:
-</p>
-
-<ul>
-  <li>
-    <a href="{{ site.base-url }}/articles/article-2">How to store files inside an executable program</a>.
-  </li>
-  <li>
-    <a href="{{ site.base-url }}/articles/article-3">How to read data embedded in your program's resources</a>.
-  </li>
-</ul>
+</article>
