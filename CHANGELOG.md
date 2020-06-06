@@ -22,10 +22,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 
 * Article pages:
-    * #4: "How to remember a window's size, state and position".
-    * #6: "How to access environment variables".
-    * #11: "How to catch files dragged and dropped on an application from Explorer".
-    * #15: "How to integrate help files into the Delphi 3-7 IDE."
+    * no.4: "How to remember a window's size, state and position".
+    * no.6: "How to access environment variables".
+    * no.11: "How to catch files dragged and dropped on an application from Explorer".
+    * no.15: "How to integrate help files into the Delphi 3-7 IDE."
     * Placeholder pages for the remaining 21 articles with links to PDF copies of the articles.
 * New scaffolding to enable Jekyll to render the articles pages.
 * All outstanding program pages:
