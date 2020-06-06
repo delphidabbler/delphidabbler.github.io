@@ -1,0 +1,15 @@
+@mixin alert-link($text-colour, $bg-colour) {
+	a {
+		color: $text-colour;
+	}
+	a:hover {
+		background-color: darken($bg-colour, 8%);
+	}
+}
+
+@mixin callout-setup($color) {
+  border-left-color: $color;
+  h1, h2, h3, h4, h5, h6, var {
+    color: $color;
+  }
+}

@@ -1,0 +1,122 @@
+---
+dl-file-prefix: "dd-hkeype-"
+layout: "codelib-tplt"
+group: lib
+priority: 310
+version: "1.0.5"
+release-date: "2014-01-12"
+platforms: ["Win32"]
+frameworks: ["IDE"]
+compatibility: "Delphi 2 & later"
+title: "HKEY Property Editor"
+precis: "Property editor for registry root keys"
+summary: "Property editor that permits registry root keys to be edited using symbolic constant names."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/hkeype/"
+repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/hkeype/
+want-header-buttons: false
+status: "obsolete"
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-danger">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Obsolete
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="lead">
+			Development of <em>{{ page.title }}</em> is frozen.
+		</p>
+		<p>
+			The property editor behaves erratically. In some Delphi installations it works as expected but in others the object inspector does not recognise it. The reason for this is unclear. Because of this the editor has been deprecated.
+		</p>
+		<p class="text-danger strong">
+			<span class="fa fa-exclamation-triangle fa-x-pad-right"></span>You are strongly advised <strong>not</strong> to install this property editor.
+		</p>
+		<p>
+			Anyone who wants to have a go at fixing the editor is welcome to take over development. The code is open source and uses the <a href="http://www.mozilla.org/MPL/2.0/" title="Off-site link" class="offsite">Mozilla Public License v2.0</a>.
+		</p>
+		<p class="alert alert-warning lead glyph">
+			There is no support available for <em>{{ page.title }}</em>. Please do not report any bugs or request new features.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p>
+			This is a property editor for properties of type <var>HKEY</var> &ndash; the type used for registry root keys.
+		</p>
+		<p>
+			When a <var>HKEY</var> property is selected in the Delphi Object Inspector the property editor displays a drop-down list of all the possible registry root keys, as defined in the <code>Windows</code> unit.
+		</p>
+		<p>
+			Here is a screen-shot of the property editor in use in the Delphi 4 object inspector:
+		</p>
+		<p>
+			<img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.software-images-base-url}}/hkeype.gif" alt="HKEY Property Editor Screen Shot" title="HKEY Property Editor Screen Shot" />
+		</p>
+		<p class="small text-smallcaps text-center">
+			Delphi 4 object inspector displaying HKEY property editor
+		</p>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      You can download the final, <span class="text-danger strong">obsolete</span>, version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+		<div class="alert alert-info">
+			<p>
+				The code had been developed as part of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository.
+			</p>
+			<p class="strong">
+				The code has been removed from the repository.
+			</p>
+		</div>
+	</div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="text-danger strong">
+			<span class="fa fa-exclamation-triangle fa-x-pad-right"></span>Remember, you are strongly advised <strong>not</strong> to install this property editor.
+		</p>
+    <p>
+			Information about how to install the property editor can be found in the <code>ReadMe.htm</code> file included in the download zip file.
+		</p>
+  </div>
+</section>
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>HKEY Property Editor</em> is open source. It is copyright &copy; 2000-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>

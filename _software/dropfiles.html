@@ -73,9 +73,27 @@ status: "current"
     <p>
       Some design time assistance is provided by component and property editors.
     </p>
-    <p class="alert alert-warning glyph">
-      For security reasons in Windows Vista and later, drag/drop is disallowed between windows with different security permissions. This means that applications that processes drag and drop may not be able to receive files dragged and droppped from another window if the security permissions are not compatible.<br><strong><span class="fa fa-times-circle fa-x-pad-right" aria-hidden="true"></span>Please do not report this behaviour as a bug<span class="fa fa-times-circle fa-x-pad-left" aria-hidden="true"></span></strong>
-    </p>
+		<aside>
+			<div id="vistaproblem" class="callout callout-warning">
+				<h4>
+					Security Issues (Windows Vista and later)
+				</h4>
+				<p>
+					For security reasons Windows Vista and later may disallow drag and drop between windows that have different security permissions. As a consequence
+					<var>WM_DROPFILES</var> messages may be blocked.
+				</p>
+				<p class="strong">
+					<span class="fa-stack fa-lg">
+						<span class="fa fa-bug fa-stack-1x"></span>
+						<span class="fa fa-ban fa-stack-2x text-danger"></span>
+					</span>
+					If you run into this problem note that it is a feature of Windows, not a bug in the code!
+				</p>
+				<p>
+					You can read more about the problem on this <a href="http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=736086&amp;SiteID=1">Microsoft forum</a>
+				</p>
+			</div>
+		</aside>
 
     <h3 data-toggle="collapse" data-target="#features" class="collapsible collapsed">
       Features
@@ -254,14 +272,17 @@ status: "current"
     </p>
     <div class="alert alert-info">
       <p>
-        A legacy help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <a href="{{ site.base-url }}/articles/article-15">This article</a> explains how to do it.
+        A legacy WinHelp help file is included in the download that can only be integrated with the IDE in Delphi 7 and earlier. <a href="{{ site.base-url }}/articles/article-15">This article</a> explains how to do it.
       </p>
       <p class="alert alert-warning glyph">
-        This help file is deprecated and is no longer being updated. The last update was in the v5.0.3 release. The help file may be removed from any future release.
+        This help file is deprecated and is no longer being updated. The last update was in the v5.0.3 release. The help file <strong>will</strong> be removed from any future release.
       </p>
+			<p class="alert alert-danger glyph">
+				WinHelp is an optional download for Windows Vista through to Windows 8.1 and can't be installed at all on Windows 10.
+			</p>
     </div>
     <p>
-      There is also an <a href="http://wiki.delphidabbler.com/index.php/FAQs/DropFilesComponents">FAQ</a>.
+      There is also an <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/FAQs/DropFilesComponents.md">FAQ</a>.
     </p>
   </div>
 </section>
@@ -286,7 +307,7 @@ status: "current"
       If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/DropFilesComponents.md">documentation</a> and/or <a href="http://wiki.delphidabbler.com/index.php/FAQs/DropFilesComponents">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/DropFilesComponents.md">documentation</a> and/or <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/FAQs/DropFilesComponents.md">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
     </p>
   </div>
 </section>
