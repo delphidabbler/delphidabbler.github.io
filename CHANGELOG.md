@@ -4,6 +4,46 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.7.0 - 2020-06-06
+
+### Fixes
+
+* Minor error in `codelib.html` (commit db3dcb5)
+* Fixed image alignment problems in article #15 and various software pages (by commit 0a4c353).
+* Missing quotes in meta viewpoint tags (commit aaeaf6f).
+
+### Changed
+
+* Modified code library template file to correctly format "obsolete" and "mothballed" entries.
+* Updated SASS/CSS file:
+    * New responsive pull-out style for images.
+    * Pruned unused SASS code.
+    * Removed unused header gradient code (fixes issue #22).
+    * Changed main link colour and alert link styling (fixes issue #23).
+    * Added some new mixins.
+    * Tweaked `<pre>` tag styling.
+* Added warnings about references to obsolete WinHelp help system in various software pages and article #15.
+* Tweaked warning in "Drop Files Components" page.
+* Replaced all links from Code Library pages to `wiki.delphidabbler.com` with links to the `delphidabbler/ddab-lib-docs` documentation project on GitHub.
+
+### Added
+
+* All outstanding code library pages (closes issue #28):
+    * HKEY Property Editor (obsolete)
+    * Macro Toolbar Display Wizard for Delphi 7 (mothballed)
+    * Menu Speed Button Components (obsolete)
+    * Colour Popup Menu Component (mothballed)
+* Added article #10 content to placeholder page.
+* Added various meta tags to all page heads: author, description & keywords.
+* Added new FAQ link to the About Box Component page. The link addresses the `delphidabbler/ddab-lib-docs` documentation project.
+* Added new link from HTMLRes program page to article #10.
+
+### Removed
+
+* YAML file made redundant by completion of code library page collection.
+* Code in main programs and code library pages made redundant following completion of all software pages.
+
+
 ## v0.6.2 - 2020-06-01
 
 ### Fixes
