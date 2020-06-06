@@ -93,6 +93,13 @@ pre.kbd {
   color: $kbd-color;
   background-color: $kbd-bg;
 }
+// Class that makes <pre> tags that have a <code> styling have same dimensions as <pre> tags with .kbd styling.
+//** Custom
+pre.code {
+  padding: 2px 4px;
+  font-size: 90%;
+  border-radius: $border-radius-small;
+}
 
 // Styling for a collapsible <h3> tag: displays + when closed and - when open
 //** Custom
@@ -696,8 +703,6 @@ div.sw-meta {
 .frame > pre.pas-source {
 	margin-bottom: 0;
 	line-height: 120%;
-}
-.frame > pre.pas-source {
 	@extend samp;
 }
 .frame table code {
