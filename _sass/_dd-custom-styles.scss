@@ -11,14 +11,14 @@ main#content > *:first-child {
 
 // Paragraphs
 p {
-	&.condensed,
-	&.condensed-top {
-		margin-top: 0;
-	}
-	&.condensed,
-	&.condensed-bottom {
-		margin-bottom: 0;
-	}
+  &.condensed,
+  &.condensed-top {
+    margin-top: 0;
+  }
+  &.condensed,
+  &.condensed-bottom {
+    margin-bottom: 0;
+  }
 }
 
 // Lists
@@ -67,24 +67,24 @@ dl {
 // Images
 //** Custom
 img {
-	// Scalable responsive image
-	&.scale {
-		max-width: 100%;
-		object-fit: fit;
-		display: block;
-	}
-	// Float on large screens, centered as a block on small screens
-	&.pull-right-xs {
-		max-width: 100%;
-		object-fit: fit;
-		margin-bottom: ($line-height-computed / 2);
-		@media (min-width: $screen-xs-min) {
-			float: right !important;
-			margin: 0;
-			margin-left: 12px;
-			display: inline;
-		}
-	}
+  // Scalable responsive image
+  &.scale {
+    max-width: 100%;
+    object-fit: fit;
+    display: block;
+  }
+  // Float on large screens, centered as a block on small screens
+  &.pull-right-xs {
+    max-width: 100%;
+    object-fit: fit;
+    margin-bottom: ($line-height-computed / 2);
+    @media (min-width: $screen-xs-min) {
+      float: right !important;
+      margin: 0;
+      margin-left: 12px;
+      display: inline;
+    }
+  }
 }
 
 // Class that can be applied to <pre> tags to make them appear similar to <kbd> tags
@@ -138,7 +138,7 @@ h3.collapsible {
 }
 
 .indent {
-	margin-left: $list-item-offset
+  margin-left: $list-item-offset
 }
 
 // Additional typography: extends typographic classes exposed by Bootstrap
@@ -147,44 +147,44 @@ h3.collapsible {
   font-variant: small-caps;
 }
 var, .var {
-	color: $brand-primary;
-	font-style: italic;
+  color: $brand-primary;
+  font-style: italic;
 }
 strong, .strong {
-	font-weight: bold;
+  font-weight: bold;
 }
 em, .em {
-	font-style: italic;
+  font-style: italic;
 }
 samp, .samp, .kbd {
-	@extend kbd;
+  @extend kbd;
 }
 samp, .samp, kbd, .kbd {
-	font-weight: normal;
+  font-weight: normal;
 }
 samp, .samp {
-	background-color: $samp-bg;
-	color: $samp-color;
+  background-color: $samp-bg;
+  color: $samp-color;
 }
 
 // Style links
 //** Bootstrap overrides
 .alert {
-	a {
-		text-decoration: underline;
-	}
+  a {
+    text-decoration: underline;
+  }
 }
 .alert-success {
-	@include alert-link($alert-success-text, $alert-success-bg);
+  @include alert-link($alert-success-text, $alert-success-bg);
 }
 .alert-info {
-	@include alert-link($alert-info-text, $alert-info-bg);
+  @include alert-link($alert-info-text, $alert-info-bg);
 }
 .alert-warning {
-	@include alert-link($alert-warning-text, $alert-warning-bg);
+  @include alert-link($alert-warning-text, $alert-warning-bg);
 }
 .alert-danger {
-	@include alert-link($alert-danger-text, $alert-danger-bg);
+  @include alert-link($alert-danger-text, $alert-danger-bg);
 }
 
 // Adds an external link glyph to links whose hrefs start with http:// or
@@ -275,19 +275,19 @@ a[href^="http"] {
   }
 }
 .callout-primary {
-	@include callout-setup($brand-primary);
+  @include callout-setup($brand-primary);
 }
 .callout-success {
-	@include callout-setup($brand-success);
+  @include callout-setup($brand-success);
 }
 .callout-info {
-	@include callout-setup($brand-info);
+  @include callout-setup($brand-info);
 }
 .callout-warning {
-	@include callout-setup($brand-warning);
+  @include callout-setup($brand-warning);
 }
 .callout-danger {
-	@include callout-setup($brand-danger);
+  @include callout-setup($brand-danger);
 }
 
 
@@ -620,14 +620,14 @@ h3.collapsible {
      }
   }
 
-	&.mothballed {
-		background-color: $state-warning-bg;
-		color: $state-warning-text;
-	}
-	&.obsolete {
-		background-color: $state-danger-bg;
-		color: $state-danger-text;
-	}
+  &.mothballed {
+    background-color: $state-warning-bg;
+    color: $state-warning-text;
+  }
+  &.obsolete {
+    background-color: $state-danger-bg;
+    color: $state-danger-text;
+  }
 }
 
 // Stying of div that wraps software meta data
@@ -656,17 +656,17 @@ div.sw-meta {
 // Table styling
 // ** Bootstrap override
 .table {
-	border-collapse: collapse;
+  border-collapse: collapse;
 
-	// Set table head background
-	> thead {
-		background-color: $table-head-bg;
-	}
+  // Set table head background
+  > thead {
+    background-color: $table-head-bg;
+  }
 
   // Middle align for column headings
   > thead > tr > th {
     vertical-align: middle;
-		border-bottom: $table-border-color solid 1px;
+    border-bottom: $table-border-color solid 1px;
   }
   // Add top border to thead
   > caption + thead,
@@ -679,15 +679,15 @@ div.sw-meta {
       }
     }
   }
-	// Add bottom border to tbody
-	> tbody:last-child {
-		> tr:last-child {
-			> th,
-			> td {
-				border-bottom: $table-border-color solid 2px;
-			}
-		}
-	}
+  // Add bottom border to tbody
+  > tbody:last-child {
+    > tr:last-child {
+      > th,
+      > td {
+        border-bottom: $table-border-color solid 2px;
+      }
+    }
+  }
 }
 
 
@@ -695,39 +695,39 @@ div.sw-meta {
 // ** Custom
 
 .frame {
-	margin-bottom: ceil($line-height-computed / 2);
+  margin-bottom: ceil($line-height-computed / 2);
 }
 .frame div.code-pascal, {
-	@extend .pre-scrollable;
+  @extend .pre-scrollable;
 }
 .frame > table {
-	margin-bottom: 0;
+  margin-bottom: 0;
 }
 .frame > pre.source-body,
 .frame > .code-pascal pre {
-	margin-bottom: 0;
-	line-height: 125%;
-	@extend samp;
+  margin-bottom: 0;
+  line-height: 125%;
+  @extend samp;
 }
 .frame table code {
-	background-color: transparent;
+  background-color: transparent;
 }
 .frame .caption {
-	color: $gray-light;
-	background-color: $frame-caption-bg;
-	text-align: center;
-	margin-top: 0;
-	margin-bottom: 0;
-	padding-top: 0;
-	padding-bottom: 0;
-	font-size: $font-size-small;
-	font-variant: small-caps;
+  color: $gray-light;
+  background-color: $frame-caption-bg;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: $font-size-small;
+  font-variant: small-caps;
 }
 
 // Styling for references to figures (tables, listings etc.) Used mainly in articles
 // ** Custom
 .figureref {
-	font-variant: small-caps;
+  font-variant: small-caps;
 }
 
 // Styling for source code highlighting for use with HTML generated by PasHi v2: https://github.com/delphidabbler/pashi
