@@ -690,16 +690,19 @@ div.sw-meta {
 
 // Styling for source code example frames (mainly used in articles)
 // ** Custom
+
 .frame {
 	margin-bottom: ceil($line-height-computed / 2);
 }
-.frame > pre {
+.frame pre.pas-source,
+.frame div.code-pascal, {
 	@extend .pre-scrollable;
 }
 .frame > table {
 	margin-bottom: 0;
 }
 .frame > pre.source-body,
+.frame > .code-pascal pre,
 .frame > pre.pas-source {
 	margin-bottom: 0;
 	line-height: 120%;
@@ -724,4 +727,135 @@ div.sw-meta {
 // ** Custom
 .figureref {
 	font-variant: small-caps;
+}
+
+// Styling for source code highlighting. Based on classic.css from DelphiDabbler PasHi
+// ** Custom
+.code-pascal,
+.pas-source {
+	@extend samp;
+  //background-color: #000080; 
+  border: none;
+}
+
+.code-pascal pre,
+.pas-source pre {
+  //font-family: "Courier New", monospace;
+  //font-size: 9pt;
+	background-color: transparent;
+	padding: 0;
+	border: none;
+  margin: 0;
+}
+
+.code-pascal pre.line,
+.pas-source pre.line {
+	background-color: transparent;
+}
+
+.code-pascal pre.odd-line,
+.pas-source pre.odd-line {
+}
+
+.code-pascal pre.even-line,
+.pas-source pre.even-line {
+  //background-color: #00009F; /* Classic's "Line Highlight" */
+}
+
+.code-pascal .linenum,
+.pas-source .linenum {
+/*
+  border-right: 1px #c0c0c0 solid;
+  padding: 1px 4px 1px 0;
+  margin-right: 0.75em;
+  color: #c0c0c0;
+  background-color: navy;
+*/
+}
+
+.code-pascal .comment,
+.pas-comment {
+  color: #c0c0c0;
+  font-weight: normal;
+  font-style: italic;
+  text-decoration: none;
+}
+
+.code-pascal .kwd,
+.pas-kwd {
+  color: #c6d9f7;
+  font-weight: bold;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.code-pascal .ident,
+.pas-ident {
+  color: #ffff00;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.code-pascal .sym,
+.pas-sym {
+  color: #00ff00;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.code-pascal .str,
+.pas-str {
+  color: #00ffff;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.code-pascal .num,
+.code-pascal .float,
+.code-pascal .hex,
+.pas-num,
+.pas-float,
+.pas-hex {
+  color: #ff00ff;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.code-pascal .preproc,
+.pas-preproc {
+  color: #c0c0c0;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.code-pascal .asm,
+.pas-asm {
+  color: #00ff00;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.code-pascal .space,
+.pas-space {
+}
+
+.code-pascal .err,
+.pas-err {  /* Classic's "Illegal Char" */
+  color: #ff0000;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
+}
+
+.code-pascal .nothing {
+  color: #ffffff;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: none;
 }
