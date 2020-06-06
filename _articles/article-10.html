@@ -241,18 +241,22 @@ pages: 1
 			Our job is to develop a Delphi function that transforms a resource identifier referenced by a <var>PChar</var> into an appropriately formatted string for use in a URL. <span class="figureref">Listing 1</span> shows a solution:
 		</p>
 		<div id="listing-1" class="frame">
-			<pre class="pas-source"><span class="pas-kwd">function</span> FormatResNameOrType(ResID: PChar): <span class="pas-kwd">string</span>;
-<span class="pas-kwd">begin</span>
-  <span class="pas-kwd">if</span> HiWord(LongWord(ResID)) = <span class="pas-num">0</span> <span class="pas-kwd">then</span>
-    <span class="pas-comment">// high word = 0 =&gt; numeric resource id</span>
-    <span class="pas-comment">// numeric value is stored in low word</span>
-    Result := Format(<span class="pas-str">'#%d'</span>, [LoWord(LongWord(ResID))])
-  <span class="pas-kwd">else</span>
-    <span class="pas-comment">// high word &lt;&gt; 0 =&gt; string value</span>
-    <span class="pas-comment">// PChar is implicitly converted to string</span>
-    Result := ResID;
-<span class="pas-kwd">end</span>;</pre>
-			<div class="caption">Listing 1</div>
+			<div class="code-pascal">
+				<pre class="line"><span class="kwd">function</span><span class="space"> </span><span class="ident">FormatResNameOrType</span><span class="sym">(</span><span class="ident">ResID</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="kwd">begin</span></pre>
+				<pre class="line"><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">HiWord</span><span class="sym">(</span><span class="ident">LongWord</span><span class="sym">(</span><span class="ident">ResID</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+				<pre class="line"><span class="space">    </span><span class="comment">// high word = 0 =&gt; numeric resource id</span></pre>
+				<pre class="line"><span class="space">    </span><span class="comment">// numeric value is stored in low word</span></pre>
+				<pre class="line"><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Format</span><span class="sym">(</span><span class="str">'#%d'</span><span class="sym">,</span><span class="space"> </span><span class="sym">[</span><span class="ident">LoWord</span><span class="sym">(</span><span class="ident">LongWord</span><span class="sym">(</span><span class="ident">ResID</span><span class="sym">)</span><span class="sym">)</span><span class="sym">]</span><span class="sym">)</span></pre>
+				<pre class="line"><span class="space">  </span><span class="kwd">else</span></pre>
+				<pre class="line"><span class="space">    </span><span class="comment">// high word &lt;&gt; 0 =&gt; string value</span></pre>
+				<pre class="line"><span class="space">    </span><span class="comment">// PChar is implicitly converted to string</span></pre>
+				<pre class="line"><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ResID</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="kwd">end</span><span class="sym">;</span></pre>
+			</div>
+			<div class="caption">
+				Listing 1
+			</div>
 		</div>
 		<p>
 			We simply test the resource identifier pointer's high word to see if it is zero. If so we return the value of the low word preceeded by <code>#</code>. Otherwise we return the resource identifier unchanged. Delphi silently converts the result to the compiler's default string type.
@@ -278,24 +282,28 @@ pages: 1
 			<a href="#understand-safeurl">Earlier</a> we discussed the need to escape special characters in a<code>res://</code> protocol URL. The simple function presented in <span class="figureref">Listing 2</span> takes the safest possible approach and escapes all characters that are neither alphanumeric nor one of &quot;-&quot;, &quot;_&quot; or &quot;.&quot;. Conditional compilation is used to test  membership correctly depending on if an ANSI or Unicode version of Delphi is being used.
 		</p>
 		<div id="listing-2" class="frame">
-			<pre class="pas-source"><span class="pas-kwd">function</span><span class="pas-space"> </span><span class="pas-ident">URLEncode</span><span class="pas-sym">(</span><span class="pas-kwd">const</span><span class="pas-space"> </span><span class="pas-ident">S</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-kwd">string</span><span class="pas-sym">)</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-kwd">string</span><span class="pas-sym">;</span>
-<span class="pas-kwd">var</span>
-<span class="pas-space">  </span><span class="pas-ident">Idx</span><span class="pas-sym">:</span><span class="pas-space"> </span><span class="pas-ident">Integer</span><span class="pas-sym">;</span><span class="pas-space"> </span><span class="pas-comment">// loops thru characters in string</span>
-<span class="pas-kwd">begin</span>
-<span class="pas-space">  </span><span class="pas-ident">Result</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-str">''</span><span class="pas-sym">;</span>
-<span class="pas-space">  </span><span class="pas-kwd">for</span><span class="pas-space"> </span><span class="pas-ident">Idx</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-num">1</span><span class="pas-space"> </span><span class="pas-kwd">to</span><span class="pas-space"> </span><span class="pas-ident">Length</span><span class="pas-sym">(</span><span class="pas-ident">S</span><span class="pas-sym">)</span><span class="pas-space"> </span><span class="pas-kwd">do</span>
-<span class="pas-space">  </span><span class="pas-kwd">begin</span>
-<span class="pas-space">    </span><span class="pas-preproc">{$IFDEF UNICODE}</span>
-<span class="pas-space">    </span><span class="pas-kwd">if</span><span class="pas-space"> </span><span class="pas-ident">CharInSet</span><span class="pas-sym">(</span><span class="pas-ident">S</span><span class="pas-sym">[</span><span class="pas-ident">Idx</span><span class="pas-sym">]</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-sym">[</span><span class="pas-str">'A'</span><span class="pas-sym">..</span><span class="pas-str">'Z'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'a'</span><span class="pas-sym">..</span><span class="pas-str">'z'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'0'</span><span class="pas-sym">..</span><span class="pas-str">'9'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'-'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'_'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'.'</span><span class="pas-sym">]</span><span class="pas-sym">)</span><span class="pas-space"> </span><span class="pas-kwd">then</span>
-<span class="pas-space">    </span><span class="pas-preproc">{$ELSE}</span>
-<span class="pas-space">    </span><span class="pas-kwd">if</span><span class="pas-space"> </span><span class="pas-ident">S</span><span class="pas-sym">[</span><span class="pas-ident">Idx</span><span class="pas-sym">]</span><span class="pas-space"> </span><span class="pas-kwd">in</span><span class="pas-space"> </span><span class="pas-sym">[</span><span class="pas-str">'A'</span><span class="pas-sym">..</span><span class="pas-str">'Z'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'a'</span><span class="pas-sym">..</span><span class="pas-str">'z'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'0'</span><span class="pas-sym">..</span><span class="pas-str">'9'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'-'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'_'</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-str">'.'</span><span class="pas-sym">]</span><span class="pas-space"> </span><span class="pas-kwd">then</span>
-<span class="pas-space">    </span><span class="pas-preproc">{$ENDIF}</span>
-<span class="pas-space">      </span><span class="pas-ident">Result</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-ident">Result</span><span class="pas-space"> </span><span class="pas-sym">+</span><span class="pas-space"> </span><span class="pas-ident">S</span><span class="pas-sym">[</span><span class="pas-ident">Idx</span><span class="pas-sym">]</span>
-<span class="pas-space">    </span><span class="pas-kwd">else</span>
-<span class="pas-space">      </span><span class="pas-ident">Result</span><span class="pas-space"> </span><span class="pas-sym">:=</span><span class="pas-space"> </span><span class="pas-ident">Result</span><span class="pas-space"> </span><span class="pas-sym">+</span><span class="pas-space"> </span><span class="pas-str">'%'</span><span class="pas-space"> </span><span class="pas-sym">+</span><span class="pas-space"> </span><span class="pas-ident">IntToHex</span><span class="pas-sym">(</span><span class="pas-ident">Ord</span><span class="pas-sym">(</span><span class="pas-ident">S</span><span class="pas-sym">[</span><span class="pas-ident">Idx</span><span class="pas-sym">]</span><span class="pas-sym">)</span><span class="pas-sym">,</span><span class="pas-space"> </span><span class="pas-num">2</span><span class="pas-sym">)</span><span class="pas-sym">;</span>
-<span class="pas-space">  </span><span class="pas-kwd">end</span><span class="pas-sym">;</span>
-<span class="pas-kwd">end</span><span class="pas-sym">;</span></pre>
-			<div class="caption">Listing 2</div>
+			<div class="code-pascal">
+				<pre class="line"><span class="kwd">function</span><span class="space"> </span><span class="ident">URLEncode</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">S</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="kwd">var</span></pre>
+				<pre class="line"><span class="space">  </span><span class="ident">Idx</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="comment">// loops thru characters in string</span></pre>
+				<pre class="line"><span class="kwd">begin</span></pre>
+				<pre class="line"><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">''</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">Idx</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">S</span><span class="sym">)</span><span class="space"> </span><span class="kwd">do</span></pre>
+				<pre class="line"><span class="space">  </span><span class="kwd">begin</span></pre>
+				<pre class="line"><span class="space">    </span><span class="preproc">{$IFDEF UNICODE}</span></pre>
+				<pre class="line"><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CharInSet</span><span class="sym">(</span><span class="ident">S</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="sym">,</span><span class="space"> </span><span class="sym">[</span><span class="str">'A'</span><span class="sym">..</span><span class="str">'Z'</span><span class="sym">,</span><span class="space"> </span><span class="str">'a'</span><span class="sym">..</span><span class="str">'z'</span><span class="sym">,</span><span class="space"> </span><span class="str">'0'</span><span class="sym">..</span><span class="str">'9'</span><span class="sym">,</span><span class="space"> </span><span class="str">'-'</span><span class="sym">,</span><span class="space"> </span><span class="str">'_'</span><span class="sym">,</span><span class="space"> </span><span class="str">'.'</span><span class="sym">]</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+				<pre class="line"><span class="space">    </span><span class="preproc">{$ELSE}</span></pre>
+				<pre class="line"><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">S</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="space"> </span><span class="kwd">in</span><span class="space"> </span><span class="sym">[</span><span class="str">'A'</span><span class="sym">..</span><span class="str">'Z'</span><span class="sym">,</span><span class="space"> </span><span class="str">'a'</span><span class="sym">..</span><span class="str">'z'</span><span class="sym">,</span><span class="space"> </span><span class="str">'0'</span><span class="sym">..</span><span class="str">'9'</span><span class="sym">,</span><span class="space"> </span><span class="str">'-'</span><span class="sym">,</span><span class="space"> </span><span class="str">'_'</span><span class="sym">,</span><span class="space"> </span><span class="str">'.'</span><span class="sym">]</span><span class="space"> </span><span class="kwd">then</span></pre>
+				<pre class="line"><span class="space">    </span><span class="preproc">{$ENDIF}</span></pre>
+				<pre class="line"><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">S</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span></pre>
+				<pre class="line"><span class="space">    </span><span class="kwd">else</span></pre>
+				<pre class="line"><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">'%'</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">IntToHex</span><span class="sym">(</span><span class="ident">Ord</span><span class="sym">(</span><span class="ident">S</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="num">2</span><span class="sym">)</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="kwd">end</span><span class="sym">;</span></pre>
+			</div>
+			<div class="caption">
+				Listing 2
+			</div>
 		</div>
 		<div class="callout callout-info">
 			<h4>
@@ -321,17 +329,21 @@ pages: 1
 			The routines differ in how they handle the module component of the URL. The first function (<span class="figureref">Listing 3</span>) is passed the module file name as a string while the second routine (<span class="figureref">Listing 4</span>) takes a handle to the required module. First we will consider the function that accepts the module name as a string:
 		</p>
 		<div id="listing-3" class="frame">
-			<pre class="pas-source"><span class="pas-kwd">function</span> MakeResourceURL(<span class="pas-kwd">const</span> ModuleName: <span class="pas-kwd">string</span>; <span class="pas-kwd">const</span> ResName: PChar;
-  <span class="pas-kwd">const</span> ResType: PChar = <span class="pas-kwd">nil</span>): <span class="pas-kwd">string</span>; <span class="pas-kwd">overload</span>;
-<span class="pas-kwd">begin</span>
-  Assert(ModuleName &lt;&gt; <span class="pas-str">''</span>);
-  Assert(Assigned(ResName));
-  Result := <span class="pas-str">'res://'</span> + URLEncode(ModuleName);
-  <span class="pas-kwd">if</span> Assigned(ResType) <span class="pas-kwd">then</span>
-    Result := Result + <span class="pas-str">'/'</span> + URLEncode(FormatResNameOrType(ResType));
-  Result := Result + <span class="pas-str">'/'</span> + URLEncode(FormatResNameOrType(ResName));
-<span class="pas-kwd">end</span>;</pre>
-			<div class="caption">Listing 3</div>
+			<div class="code-pascal">
+				<pre class="line"><span class="kwd">function</span><span class="space"> </span><span class="ident">MakeResourceURL</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">ModuleName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space"> </span><span class="ident">ResName</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">ResType</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="kwd">begin</span></pre>
+				<pre class="line"><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">ModuleName</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="str">''</span><span class="sym">)</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">ResName</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">'res://'</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">URLEncode</span><span class="sym">(</span><span class="ident">ModuleName</span><span class="sym">)</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">ResType</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+				<pre class="line"><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">'/'</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">URLEncode</span><span class="sym">(</span><span class="ident">FormatResNameOrType</span><span class="sym">(</span><span class="ident">ResType</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">'/'</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">URLEncode</span><span class="sym">(</span><span class="ident">FormatResNameOrType</span><span class="sym">(</span><span class="ident">ResName</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="kwd">end</span><span class="sym">;</span></pre>
+			</div>
+			<div class="caption">
+				Listing 3
+			</div>
 		</div>
 		<p>
 			This function records the protocol name and appends the name of the module to it. It then appends the resource type if specified and finally adds the resource name. URL segments are separated by slash characters. Notice how we call <var><a href="#listing-1">FormatResNameOrType</a></var> to get the resource type and resource name identifiers and we use <var><a href="#listing-2">URLEncode</a></var> to ensure each segment of the URL is URL safe.
@@ -340,12 +352,16 @@ pages: 1
 			The second form of the function is for use with loaded modules. Such modules are identified by means of their module handle rather than by name, as shown in <span class="figureref">Listing 4</span>:
 		</p>
 		<div id="listing-4" class="frame">
-			<pre class="pas-source"><span class="pas-kwd">function</span> MakeResourceURL(<span class="pas-kwd">const</span> Module: HMODULE; <span class="pas-kwd">const</span> ResName: PChar;
-  <span class="pas-kwd">const</span> ResType: PChar = <span class="pas-kwd">nil</span>): <span class="pas-kwd">string</span>; <span class="pas-kwd">overload</span>;
-<span class="pas-kwd">begin</span>
-  Result := MakeResourceURL(GetModuleName(Module), ResName, ResType);
-<span class="pas-kwd">end</span>;</pre>
-			<div class="caption">Listing 4</div>
+			<div class="code-pascal">
+				<pre class="line"><span class="kwd">function</span><span class="space"> </span><span class="ident">MakeResourceURL</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Module</span><span class="sym">:</span><span class="space"> </span><span class="ident">HMODULE</span><span class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space"> </span><span class="ident">ResName</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">ResType</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="kwd">begin</span></pre>
+				<pre class="line"><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">MakeResourceURL</span><span class="sym">(</span><span class="ident">GetModuleName</span><span class="sym">(</span><span class="ident">Module</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">ResName</span><span class="sym">,</span><span class="space"> </span><span class="ident">ResType</span><span class="sym">)</span><span class="sym">;</span></pre>
+				<pre class="line"><span class="kwd">end</span><span class="sym">;</span></pre>
+			</div>
+			<div class="caption">
+				Listing 4
+			</div>
 		</div>
 		<p>
 			This function simply gets the name of the module by calling the <var>SysUtils</var> unit's <var>GetModuleName</var> function. It then calls the other overloaded function, passing it the module name.
@@ -360,9 +376,13 @@ pages: 1
 			<var>RT_HTML</var> is a constant that denotes an HTML resource. Unlike other <var>RT_*</var> constants it is not defined in Delphi 7. If needed, the constant should be defined as follows:
 		</p>
 		<div id="listing-5" class="frame">
-			<pre class="pas-source"><span class="pas-kwd">const</span>
-  RT_HTML = MakeIntResource(<span class="pas-num">23</span>);</pre>
-			<div class="caption">Listing 5</div>
+			<div class="code-pascal">
+				<pre class="line"><span class="kwd">const</span></pre>
+				<pre class="line"><span class="space">  </span><span class="ident">RT_HTML</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">MakeIntResource</span><span class="sym">(</span><span class="num">23</span><span class="sym">)</span><span class="sym">;</span></pre>
+			</div>
+			<div class="caption">
+				Listing 5
+			</div>
 		</div>
 	</section>
 </section>
@@ -398,18 +418,20 @@ pages: 1
 					Create the resource source (<code>.rc</code>) file. This file tells  resource compiler which files to include in the resource and what resource names  types to use for them. The compiler embeds the files in the resource file Here is an example source file:
 				</p>
 				<div id="listing-6" class="frame">
-					<pre class="pas-source"><span class="pas-comment">/* standard resource # for HTML */</span>
-#define HTML 23
-
-<span class="pas-comment">/* include all resource from external files */</span>
-TIPS_HTML      HTML    &quot;tips.html&quot;
-HELP_HTML      HTML    &quot;help.html&quot;
-LEFTARROW_GIF  HTML    &quot;left-arrow.gif&quot;
-RIGHTARROW_GIF HTML    &quot;right-arrow.gif&quot;
-FILL_GIF       HTML    &quot;fill.gif&quot;
-HELP_GIF       HTML    &quot;help.gif&quot;
-TIPS_JS        HTML    &quot;tips.js&quot;
-STYLE_CSS      HTML    &quot;style.css&quot;</pre>
+					<div class="code-pascal">
+						<pre class="line"><span class="comment">/* standard resource # for HTML */</span></pre>
+						<pre class="line"><span class="nothing">#define HTML 23</span></pre>
+						<pre class="line">&nbsp;</pre>
+						<pre class="line"><span class="comment">/* include all resource from external files */</span></pre>
+						<pre class="line"><span class="nothing">TIPS_HTML      HTML    &quot;tips.html&quot;</span></pre>
+						<pre class="line"><span class="nothing">HELP_HTML      HTML    &quot;help.html&quot;</span></pre>
+						<pre class="line"><span class="nothing">LEFTARROW_GIF  HTML    &quot;left-arrow.gif&quot;</span></pre>
+						<pre class="line"><span class="nothing">RIGHTARROW_GIF HTML    &quot;right-arrow.gif&quot;</span></pre>
+						<pre class="line"><span class="nothing">FILL_GIF       HTML    &quot;fill.gif&quot;</span></pre>
+						<pre class="line"><span class="nothing">HELP_GIF       HTML    &quot;help.gif&quot;</span></pre>
+						<pre class="line"><span class="nothing">TIPS_JS        HTML    &quot;tips.js&quot;</span></pre>
+						<pre class="line"><span class="nothing">STYLE_CSS      HTML    &quot;style.css&quot;</span></pre>
+					</div>
 					<div class="caption">Listing 6</div>
 				</div>
 			</li>
@@ -432,10 +454,7 @@ STYLE_CSS      HTML    &quot;style.css&quot;</pre>
 				<p>
 					In Delphi we link the resource by adding the following line to a project file or to a convenient unit. For the example given above we would use:
 				</p>
-				<div id="listing-7" class="frame" style="margin-bottom: 0; margin-top: 0;">
-					<pre class="pas-source"><span class="pas-preproc">{$R HTML.res}</span></pre>
-					<div class="caption">Listing 7</div>
-				</div>
+				<pre class="pre-scrollable samp">{$R HTML.res}</pre>
 			</li>
 		</ol>
 	</section>
@@ -476,8 +495,8 @@ STYLE_CSS      HTML    &quot;style.css&quot;</pre>
 			Each HTML file displays the logo and so contains an <code>&lt;img&gt;</code> tag such as:
 		</p>
 		<div id="listing-8" class="frame">
-			<pre class="source-body">...
-&lt;<span class="pas-kwd">img</span> src=&quot;logo.gif&quot; ... /&gt;
+<pre class="source-body">...
+&lt;img src=&quot;logo.gif&quot; ... /&gt;
 ...</pre>
 			<div class="caption">Listing 8</div>
 		</div>
@@ -486,8 +505,8 @@ STYLE_CSS      HTML    &quot;style.css&quot;</pre>
 		</p>
 		<div id="listing-9" class="frame">
 			<pre class="source-body">...
-&lt;<span class="pas-kwd">a</span> href=&quot;page1.html&quot;&gt;Page 1&lt;/<span class="pas-kwd">a</span>&gt;&lt;<span class="pas-kwd">br</span> /&gt;
-&lt;<span class="pas-kwd">a</span> href=&quot;page2.html&quot;&gt;Page 2&lt;/<span class="pas-kwd">a</span>&gt;
+&lt;a href=&quot;page1.html&quot;&gt;Page 1&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;page2.html&quot;&gt;Page 2&lt;/a&gt;
 ...</pre>
 			<div class="caption">Listing 9</div>
 		</div>
@@ -506,7 +525,7 @@ LOGO_GIF    23   &quot;logo.gif&quot;</pre>
 		</p>
 		<div class="frame">
 			<pre class="source-body">...
-&lt;<span class="pas-kwd">img</span> src=&quot;LOGO_GIF&quot; ... /&gt;
+&lt;img src=&quot;LOGO_GIF&quot; ... /&gt;
 ...</pre>
 			<div class="caption">Listing 11</div>
 		</div>
