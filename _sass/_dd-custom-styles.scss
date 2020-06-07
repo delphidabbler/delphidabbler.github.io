@@ -386,6 +386,13 @@ a[href^="http"] {
   }
 }
 
+.navbar-nav {
+  li {
+    padding-left: $navbar-item-padding-horizontal;
+    padding-right: $navbar-item-padding-horizontal;
+  }
+}
+
 // Sets padding on navbar "toggle" - used to display menu button. Padding is
 // less on tiny screens
 //** Overrides bootstrap class
