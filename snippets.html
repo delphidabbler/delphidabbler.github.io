@@ -1,0 +1,53 @@
+---
+title: Code Snippets
+---
+
+<h1 roll="heading">{{page.title | escape}}</h1>
+
+<p>
+  The old DelphiDabbler site had two web applications that displayed code snippets from two different sources:
+</p>
+
+<ol class="wide">
+  <li>
+    The DelphiDabbler Code Snippets &quot;Database&quot; of compilable Delphi Pascal snippets.
+  </li>
+  <li>
+    The old SWAG (<b>S</b>ource<b>W</b>are <b>A</b>rchive <b>G</b>roup) collection of source code and programming examples.
+  </li>
+</ol>
+
+<p class="alert alert-danger glyph">
+  Both web apps depended on web services provided by the old web server and were lost when that server closed down. It would be a big job to recover and convert the apps.
+</p>
+
+<p>
+  All is not lost. I have created a couple of Git repositories GitHub to hold the snippet collections. They are:
+</p>
+
+<ul class="list-group">
+  <li class="list-group-item">
+    <p class="strong">
+      <a href="https://github.com/delphidabbler/code-snippets" aria-label="DelphiDabbler Code Snippets database repository on GitHub">delphidabbler/code-snippets</a>
+    </p>
+    <p>
+      This repository contains all the snippets in the Code Snippets Database along with meta data stored in .ini files. The database is in the `csdb` directory off the repository root.
+    </p>
+  </li>
+  <li class="list-group-item">
+    <p class="strong">
+      <a href="https://github.com/delphidabbler/swag" aria-label="SWAG collection repository on GitHub">delphidabbler/swag</a>
+    </p>
+    <p>
+      This repository contains all the &quot;packets&quot; (a SWAG term for a snippet) in the collection along with an XML file containing meta data.
+    </p>
+  </li>
+</ul>
+
+<p>
+  Both collections are comprehensively documented.
+</p>
+
+<p class="alert alert-info glyph">
+  The Code Snippets Database can be displayed by my <a href="{{ site.base-url }}/software/codesnip">CodeSnip</a> program. It can also import SWAG packages. In fact CodeSnip's SWAG import wizard contains a pretty reasonable SWAG viewer!
+</p>

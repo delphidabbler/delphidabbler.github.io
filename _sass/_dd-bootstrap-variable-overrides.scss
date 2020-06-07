@@ -1,3 +1,13 @@
+$font-size-base:          14px; //** bootstrap !default;
+$line-height-base:        1.428571429; //** bootstrap !default; // 20/14
+
+$line-height-computed:    floor(($font-size-base * $line-height-base)); //** bootstrap !default; // ~20px
+
+$grid-gutter-width:         30px; //** bootstrap !default;
+
+
+
+
 $gray-base:               #000000;  //** bootstrap default
 $gray-darker:             #222222;  //** bootstrap default 
 $gray-dark:               #333333;  //** bootstrap default 
@@ -71,20 +81,32 @@ $blockquote-border-color: $gray-lighter; //** bootstrap default
 // custom style: $blockquote-footer-font-size: 90%;
 // custom style: $blockquote-small-font-size: floor((100% * $font-size-small / $font-size-base));
 
+$navbar-height:                    50px; //** bootstrap deafult
+$navbar-margin-bottom:             $line-height-computed; //** bootstrap default;
 $navbar-border-radius: 0; //** custom [orig:$border-radius-base]
+$navbar-padding-horizontal:        floor(($grid-gutter-width / 4)); //** custom[floor(($grid-gutter-width / 2))]
+$navbar-padding-vertical:          (($navbar-height - $line-height-computed) / 2); //** bootstrap default;
+$navbar-collapse-max-height:       340px; // bootstrap default;
 $navbar-default-color: $global-branding-color; //** custom [orig:#777]
 $navbar-default-bg:  #44447F; // custom [orig:#f8f8f8]
+$navbar-default-border:            darken($navbar-default-bg, 6.5%); //** bootstrap default;
 $navbar-default-link-color: $navbar-default-color; //** custom [orig:#777]
-$navbar-default-link-hover-bg: #8585ad; //** custom [orig:transparent]
 $navbar-default-link-hover-color: $navbar-default-link-color; //** custom [orig:#333]
+$navbar-default-link-hover-bg: #8585ad; //** custom [orig:transparent]
 $navbar-default-link-active-color: $navbar-default-link-color;  //** custom [orig:#555]
 $navbar-default-link-active-bg: lighten($navbar-default-bg, 6.5%); //** custom [orig:darken($navbar-default-bg, 6.5%)]
+$navbar-default-link-disabled-color:       #ccc; //** bootstrap default;
+$navbar-default-link-disabled-bg:          transparent; //** bootstrap default;
+$navbar-default-brand-color:               $navbar-default-link-color; //** bootstrap default;
+$navbar-default-brand-hover-color:         darken($navbar-default-brand-color, 10%); //** bootstrap default;
+$navbar-default-brand-hover-bg:            transparent; //** bootstrap default;
 
 $navbar-default-toggle-bg: $navbar-default-bg;  // <<< not in bootstrap
 $navbar-default-toggle-color: $navbar-default-color;  // <<< not in bootstrap
 $navbar-default-toggle-hover-bg: $navbar-default-link-hover-bg; //** custom [orig:#ddd]
-$navbar-default-toggle-border-color: $navbar-default-toggle-color; //** custom [orig:#ddd]
 $navbar-default-toggle-icon-bar-bg: $navbar-default-color; //** custom [orig:#888]
+$navbar-default-toggle-border-color: $navbar-default-toggle-color; //** custom [orig:#ddd]
+
 
 $jumbotron-bg: lighten($navbar-default-bg, 20%);
 $jumbotron-color: #ffffff;
