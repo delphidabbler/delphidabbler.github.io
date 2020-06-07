@@ -29,8 +29,16 @@
       <li{% if page.url == site.data.core.articles-link %} class="active"{% endif %}>
         <a href="{{ site.data.core.articles-link }}" aria-label="{{ site.data.core.articles-link-title}}">Articles</a>
       </li>
-      <li{% if page.url == site.data.core.about-link %} class="active"{% endif %}>
-        <a href="{{ site.data.core.about-link }}" aria-label="{{ site.data.core.about-link-title}}">About</a>
+      <li class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">More <span class="fa fa-caret-down" aria-hidden="true"></span></a>
+        <ul class="dropdown-menu" role="menu">
+          <li{% if page.url == site.data.core.tips-link %} class="active"{% endif %}>
+            <a href="{{ site.data.core.tips-link }}" aria-label="{{ site.data.core.tips-link-title}}">Hints &amp Tips</a>
+          </li>
+          <li{% if page.url == site.data.core.about-link %} class="active"{% endif %}>
+            <a href="{{ site.data.core.about-link }}" aria-label="{{ site.data.core.about-link-title}}">About</a>
+          </li>
+        </ul>
       </li>
     </ul>
   </div><!-- /.navbar-collapse -->
