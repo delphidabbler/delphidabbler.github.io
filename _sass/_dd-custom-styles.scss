@@ -298,15 +298,14 @@ a[href^="http"] {
   border-top: 1px $gray-light solid;
 }
 
-/* Ensure that dividers in drop-down menus don't display on collapsed version of
-   menu
+// Ensure that dividers in drop-down menus don't display on collapsed version of menu
+//** Overrides bootstrap class
 .dropdown-menu .divider {
   display: none;
   @media (min-width: $screen-sm-min) {
     display: block;
   }
 }
-*/
 
 // Change background colour of Menu button used on collapsed menu
 //** Overrides bootstrap class
