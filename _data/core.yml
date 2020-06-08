@@ -23,6 +23,9 @@ snippets-link-title: "Code Snippets page"
 notes-link: "/notes"
 notes-link-title: "Delphi Notes index page"
 
+docs-link: "/docs.html"
+docs-link-title: "Documentation page"
+
 about-link: "/about.html"
 about-link-title: "About page"
 
