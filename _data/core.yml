@@ -40,6 +40,10 @@ bootstrap-link: "/assets/scripts/bootstrap.js"
 
 prefix-free-link: "/assets/scripts/prefixfree.min.js"
 
+coockies-link: "/assets/scripts/cookies.js"
+
+flash-msg-link: "/assets/scripts/flash-msg.js"
+
 style-link: "/assets/css/style.css"
 
 software-images-base-url: "/assets/images/software" 
