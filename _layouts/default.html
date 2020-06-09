@@ -20,6 +20,12 @@
 {% include navigation.html %}
 <!-- END main navigation -->
 
+{% unless page.no-flash %}
+<!-- BEGIN flash -->
+{% include flash.html %}
+<!-- END flash -->
+{% endunless %}
+
 </div><!-- /.container-fluid -->
 
 <div class="container">
