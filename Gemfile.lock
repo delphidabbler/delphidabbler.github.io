@@ -247,7 +247,6 @@ PLATFORMS
 DEPENDENCIES
   activesupport (>= 6.0.3.1)
   github-pages (~> 206)
-  jekyll-feed
   jekyll-redirect-from
   tzinfo (~> 1.2)
   tzinfo-data
