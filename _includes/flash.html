@@ -1,7 +1,10 @@
-<!-- BEGIN flash insert -->
-<div class="alert alert-success">
+{%comment%}When adding next flash message bump the div's data-flash-id by 1{%endcomment%}
+<div class="alert alert-success flash" id="flash-popup" data-flash-id="1">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span class="fa fa-close" aria-hidden="true"></span>
+  </button>
   <p class="lead strong">Welcome to the all new DelphiDabbler website.</p>
   <p class="lead"> I hope you like it.</p>
-  <p><span class="fa fa-bug" aria-hidden="true"></span> There are going to be bugs. Please report any you find on the website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">issues page</a> (<small>GitHub account required)</small>. Thanks.</p>
+  <p><span class="fa fa-bug" aria-hidden="true"></span> There are going to be bugs. Please report any you find on the website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">issues page</a> (<small>GitHub account required)</small>. Thanks.</p>  
+  <p class="small">Click the close button and you won't see this message again.</p>
 </div>
-<!-- END flash insert -->
