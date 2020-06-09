@@ -6,7 +6,6 @@ gem "activesupport", ">= 6.0.3.1" # fix security issue
 
 # If you have any plugins, put them here!
 group :jekyll_plugins do
-  gem "jekyll-feed"
   gem "jekyll-redirect-from"
 end
 
