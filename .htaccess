@@ -2,6 +2,10 @@ RewriteEngine on
 
 Options -Indexes +MultiViews
 
+ErrorDocument 404 /error-docs/404.html
+ErrorDocument 403 /error-docs/403.html
+ErrorDocument 500 /error-docs/500.html
+
 # Permanent redirects for old URLs that are in the wild
 Redirect permanent /vis /software/vis
 Redirect permanent /vied /software/vied
