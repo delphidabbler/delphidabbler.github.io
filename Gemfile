@@ -5,9 +5,8 @@ gem "github-pages", "~> 206", group: :jekyll_plugins
 gem "activesupport", ">= 6.0.3.1" # fix security issue
 
 # If you have any plugins, put them here!
-group :jekyll_plugins do
-  gem "jekyll-redirect-from"
-end
+#group :jekyll_plugins do
+#end
 
 # Windows and JRuby does not include zoneinfo files, so bundle the tzinfo-data gem
 # and associated library.
