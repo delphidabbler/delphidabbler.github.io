@@ -7,9 +7,6 @@ repository: "delphidabbler/delphidabbler.github.io"
 theme: null
 
 exclude: [README.md, LICENSE.md, Gemfile, Gemfile.lock]
-
-plugins:
-  - jekyll-redirect-from
   
 collections:
   software:
