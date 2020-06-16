@@ -14,11 +14,13 @@ Redirect permanent /chi /software/chi
 Redirect permanent /sibuilder /software/sib
 Redirect permanent /software/sibuilder /software/sib
 
+
 ## Temporary redirect until tips are re-implemented with PHP and there is no need for a tips folder or .html
 Redirect 307 /tips/ /tips.html
 
 ## Temporary redirect until articles are re-implement with PHP and there is no need for an articles folder or .html
 RedirectMatch 307 /articles/(\d{1,2}) /articles/article-$1.html
+RedirectMatch 307 /articles/$ /articles.html
 
 
 RewriteCond %{HTTP_HOST} ^delphidabbler\.com$ [OR]
