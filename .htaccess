@@ -1,4 +1,4 @@
-RewriteEngine on
+RewriteEngine onx
 
 Options -Indexes +MultiViews
 
@@ -14,19 +14,15 @@ Redirect permanent /chi /software/chi
 Redirect permanent /sibuilder /software/sib
 Redirect permanent /software/sibuilder /software/sib
 
-
-## Temporary redirect until tips are re-implemented with PHP and there is no need for a tips folder or .html
-Redirect 307 /tips/ /tips.html
-
 ## Temporary redirect until articles are re-implement with PHP and there is no need for an articles folder or .html
 RedirectMatch 307 /articles/(\d{1,2}) /articles/article-$1.html
 RedirectMatch 307 /articles/$ /articles.html
 
-
+## Temporary redirect until tips are re-implemented with PHP and there is no need for a tips folder or .html
+Redirect 307 /tips/ /tips.html
 RewriteCond %{HTTP_HOST} ^delphidabbler\.com$ [OR]
 RewriteCond %{HTTP_HOST} ^www\.delphidabbler\.com$
-RewriteRule ^tips\.html(\d+)$ "https\:\/\/htmlpreview\.github\.io\/\?https\:\/\/github\.com\/delphidabbler\/delphi\-tips\/blob\/master\/web\-pages\/html\/$1\.html" [R=307,L]
-
+RewriteRule ^tips\.html(\d+)$ "https\:\/\/delphidabbler\.github\.io\/delphi\-tips\/tips\/$1\.html" [R=307,L]
 
 ## Parked redirects that may be needed in future
 
