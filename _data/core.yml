@@ -46,7 +46,7 @@ flash-msg-link: "/assets/scripts/flash-msg.js"
 
 style-link: "/assets/css/style.css"
 
-software-images-base-url: "/assets/images/software" 
+software-images-base-url: "/assets/images/software"
 articles-images-base-url: "/assets/images/articles"
 
 
@@ -103,8 +103,6 @@ mpl-2-license-link-title: "Mozilla Public License v2.0 on mozilla.org"
 google-fonts-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro|Open+Sans+Condensed:700|Libre+Baskerville:400italic"
 
 font-awesome-url: "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-
-jquery-url: "https://code.jquery.com/jquery-1.11.1.min.js"
 
 
 # Original site name
