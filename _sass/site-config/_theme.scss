@@ -33,16 +33,18 @@ $dd-theme-context-dark:             $dd-theme-gray-800;
 
 // ** Typography
 
-// -- Body colours
-$dd-theme-body-text-color:          $dd-theme-gray-800;
-$dd-theme-body-bg-color:            $dd-theme-gray-100;
+// -- Colours
 
-// -- Main link styling
+// ---- Body colours
+$dd-theme-body-text-color:          $dd-theme-gray-800;
+$dd-theme-body-bg-color:            $dd-theme-white;
+
+// ---- Main link styling
 // !TODO: will need bg color, bottom border for links - will need style override
 $dd-theme-link-color:               lighten($dd-theme-primary-color, 10%);
 $dd-theme-link-hover-color:         $dd-theme-primary-color;
 
-// -- Code
+// ---- Code
 $dd-theme-code-bg-color:            $dd-theme-gray-600;
 $dd-theme-kbd-text-color:           $dd-theme-white;
 $dd-theme-kbd-bg-color:             lighten($dd-theme-primary-color, 15);
@@ -81,3 +83,12 @@ $dd-theme-body-line-height:         1.6;
 
 $dd-theme-jumbotron-padding:        1.25rem;
 $dd-theme-jumbotron-bg-color:       lighten(#44447F,20%); // !TODO: may need tweaking - copied from old `_dd-bootstrap-variable-overrides.scss` with literal value substituted for `$navbar-default-bg`
+
+// ** Navbar
+
+// We don't use colour change on hover or for active items: custom SASS is used for both these effects.
+$dd-theme-navbar-text-color:        $dd-theme-gray-700;
+$dd-theme-navbar-hover-color:       $dd-theme-gray-700; // inhibits text changing on hover
+$dd-theme-navbar-active-color:      $dd-theme-gray-700;
+$dd-theme-navbar-disabled-color:    $dd-theme-gray-400;
+

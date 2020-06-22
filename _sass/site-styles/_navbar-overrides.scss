@@ -1,0 +1,23 @@
+nav.navbar {
+
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid $dd-theme-primary-color;
+    background-color: $dd-theme-gray-100;
+
+    .navbar-nav {
+
+        .nav-item {
+
+            border-top: 2px solid transparent;
+            border-bottom: 2px solid transparent;
+
+            &.active {
+                font-weight: bold;
+            }
+
+            &:hover {
+                border-bottom: 2px solid $dd-theme-secondary-color;
+            }
+        }
+    }
+}
