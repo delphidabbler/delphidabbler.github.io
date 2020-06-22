@@ -1,6 +1,83 @@
-// ** Variables that define the DelpDabbler.com theme
+// Variables that define the DelpDabbler.com theme
 
-// Main theme colours
-$dd-theme-primary-color: #1565c0;
-$dd-theme-secondary-color: #bbc015;
-$dd-theme-tertiary-color: #c01b15;
+// ** Colours
+
+// -- Main theme colours
+$dd-theme-primary-color:            #1565c0;
+$dd-theme-secondary-color:          #bbc015;
+$dd-theme-tertiary-color:           #c01b15;
+
+// -- Greys
+$dd-theme-white:                    #ffffff;
+$dd-theme-gray-100:                 #f0f0f1;
+$dd-theme-gray-200:                 #e6e6e7;
+$dd-theme-gray-300:                 #dcddde ;
+$dd-theme-gray-400:                 #c8c9cb;
+$dd-theme-gray-500:                 #a9abae;
+$dd-theme-gray-600:                 #6e7074;
+$dd-theme-gray-700:                 #48494c;
+$dd-theme-gray-800:                 #343638;
+$dd-theme-gray-900:                 #212223;
+$dd-theme-black:                    #000000;
+
+// -- Contextual
+$dd-theme-context-primary:          $dd-theme-primary-color;
+$dd-theme-context-secondary:        $dd-theme-secondary-color;
+$dd-theme-context-success:          #70ac36;  // !TODO: as old site: may need tweaking
+$dd-theme-context-info:             #9696BF;  // !TODO: as old site: may need tweaking
+$dd-theme-context-warning:          #f0ad4e;  // !TODO BS default: may need tweaking
+$dd-theme-context-danger:           #d9534f;  // !TODO BS default: may need tweaking
+$dd-theme-context-light:            $dd-theme-gray-100;
+$dd-theme-context-dark:             $dd-theme-gray-800;
+
+
+// ** Typography
+
+// -- Body colours
+$dd-theme-body-text-color:          $dd-theme-gray-800;
+$dd-theme-body-bg-color:            $dd-theme-gray-100;
+
+// -- Main link styling
+// !TODO: will need bg color, bottom border for links - will need style override
+$dd-theme-link-color:               lighten($dd-theme-primary-color, 10%);
+$dd-theme-link-hover-color:         $dd-theme-primary-color;
+
+// -- Code
+$dd-theme-code-bg-color:            $dd-theme-gray-600;
+$dd-theme-kbd-text-color:           $dd-theme-white;
+$dd-theme-kbd-bg-color:             lighten($dd-theme-primary-color, 15);
+$dd-theme-pre-text-color:           $dd-theme-gray-900;
+
+// -- Body font families
+$dd-theme-font-sans-serif-font:     'Open Sans', Helvetica, Arial, sans-serif;
+$dd-theme-heading-font:             'Open Sans Condensed', $dd-theme-font-sans-serif-font;
+$dd-theme-monospace-font:           'Source Code Pro', Consolas, "Courier New", monospace;
+
+// -- Font sizes
+// ---- body
+$dd-theme-body-font-size:           1rem;
+$dd-theme-body-font-size-lg:        ($dd-theme-body-font-size * 1.25);
+$dd-theme-body-font-size-sm:        ($dd-theme-body-font-size * .875);
+// ---- heading
+$dd-theme-h1-font-size:             $dd-theme-body-font-size * 2.5;
+$dd-theme-h2-font-size:             $dd-theme-body-font-size * 1.875;
+$dd-theme-h3-font-size:             $dd-theme-body-font-size * 1.5;
+$dd-theme-h4-font-size:             $dd-theme-body-font-size * 1.125;
+$dd-theme-h5-font-size:             $dd-theme-body-font-size;
+$dd-theme-h6-font-size:             $dd-theme-body-font-size * 0.85;
+// ---- code
+$dd-theme-code-font-size:           87.5%;
+$dd-theme-kbd-font-size:            $dd-theme-code-font-size;
+
+// -- Font weights
+$dd-theme-font-weight-light:        300;
+$dd-theme-font-weight-normal:       400;
+$dd-theme-font-weight-bold:         700;
+
+// -- Line height
+$dd-theme-body-line-height:         1.6;
+
+// ** Jumbotron
+
+$dd-theme-jumbotron-padding:        1.25rem;
+$dd-theme-jumbotron-bg-color:       lighten(#44447F,20%); // !TODO: may need tweaking - copied from old `_dd-bootstrap-variable-overrides.scss` with literal value substituted for `$navbar-default-bg`

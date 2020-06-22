@@ -10,17 +10,17 @@
 
 // >> COLOR SYSTEM ----------------------------------------------------
 
-// $white:    #fff !default;
-// $gray-100: #f8f9fa !default;
-// $gray-200: #e9ecef !default;
-// $gray-300: #dee2e6 !default;
-// $gray-400: #ced4da !default;
-// $gray-500: #adb5bd !default;
-// $gray-600: #6c757d !default;
-// $gray-700: #495057 !default;
-// $gray-800: #343a40 !default;
-// $gray-900: #212529 !default;
-// $black:    #000 !default;
+$white:    $dd-theme-white;
+$gray-100: $dd-theme-gray-100;
+$gray-200: $dd-theme-gray-200;
+$gray-300: $dd-theme-gray-300;
+$gray-400: $dd-theme-gray-400;
+$gray-500: $dd-theme-gray-500;
+$gray-600: $dd-theme-gray-600;
+$gray-700: $dd-theme-gray-700;
+$gray-800: $dd-theme-gray-800;
+$gray-900: $dd-theme-gray-900;
+$black:    $dd-theme-black;
 
 // $grays: () !default;
 // // stylelint-disable-next-line scss/dollar-variable-default
@@ -71,14 +71,14 @@
 //   $colors
 // );
 
-$primary:           #505095;  //** custom [orig: #337ab7]
-// $secondary:     $gray-600 !default;
-$success:           #70ac36;  //** custom [orig: #5cb85c]
-$info:              #9696BF;  //** custom [orig: #5bc0de]
-$warning:           #f0ad4e;  //** bootstrap default
-$danger:            #d9534f;  //** bootstrap default
-// $light:         $gray-100 !default;
-// $dark:          $gray-800 !default;
+$primary:           $dd-theme-context-primary;
+$secondary:         $dd-theme-context-secondary;
+$success:           $dd-theme-context-success;
+$info:              $dd-theme-context-info;
+$warning:           $dd-theme-context-warning;
+$danger:            $dd-theme-context-danger;
+$light:             $dd-theme-context-light;
+$dark:              $dd-theme-context-dark;
 
 // $theme-colors: () !default;
 // // stylelint-disable-next-line scss/dollar-variable-default
@@ -115,17 +115,17 @@ $danger:            #d9534f;  //** bootstrap default
 
 // >> BODY ------------------------------------------------------------
 
-// $body-bg:                   $white !default;
-$body-color:                #3a3a3a;
+$body-bg:                  $dd-theme-body-bg-color;
+$body-color:               $dd-theme-body-text-color;
 
 // << BODY ------------------------------------------------------------
 
 
 // >> LINKS -----------------------------------------------------------
 
-$link-color:                #2c6ce4;
+$link-color:                    $dd-theme-link-color;
 // $link-decoration:           none;
-$link-hover-color:          darken($link-color, 10%);
+$link-hover-color:              $dd-theme-link-hover-color;
 // $link-hover-decoration:     underline;
 
 // << LINKS -----------------------------------------------------------
@@ -139,7 +139,7 @@ $link-hover-color:          darken($link-color, 10%);
 
 // $grid-columns:                12 !default;
 //--FW:
-$grid-gutter-width:           30px !default;
+$grid-gutter-width:             30px !default;
 
 // << GRID COLUMN: no changes -----------------------------------------
 
@@ -148,35 +148,33 @@ $grid-gutter-width:           30px !default;
 
 // >> FONT ------------------------------------------------------------
 
-$font-family-sans-serif:      'Open Sans', Helvetica, Arial, sans-serif;
-$font-family-monospace:       'Source Code Pro', Consolas, "Courier New", monospace;
+$font-family-sans-serif:        $dd-theme-font-sans-serif-font;
+$font-family-monospace:         $dd-theme-monospace-font;
 // $font-family-base:            $font-family-sans-serif !default;
-// stylelint-enable value-keyword-case
 
 //--FWD:
-$font-size-base:              1rem !default; // Assumes the browser default, typically `16px`
+$font-size-base:                $dd-theme-body-font-size;
 //--FWD
-$font-size-lg:                ($font-size-base * 1.25) !default;
-// $font-size-sm:                ($font-size-base * .875) !default;
+$font-size-lg:                  $dd-theme-body-font-size-lg;
+$font-size-sm:                  $dd-theme-body-font-size-sm;
 
-// $font-weight-light:           300 !default;
-// $font-weight-normal:          400 !default;
-//--FWD:
-$font-weight-bold:            700 !default;
+$font-weight-light:             $dd-theme-font-weight-light;
+$font-weight-normal:            $dd-theme-font-weight-normal;
+$font-weight-bold:              $dd-theme-font-weight-bold;
 
 // $font-weight-base:            $font-weight-normal !default;
-$line-height-base:            1.6;
+$line-height-base:              $dd-theme-body-line-height;
 
-// $h1-font-size:                $font-size-base * 2.5 !default;
-$h2-font-size:                $font-size-base * 1.875;
-$h3-font-size:                $font-size-base * 1.5;
-// $h4-font-size:                $font-size-base * 1.125 !default;
-$h5-font-size:                $font-size-base;
-$h6-font-size:                $font-size-base * 0.85;
+$h1-font-size:                  $dd-theme-h1-font-size;
+$h2-font-size:                  $dd-theme-h2-font-size;
+$h3-font-size:                  $dd-theme-h3-font-size;
+$h4-font-size:                  $dd-theme-h4-font-size;
+$h5-font-size:                  $dd-theme-h5-font-size;
+$h6-font-size:                  $dd-theme-h6-font-size;
 
 // $headings-margin-bottom:      ($spacer / 2) !default;
-$headings-font-family:        'Open Sans Condensed', $font-family-sans-serif;
-$headings-font-weight:        $font-weight-bold;
+$headings-font-family:          $dd-theme-heading-font;
+$headings-font-weight:          $dd-theme-font-weight-bold;
 // $headings-line-height:        1.2 !default;
 // $headings-color:              inherit !default;
 
@@ -194,7 +192,7 @@ $headings-font-weight:        $font-weight-bold;
 // $lead-font-size:              ($font-size-base * 1.25) !default;
 // $lead-font-weight:            300 !default;
 
-$small-font-size:             85%;
+$small-font-size:               $dd-theme-body-font-size-sm;
 
 // $text-muted:                  $gray-600 !default;
 
@@ -229,7 +227,7 @@ $small-font-size:             85%;
 // >> NAVS ------------------------------------------------------------
 
 // $navbar-padding-y:                  ($spacer / 2) !default;
-$navbar-padding-x:                  $grid-gutter-width / 4;
+//$navbar-padding-x:                  $grid-gutter-width / 4;
 
 // $navbar-nav-link-padding-x:         .5rem !default;
 
@@ -266,8 +264,8 @@ $navbar-padding-x:                  $grid-gutter-width / 4;
 
 // >> JUMBOTRON -------------------------------------------------------
 
-$jumbotron-padding:                 1.25rem;
-$jumbotron-bg:                      lighten(#44447F,20%); // copied from old `_dd-bootstrap-variable-overrides.scss` with literal value substituted for `$navbar-default-bg`
+$jumbotron-padding:             $dd-theme-jumbotron-padding;
+$jumbotron-bg:                  $dd-theme-jumbotron-bg-color;
 
 // << JUMBOTRON -------------------------------------------------------
 
@@ -295,16 +293,16 @@ $jumbotron-bg:                      lighten(#44447F,20%); // copied from old `_d
 
 // >> CODE ------------------------------------------------------------
 
-// $code-font-size:                    87.5% !default;
-$code-color:                        #555555;
+$code-font-size:                $dd-theme-code-font-size;
+$code-color:                    $dd-theme-code-bg-color;
 
 // $kbd-padding-y:                     .2rem !default;
 // $kbd-padding-x:                     .4rem !default;
-// $kbd-font-size:                     $code-font-size !default;
-// $kbd-color:                         $white !default;
-$kbd-bg:                            lighten($primary, 15);
+$kbd-font-size:                 $dd-theme-kbd-font-size;
+$kbd-color:                     $dd-theme-kbd-text-color;
+$kbd-bg:                        $dd-theme-kbd-bg-color;
 
-$pre-color:                         #222222;
+$pre-color:                     $dd-theme-pre-text-color;
 // $pre-scrollable-max-height:         340px !default;
 
 // << CODE ------------------------------------------------------------
