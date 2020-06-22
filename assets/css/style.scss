@@ -1,10 +1,11 @@
 ---
 ---
-@import 'dd-theme-variables';
-@import "dd-global-variables";
-@import "dd-bootstrap-variable-overrides";
+@import 'site-config/config';
+// @import "dd-global-variables";
+// @import "dd-bootstrap-variable-overrides";
 @import "bootstrap/bootstrap";
-@import "dd-bootstrap3-shim";
-@import "dd-custom-variables";
-@import "dd-custom-mixins";
-@import "dd-custom-styles";
+@import "site-styles/styles";
+// @import "dd-bootstrap3-shim";
+// @import "dd-custom-variables";
+// @import "dd-custom-mixins";
+// @import "dd-custom-styles";
