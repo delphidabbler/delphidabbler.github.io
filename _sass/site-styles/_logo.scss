@@ -1,0 +1,27 @@
+// Styling for DelphiDabbler logo
+
+.dd-branding-logo {
+    font-weight: bold;
+    font-size: 130%;
+    text-transform: lowercase;
+    border-bottom: 2px $dd-theme-primary-color solid;
+    padding-left: 0.5rem;
+    padding-right: 1rem;
+
+    .dd-branding-logo-part1 {
+        color: $dd-theme-secondary-color;
+        font-family: $font-family-monospace;
+
+        &:after {
+            content: "\00b7";
+            color: $dd-theme-body-text-color;
+            font-size: 80%;
+        }
+    }
+    .dd-branding-logo-part2 {
+        font-weight: bold;
+        font-size: 120%;
+        letter-spacing: -0.05em;
+        color: $dd-theme-primary-color;
+    }
+}
