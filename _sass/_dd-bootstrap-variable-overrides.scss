@@ -1,116 +1,277 @@
-$font-size-base:          14px; //** bootstrap !default;
-$line-height-base:        1.428571429; //** bootstrap !default; // 20/14
+// Bootstrap 4 variable overrides
 
-$line-height-computed:    floor(($font-size-base * $line-height-base)); //** bootstrap !default; // ~20px
+// Commented out lines are unchanged from Bootstrap defaults
 
-$grid-gutter-width:         30px; //** bootstrap !default;
-
-
-
-
-$gray-base:               #000000;  //** bootstrap default
-$gray-darker:             #222222;  //** bootstrap default 
-$gray-dark:               #333333;  //** bootstrap default 
-$gray:                    #555555;  //** bootstrap default 
-$gray-light:              #777777;  //** bootstrap default 
-$gray-lighter:            #eeeeee;  //** bootstrap default 
-
-$brand-primary:           #505095;  //** custom [orig: #337ab7] 
-$brand-success:           #70ac36;  //** custom [orig: #5cb85c]
-$brand-info:              #9696BF;  //** custom [orig: #5bc0de]
-$brand-warning:           #f0ad4e;  //** bootstrap default
-$brand-danger:            #d9534f;  //** bootstrap default
-
-$font-family-serif:       Georgia, "Times New Roman", Times, serif; //** bootstrap default
-$font-family-sans-serif:  'Open Sans', Helvetica, Arial, sans-serif; //** custom [orig: "Helvetica Neue", Helvetica, Arial, sans-serif]
-$font-family-monospace:   'Source Code Pro', Consolas, "Courier New", monospace; //** custom [orig: $font-family-monospace: Menlo, Monaco, Consolas, "Courier New", monospace]
-
-$font-size-base:          16px; //** custom: [orig: 14px;]
-$font-size-large:         ceil(($font-size-base * 1.25));   //** bootstrap default ~18px
-$font-size-small:         ceil(($font-size-base * 0.85));   //** bootstrap default ~12px
-
-$font-size-h1:            floor(($font-size-base * 2.5));  //** custom [orig: floor(($font-size-base * 2.6)) ] (~36px)
-$font-size-h2:            floor(($font-size-base * 1.875)); //** custom [orig: floor(($font-size-base * 2.15)) ] (~30px)
-$font-size-h3:            ceil(($font-size-base * 1.5));    //** custom [orig: ceil(($font-size-base * 1.7)) ] (~24px)
-$font-size-h4:            ceil(($font-size-base * 1.125));  //** custom [orig: ceil(($font-size-base * 1.25)) ] (~18px)
-$font-size-h5:            $font-size-base;                  //** bootstrap default (was 14px, now 16px)
-$font-size-h6:            ceil(($font-size-base * .85));    //** bootstrap default (was ~12px, now ~14px)
-
-$headings-font-family:    'Open Sans Condensed', $font-family-sans-serif; //** custom [orig: inherit]
-$headings-font-weight:    bold; //** custom [orig: 500]
-
-$line-height-base:        1.6; //** custom [orig: 1.428571429 (i.e 20/14)]
-
-$text-color:              #3a3a3a;  //** custom [orig: $gray-dark]
-
-$link-color:              #2c6ce4;//lighten($link-hover-color, 5%);  //** custom [orig: $brand-primary]
-$link-hover-color:      	darken($link-color, 10%);//** custom [orig: darken($link-color, 15%)]
-$link-hover-decoration: 	underline;	//** bootstrap default
-
-$state-success-text:      #56852a; //** custom [orig: #3c763d]
-$state-success-bg:        #e1f1d2; //** custom [orig: #dff0d8]
-$state-success-border:    darken(adjust-hue($state-success-bg, -10), 5%); //** bootstrap default
-
-$state-info-text:         #44447f;  //** custom [orig: #31708f]
-$state-info-bg:           #eeeef4;  //** custom [orig: #d9edf7]
-$state-info-border:       darken(adjust-hue($state-info-bg, -10), 7%);  //** bootstrap default
-
-$state-warning-text:      #5a4b1d;  //** custom [orig: #8a6d3b]
-$state-warning-bg:        #ffefbf;  //** custom [orig: #fcf8e3]
-$state-warning-border:    darken(adjust-hue($state-warning-bg, -10), 5%); //** bootstrap default
-
-$state-danger-text:       #a94442;  //** bootstrap default
-$state-danger-bg:         #f2dede;  //** bootstrap default
-$state-danger-border:     darken(adjust-hue($state-danger-bg, -10), 5%);  //** bootstrap default
-
-$code-color:              $gray;  //** custom [orig: #c7254e]
-$code-bg:                 $gray-lighter;  //** custom [orig: #f9f2f4]
-
-$kbd-color:               #ffffff;; //** bootstrap default
-$kbd-bg:                  lighten($brand-primary, 15); //** custom [orig:#333333]
-
-$pre-bg:                  #f5f5f5; //** bootstrap default
-$pre-color:               $gray-dark; //** bootstrap default
-$pre-border-color:        #cccccc; //** bootstrap default !default;
-$pre-scrollable-max-height: 340px; //** bootstrap default
-
-$blockquote-small-color:  $gray-light;  //** bootstrap default
-$blockquote-font-size:    $font-size-base; //** custom [orig: ($font-size-base * 1.25)]
-$blockquote-border-color: $gray-lighter; //** bootstrap default
-
-// custom style: $blockquote-footer-font-size: 90%;
-// custom style: $blockquote-small-font-size: floor((100% * $font-size-small / $font-size-base));
-
-$navbar-height:                    50px; //** bootstrap deafult
-$navbar-margin-bottom:             $line-height-computed; //** bootstrap default;
-$navbar-border-radius: 0; //** custom [orig:$border-radius-base]
-$navbar-padding-horizontal:        floor(($grid-gutter-width / 4)); //** custom[floor(($grid-gutter-width / 2))]
-$navbar-padding-vertical:          (($navbar-height - $line-height-computed) / 2); //** bootstrap default;
-$navbar-collapse-max-height:       340px; // bootstrap default;
-$navbar-default-color: $global-branding-color; //** custom [orig:#777]
-$navbar-default-bg:  #44447F; // custom [orig:#f8f8f8]
-$navbar-default-border:            darken($navbar-default-bg, 6.5%); //** bootstrap default;
-$navbar-default-link-color: $navbar-default-color; //** custom [orig:#777]
-$navbar-default-link-hover-color: $navbar-default-link-color; //** custom [orig:#333]
-$navbar-default-link-hover-bg: #8585ad; //** custom [orig:transparent]
-$navbar-default-link-active-color: $navbar-default-link-color;  //** custom [orig:#555]
-$navbar-default-link-active-bg: lighten($navbar-default-bg, 6.5%); //** custom [orig:darken($navbar-default-bg, 6.5%)]
-$navbar-default-link-disabled-color:       #ccc; //** bootstrap default;
-$navbar-default-link-disabled-bg:          transparent; //** bootstrap default;
-$navbar-default-brand-color:               $navbar-default-link-color; //** bootstrap default;
-$navbar-default-brand-hover-color:         darken($navbar-default-brand-color, 10%); //** bootstrap default;
-$navbar-default-brand-hover-bg:            transparent; //** bootstrap default;
-
-$navbar-default-toggle-bg: $navbar-default-bg;  // <<< not in bootstrap
-$navbar-default-toggle-color: $navbar-default-color;  // <<< not in bootstrap
-$navbar-default-toggle-hover-bg: $navbar-default-link-hover-bg; //** custom [orig:#ddd]
-$navbar-default-toggle-icon-bar-bg: $navbar-default-color; //** custom [orig:#888]
-$navbar-default-toggle-border-color: $navbar-default-toggle-color; //** custom [orig:#ddd]
+// Occasional lines are uncommented AND unchanged. That's because the
+// variables are referred to internally in this file, which is included
+// *before* BS files. Therefore a "forward" declaration is required.
+// Such lines have a preceding "//--FWD:" comment.
 
 
-$jumbotron-bg: lighten($navbar-default-bg, 20%);
-$jumbotron-color: #ffffff;
-$jumbotron-padding: 20px;
-// follow var is not in Bootstrap
-$jumbotron-font-size-xs:            ceil(($font-size-base * 1.2));
+// >> COLOR SYSTEM ----------------------------------------------------
 
+// $white:    #fff !default;
+// $gray-100: #f8f9fa !default;
+// $gray-200: #e9ecef !default;
+// $gray-300: #dee2e6 !default;
+// $gray-400: #ced4da !default;
+// $gray-500: #adb5bd !default;
+// $gray-600: #6c757d !default;
+// $gray-700: #495057 !default;
+// $gray-800: #343a40 !default;
+// $gray-900: #212529 !default;
+// $black:    #000 !default;
+
+// $grays: () !default;
+// // stylelint-disable-next-line scss/dollar-variable-default
+// $grays: map-merge(
+//   (
+//     "100": $gray-100,
+//     "200": $gray-200,
+//     "300": $gray-300,
+//     "400": $gray-400,
+//     "500": $gray-500,
+//     "600": $gray-600,
+//     "700": $gray-700,
+//     "800": $gray-800,
+//     "900": $gray-900
+//   ),
+//   $grays
+// );
+
+// $blue:    #007bff !default;
+// $indigo:  #6610f2 !default;
+// $purple:  #6f42c1 !default;
+// $pink:    #e83e8c !default;
+// $red:     #dc3545 !default;
+// $orange:  #fd7e14 !default;
+// $yellow:  #ffc107 !default;
+// $green:   #28a745 !default;
+// $teal:    #20c997 !default;
+// $cyan:    #17a2b8 !default;
+
+// $colors: () !default;
+// // stylelint-disable-next-line scss/dollar-variable-default
+// $colors: map-merge(
+//   (
+//     "blue":       $blue,
+//     "indigo":     $indigo,
+//     "purple":     $purple,
+//     "pink":       $pink,
+//     "red":        $red,
+//     "orange":     $orange,
+//     "yellow":     $yellow,
+//     "green":      $green,
+//     "teal":       $teal,
+//     "cyan":       $cyan,
+//     "white":      $white,
+//     "gray":       $gray-600,
+//     "gray-dark":  $gray-800
+//   ),
+//   $colors
+// );
+
+$primary:           #505095;  //** custom [orig: #337ab7]
+// $secondary:     $gray-600 !default;
+$success:           #70ac36;  //** custom [orig: #5cb85c]
+$info:              #9696BF;  //** custom [orig: #5bc0de]
+$warning:           #f0ad4e;  //** bootstrap default
+$danger:            #d9534f;  //** bootstrap default
+// $light:         $gray-100 !default;
+// $dark:          $gray-800 !default;
+
+// $theme-colors: () !default;
+// // stylelint-disable-next-line scss/dollar-variable-default
+// $theme-colors: map-merge(
+//   (
+//     "primary":    $primary,
+//     "secondary":  $secondary,
+//     "success":    $success,
+//     "info":       $info,
+//     "warning":    $warning,
+//     "danger":     $danger,
+//     "light":      $light,
+//     "dark":       $dark
+//   ),
+//   $theme-colors
+// );
+
+// // Set a specific jump point for requesting color jumps
+// $theme-color-interval:      8% !default;
+
+// // The yiq lightness value that determines when the lightness of color changes from "dark" to "light". Acceptable values are between 0 and 255.
+// $yiq-contrasted-threshold:  150 !default;
+
+// // Customize the light and dark text colors for use in our YIQ color contrast function.
+// $yiq-text-dark:             $gray-900 !default;
+// $yiq-text-light:            $white !default;
+
+// << COLOR SYSTEM ----------------------------------------------------
+
+
+// ** OPTIONS: no change ----------------------------------------------
+// ** SPACING: no change ----------------------------------------------
+
+
+// >> BODY ------------------------------------------------------------
+
+// $body-bg:                   $white !default;
+$body-color:                #3a3a3a;
+
+// << BODY ------------------------------------------------------------
+
+
+// >> LINKS -----------------------------------------------------------
+
+$link-color:                #2c6ce4;
+// $link-decoration:           none;
+$link-hover-color:          darken($link-color, 10%);
+// $link-hover-decoration:     underline;
+
+// << LINKS -----------------------------------------------------------
+
+
+// ** PARAGRAPH: no changes--------------------------------------------
+// ** GRID BREAKPOINTS: no changes ------------------------------------
+// ** GRID CONTAINERS: no changes -------------------------------------
+// ** GRID COLUMN: no changes -----------------------------------------
+// ** COMPONENTS ------------------------------------------------------
+
+
+// >> FONT ------------------------------------------------------------
+
+$font-family-sans-serif:      'Open Sans', Helvetica, Arial, sans-serif;
+$font-family-monospace:       'Source Code Pro', Consolas, "Courier New", monospace;
+// $font-family-base:            $font-family-sans-serif !default;
+// stylelint-enable value-keyword-case
+
+//--FWD:
+$font-size-base:              1rem !default; // Assumes the browser default, typically `16px`
+// $font-size-lg:                ($font-size-base * 1.25) !default;
+// $font-size-sm:                ($font-size-base * .875) !default;
+
+// $font-weight-light:           300 !default;
+// $font-weight-normal:          400 !default;
+//--FWD:
+$font-weight-bold:            700 !default;
+
+// $font-weight-base:            $font-weight-normal !default;
+$line-height-base:            1.6;
+
+// $h1-font-size:                $font-size-base * 2.5 !default;
+$h2-font-size:                $font-size-base * 1.875;
+$h3-font-size:                $font-size-base * 1.5;
+// $h4-font-size:                $font-size-base * 1.125 !default;
+$h5-font-size:                $font-size-base;
+$h6-font-size:                $font-size-base * 0.85;
+
+// $headings-margin-bottom:      ($spacer / 2) !default;
+$headings-font-family:        'Open Sans Condensed', $font-family-sans-serif;
+$headings-font-weight:        $font-weight-bold;
+// $headings-line-height:        1.2 !default;
+// $headings-color:              inherit !default;
+
+// $display1-size:               6rem !default;
+// $display2-size:               5.5rem !default;
+// $display3-size:               4.5rem !default;
+// $display4-size:               3.5rem !default;
+
+// $display1-weight:             300 !default;
+// $display2-weight:             300 !default;
+// $display3-weight:             300 !default;
+// $display4-weight:             300 !default;
+// $display-line-height:         $headings-line-height !default;
+
+// $lead-font-size:              ($font-size-base * 1.25) !default;
+// $lead-font-weight:            300 !default;
+
+$small-font-size:             85%;
+
+// $text-muted:                  $gray-600 !default;
+
+// $blockquote-small-color:      #777;
+// $blockquote-font-size:        $font-size-base;
+
+// $hr-border-color:             rgba($black, .1) !default;
+// $hr-border-width:             $border-width !default;
+
+// $mark-padding:                .2em !default;
+
+// $dt-font-weight:              $font-weight-bold !default;
+
+// $kbd-box-shadow:              inset 0 -.1rem 0 rgba($black, .25) !default;
+// $nested-kbd-font-weight:      $font-weight-bold !default;
+
+// $list-inline-padding:         .5rem !default;
+
+// $mark-bg:                     #fcf8e3 !default;
+
+// $hr-margin-y:                 $spacer !default;
+
+// << FONT ------------------------------------------------------------
+
+
+// ** TABLES: no changes ----------------------------------------------
+// ** FORMS: no changes -----------------------------------------------
+// ** DROP-DOWNS: no changes ------------------------------------------
+// ** Z-INDEX: no changes ---------------------------------------------
+
+
+// >> NAVS ------------------------------------------------------------
+//      plenty of changes - but irrelevant due to changes in navs will
+//      revist.
+// << NAVS ------------------------------------------------------------
+
+
+// ** PAGINATION: no changes ------------------------------------------
+
+
+// >> JUMBOTRON -------------------------------------------------------
+
+$jumbotron-padding:                 1.25rem;
+// $jumbotron-bg:                      $gray-200 !default;
+//   TODO: $jumbotron-bg was set to lighten($navbar-default-bg, 20%);
+//         Deal with this when nav issue settled.
+
+// << JUMBOTRON -------------------------------------------------------
+
+
+// >> CARDS -----------------------------------------------------------
+//      no changes - not implemented in BS3 BUT -
+//      TODO: see what changes need to be made based on old panel
+//        defaults.
+// << CARDS -----------------------------------------------------------
+
+
+// ** TOOLTIPS: no changes --------------------------------------------
+// ** POPOVERS: no changes --------------------------------------------
+// ** BADGES: no changes ----------------------------------------------
+// ** MODALS: no changes ----------------------------------------------
+// ** ALERTS: no changes ----------------------------------------------
+// ** PROGRESS BARS: no changes ---------------------------------------
+// ** LIST GROUP: no changes ------------------------------------------
+// ** IMAGE THUMBNAILS: no changes ------------------------------------
+// ** FIGURE: no changes ----------------------------------------------
+// ** BREADCRUMBS: no change ------------------------------------------
+// ** CAROUSEL: no changes --------------------------------------------
+// ** CLOSE: no changes -----------------------------------------------
+
+
+// >> CODE ------------------------------------------------------------
+
+// $code-font-size:                    87.5% !default;
+$code-color:                        #555555;
+
+// $kbd-padding-y:                     .2rem !default;
+// $kbd-padding-x:                     .4rem !default;
+// $kbd-font-size:                     $code-font-size !default;
+// $kbd-color:                         $white !default;
+$kbd-bg:                            lighten($primary, 15);
+
+$pre-color:                         #222222;
+// $pre-scrollable-max-height:         340px !default;
+
+// << CODE ------------------------------------------------------------
+
+
+// ** PRINTING: no changes --------------------------------------------
