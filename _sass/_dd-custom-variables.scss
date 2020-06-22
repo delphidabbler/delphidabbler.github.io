@@ -50,6 +50,10 @@ $table-head-bg: $pre-bg;
 $frame-caption-bg: $pre-bg;
 
 $samp-color:               $kbd-color;
-$samp-bg:                  darken($brand-primary, 8); 
+$samp-bg:                  darken($brand-primary, 8);
 
 $navbar-item-padding-horizontal: 0;
+
+$navbar-default-toggle-bg: $navbar-default-bg;
+$navbar-default-toggle-color: $navbar-default-color;
+
