@@ -1,31 +1,167 @@
-<!-- ACCESSIBILITY: Allow screen reader users to skip navigation -->
-<div class="sr-only">
+
+<!-- TODO:
+    1.  Accessibility:
+      a.  Add aria text "(current) to currently selected page, either via aria-label or via <span class="sr-only">
+      b.  Read up on whether we need to skip over nav for screen readers only: implement recommendations
+    2.  Deal with unsupported "visible-xs-inline" class (Home page link)
+    3.  Read up
+-->
+
+<!-- NEEDED FOR ACCESSIBILITY? -->
+<!-- ACCESS: Allow screen reader users to skip navigation -->
+<!-- <div class="sr-only">
   <a href="#content">Skip over navigation</a>
-</div>
+</div> -->
 
-<nav class="navbar navbar-default" role="navigation">
 
-  <!-- Brand and toggle get grouped for better mobile display -->
-  <div class="navbar-header">
-    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-toggle-collapse">
-      <span class="sr-only">Toggle navigation</span>
-      <span class="navbar-toggle-caption"><span class="navbar-toggle-caption-text" aria-hidden="true">Menu&nbsp;</span><span class="fa fa-bars" aria-label="Drop down menu button"></span></span>
+<header id="dd-main-page-header">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a
+      class="navbar-brand dd-branding-logo"
+      href="#"
+    ><span class="dd-branding-logo-part1">Delphi</span><span class="dd-branding-logo-part2">Dabbler</span></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
     </button>
-    <span class="navbar-brand">{{ site.data.core.logo }}</span>
-  </div><!-- /.navbar-header -->
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item {% if page.url == site.data.core.home-link %} active{% endif %}">
+          <a
+            class="nav-link"
+            href="{{ site.data.core.home-link }}"
+            aria-label="{{ site.data.core.home-link-title }}">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item {% if page.url == site.data.core.apps-link %} active{% endif %}">
+          <a
+            class="nav-link"
+            href="{{ site.data.core.apps-link }}"
+            aria-label="{{ site.data.core.apps-link-title }}">Programs</a>
+        </li>
+        <li class="nav-item {% if page.url == site.data.core.lib-link %} active{% endif %}">
+          <a
+            class="nav-link"
+            href="{{ site.data.core.lib-link }}"
+            aria-label="{{ site.data.core.lib-link-title }}">Code Library</a>
+        </li>
+        <li class="nav-item {% if page.url == site.data.core.articles-link %} active{% endif %}">
+          <a
+            class="nav-link"
+            href="{{ site.data.core.articles-link }}"
+            aria-label="{{ site.data.core.lib-articles-title }}">Articles</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            More
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a
+              class="dropdown-item {% if page.url == site.data.core.tips-link %} active{% endif %}"
+              href="{{ site.data.core.tips-link }}"
+              aria-label="{{ site.data.core.tips-link-title}}"
+            >Hints &amp; Tips</a>
+            <a
+            class="dropdown-item {% if page.url == site.data.core.snippets-link %} active{% endif %}"
+              href="{{ site.data.core.snippets-link }}"
+              aria-label="{{ site.data.core.tips-snippets-title}}"
+            >Code Snippets</a>
+            <div class="dropdown-divider"></div>
+            <a
+            class="dropdown-item {% if page.url == site.data.core.docs-link %} active{% endif %}"
+              href="{{ site.data.core.docs-link }}"
+              aria-label="{{ site.data.core.tips-docs-title}}"
+            >Documentation</a>
+            <a
+            class="dropdown-item {% if page.url == site.data.core.notes-link %} active{% endif %}"
+              href="{{ site.data.core.notes-link }}"
+              aria-label="{{ site.data.core.notes-title}}"
+            >Delphi Notes</a>
+            <div class="dropdown-divider"></div>
+            <a
+            class="dropdown-item {% if page.url == site.data.core.about-link %} active{% endif %}"
+              href="{{ site.data.core.about-link }}"
+              aria-label="{{ site.data.core.about-link-title}}"
+            >About</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
 
-  <!-- Collect the nav links, forms, and other content for toggling -->
-  <div class="collapse navbar-collapse" id="navbar-toggle-collapse">
+<!-- NEEDED FOR ACCESSIBILITY?
+<div id="skip-nav">
+-->
+
+
+<!--
+<header id="dd-main-page-header">
+  <nav class="navbar navbar-expand-sm navbar-light bg-light">
+    <a class="navbar-brand dd-branding-logo" href="#"><span class="dd-branding-logo-part1">Delphi</span><span class="dd-branding-logo-part2">Dabbler</span></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li
+          class="nav-item {% if page.url == site.data.core.home-link %} active{% endif %}"
+        >
+          <a
+            class="nav-link"
+            href="{{ site.data.core.home-link }}"
+            aria-label="{{ site.data.core.home-link-title }}"
+          ><span
+            class="fa fa-home fa-lg hidden-xs"
+            aria-hidden="true"></span
+          ><span
+            class="visible-xs-inline" aria-hidden="true"
+          >Home</span></a>
+        </li>
+        <li
+          class="nav-item {% if page.url == site.data.core.apps-link %} active{% endif %}"
+        >
+          <a
+            class="nav-link"
+            href="{{ site.data.core.apps-link }}"
+            aria-label="{{ site.data.core.apps-link-title }}"
+          >Programs</a>
+        </li>
+        <li
+          class="nav-item {% if page.url == site.data.core.lib-link %} active{% endif %}"
+        >
+          <a
+            class="nav-link"
+            href="{{ site.data.core.lib-link }}"
+            aria-label="{{ site.data.core.lib-link-title }}"
+          >Code Library</a>
+        </li>
+        <li
+          class="nav-item {% if page.url == site.data.core.articles-link %} active{% endif %}"
+        >
+          <a
+            class="nav-link"
+            href="{{ site.data.core.articles-link }}"
+            aria-label="{{ site.data.core.lib-articles-title }}"
+          >Articles</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Pricing</a>
+        </li>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </ul>
+    </div>
+  </nav>
+</header>
+-->
+
+<!-- OLD NAV BEGIN --
+  !-- Collect the nav links, forms, and other content for toggling --
+    <div class="collapse navbar-collapse" id="navbar-toggle-collapse">
     <ul class="nav navbar-nav">
-      <li{% if page.url == site.data.core.home-link %} class="active"{% endif %}>
-        <a href="{{ site.data.core.home-link }}" aria-label="{{ site.data.core.home-link-title }}"><span class="fa fa-home fa-lg hidden-xs" aria-hidden="true"></span><span class="visible-xs-inline" aria-hidden="true">Home</span></a>
-      </li>
-      <li{% if page.url == site.data.core.apps-link %} class="active"{% endif %}>
-        <a href="{{ site.data.core.apps-link }}" aria-label="{{ site.data.core.apps-link-title}}">Applications</a>
-      </li>
-      <li{% if page.url == site.data.core.lib-link %} class="active"{% endif %}>
-        <a href="{{ site.data.core.lib-link }}" aria-label="{{ site.data.core.lib-link-title}}">Code Library</a>
-      </li>
+
       <li{% if page.url == site.data.core.articles-link %} class="active"{% endif %}>
         <a href="{{ site.data.core.articles-link }}" aria-label="{{ site.data.core.articles-link-title}}">Articles</a>
       </li>
@@ -52,6 +188,6 @@
         </ul>
       </li>
     </ul>
-  </div><!-- /.navbar-collapse -->
-  <div id="skip-nav">
-</nav>
+  </div>!-- /.navbar-collapse --
+</nav> -->
+<!-- OLD NAV END -->
