@@ -16,13 +16,13 @@ status: "mothballed"
 {% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
 {% assign dl-url = page.download-base-url | append: dl-file %}
 
-<section class="panel panel-warning">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-warning">
+  <div class="card-header">
+    <h2 class="card-title">
       Mothballed
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
 		<p class="lead">
 			Development of <em>{{ page.title }}</em> is frozen.
 		</p>
@@ -38,13 +38,13 @@ status: "mothballed"
   </div>
 </section>
 
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-default">
+  <div class="card-header">
+    <h2 class="card-title">
       Overview
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
 		<p>
 			Delphi 7 introduced a macro recording toolbar that can be used to record and play back macros. The toolbar was to be displayed in the bottom left of the editor's status bar. However, the toolbar was hidden in the release version, leaving an empty space in the first panel of the status bar as the following image shows.
 		</p>
@@ -66,13 +66,13 @@ status: "mothballed"
 		</p>
 </section>
 
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-default">
+  <div class="card-header">
+    <h2 class="card-title">
       Get The Code
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
     <p>
       The source code of <em>{{page.title}}</em> is archived on Google Drive.
 		</p>
@@ -82,26 +82,26 @@ status: "mothballed"
 	</div>
 </section>
 
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-default">
+  <div class="card-header">
+    <h2 class="card-title">
       Installation
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
     <p>
 			Information about how to install the wizard can be found in the <code>ReadMe.htm</code> file included in the download zip file.
 		</p>
   </div>
 </section>
 
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-default">
+  <div class="card-header">
+    <h2 class="card-title">
       License
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
     <p>
       <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>{{page.title}}</em> is open source. It is copyright &copy; 2007 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/1.1/" aria-label="Mozilla Public License v1.1 on mozilla.org">Mozilla Public License v1.1</a>. All relevant trademarks are acknowledged.
     </p>

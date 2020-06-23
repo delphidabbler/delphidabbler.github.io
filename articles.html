@@ -15,14 +15,14 @@ title: Articles
 {% if test <> 0 %}<div class="row">{% endif %}
   <article role="section" aria-labelledby="art-{{ article.article | escape }}-head">
     <div class="col-md-6">
-      <div class="panel panel-primary">
-        <header class="panel-heading" id="art-{{ article.article | escape }}-head">
+      <div class="card dd-card-primary">
+        <header class="card-header" id="art-{{ article.article | escape }}-head">
           <h2>{{ article.title | escape }}</h2>
         </header>
-        <div class="panel-body">
+        <div class="card-body">
           <p>{{ article.summary | escape }}</p>
         </div>
-        <footer class="panel-footer text-right">
+        <footer class="card-footer text-right">
           <a href="articles/article-{{ article.article }}" aria-label="Read &quot;{{ article.title | escape }}&quot;">Read the article</a>
         </footer>
       </div>

@@ -19,13 +19,13 @@ status: "obsolete"
 {% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
 {% assign dl-url = page.download-base-url | append: dl-file %}
 
-<section class="panel panel-danger">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-danger">
+  <div class="card-header">
+    <h2 class="card-title">
       Obsolete
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
 		<p class="lead">
 			Development of <em>{{ page.title }}</em> is frozen.
 		</p>
@@ -44,13 +44,13 @@ status: "obsolete"
   </div>
 </section>
 
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-default">
+  <div class="card-header">
+    <h2 class="card-title">
       Overview
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
 		<p>
 			This is a property editor for properties of type <var>HKEY</var> &ndash; the type used for registry root keys.
 		</p>
@@ -68,13 +68,13 @@ status: "obsolete"
 		</p>
 </section>
 
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-default">
+  <div class="card-header">
+    <h2 class="card-title">
       Get The Code
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
     <p>
       You can download the final, <span class="text-danger strong">obsolete</span>, version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
@@ -92,13 +92,13 @@ status: "obsolete"
 	</div>
 </section>
 
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-default">
+  <div class="card-header">
+    <h2 class="card-title">
       Installation
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
 		<p class="text-danger strong">
 			<span class="fa fa-exclamation-triangle fa-x-pad-right"></span>Remember, you are strongly advised <strong>not</strong> to install this property editor.
 		</p>
@@ -108,13 +108,13 @@ status: "obsolete"
   </div>
 </section>
 
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
+<section class="card dd-card-default">
+  <div class="card-header">
+    <h2 class="card-title">
       License
     </h2>
   </div>
-  <div class="panel-body">
+  <div class="card-body">
     <p>
       <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>HKEY Property Editor</em> is open source. It is copyright &copy; 2000-2014 by <a href="http://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="http://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
