@@ -291,29 +291,6 @@ a[href^="http"] {
 }
 
 
-// Customise appearance of navbar to match branding
-//** Overrides bootstrap class
-.navbar {
-  border: none;
-  border-top: 1px $gray-light solid;
-}
-
-// Ensure that dividers in drop-down menus don't display on collapsed version of menu
-//** Overrides bootstrap class
-.dropdown-menu .divider {
-  display: none;
-  @media (min-width: $screen-sm-min) {
-    display: block;
-  }
-}
-
-// Change background colour of Menu button used on collapsed menu
-//** Overrides bootstrap class
-.navbar-default .navbar-toggle {
-  background-color: $navbar-default-toggle-bg;
-  color: $navbar-default-toggle-color;
-}
-
 // Reset page header margins and borders
 //** Overrides bootstrap class
 .page-header {
@@ -328,98 +305,6 @@ a[href^="http"] {
   font-family: $branding-strapline-font-family;
   font-style: italic; // MUST be italic, no other style available for this font
   font-weight: normal;
-}
-
-// Styling of logo and strapline etc.
-//** Custom
-.branding {
-  display: none;
-  @media (min-width: $screen-sm-min) {
-    display: block;
-    color: $branding-color;
-    background-color: $branding-bg;
-    margin: $branding-margin;
-    padding: $branding-base-padding;
-  }
-}
-
-// Sets style of logo on large page header and of brand displayed on collapsed
-// nav bar
-//** .brandng > .logo is custom
-//** .navbar-brand overrides a bootstrap class
-.branding > .logo,
-.navbar-brand {
-  font-family: $branding-logo-font-family;
-  font-weight: bold;
-  color: $branding-logo-color;
-  opacity: $branding-logo-opacity;
-  text-shadow: $branding-logo-shadow;
-  a,
-  a:link,
-  a:hover,
-  a:visited {
-    color: $branding-logo-color;
-    text-decoration: none;
-  }
-}
-
-// Set size of logo displayed on larger screens (not displayed when menu
-// collapsed)
-//** Custom
-.branding > .logo {
-  font-size: $branding-logo-font-size;
-}
-
-
-// Shows and hides navbar brand (logo on collapsed menu) and reduces size of
-// logo text on tiny screens
-//** Overrides bootstrap class
-.navbar-brand {
-  display: inline;
-  font-size: $branding-logo-font-size-xs;
-  @media (min-width: $screen-xs-min) {
-    font-size: $branding-logo-font-size-sm;
-  }
-  @media (min-width: $screen-sm-min) {
-    display: none;
-  }
-}
-
-.navbar-nav {
-  li {
-    padding-left: $navbar-item-padding-horizontal;
-    padding-right: $navbar-item-padding-horizontal;
-  }
-}
-
-// Sets padding on navbar "toggle" - used to display menu button. Padding is
-// less on tiny screens
-//** Overrides bootstrap class
-.navbar-toggle {
-  padding-top: 4px;
-  padding-bottom: 4px;
-
-  .navbar-toggle-caption-text {
-    display: none;
-  }
-
-  @media (min-width: $screen-xs-min) {
-    padding-top: 8px;
-    padding-bottom: 8px;
-    .navbar-toggle-caption-text {
-      display: inline;
-    }
-  }
-}
-
-// Sets font size on text of navbar "toggle" - this is the menu button text
-//** Custom (.navbar-toggle comes from bootstrap, .navbar-toggle-caption is custom
-.navbar-toggle > .navbar-toggle-caption {
-  @extend .text-uppercase;
-  font-size: $font-size-small;
-  @media (min-width: $screen-xs-min) {
-    font-size: $font-size-base;
-  }
 }
 
 // Styles the strapline that appears below logo on pages with un-collapsed menus
