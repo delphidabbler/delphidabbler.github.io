@@ -1,2 +1,7 @@
 @import "logo";
 @import "navbar-overrides";
+@import "dd-bootstrap3-shim";   // recreates some missing BS3 vars required by following files
+// Following files were created for BS3: they need to be reworked/refactored (and renamed)
+@import "dd-custom-variables";
+@import "dd-custom-mixins";
+@import "dd-custom-styles";
