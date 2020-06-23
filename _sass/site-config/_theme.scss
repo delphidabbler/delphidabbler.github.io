@@ -7,11 +7,21 @@ $dd-theme-primary:                  #1565c0;
 $dd-theme-secondary:                #bbc015;
 $dd-theme-tertiary:                 #c01b15;
 
+// -- Lightened versions of main colours
+$dd-theme-primary-light:            #d9e9fb;
+$dd-theme-secondary-light:          #f7f9c7;
+$dd-theme-tertiary-light:           #fbdad9;
+
+// -- Darkened version of main colours
+$dd-theme-primary-dark:             #0b3668;
+$dd-theme-secondary-dark:           #545609;
+$dd-theme-tertiary-dark:            #680f0b;
+
 // -- Greys
 $dd-theme-white:                    #ffffff;
 $dd-theme-gray-100:                 #f0f0f1;
 $dd-theme-gray-200:                 #e6e6e7;
-$dd-theme-gray-300:                 #dcddde ;
+$dd-theme-gray-300:                 #dcddde;
 $dd-theme-gray-400:                 #c8c9cb;
 $dd-theme-gray-500:                 #a9abae;
 $dd-theme-gray-600:                 #6e7074;
@@ -91,4 +101,3 @@ $dd-theme-navbar-text:              $dd-theme-gray-700;
 $dd-theme-navbar-hover:             $dd-theme-gray-700; // inhibits text changing on hover
 $dd-theme-navbar-active:            $dd-theme-gray-700;
 $dd-theme-navbar-disabled:          $dd-theme-gray-400;
-
