@@ -3,9 +3,9 @@
 // ** Colours
 
 // -- Main theme colours
-$dd-theme-primary-color:            #1565c0;
-$dd-theme-secondary-color:          #bbc015;
-$dd-theme-tertiary-color:           #c01b15;
+$dd-theme-primary:                  #1565c0;
+$dd-theme-secondary:                #bbc015;
+$dd-theme-tertiary:                 #c01b15;
 
 // -- Greys
 $dd-theme-white:                    #ffffff;
@@ -21,8 +21,8 @@ $dd-theme-gray-900:                 #212223;
 $dd-theme-black:                    #000000;
 
 // -- Contextual
-$dd-theme-context-primary:          $dd-theme-primary-color;
-$dd-theme-context-secondary:        $dd-theme-secondary-color;
+$dd-theme-context-primary:          $dd-theme-primary;
+$dd-theme-context-secondary:        $dd-theme-secondary;
 $dd-theme-context-success:          #70ac36;  // !TODO: as old site: may need tweaking
 $dd-theme-context-info:             #9696BF;  // !TODO: as old site: may need tweaking
 $dd-theme-context-warning:          #f0ad4e;  // !TODO BS default: may need tweaking
@@ -36,19 +36,19 @@ $dd-theme-context-dark:             $dd-theme-gray-800;
 // -- Colours
 
 // ---- Body colours
-$dd-theme-body-text-color:          $dd-theme-gray-800;
-$dd-theme-body-bg-color:            $dd-theme-white;
+$dd-theme-body-text:                $dd-theme-gray-800;
+$dd-theme-body-bg:                  $dd-theme-white;
 
 // ---- Main link styling
 // !TODO: will need bg color, bottom border for links - will need style override
-$dd-theme-link-color:               lighten($dd-theme-primary-color, 10%);
-$dd-theme-link-hover-color:         $dd-theme-primary-color;
+$dd-theme-link:                     lighten($dd-theme-primary, 10%);
+$dd-theme-link-hover:               $dd-theme-primary;
 
 // ---- Code
-$dd-theme-code-bg-color:            $dd-theme-gray-600;
-$dd-theme-kbd-text-color:           $dd-theme-white;
-$dd-theme-kbd-bg-color:             lighten($dd-theme-primary-color, 15);
-$dd-theme-pre-text-color:           $dd-theme-gray-900;
+$dd-theme-code-bg:                  $dd-theme-gray-600;
+$dd-theme-kbd-text:                 $dd-theme-white;
+$dd-theme-kbd-bg:                   lighten($dd-theme-primary, 15);
+$dd-theme-pre-text:                 $dd-theme-gray-900;
 
 // -- Body font families
 $dd-theme-font-sans-serif-font:     'Open Sans', Helvetica, Arial, sans-serif;
@@ -82,13 +82,13 @@ $dd-theme-body-line-height:         1.6;
 // ** Jumbotron
 
 $dd-theme-jumbotron-padding:        1.25rem;
-$dd-theme-jumbotron-bg-color:       lighten(#44447F,20%); // !TODO: may need tweaking - copied from old `_dd-bootstrap-variable-overrides.scss` with literal value substituted for `$navbar-default-bg`
+$dd-theme-jumbotron-bg:             lighten(#44447F,20%); // !TODO: may need tweaking - copied from old `_dd-bootstrap-variable-overrides.scss` with literal value substituted for `$navbar-default-bg`
 
 // ** Navbar
 
 // We don't use colour change on hover or for active items: custom SASS is used for both these effects.
-$dd-theme-navbar-text-color:        $dd-theme-gray-700;
-$dd-theme-navbar-hover-color:       $dd-theme-gray-700; // inhibits text changing on hover
-$dd-theme-navbar-active-color:      $dd-theme-gray-700;
-$dd-theme-navbar-disabled-color:    $dd-theme-gray-400;
+$dd-theme-navbar-text:              $dd-theme-gray-700;
+$dd-theme-navbar-hover:             $dd-theme-gray-700; // inhibits text changing on hover
+$dd-theme-navbar-active:            $dd-theme-gray-700;
+$dd-theme-navbar-disabled:          $dd-theme-gray-400;
 

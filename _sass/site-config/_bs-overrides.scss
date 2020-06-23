@@ -115,17 +115,17 @@ $dark:              $dd-theme-context-dark;
 
 // >> BODY ------------------------------------------------------------
 
-$body-bg:                  $dd-theme-body-bg-color;
-$body-color:               $dd-theme-body-text-color;
+$body-bg:                       $dd-theme-body-bg;
+$body-color:                    $dd-theme-body-text;
 
 // << BODY ------------------------------------------------------------
 
 
 // >> LINKS -----------------------------------------------------------
 
-$link-color:                    $dd-theme-link-color;
+$link-color:                    $dd-theme-link;
 // $link-decoration:           none;
-$link-hover-color:              $dd-theme-link-hover-color;
+$link-hover-color:              $dd-theme-link-hover;
 // $link-hover-decoration:     underline;
 
 // << LINKS -----------------------------------------------------------
@@ -249,9 +249,9 @@ $small-font-size:               $dd-theme-body-font-size-sm;
 // $navbar-dark-toggler-icon-bg:       str-replace(url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='#{$navbar-dark-color}' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"), "#", "%23") !default;
 // $navbar-dark-toggler-border-color:  rgba($white, .1) !default;
 
-$navbar-light-color:                $dd-theme-navbar-text-color;
-$navbar-light-hover-color:          $dd-theme-navbar-hover-color;
-$navbar-light-active-color:         $dd-theme-navbar-active-color;
+$navbar-light-color:                $dd-theme-navbar-text;
+$navbar-light-hover-color:          $dd-theme-navbar-hover;
+$navbar-light-active-color:         $dd-theme-navbar-active;
 $navbar-light-disabled-color:       rgba($black, .3) !default;
 // $navbar-light-toggler-icon-bg:      str-replace(url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='#{$navbar-light-color}' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"), "#", "%23") !default;
 // $navbar-light-toggler-border-color: rgba($black, .1) !default;
@@ -265,7 +265,7 @@ $navbar-light-disabled-color:       rgba($black, .3) !default;
 // >> JUMBOTRON -------------------------------------------------------
 
 $jumbotron-padding:             $dd-theme-jumbotron-padding;
-$jumbotron-bg:                  $dd-theme-jumbotron-bg-color;
+$jumbotron-bg:                  $dd-theme-jumbotron-bg;
 
 // << JUMBOTRON -------------------------------------------------------
 
@@ -294,15 +294,15 @@ $jumbotron-bg:                  $dd-theme-jumbotron-bg-color;
 // >> CODE ------------------------------------------------------------
 
 $code-font-size:                $dd-theme-code-font-size;
-$code-color:                    $dd-theme-code-bg-color;
+$code-color:                    $dd-theme-code-bg;
 
 // $kbd-padding-y:                     .2rem !default;
 // $kbd-padding-x:                     .4rem !default;
 $kbd-font-size:                 $dd-theme-kbd-font-size;
-$kbd-color:                     $dd-theme-kbd-text-color;
-$kbd-bg:                        $dd-theme-kbd-bg-color;
+$kbd-color:                     $dd-theme-kbd-text;
+$kbd-bg:                        $dd-theme-kbd-bg;
 
-$pre-color:                     $dd-theme-pre-text-color;
+$pre-color:                     $dd-theme-pre-text;
 // $pre-scrollable-max-height:         340px !default;
 
 // << CODE ------------------------------------------------------------

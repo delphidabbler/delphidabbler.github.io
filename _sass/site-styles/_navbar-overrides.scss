@@ -1,7 +1,7 @@
 nav.navbar {
 
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid $dd-theme-primary-color;
+    border-bottom: 1px solid $dd-theme-primary;
     background-color: $dd-theme-gray-100;
 
     .navbar-nav {
@@ -16,7 +16,7 @@ nav.navbar {
             }
 
             &:hover {
-                border-bottom: 2px solid $dd-theme-secondary-color;
+                border-bottom: 2px solid $dd-theme-secondary;
             }
         }
     }

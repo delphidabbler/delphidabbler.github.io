@@ -7,12 +7,12 @@
     padding-right: 1rem;
 
     .dd-branding-logo-part1 {
-        color: $dd-theme-secondary-color;
+        color: $dd-theme-secondary;
         font-family: $font-family-monospace;
 
         &:after {
             content: "\00b7";
-            color: $dd-theme-body-text-color;
+            color: $dd-theme-body-text;
             font-size: 80%;
         }
     }
@@ -20,6 +20,6 @@
         font-weight: bold;
         font-size: 120%;
         letter-spacing: -0.05em;
-        color: $dd-theme-primary-color;
+        color: $dd-theme-primary;
     }
 }
