@@ -1,0 +1,17 @@
+// ** Shim SASS to ease transformation of BS3 panels into BS4 cards
+
+@mixin dd-shim-card($n, $bg, $color) {
+    .dd-shim-card-#{$n} .card-header {
+        background-color: $bg;
+        color: $color;
+    }
+}
+
+@include dd-shim-card('success', $state-success-bg, $state-success-text);
+@include dd-shim-card('warning', $state-warning-bg, $state-warning-text);
+@include dd-shim-card('danger', $state-danger-bg, $state-danger-text);
+
+.dd-shim-card-primary .card-header {
+    background-color: $primary;
+    color: $white;
+}
