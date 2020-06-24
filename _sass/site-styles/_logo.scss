@@ -4,12 +4,9 @@
     font-weight: bold;
     font-size: 130%;
     text-transform: lowercase;
-    padding-right: 1rem;
-
     .dd-branding-logo-part1 {
         color: $dd-theme-secondary;
         font-family: $font-family-monospace;
-
         &:after {
             content: "\00b7";
             color: $dd-theme-body-text;

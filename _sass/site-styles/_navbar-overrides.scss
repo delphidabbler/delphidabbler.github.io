@@ -1,22 +1,47 @@
-nav.navbar {
+// Override of navbar BS4 styling
 
+nav.navbar {
     margin-bottom: 1.5rem;
     border-bottom: 1px solid $dd-theme-primary;
-    background-color: $dd-theme-gray-100;
-
+    .navbar-brand {
+        margin-right: 0;
+    }
+    .navbar-toggler {
+        &:focus,
+        &:active,
+        &-icon:focus {
+            outline: none;
+            box-shadow: 4px 4px $dd-theme-gray-200;
+            border: 1px solid $dd-theme-gray-400;
+        }
+        &:hover {
+            background-color: $dd-theme-gray-200;
+        }
+        &.collapsed {
+            box-shadow: none;
+        }
+    }
     .navbar-nav {
-
+        margin-left: 0;
         .nav-item {
-
-            border-top: 2px solid transparent;
-            border-bottom: 2px solid transparent;
-
-            &.active {
-                font-weight: bold;
-            }
-
             &:hover {
-                border-bottom: 2px solid $dd-theme-secondary;
+                background-color: $dd-theme-gray-200;
+            }
+            @include media-breakpoint-up(lg) {
+                color: red;
+                &.active {
+                    font-weight: bold;
+                }
+                &:hover {
+                    background-color: transparent;
+                }
+                .nav-link {
+                    border-bottom: 2px solid transparent;
+                    padding-bottom: 2px;
+                    &:hover {
+                        border-bottom: 2px solid $dd-theme-secondary;
+                    }
+                }
             }
         }
     }
