@@ -14,37 +14,47 @@ nav.navbar {
     }
 
     .navbar-toggler {
+        box-shadow: none;
+
         &:focus,
         &:active,
         &-icon:focus {
             outline: none;
-            box-shadow: 4px 4px $dd-theme-gray-200;
             border: 1px solid $dd-theme-gray-400;
         }
+
         &:hover {
             background-color: $dd-theme-navbar-hover-bg;
         }
-        &.collapsed {
-            box-shadow: none;
+
+        .dd-navbar-menu-text {
+            font-variant: all-small-caps;
+            margin-right: 1rem;
         }
     }
 
     .navbar-nav {
         margin-left: 0;
+
         .nav-item {
             &:hover {
                 background-color: $dd-theme-navbar-hover-bg;
             }
+
             &.active {
                 font-weight: bold;
             }
+
             .nav-link {
                 border-bottom: none;
             }
+
             @include media-breakpoint-up(lg) {
+
                 &:hover {
                     background-color: transparent;
                 }
+
                 .nav-link {
                     border-bottom: 2px solid transparent;
                     padding-bottom: 2px;
@@ -68,14 +78,17 @@ nav.navbar {
 
             .dropdown-item {
                 border-bottom: 2px solid transparent;
+
                 &:hover {
                     background-color: $dd-theme-navbar-hover-bg;
                     color: $dd-theme-navbar-hover;
                 }
+
                 &.active {
                     background-color: transparent;
                     font-weight: bold;
                     color: $dd-theme-navbar-active;
+
                     &:hover {
                         background-color: $dd-theme-navbar-hover-bg;
                     }
