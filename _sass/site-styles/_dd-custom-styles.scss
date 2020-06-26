@@ -291,14 +291,6 @@ a[href^="http"] {
 }
 
 
-// Reset page header margins and borders
-//** Overrides bootstrap class
-.page-header {
-  margin: $page-margin-top 0 0 0;
-  padding: 0;
-  border: none;
-}
-
 // Styles page footer
 //** Custom
 .pagefoot {
