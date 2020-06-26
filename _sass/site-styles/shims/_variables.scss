@@ -47,8 +47,8 @@ $screen-xs-min:         $screen-xs;
 $screen-sm:             768px;
 $screen-sm-min:         $screen-sm;
 
-$padding-small-vertical:        5px;
-$padding-small-horizontal:      10px;
+$padding-small-vertical:      $dd-theme-padding-y-sm;
+$padding-small-horizontal:    $dd-theme-padding-x-sm;
 
 $panel-default-border:        #ddd;
 $panel-default-heading-bg:    #f5f5f5;
