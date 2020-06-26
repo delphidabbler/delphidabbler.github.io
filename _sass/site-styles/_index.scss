@@ -1,0 +1,140 @@
+// ** Custom styling for home page
+
+#slogan {
+    padding: 1rem;
+
+    h1 {
+        color: $dd-theme-primary;
+    }
+
+    .dd-strapline {
+        font-size: 150%;
+        font-style: italic;
+        color: $dd-theme-gray-500;
+        border-bottom: 2px $dd-theme-gray-300 dotted;
+        padding: 0 0 0.25rem 0;
+        margin: 0 0 0.5rem 0;
+        text-align: right;
+        &:before {
+            font-size: 120%;
+            content: "\2013\00a0";
+        }
+    }
+
+    .dd-opensource {
+        font-size: 125%;
+        font-weight: bold;
+        text-align: left;
+        margin: 0 0 1rem 0;
+        color: $dd-theme-gray-500;
+
+        .dd-separator-dot:after {
+            content: "\00b7\00b7\00b7";
+            font-size: 80%;
+        }
+    }
+
+    .dd-link-boxes {
+        text-align: center;
+
+        a {
+            text-decoration: none;
+            background-color: transparent;
+            border: none;
+            border-bottom-width: 2px;
+            border-bottom-style: $dd-theme-link-border-style;
+            border-bottom-color: transparent;
+
+            &:hover {
+                border-bottom-color: $dd-theme-link;
+            }
+        }
+    }
+}
+
+#showcase {
+
+    $stripe-width: 3rem;
+    $stripe-style: solid;
+
+    .dd-showcase-item {
+        margin: 2rem 0;
+        padding: 1rem;
+
+        .btn-info {
+            background-color: transparent;
+            color: $dd-theme-body-text;
+        }
+
+        &:nth-child(odd) {
+
+            background-color: $dd-theme-secondary-light;
+            border-left: $stripe-width $stripe-style darken($dd-theme-secondary-light, 6%);
+
+            h2 {
+                color: $dd-theme-secondary;
+            }
+
+            .btn-info {
+                border-color: $dd-theme-secondary;
+                &:hover {
+                    background-color: darken($dd-theme-secondary-light, 15%);
+                }
+            }
+
+            a {
+                color: darken($dd-theme-secondary, 10%);
+            }
+        }
+
+        &:nth-child(even) {
+
+            background-color: $dd-theme-primary-light;
+            border-right: $stripe-width $stripe-style  darken($dd-theme-primary-light, 3%);
+
+            h2 {
+                color: $dd-theme-primary;
+            }
+
+            .btn-info {
+                margin-left: 2 * $stripe-width;
+                border-color: $dd-theme-primary;
+                &:hover {
+                    background-color: darken($dd-theme-primary-light, 15%);
+                }
+            }
+
+            a {
+                color: $dd-theme-primary;
+            }
+        }
+
+        .dd-showcase-item-header {
+            h2 {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        .dd-showcase-item-body {
+
+            margin-left: 2rem;
+
+            p {
+                margin-bottom: 0.5rem;
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            h3 {
+                margin-bottom: 0.5rem;
+                font-size: 120%;
+            }
+        }
+
+        .dd-showcase-item-footer {
+            text-align: center;
+            margin-top: 1rem;
+        }
+    }
+}

@@ -2,131 +2,199 @@
 title: Home Page
 ---
 
-<h1 roll="heading">Welcome to DelphiDabbler.com</h1>
+<section id="slogan" aria-label="Slogan">
 
-<div class="box">
-  <p class="text-center strapline">
-    One hobbyist programmer's dabblings in the world of open source Delphi programming.
-  </p>
-  <div class="text-right link-boxes">
-    <a href="{{ site.data.core.twitter-url }}" aria-label="{{ site.data.core.twitter-link-title }}" class="label label-primary"><span class="fa fa-lg fa-fw fa-twitter" aria-hidden="true"></span></a>
-    <a href="{{ site.data.core.github-url }}" aria-label="{{ site.data.core.github-link-title }}" class="label label-primary"><span class="fa fa-lg fa-fw fa-github" aria-hidden="true"></span></a>
-    <a href="{{ site.data.core.dd-blog-url }}" aria-label="{{ site.data.core.dd-blog-link-title }}" class="label label-primary"><span class="fa fa-lg fa-fw fa-pencil-square-o fa-x-pad-right" aria-hidden="true"></span>Blog</a>
+  <div class="dd-strapline">
+    One hobbyist&rsquo;s dabblings in the world of Delphi programming
   </div>
-</div>
 
-<div class="row">
+  <div class="dd-opensource">
+    Programs <span class="dd-separator-dot"></span> code <span class="dd-separator-dot"></span> resources | <em>everything</em> is open source
+  </div>
 
-<section role="section" aria-labelledby="apps">
-  <div class="col-sm-6 col-lg-4">
-    <div class="card dd-shim-card-primary">
-      <header class="card-header" id="apps">
-        <h2>Apps</h2>
-      </header>
-      <div class="card-body">
-        <p>There are several open source applications here.</p>
-        <p>The main one is <a href="{{site.base-url}}{{site.data.core.software-base-url}}/codesnip" class="strong">CodeSnip</a>, a code bank specialising in Pascal code snippets.</p>
-        <p>Other apps are mainly mini development tools, but some are just programming exercises.</p>
+  <div class="dd-link-boxes">
+    <a
+      href="{{ site.data.core.twitter-url }}"
+      class="label label-primary"
+      aria-label="Go to Twitter account"
+    ><i class="fa fa-lg fa-fw fa-twitter" aria-hidden="true"></i></a>
+    <a
+      href="{{ site.data.core.github-url }}"
+      class="label label-primary"
+      aria-label="Go to GitHub account"
+    ><i class="fa fa-lg fa-fw fa-github" aria-hidden="true"></i></a>
+    <a
+      href="{{ site.data.core.dd-blog-url }}"
+      class="label label-primary"
+      aria-label="Go to the blog"
+    ><span aria-hidden="true"><i class="fa fa-lg fa-fw fa-pencil-square-o"></i>Blog</span></a>
+  </div>
+
+</section> <!-- /#intro -->
+
+
+<section id="showcase" aria-label="List of site features">
+
+      <div class="dd-showcase-item">
+
+        <header
+          class="dd-showcase-item-header"
+          aria-labelledby="programs-section"
+        >
+          <h2 id="#programs-section">
+            Programs
+          </h2>
+        </header>
+
+        <div class="dd-showcase-item-body">
+          <p>
+            There are several open source applications here.
+          </p>
+          <p>
+            The main one is <a href="{{site.base-url}}{{site.data.core.software-base-url}}/codesnip">CodeSnip</a>, a code bank specialising in Pascal code snippets. Others are mainly mini development tools, while others are just programming exercises.
+          </p>
+        </div>
+
+        <footer class="dd-showcase-item-footer">
+          <a
+            href="{{site.base-url}}{{site.data.core.apps-link}}"
+            class="btn btn-info"
+            aria-label="Display a list of programs"
+          >More info <i class="fa fa-caret-right" aria-hidden="true"></i></a>
+        </footer>
+
       </div>
-      <footer class="card-footer text-right">
-        <a href="{{site.base-url}}{{site.data.core.apps-link}}"aria-label="{{ site.data.core.apps-link-title }}">More Info<span class="fa fa-x-pad-left fa-caret-right" aria-hidden="true"></span></a>
-      </footer>
-    </div>
-  </div>
-</section>
 
-<section role="section" aria-labelledby="codelib">
-  <div class="col-sm-6 col-lg-4">
-    <div class="card dd-shim-card-primary">
-      <header class="card-header" id="codelib">
-        <h2>Code Library</h2>
-      </header>
-      <div class="card-body">
-        <p>The code library is a collection of reusable components and classes along with a solitary IDE extension.</p>
+      <div class="dd-showcase-item" aria-labelledby="codelib-section">
+
+        <header class="dd-showcase-item-header">
+          <h2 id="codelib-section">
+            Code Library
+          </h2>
+        </header>
+
+        <div class="dd-showcase-item-body">
+          <p>
+            The code library is a collection of reusable components and classes along with a solitary IDE extension.
+          </p>
+        </div>
+
+        <footer class="dd-showcase-item-footer">
+          <a
+            href="{{site.base-url}}{{site.data.core.lib-link}}"
+            class="btn btn-info"
+            aria-label="Display the contents of the code library"
+          >More info <i class="fa fa-caret-right" aria-hidden="true"></i></a>
+        </footer>
+
       </div>
-      <footer class="card-footer text-right">
-        <a href="{{site.base-url}}{{site.data.core.lib-link}}"aria-label="{{ site.data.core.lib-link-title }}">More Info<span class="fa fa-x-pad-left fa-caret-right" aria-hidden="true"></span></a>
-      </footer>
-    </div>
-  </div>
-</section>
 
-<!-- Clear the sm & md cols if their content doesn't match in height -->
-<div class="clearfix visible-md-block visible-sm-block role="presentation""></div>
+      <div class="dd-showcase-item" aria-labelledby="snippets-section">
 
-<section role="section" aria-labelledby="snippets">
-  <div class="col-sm-6 col-lg-4">
-    <div class="card dd-shim-card-primary">
-      <header class="card-header" id="snippets">
-        <h2>Code Snippets</h2>
-      </header>
-      <div class="card-body">
-        <p>There are two main sources of code snippets:</p>
-        <h3>Code Snippets Database</h3>
-        <p>Contains hundreds of useful Pascal routines, classes, types etc.</p>
-        <h3>SWAG</h3>
-        <p>A clone of the old <strong>S</strong>ource<strong>W</strong>are <strong>A</strong>rchive <strong>G</strong>roup database. It's dated but still contains some useful information.</em>
+        <header class="dd-showcase-item-header">
+          <h2 id="snippets-section">
+            Code Snippets
+          </h2>
+        </header>
+
+        <div class="dd-showcase-item-body">
+          <p>
+            There are two main sources of code snippets:
+          </p>
+          <h3>
+            Code Snippets Database
+          </h3>
+          <p>
+            Contains hundreds of useful Pascal routines, classes, types etc.
+          </p>
+          <h3>
+            SWAG
+          </h3>
+          <p>
+            A clone of the old <strong>S</strong>ource<strong>W</strong>are <strong>A</strong>rchive <strong>G</strong>roup database. It's dated but still contains some useful information.
+          </p>
+        </div>
+
+        <footer class="dd-showcase-item-footer">
+          <a
+            href="{{site.base-url}}{{site.data.core.snippets-link}}"
+            class="btn btn-info"
+            aria-label="Display the code snippets page"
+          >More info <i class="fa fa-caret-right" aria-hidden="true"></i></a>
+        </footer>
+
       </div>
-      <footer class="card-footer text-right">
-        <a href="{{site.base-url}}{{site.data.core.snippets-link}}"aria-label="{{ site.data.core.snippets-link-title }}">More Info<span class="fa fa-x-pad-left fa-caret-right" aria-hidden="true"></span></a>
-      </footer>
-    </div>
-  </div>
-</section>
 
-<!-- Clear the lg cols if their content doesn't match in height -->
-<div class="clearfix visible-lg-block" role="presentation"></div>
+      <div class="dd-showcase-item">
 
-<section role="section" aria-labelledby="articles">
-  <div class="col-sm-6 col-lg-4">
-    <div class="card dd-shim-card-primary">
-      <header class="card-header" id="articles">
-        <h2>Articles</h2>
-      </header>
-      <div class="card-body">
-        <p>Several full length articles explaining various aspects of Delphi programming.</p>
+        <header class="dd-showcase-item-header" aria-labelledby="articles-section">
+          <h2 id="articles-section">
+            Articles
+          </h2>
+        </header>
+
+        <div class="dd-showcase-item-body">
+          <p>
+            Several full length articles explaining various aspects of Delphi programming.
+          </p>
+        </div>
+
+        <footer class="dd-showcase-item-footer">
+          <a
+            href="{{site.base-url}}{{site.data.core.articles-link}}"
+            class="btn btn-info"
+            aria-label="Display a list of articles"
+          >More info <i class="fa fa-caret-right" aria-hidden="true"></i></a>
+        </footer>
+
       </div>
-      <footer class="card-footer text-right">
-        <a href="{{site.base-url}}{{site.data.core.articles-link}}"aria-label="{{ site.data.core.articles-link-title }}">More Info<span class="fa fa-x-pad-left fa-caret-right" aria-hidden="true"></span></a>
-      </footer>
-    </div>
-  </div>
-</section>
 
-<!-- Clear the sm & md cols if their content doesn't match in height -->
-<div class="clearfix visible-md-block visible-sm-block" role="presentation"></div>
+      <div class="dd-showcase-item" aria-labelledby="tips-section">
 
+        <header class="dd-showcase-item-header">
+          <h2 id="tips-section">
+            Hints &amp; Tips
+          </h2>
+        </header>
 
-<section role="section" aria-labelledby="tips">
-  <div class="col-sm-6 col-lg-4">
-    <div class="card dd-shim-card-primary">
-      <header class="card-header" id="tips">
-        <h2>Hints &amp; Tips</h2>
-      </header>
-      <div class="card-body">
-        <p>A collection of hundreds of hints and tips harvested from all over the web.</p>
+        <div class="dd-showcase-item-body">
+          <p>
+            A collection of hundreds of hints and tips harvested from all over the web.
+          </p>
+        </div>
+
+        <footer class="dd-showcase-item-footer">
+          <a
+            href="{{site.base-url}}{{site.data.core.tips-link}}"
+            class="btn btn-info"
+            aria-label="Display the hints &amp; tips page"
+          >More info <i class="fa fa-caret-right" aria-hidden="true"></i></a>
+        </footer>
+
       </div>
-      <footer class="card-footer text-right">
-        <a href="{{site.base-url}}{{site.data.core.tips-link}}"aria-label="{{ site.data.core.tips-link-title }}">More Info<span class="fa fa-x-pad-left fa-caret-right" aria-hidden="true"></span></a>
-      </footer>
-    </div>
-  </div>
-</section>
 
-<section role="section" aria-labelledby="docs">
-  <div class="col-sm-6 col-lg-4">
-    <div class="card dd-shim-card-primary">
-      <header class="card-header" id="docs">
-        <h2>Documentation</h2>
-      </header>
-      <div class="card-body">
-        <p>There's plenty of documentation available for all the applications, the code library and snippets. There's also a small collection of miscellaneous Delphi notes.</p>
+      <div class="dd-showcase-item">
+
+        <header class="dd-showcase-item-header" aria-labelledby="docs-section">
+          <h2 id="docs-section">
+            Documentation
+          </h2>
+        </header>
+
+        <div class="dd-showcase-item-body">
+          <p>
+            There's plenty of documentation available for all the applications, the code library and snippets. There's also a small collection of miscellaneous Delphi notes.
+          </p>
+        </div>
+
+        <footer class="dd-showcase-item-footer">
+          <a
+            href="{{site.base-url}}{{site.data.core.docs-link}}"
+            class="btn btn-info"
+            aria-label="Display the main documentation page"
+          >More info <i class="fa fa-caret-right" aria-hidden="true"></i></a>
+        </footer>
+
       </div>
-      <footer class="card-footer text-right">
-        <a href="{{site.base-url}}{{site.data.core.docs-link}}"aria-label="{{ site.data.core.docs-link-title }}">More Info<span class="fa fa-x-pad-left fa-caret-right" aria-hidden="true"></span></a>
-      </footer>
-    </div>
-  </div>
-</section>
 
-</div> <!-- /.row -->
+</section> <!-- /#showcase -->
