@@ -9,7 +9,7 @@ a {
     &:hover {
         color: $dd-theme-link-hover;
         background-color: $dd-theme-link-hover-bg;
-        border-bottom: $dd-theme-link-border-width $dd-theme-link-border-width $dd-theme-link-hover-border-color;
+        border-bottom: $dd-theme-link-border-width $dd-theme-link-border-style $dd-theme-link-hover-border-color;
         text-decoration: none;
     }
 }
