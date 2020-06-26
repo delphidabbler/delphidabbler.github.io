@@ -3,6 +3,11 @@
 nav.navbar {
     margin-bottom: 1.5rem;
     border-bottom: 1px solid $dd-theme-primary;
+
+    a{
+        background-color: transparent;
+    }
+
     .navbar-brand {
         margin-right: 0;
     }

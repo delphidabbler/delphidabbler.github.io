@@ -50,9 +50,14 @@ $dd-theme-body-text:                $dd-theme-gray-800;
 $dd-theme-body-bg:                  $dd-theme-white;
 
 // ---- Main link styling
-// !TODO: will need bg color, bottom border for links - will need style override
 $dd-theme-link:                     lighten($dd-theme-primary, 10%);
 $dd-theme-link-hover:               $dd-theme-primary;
+$dd-theme-link-bg:                  transparent;
+$dd-theme-link-hover-bg:            rgba(0,0,0,5%);
+$dd-theme-link-border-width:        2px;
+$dd-theme-link-border-style:        solid;
+$dd-theme-link-border-color:        $dd-theme-gray-300;
+$dd-theme-link-hover-border-color:  $dd-theme-link-border-color;
 
 // ---- Code
 $dd-theme-code-bg:                  $dd-theme-gray-600;
