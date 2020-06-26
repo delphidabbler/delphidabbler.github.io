@@ -1,43 +1,45 @@
 // ** Custom styling for home page
 
 #slogan {
-    padding: 1rem;
-    padding-top: 0;
+    color: red;
+    padding: 0;
 
     .dd-strapline {
-        font-size: 200%;
+        font-size: 140%;
         font-style: italic;
         color: $dd-theme-gray-500;
         border-bottom: 2px $dd-theme-gray-300 dotted;
-        padding: 0 0 2rem 0;
-        margin: 3rem 0 2rem 0;
         text-align: right;
-
-        &:before {
-            font-size: 120%;
-            content: "\2013\00a0";
-        }
+        padding: 0 0 0.5em 0;
+        margin: 1rem 0 1rem 0;
     }
 
     .dd-opensource {
-        font-size: 175%;
         font-weight: bold;
         text-align: left;
-        margin: 0 0 2rem 0;
         color: $dd-theme-gray-500;
-
-        .dd-separator-dot:after {
-            content: "\00b7\00b7\00b7";
-            font-size: 80%;
+        font-size: 120%;
+        .dd-opensource-pt1 {
+            display: block;
+            text-align: center;
+            .dd-separator-dot:after {
+                content: "\00b7\00b7\00b7";
+                // font-size: 80%;
+            }
         }
-
-        .dd-separator-pipe {
-            color: $dd-theme-gray-300;
+        .dd-opensource-pt2 {
+            display: block;
+            text-align: center;
+            // margin-left: 1rem;
+            .dd-separator-pipe:after {
+                display: none;
+            }
         }
     }
 
     .dd-link-boxes {
         text-align: center;
+        margin-top: 1rem;
 
         a {
             text-decoration: none;
@@ -50,6 +52,68 @@
             &:hover {
                 border-bottom-color: $dd-theme-link;
             }
+        }
+    }
+
+    @include media-breakpoint-up(sm) {
+        color: blue;
+        .dd-opensource {
+            .dd-opensource-pt1 {
+                // display: inline;
+            }
+            .dd-opensource-pt2 {
+                // display: inline;
+            }
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        .dd-opensource {
+            .dd-opensource-pt1 {
+                display: inline;
+            }
+            .dd-opensource-pt2 {
+                display: inline;
+                text-align: left;
+                .dd-separator-pipe:after {
+                    content: "|";
+                    color: $dd-theme-gray-300;
+                    display: inline;
+                }
+            }
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+        color: green;
+        padding: 1rem;
+        padding-top: 0;
+
+        .dd-strapline {
+            font-size: 200%;
+            padding: 0 0 2rem 0;
+            margin: 3rem 0 2rem 0;
+        }
+
+        .dd-opensource {
+            font-size: 175%;
+            .dd-opensource-pt1 {
+                display: inline;
+
+            }
+            .dd-opensource-pt2 {
+                // display: inline;
+                // text-align: left;
+                // margin-left: 0;
+                // .dd-separator-pipe:after {
+                //     content: "|";
+                //     color: $dd-theme-gray-300;
+                //     display: inline;
+                // }
+            }
+        }
+        .dd-link-boxes {
+            margin-top: 2rem;
         }
     }
 }
