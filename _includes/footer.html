@@ -1,31 +1,50 @@
 <!-- BEGIN footer -->
-<footer class="pagefoot" role="contentinfo">
+<footer class="dd-pagefoot" role="contentinfo">
 
-  <div class="pagefoot-links">
+  <div class="dd-pagefoot-links">
     <div class="row">
-      <div class="col-xs-4">
-        <p><a href="{{ site.data.core.github-url }}" class="no-external-glyph"aria-label="{{ site.data.core.github-link-title }}"><span class="fa fa-github fa-x-pad-right fa-lg" aria-hidden="true"></span>GitHub</a>
+      <div class="col-sm-4">
+        <p><a
+            href="{{ site.data.core.github-url }}"
+            class="no-external-glyph"
+            aria-label="{{ site.data.core.github-link-title }}"
+          ><span class="fa fa-github fa-x-pad-right fa-lg" aria-hidden="true"></span>GitHub</a>
       </div>
-      <div class="col-xs-4">
-        <p><a href="{{ site.data.core.twitter-url }}" class="no-external-glyph" aria-label="{{ site.data.core.twitter-link-title }}"><span class="fa fa-twitter fa-x-pad-right fa-lg" aria-hidden="true"></span>Twitter</a>
+      <div class="col-sm-4">
+        <p><a
+          href="{{ site.data.core.twitter-url }}"
+          class="no-external-glyph"
+          aria-label="{{ site.data.core.twitter-link-title }}"><span class="fa fa-twitter fa-x-pad-right fa-lg"
+          aria-hidden="true"
+        ></span>Twitter</a>
       </div>
-      <div class="col-xs-4">
-        <p><a href="{{ site.data.core.dd-blog-url }}" class="no-external-glyph" aria-label="{{ site.data.core.dd-blog-link-title }}"><span class="fa fa-pencil-square-o fa-x-pad-right fa-lg" aria-hidden="true"></span>Blog</a>
+      <div class="col-sm-4">
+        <p><a
+          href="{{ site.data.core.dd-blog-url }}"
+          class="no-external-glyph"
+          aria-label="{{ site.data.core.dd-blog-link-title }}"
+          ><span class="fa fa-pencil-square-o fa-x-pad-right fa-lg" aria-hidden="true"></span>Blog</a>
       </div>
     </div> <!-- /.row -->
-  </div> <!-- /.pagefoot-links -->
+  </div> <!-- /.dd-pagefoot-links -->
 
-  <div class="pagefoot-credits">
+  <div class="dd-pagefoot-credits">
     <p class="strong">
       Web hosting generously donated by <a href="https://www.creohosting.com/">Creo Hosting</a>.
     </p>
     <p>
-      <span role="license" class="hidden-xs">Website content licensed under the Creative Commons Attribution 4.0 International (<a href="{{ site.data.core.cc-40-url }}" aria-label="{{ site.data.core.cc-40-link-title }}">CC BY-4.0</a>) license.</span> For full details of license, copyright and 3rd party code see the <a href="{{ site.data.core.credits-link }}" aria-label="{{ site.data.core.credits-link-title }}">license &amp; credits page</a>.
+      <span role="license" class="d-none d-sm-inline">Website content licensed under the Creative Commons Attribution 4.0 International (<a
+          href="{{ site.data.core.cc-40-url }}"
+          aria-label="{{ site.data.core.cc-40-link-title }}"
+        >CC BY-4.0</a>) license.</span> For full details of license, copyright and 3rd party code see the <a
+          href="{{ site.data.core.credits-link }}"
+          aria-label="{{ site.data.core.credits-link-title }}"
+        >license &amp; credits page</a>.
     </p>
-    <p>
-      <small>Build date: {{ site.time }}</small>
+    <p class="dd-pagefoot-credits-buildinfo">
+      Build date: {{ site.time }}
     </p>
-  </div> <!-- .pagefoot-credits -->
+  </div> <!-- .dd-pagefoot-credits -->
 
-</footer> <!-- /.pagefoot -->
+</footer> <!-- /.dd-pagefoot -->
 <!-- END footer -->
