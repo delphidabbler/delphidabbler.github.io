@@ -1,14 +1,16 @@
 // ** Basic styles
 
 a {
+    padding-left: $dd-theme-link-padding-x;
+    padding-right: $dd-theme-link-padding-x;
     color: $dd-theme-link;
     background-color: $dd-theme-link-bg;
     border-bottom: $dd-theme-link-border-width $dd-theme-link-border-color $dd-theme-link-border-style;
-    text-decoration: none;
+    text-decoration: $dd-theme-link-text-decoration;
 
     &:hover {
         color: $dd-theme-link-hover;
         background-color: $dd-theme-link-hover-bg;
-        text-decoration: none;
+        text-decoration: $dd-theme-link-text-decoration;
     }
 }
