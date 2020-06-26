@@ -1,0 +1,35 @@
+.dd-pagefoot {
+
+    padding: $dd-theme-pagefoot-padding-y $dd-theme-pagefoot-padding-x;
+    background-color: $dd-theme-pagefoot-bg;
+    color: $dd-theme-pagefoot-text;
+    font-size: $dd-theme-body-font-size-sm;
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+
+    a {
+        color: $dd-theme-pagefoot-link;
+    }
+
+    p {
+        margin-top: 0;
+        margin-bottom: 0.5rem
+    }
+
+    .dd-pagefoot-links,
+    .dd-pagefoot-credits  {
+        text-align: center;
+
+        & > *:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .dd-pagefoot-credits {
+        color: $dd-theme-pagefoot-credits;
+
+        .dd-pagefoot-credits-buildinfo {
+            font-size: $dd-theme-body-font-size-xsm;
+        }
+    }
+}
