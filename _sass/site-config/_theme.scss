@@ -54,6 +54,9 @@ $dd-theme-font-weight-light:        300;
 $dd-theme-font-weight-normal:       400;
 $dd-theme-font-weight-bold:         700;
 
+$dd-theme-padding-y-sm:             0.25rem;
+$dd-theme-padding-x-sm:             0.5rem;
+
 // -- Body
 // !TODO: Rename *-theme-body-* vars as *-body-* and move to "General" section above
 $dd-theme-body-text:                $dd-theme-gray-800;
@@ -63,6 +66,9 @@ $dd-theme-body-font-size-lg:        ($dd-theme-body-font-size * 1.25);
 $dd-theme-body-font-size-sm:        ($dd-theme-body-font-size * .875);
 $dd-theme-body-font-size-xsm:       ($dd-theme-body-font-size * .75);
 $dd-theme-body-line-height:         1.6;
+$dd-theme-body-line-height-lg:      1.5;
+$dd-theme-body-line-height-sm:      1.5;
+
 
 // -- Headings
 $dd-theme-h1-font-size:             $dd-theme-body-font-size * 2.5;
@@ -84,7 +90,7 @@ $dd-theme-link-hover-border-color:  $dd-theme-link-border-color;
 $dd-theme-link-padding-x:           2px;
 $dd-theme-link-text-decoration:     none;
 
-// ---- Code
+// -- Code
 $dd-theme-code-bg:                  $dd-theme-gray-600;
 $dd-theme-kbd-text:                 $dd-theme-white;
 $dd-theme-kbd-bg:                   lighten($dd-theme-primary, 15);
