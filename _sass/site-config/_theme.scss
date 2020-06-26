@@ -43,13 +43,35 @@ $dd-theme-context-dark:             $dd-theme-gray-800;
 
 // ** Typography
 
-// -- Colours
+// -- General
+$dd-theme-font-sans-serif-font:     'Open Sans', Helvetica, Arial, sans-serif;
+$dd-theme-heading-font:             'Open Sans Condensed', $dd-theme-font-sans-serif-font;
+$dd-theme-monospace-font:           'Source Code Pro', Consolas, "Courier New", monospace;
+$dd-theme-font-weight-light:        300;
+$dd-theme-font-weight-normal:       400;
+$dd-theme-font-weight-bold:         700;
+$dd-theme-font-weight-light:        300;
+$dd-theme-font-weight-normal:       400;
+$dd-theme-font-weight-bold:         700;
 
-// ---- Body colours
+// -- Body
+// !TODO: Rename *-theme-body-* vars as *-body-* and move to "General" section above
 $dd-theme-body-text:                $dd-theme-gray-800;
 $dd-theme-body-bg:                  $dd-theme-white;
+$dd-theme-body-font-size:           1rem;
+$dd-theme-body-font-size-lg:        ($dd-theme-body-font-size * 1.25);
+$dd-theme-body-font-size-sm:        ($dd-theme-body-font-size * .875);
+$dd-theme-body-line-height:         1.6;
 
-// ---- Main link styling
+// -- Headings
+$dd-theme-h1-font-size:             $dd-theme-body-font-size * 2.5;
+$dd-theme-h2-font-size:             $dd-theme-body-font-size * 1.875;
+$dd-theme-h3-font-size:             $dd-theme-body-font-size * 1.5;
+$dd-theme-h4-font-size:             $dd-theme-body-font-size * 1.125;
+$dd-theme-h5-font-size:             $dd-theme-body-font-size;
+$dd-theme-h6-font-size:             $dd-theme-body-font-size * 0.85;
+
+// -- Main links
 $dd-theme-link:                     lighten($dd-theme-primary, 10%);
 $dd-theme-link-hover:               $dd-theme-primary;
 $dd-theme-link-bg:                  rgba(0,0,0,5%);
@@ -66,35 +88,9 @@ $dd-theme-code-bg:                  $dd-theme-gray-600;
 $dd-theme-kbd-text:                 $dd-theme-white;
 $dd-theme-kbd-bg:                   lighten($dd-theme-primary, 15);
 $dd-theme-pre-text:                 $dd-theme-gray-900;
-
-// -- Body font families
-$dd-theme-font-sans-serif-font:     'Open Sans', Helvetica, Arial, sans-serif;
-$dd-theme-heading-font:             'Open Sans Condensed', $dd-theme-font-sans-serif-font;
-$dd-theme-monospace-font:           'Source Code Pro', Consolas, "Courier New", monospace;
-
-// -- Font sizes
-// ---- body
-$dd-theme-body-font-size:           1rem;
-$dd-theme-body-font-size-lg:        ($dd-theme-body-font-size * 1.25);
-$dd-theme-body-font-size-sm:        ($dd-theme-body-font-size * .875);
-// ---- heading
-$dd-theme-h1-font-size:             $dd-theme-body-font-size * 2.5;
-$dd-theme-h2-font-size:             $dd-theme-body-font-size * 1.875;
-$dd-theme-h3-font-size:             $dd-theme-body-font-size * 1.5;
-$dd-theme-h4-font-size:             $dd-theme-body-font-size * 1.125;
-$dd-theme-h5-font-size:             $dd-theme-body-font-size;
-$dd-theme-h6-font-size:             $dd-theme-body-font-size * 0.85;
-// ---- code
 $dd-theme-code-font-size:           87.5%;
 $dd-theme-kbd-font-size:            $dd-theme-code-font-size;
 
-// -- Font weights
-$dd-theme-font-weight-light:        300;
-$dd-theme-font-weight-normal:       400;
-$dd-theme-font-weight-bold:         700;
-
-// -- Line height
-$dd-theme-body-line-height:         1.6;
 
 // ** Jumbotron
 
