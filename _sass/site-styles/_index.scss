@@ -2,6 +2,8 @@
 
 #slogan {
     padding: 1rem;
+    padding-top: 0;
+    margin-top: 0;
 
     h1 {
         color: $dd-theme-primary;
@@ -12,8 +14,8 @@
         font-style: italic;
         color: $dd-theme-gray-500;
         border-bottom: 2px $dd-theme-gray-300 dotted;
-        padding: 0 0 0.25rem 0;
-        margin: 0 0 0.5rem 0;
+        padding: 0 0 0.5rem 0;
+        margin: 0 0 1rem 0;
         text-align: right;
         &:before {
             font-size: 120%;
