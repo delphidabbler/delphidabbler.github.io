@@ -11,6 +11,7 @@ nav.navbar {
     .navbar-brand {
         margin-right: 0;
     }
+
     .navbar-toggler {
         &:focus,
         &:active,
@@ -20,23 +21,26 @@ nav.navbar {
             border: 1px solid $dd-theme-gray-400;
         }
         &:hover {
-            background-color: $dd-theme-gray-200;
+            background-color: $dd-theme-navbar-hover-bg;
         }
         &.collapsed {
             box-shadow: none;
         }
     }
+
     .navbar-nav {
         margin-left: 0;
         .nav-item {
             &:hover {
-                background-color: $dd-theme-gray-200;
+                background-color: $dd-theme-navbar-hover-bg;
+            }
+            &.active {
+                font-weight: bold;
+            }
+            .nav-link {
+                border-bottom: none;
             }
             @include media-breakpoint-up(lg) {
-                color: red;
-                &.active {
-                    font-weight: bold;
-                }
                 &:hover {
                     background-color: transparent;
                 }
@@ -46,6 +50,47 @@ nav.navbar {
                     &:hover {
                         border-bottom: 2px solid $dd-theme-secondary;
                     }
+                }
+            }
+        }
+
+        .dropdown-menu {
+            background-color: $dd-theme-navbar-bg;
+            padding-right: 0.5rem;
+            padding-left: 0.5rem;
+
+            &.show {
+                margin-bottom: 1rem;
+                margin-right: 1rem;
+                border-color: $dd-theme-gray-400;
+            }
+
+            .dropdown-item {
+                border-bottom: 2px solid transparent;
+                &:hover {
+                    background-color: $dd-theme-navbar-hover-bg;
+                    color: $dd-theme-navbar-hover;
+                }
+                &.active {
+                    background-color: transparent;
+                    font-weight: bold;
+                    color: $dd-theme-navbar-active;
+                    &:hover {
+                        background-color: $dd-theme-navbar-hover-bg;
+                    }
+                }
+            }
+
+            .dropdown-divider {
+                border-top: 1px solid $dd-theme-gray-400;
+            }
+
+            @include media-breakpoint-up(lg) {
+                padding-right: 0.25rem;
+                padding-left: 0.25rem;
+
+                &.show {
+                   border-color: $dd-theme-primary;
                 }
             }
         }
