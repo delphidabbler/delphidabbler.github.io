@@ -299,29 +299,6 @@ a[href^="http"] {
   border: none;
 }
 
-// General strapline
-//** Custom
-.strapline {
-  font-family: $branding-strapline-font-family;
-  font-style: italic; // MUST be italic, no other style available for this font
-  font-weight: normal;
-}
-
-// Styles the strapline that appears below logo on pages with un-collapsed menus
-//** Custom
-.branding > .strapline {
-  display: none;
-  @extend .strapline;
-  font-size: $branding-strapline-font-size;
-  color: $branding-strapline-color;
-  opacity: $branding-strapline-opacity;
-  text-shadow: $branding-strapline-shadow;
-  letter-spacing: $branding-strapline-letter-spacing;
-  @media (min-width: $screen-sm-min) {
-    display: block;
-  }
-}
-
 // Styles page footer
 //** Custom
 .pagefoot {
