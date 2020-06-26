@@ -54,7 +54,7 @@
 
 #showcase {
 
-    $stripe-width: 3rem;
+    $stripe-width: 2rem;
     $stripe-style: solid;
 
     .dd-showcase-item {
@@ -90,14 +90,13 @@
         &:nth-child(even) {
 
             background-color: $dd-theme-primary-light;
-            border-right: $stripe-width $stripe-style  darken($dd-theme-primary-light, 3%);
+            border-left: $stripe-width $stripe-style  darken($dd-theme-primary-light, 3%);
 
             h2 {
                 color: $dd-theme-primary;
             }
 
             .btn-info {
-                margin-left: 2 * $stripe-width;
                 border-color: $dd-theme-primary;
                 &:hover {
                     background-color: darken($dd-theme-primary-light, 15%);
