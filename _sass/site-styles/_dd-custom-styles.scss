@@ -291,38 +291,6 @@ a[href^="http"] {
 }
 
 
-// Styles page footer
-//** Custom
-.pagefoot {
-  padding: $padding-small-vertical $padding-small-horizontal;
-  background-color: $pagefoot-bg;
-  color: $pagefoot-color;
-  @extend .small;
-  margin-bottom: $page-margin-bottom;
-  margin-top: $page-margin-top * 2;
-
-  a {
-    color: $pagefoot-link-color;
-  }
-
-  p {
-    margin-top: 0;
-    margin-bottom: ($line-height-computed ) / 4;
-  }
-
-  .pagefoot-links,
-  .pagefoot-credits  {
-    @extend .text-center;
-    & > *:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  .pagefoot-credits {
-      color: $pagefoot-credits-color;
-  }
-}
-
 // Customise panel styling
 //** Bootstrap override
 .panel {
