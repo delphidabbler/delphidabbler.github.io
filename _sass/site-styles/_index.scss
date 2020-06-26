@@ -3,20 +3,16 @@
 #slogan {
     padding: 1rem;
     padding-top: 0;
-    margin-top: 0;
-
-    h1 {
-        color: $dd-theme-primary;
-    }
 
     .dd-strapline {
-        font-size: 150%;
+        font-size: 200%;
         font-style: italic;
         color: $dd-theme-gray-500;
         border-bottom: 2px $dd-theme-gray-300 dotted;
-        padding: 0 0 0.5rem 0;
-        margin: 0 0 1rem 0;
+        padding: 0 0 2rem 0;
+        margin: 3rem 0 2rem 0;
         text-align: right;
+
         &:before {
             font-size: 120%;
             content: "\2013\00a0";
@@ -24,15 +20,19 @@
     }
 
     .dd-opensource {
-        font-size: 125%;
+        font-size: 175%;
         font-weight: bold;
         text-align: left;
-        margin: 0 0 1rem 0;
+        margin: 0 0 2rem 0;
         color: $dd-theme-gray-500;
 
         .dd-separator-dot:after {
             content: "\00b7\00b7\00b7";
             font-size: 80%;
+        }
+
+        .dd-separator-pipe {
+            color: $dd-theme-gray-300;
         }
     }
 
@@ -64,8 +64,8 @@
         padding: 2rem 1rem;
 
         .btn-info {
-            display: block;
-            margin: 0 2rem;
+            display: inline-block;
+            padding: 0.5rem 2rem;
             background-color: transparent;
             color: $dd-theme-body-text;
         }
@@ -73,7 +73,7 @@
         &:nth-child(odd) {
 
             background-color: $dd-theme-secondary-light;
-            border-left: $stripe-width $stripe-style darken($dd-theme-secondary-light, 6%);
+            border-left: $stripe-width $stripe-style darken($dd-theme-secondary-light, 10%);
 
             h2 {
                 color: $dd-theme-secondary;
