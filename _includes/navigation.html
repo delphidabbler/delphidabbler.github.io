@@ -12,7 +12,7 @@
 </div> -->
 
 <header id="dd-main-page-header">
-  <nav class="navbar navbar-expand-lg navbar-light">
+  <nav class="navbar navbar-expand-md navbar-light">
     <a
       class="navbar-brand dd-branding-logo"
       href="{{ site.data.core.home-link }}"
@@ -34,7 +34,7 @@
           <a
             class="nav-link"
             href="{{ site.data.core.home-link }}"
-            aria-label="{{ site.data.core.home-link-title }}">Home <span class="sr-only">(current)</span></a>
+            aria-label="{{ site.data.core.home-link-title }}"><i class="fa fa-home fa-lg d-none d-md-inline d-lg-none"></i><span class="d-none d-lg-inline">Home</span></a>
         </li>
         <li class="nav-item {% if page.url == site.data.core.apps-link %} active{% endif %}">
           <a
@@ -46,7 +46,7 @@
           <a
             class="nav-link"
             href="{{ site.data.core.lib-link }}"
-            aria-label="{{ site.data.core.lib-link-title }}">Code Library</a>
+            aria-label="{{ site.data.core.lib-link-title }}"><span class="d-none d-lg-inline">Code Library</span><span class="d-none d-md-inline d-lg-none">Library</span></a>
         </li>
         <li class="nav-item {% if page.url == site.data.core.articles-link %} active{% endif %}">
           <a
