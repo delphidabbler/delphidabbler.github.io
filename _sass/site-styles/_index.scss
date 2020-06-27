@@ -1,7 +1,6 @@
 // ** Custom styling for home page
 
 #slogan {
-    color: red;
     padding: 0;
 
     .dd-strapline {
@@ -19,18 +18,18 @@
         text-align: left;
         color: $dd-theme-gray-500;
         font-size: 120%;
+
         .dd-opensource-pt1 {
             display: block;
             text-align: center;
             .dd-separator-dot:after {
                 content: "\00b7\00b7\00b7";
-                // font-size: 80%;
             }
         }
+
         .dd-opensource-pt2 {
             display: block;
             text-align: center;
-            // margin-left: 1rem;
             .dd-separator-pipe:after {
                 display: none;
             }
@@ -55,19 +54,8 @@
         }
     }
 
-    @include media-breakpoint-up(sm) {
-        color: blue;
-        .dd-opensource {
-            .dd-opensource-pt1 {
-                // display: inline;
-            }
-            .dd-opensource-pt2 {
-                // display: inline;
-            }
-        }
-    }
-
     @include media-breakpoint-up(md) {
+
         .dd-opensource {
             .dd-opensource-pt1 {
                 display: inline;
@@ -85,7 +73,6 @@
     }
 
     @include media-breakpoint-up(lg) {
-        color: green;
         padding: 1rem;
         padding-top: 0;
 
@@ -101,17 +88,8 @@
                 display: inline;
 
             }
-            .dd-opensource-pt2 {
-                // display: inline;
-                // text-align: left;
-                // margin-left: 0;
-                // .dd-separator-pipe:after {
-                //     content: "|";
-                //     color: $dd-theme-gray-300;
-                //     display: inline;
-                // }
-            }
         }
+
         .dd-link-boxes {
             margin-top: 2rem;
         }
