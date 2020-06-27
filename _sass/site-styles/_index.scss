@@ -56,10 +56,17 @@
 
     @include media-breakpoint-up(md) {
 
+        .dd-strapline {
+            font-size: 160%;
+        }
+
         .dd-opensource {
+            font-size: 140%;
+
             .dd-opensource-pt1 {
                 display: inline;
             }
+
             .dd-opensource-pt2 {
                 display: inline;
                 text-align: left;
@@ -101,12 +108,19 @@
     $stripe-width-base: 1rem;
     $stripe-width-md: 2rem;
     $stripe-style: solid;
+
     $h2-size-base: 175%;
     $h3-size-base: 125%;
     $p-size-base: 100%;
-    $h2-size-md: 225%;
-    $h3-size-md: 150%;
-    $p-size-md: 125%;
+
+    $h2-size-md: 200%;
+    $h3-size-md: 137%;
+    $p-size-md: 112%;
+
+    $h2-size-lg: 225%;
+    $h3-size-lg: 150%;
+    $p-size-lg: 125%;
+
     $h2-margin-base: 0.5rem;
     $h2-margin-md: 1rem;
     $showcase-padding-base: 1rem 0.5rem;
@@ -120,6 +134,9 @@
     $footer-margin-top-lg: 2rem;
     $footer-btn-display-base: block;
     $footer-btn-display-sm: inline-block;
+    $footer-btn-padding-base: 0.75rem auto;
+    $footer-btn-padding-sm: 0.5rem 1.5rem;   // N/a in base
+    $footer-btn-padding-lg: 1rem 2.5rem;
 
 
     .dd-showcase-item {
@@ -130,7 +147,7 @@
 
         .btn-info {
             display: $footer-btn-display-base;
-            padding: 0.5rem 2rem;
+            padding: $footer-btn-padding-base;
             background-color: transparent;
             color: $dd-theme-body-text;
         }
@@ -215,6 +232,7 @@
         .dd-showcase-item {
 
             .btn-info {
+                padding: $footer-btn-padding-sm;
                 display: $footer-btn-display-sm;
             }
 
@@ -227,6 +245,7 @@
     }
 
     @include media-breakpoint-up(md) {
+
         .dd-showcase-item {
             padding: $showcase-padding-md;
             border-left-width: $stripe-width-md;
@@ -258,6 +277,25 @@
         .dd-showcase-item {
             margin: 2rem 0;
             padding: $showcase-padding-lg;
+
+            .btn-info {
+                padding: $footer-btn-padding-lg;
+            }
+
+            .dd-showcase-item-header {
+                h2 {
+                    font-size: $h2-size-lg;
+                }
+            }
+
+            .dd-showcase-item-body {
+                h3 {
+                    font-size: $h3-size-lg;
+                }
+                p {
+                    font-size: $p-size-lg;
+                }
+            }
 
             .dd-showcase-item-footer {
                 margin-top: $footer-margin-top-lg;
