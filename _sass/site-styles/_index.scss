@@ -120,15 +120,38 @@
 
 #showcase {
 
-    $stripe-width: 2rem;
+    $stripe-width-base: 1rem;
+    $stripe-width-md: 2rem;
     $stripe-style: solid;
+    $h2-size-base: 175%;
+    $h3-size-base: 125%;
+    $p-size-base: 100%;
+    $h2-size-md: 225%;
+    $h3-size-md: 150%;
+    $p-size-md: 125%;
+    $h2-margin-base: 0.5rem;
+    $h2-margin-md: 1rem;
+    $showcase-padding-base: 1rem 0.5rem;
+    $showcase-padding-md: 1.25rem 1rem;
+    $showcase-padding-lg: 2rem 1rem;
+    $item-margin-base: 0;
+    $item-body-margin-base: 0;
+    $item-body-margin-sm: 2rem;
+    $footer-margin-top-base: 0.5rem;
+    $footer-margin-top-md: 1rem;
+    $footer-margin-top-lg: 2rem;
+    $footer-btn-display-base: block;
+    $footer-btn-display-sm: inline-block;
+
 
     .dd-showcase-item {
         margin: 2rem 0;
-        padding: 2rem 1rem;
+        padding: $showcase-padding-base;
+        border-left-width: $stripe-width-base;
+        border-left-style: $stripe-style;
 
         .btn-info {
-            display: inline-block;
+            display: $footer-btn-display-base;
             padding: 0.5rem 2rem;
             background-color: transparent;
             color: $dd-theme-body-text;
@@ -137,7 +160,7 @@
         &:nth-child(odd) {
 
             background-color: $dd-theme-secondary-light;
-            border-left: $stripe-width $stripe-style darken($dd-theme-secondary-light, 10%);
+            border-left-color: darken($dd-theme-secondary-light, 10%);
 
             h2 {
                 color: $dd-theme-secondary;
@@ -158,7 +181,7 @@
         &:nth-child(even) {
 
             background-color: $dd-theme-primary-light;
-            border-left: $stripe-width $stripe-style  darken($dd-theme-primary-light, 3%);
+            border-left-color: darken($dd-theme-primary-light, 3%);
 
             h2 {
                 color: $dd-theme-primary;
@@ -178,18 +201,19 @@
 
         .dd-showcase-item-header {
             h2 {
-                font-size: 225%;
-                margin-bottom: 1rem;
+                font-size: $h2-size-base;
+                margin-top: 0;
+                margin-bottom: $h2-margin-base;
             }
         }
 
         .dd-showcase-item-body {
 
-            margin-left: 2rem;
-            margin-right: 2rem;
+            margin-left: $item-body-margin-base;
+            margin-right: $item-body-margin-base;
 
             p {
-                font-size: 125%;
+                font-size: $p-size-base;
                 margin-bottom: 0.5rem;
                 &:last-child {
                     margin-bottom: 0;
@@ -198,13 +222,68 @@
 
             h3 {
                 margin-bottom: 0.5rem;
-                font-size: 150%;
+                font-size: $h3-size-base;
             }
         }
 
         .dd-showcase-item-footer {
             text-align: center;
-            margin-top: 2rem;
+            margin-top: $footer-margin-top-base;
+        }
+    }
+
+    @include media-breakpoint-up(sm) {
+
+        .dd-showcase-item {
+
+            .btn-info {
+                display: $footer-btn-display-sm;
+            }
+
+            .dd-showcase-item-body {
+                margin-left: $item-body-margin-sm;
+                margin-right: $item-body-margin-sm;
+            }
+        }
+
+    }
+
+    @include media-breakpoint-up(md) {
+        .dd-showcase-item {
+            padding: $showcase-padding-md;
+            border-left-width: $stripe-width-md;
+
+            .dd-showcase-item-header {
+                h2 {
+                    font-size: $h2-size-md;
+                    margin-bottom: $h2-margin-md;
+                }
+            }
+
+            .dd-showcase-item-body {
+                h3 {
+                    font-size: $h3-size-md;
+                }
+                p {
+                    font-size: $p-size-md;
+                }
+            }
+
+            .dd-showcase-item-footer {
+                margin-top: $footer-margin-top-md;
+            }
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+
+        .dd-showcase-item {
+            margin: 2rem 0;
+            padding: $showcase-padding-lg;
+
+            .dd-showcase-item-footer {
+                margin-top: $footer-margin-top-lg;
+            }
         }
     }
 }
