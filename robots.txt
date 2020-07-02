@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /error-docs/
+Disallow: /assets/
+
+Sitemap: https://delphidabbler.com/sitemap.xml
