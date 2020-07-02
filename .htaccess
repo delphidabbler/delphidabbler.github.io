@@ -1,4 +1,4 @@
-RewriteEngine onx
+RewriteEngine on
 
 Options -Indexes +MultiViews
 
