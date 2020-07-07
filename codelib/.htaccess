@@ -1,5 +1,0 @@
-RewriteEngine on
-
-Options -Indexes +MultiViews
-
-RedirectMatch permanent ^\/codelib(?:\.html)?(?:\/.*)$ /codelib

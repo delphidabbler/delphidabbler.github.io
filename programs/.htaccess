@@ -1,5 +1,0 @@
-RewriteEngine on
-
-Options -Indexes +MultiViews
-
-RedirectMatch permanent ^\/programs(?:\.html)?(?:\/.*)$ /programs

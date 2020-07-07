@@ -32,6 +32,13 @@ Redirect 307 /articles.php /articles
 ## Temporary redirects until tips are re-implemented with PHP and there is no need for a tips folder or .html
 Redirect 307 /tips/ /tips.html
 
+#RedirectMatch 307 ^/codelib/ide$ /codelib.html
+RedirectMatch 307 /codelib$ /codelib.html
+RedirectMatch 307 /codelib/$ /codelib.html
+RedirectMatch 307 /programs$ /programs.html
+RedirectMatch 307 /programs/$ /programs.html
+
+
 ## Parked redirects that may be needed in future
 
 ## May need to restore this redirect if the articles feed is reinstated
