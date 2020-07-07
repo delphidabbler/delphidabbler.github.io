@@ -6,13 +6,14 @@ ErrorDocument 404 /error-docs/404.html
 ErrorDocument 403 /error-docs/403.html
 ErrorDocument 500 /error-docs/500.html
 
-# Permanent redirects for old URLs that are in the wild
+## Permanent redirects for old URLs that are in the wild
 Redirect permanent /vis /software/vis
 Redirect permanent /vied /software/vied
 Redirect permanent /cfs /software/cfs
 Redirect permanent /chi /software/chi
 Redirect permanent /sibuilder /software/sib
-Redirect permanent /software/sibuilder /software/sib
+# May need to remove ".html" from following in later version of site
+Redirect permanent /software/sibuilder.html /software/sib
 
 ## Temporary redirect until articles are re-implement with PHP and there is no need for an articles folder or .html
 RedirectMatch 307 /articles/(\d{1,2}) /articles/article-$1.html
