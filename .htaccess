@@ -18,6 +18,10 @@ Redirect permanent /software/sibuilder.html /software/sib
 ## Short form URL known to be used: may restore short form urls so making this temporary
 Redirect 307 /view/url/codesnip-home /software/codesnip
 
+## Temporary redirects to DelphiDabbler blog while deciding whether to incorporate RSS feed in site
+Redirect 307 /blog https://delphidabbler.blogspot.com/
+Redirect 307 /news https://delphidabbler.blogspot.com/
+
 ## Temporary redirect until articles are re-implement with PHP and there is no need for an articles folder or .html
 RedirectMatch 307 /articles/(\d{1,2}) /articles/article-$1.html
 RedirectMatch 307 /articles/$ /articles.html
