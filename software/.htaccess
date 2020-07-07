@@ -8,9 +8,8 @@ Options -Indexes -MultiViews
 RedirectMatch 307 ^\/software\/([a-z0-9]+)$ /software/$1.html
 
 # map /software?id=<id> to /software/<id>.html
-RewriteCond %{REQUEST_URI} ^/software/$
+RewriteCond %{REQUEST_URI} ^\/software(?:\.php)?\/?$
 RewriteCond %{QUERY_STRING} \bid\b=([a-z0-9]+) [NC]
-                            
 RewriteRule (.*) /software/%1? [R=307,L]
 
 # map /software/<id>/something to /software/<id>.html
