@@ -1,0 +1,5 @@
+RewriteEngine on
+
+Options -Indexes +MultiViews
+
+RedirectMatch 307 ^\/tips(?:\.html?)?\/(\d{1,3})$ https://delphidabbler.github.io/delphi-tips/tips/$1.html
