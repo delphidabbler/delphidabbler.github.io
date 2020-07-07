@@ -1,7 +1,60 @@
 ---
 title: Articles
 ---
-<h1 role="heading">
+<script>
+  /*
+   * Check for query string containing section in form /articles?article=<id>
+   * where <id> in [1..25] and redirect such to /articles/article-<id>. Any
+   * other query strings are ignored.
+   *
+   * This required only for articles that existed on the old site. The only
+   * valid query strings are 1..25. If new articles are added to the new site
+   * no changes are required here because new articles will never have been
+   * accessed using the query string method.
+   *
+   * This functionality added because Google was reporting the old query
+   * string URLs are still widely used. See issue #61.
+   */
+
+  function redirectIfQueryStr() {
+
+    // get protocol, host and query string: we customise rest of URL
+    const protocol = window.location.protocol;
+    const host = location.host;
+    const [ , queryStr] = window.location.href.split('?');
+    if ( ! queryStr )
+      return; // no query string
+
+    const queryParts = queryStr.split('&');
+    if ( ! queryParts )
+      return; // no query string
+
+    const articleQuery = queryParts.find(elt => {
+      return elt.startsWith('article=');
+    });
+    if (! articleQuery)
+      return; // no articles component of query string
+
+    const [ , articleIdStr] = articleQuery.split('=');
+    if (! articleIdStr )
+      return; // no article id specified
+
+    articleId = parseInt(articleIdStr);
+    if ( (articleId < 1) || (articleId > 25 ) )
+      return; // invalid article id
+
+    // Construct new URL and redirect to it
+    // use:
+    //   same protocol (could be http: or https:)
+    //   same host (could be delphidabbler.com, www.delphidabbler.com or localhost for testing)
+    // reconstruct resource using articleId
+    window.location = protocol + '//' + host + '/articles/article-' + articleId;
+  }
+
+  redirectIfQueryStr();
+</script>
+
+  <h1 role="heading">
   Articles
 </h1>
 
