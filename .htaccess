@@ -15,6 +15,9 @@ Redirect permanent /sibuilder /software/sib
 # May need to remove ".html" from following in later version of site
 Redirect permanent /software/sibuilder.html /software/sib
 
+## Short form URL known to be used: may restore short form urls so making this temporary
+Redirect 307 /view/url/codesnip-home /software/codesnip
+
 ## Temporary redirect until articles are re-implement with PHP and there is no need for an articles folder or .html
 RedirectMatch 307 /articles/(\d{1,2}) /articles/article-$1.html
 RedirectMatch 307 /articles/$ /articles.html
