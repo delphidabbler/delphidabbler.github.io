@@ -7,7 +7,7 @@ repository: "delphidabbler/delphidabbler.github.io"
 theme: null
 
 exclude: [README.md, LICENSE.md, Gemfile, Gemfile.lock]
-  
+
 collections:
   software:
     output: true
@@ -27,3 +27,5 @@ defaults:
     values:
       layout: "default"
 
+# change the following to false to re-enable flash pop-ups
+ignore-flash: true
