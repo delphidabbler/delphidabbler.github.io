@@ -1,7 +1,7 @@
 ---
 layout: "programs-tplt"
 group: apps
-priority: 8
+priority: 48
 version: "7.2.0"
 os: "Windows 2000 & later"
 release-date: "2011/08/02"
@@ -10,9 +10,31 @@ precis: "Displays version information from an executable file"
 summary: "Displays the version information from any file that contains it. Includes shell extensions for easy access to version information from Windows Explorer."
 download-base-url: "https://github.com/delphidabbler/vispy/releases/tag/v"
 repo-url: "https://github.com/delphidabbler/vispy"
-want-header-buttons: true
-status: "current"
+want-header-buttons: false
+status: "mothballed"
 ---
+<section class="panel panel-warning">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Mothballed
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="lead">
+			Development of <em>{{ page.title }}</em> is frozen and the GitHub repository is archived.
+		</p>
+		<p>
+			The latest release was made just over 10 years ago, as of 2021. I've no intentions of developing this program any further.
+		</p>
+		<p>
+			The source code remains available on GitHub (see below) should anyone want to develop the program further. Just fork the repo and take the project over.
+		</p>
+		<p class="alert alert-warning lead glyph">
+			There is no support available for this program. Please do not report any bugs or contact me about it.
+		</p>
+  </div>
+</section>
+
 <section class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title">
@@ -21,7 +43,7 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      <em>Version Information Spy</em> displays the version information contained in an executable file or DLL. The program makes version information details available in several ways:
+      <em>{{ page.title }}</em> displays the version information contained in an executable file or DLL. The program makes version information details available in several ways:
     </p>
     <ul class="wide">
       <li>
@@ -71,25 +93,22 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      <em>Version Information Spy</em> is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/vispy</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+      <em>Version Information Spy</em> is <em>archived</em> on  GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/vispy</a></code> repository. The final release of the program can be downloaded from the repository's <em>Releases</em> tab.
     </p>
     <p>
-      Each release gives the option of downloading either the programs's installer or the source code. Your options are:
+      The final release is v{{page.version}}. The following downloads are available:
     </p>
     <ul>
       <li>
-        Choose <code>vispy-exe-{{page.version}}.zip</code> to download a zip file containing the program's installer. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.htm</code> file explains how to install the program.
+        Choose <code><a href="https://github.com/delphidabbler/vispy/releases/download/v7.2.0/vispy-exe-7.2.0.zip">vispy-exe-{{page.version}}.zip</a></code> to download a zip file containing the program's installer. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.htm</code> file explains how to install the program.
       </li>
       <li>
-        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+        Choose <code><a href="https://github.com/delphidabbler/vispy/archive/refs/tags/v7.2.0.zip">Source&nbsp;code.zip</a></code> to download the source code in <code>.zip</code> format.
       </li>
       <li>
-        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a gzip-ped tarball.
+        Choose <code><a href="https://github.com/delphidabbler/vispy/archive/refs/tags/v7.2.0.tar.gz">Source&nbsp;code.tar.gz</a></code> to download the source code as a gzip-ped tarball.
       </li>
     </ul>
-    <p class="text-center">
-      <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
-    </p>
   </div>
 </section>
 
@@ -117,27 +136,5 @@ status: "current"
         <span class="fa fa-fw fa-x-pad-right fa-file-code-o" aria-hidden="true"></span><a href="http://htmlpreview.github.io/?https://raw.githubusercontent.com/delphidabbler/vispy/master/Build.html">Build File<span class="sr-only"> (HTML file)</span></a> &ndash; provides detailed information on how to build the program from source.
       </li>
     </ul>
-  </div>
-</section>
-
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
-      Bugs &amp; Feature Requests
-    </h2>
-  </div>
-  <div class="panel-body">
-    <p>
-      You can report bugs or suggest new features using the <em>Version Information
-      Spy</em> <a href="https://github.com/delphidabbler/vispy/issues" class="offsite">issue tracker</a> on GitHub.
-    </p>
-    <p>
-      Please review existing bug reports and feature requests before creating a
-      new issue. If an issue already exists you may be able to help by adding a
-      further comment.
-    </p>
-    <p class="alert alert-warning glyph">
-      You will need a GitHub account if you want to create or edit an issue.
-    </p>
   </div>
 </section>
