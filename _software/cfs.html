@@ -1,7 +1,7 @@
 ---
 layout: "programs-tplt"
 group: apps
-priority: 6
+priority: 45
 version: "4.1.1"
 os: "Windows 2000 & later"
 release-date: "2104-03-21"
@@ -11,9 +11,31 @@ summary: "Displays the names of formats currently on the clipboard and enables c
 download-base-url: "https://github.com/delphidabbler/cfs/releases/tag/v"
 repo-name: "GitHub"
 repo-url: "https://github.com/delphidabbler/cfs"
-want-header-buttons: true
-status: "current"
+want-header-buttons: false
+status: "mothballed"
 ---
+<section class="panel panel-warning">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Mothballed
+    </h2>
+  </div>
+  <div class="panel-body">
+		<p class="lead">
+			Development of <em>{{ page.title }}</em> is frozen and the GitHub repository is archived.
+		</p>
+		<p>
+			The latest release was made back in March 2014. Now, in 2021, I think it's safe to say that the code base is stale! So I've decided to call it a day with this program.
+		</p>
+		<p>
+			The source code remains available on GitHub (see below) should anyone want to develop the program further. Just fork the repo and take the project over.
+		</p>
+		<p class="alert alert-warning lead glyph">
+			There is no support available for this program. Please do not report any bugs or contact me about it.
+		</p>
+  </div>
+</section>
+
 <section class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title">
@@ -58,25 +80,22 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/cfs</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+      This program is <em>archived</em> on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/cfs</a></code> repository. The final release of the program can be downloaded from the repository's <em>Releases</em> tab.
     </p>
     <p>
-      Each release gives the option of downloading either the program in executable format or the source code. Your options are:
+      The final release is v{{page.version}}. The following downloads are available:
     </p>
     <ul>
       <li>
-        Choose <code>cfs-exe-{{page.version}}.zip</code> to download a zip file containing the program's installer. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.txt</code> file explains how to install the program.
+        Choose <code><a href="https://github.com/delphidabbler/cfs/releases/download/v4.1.1/cfs-exe-4.1.1.zip">cfs-exe-{{page.version}}.zip</a></code> to download a zip file containing the program's installer. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.txt</code> file explains how to install the program.
       </li>
       <li>
-        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+        Choose <code><a href="https://github.com/delphidabbler/cfs/archive/refs/tags/v4.1.1.zip">Source&nbsp;code.zip</a></code> to download the source code in <code>.zip</code> format.
       </li>
       <li>
-        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a gzip-ped tarball.
+        Choose <code><a href="https://github.com/delphidabbler/cfs/archive/refs/tags/v4.1.1.tar.gz">Source&nbsp;code.tar.gz</a></code> to download the source code as a gzip-ped tarball.
       </li>
     </ul>
-    <p class="text-center">
-      <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
-    </p>
   </div>
 </section>
 
@@ -104,24 +123,5 @@ status: "current"
         <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/cfs/master/Docs/ReadMe-Src.txt">Build File<span class="sr-only"> (text file)</span></a> &ndash; provides detailed information on how to build the program from source.
       </li>
     </ul>
-  </div>
-</section>
-
-<section class="panel panel-default">
-  <div class="panel-heading">
-    <h2 class="panel-title">
-      Bugs &amp; Feature Requests
-    </h2>
-  </div>
-  <div class="panel-body">
-    <p>
-      You can report bugs or suggest new features using the <em>Clipboard Format Spy</em> <a href="https://github.com/delphidabbler/cfs/issues" class="offsite">issue tracker</a> on GitHub.
-    </p>
-    <p>
-      Please review existing bug reports and feature requests before creating a new issue. If an issue already exists you may be able to help by adding a further comment.
-    </p>
-    <p class="alert alert-warning glyph">
-      You will need a GitHub account if you want to create or edit an issue.
-    </p>
   </div>
 </section>
