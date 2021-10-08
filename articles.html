@@ -69,7 +69,7 @@ title: Articles
   </p>
 </div>
 
-{% assign sorted_articles = site.articles | sort: "article" | reverse %}
+{% assign sorted_articles = site.articles | where: "index", true | sort: "article" | reverse %}
 {% for article in sorted_articles %}
 {% assign test = forloop.index | modulo: 2 %}
 {% if test <> 0 %}<div class="row">{% endif %}
