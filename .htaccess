@@ -26,6 +26,7 @@ Redirect 307 /news https://delphidabbler.blogspot.com/
 
 ## Temporary redirects until articles are re-implemented with PHP and there is no need for an articles folder or .html
 RedirectMatch 307 /articles/(\d{1,2})$ /articles/article-$1.html
+RedirectMatch 307 /articles/article-(\d{1,2})$ /articles/article-$1.html
 RedirectMatch 307 /articles/$ /articles.html
 Redirect 307 /articles.php /articles
 
