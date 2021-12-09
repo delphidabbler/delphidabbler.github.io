@@ -32,6 +32,9 @@ about-link-title: "About page"
 credits-link: "/credits.html"
 credits-link-title: "Credits page"
 
+cookies-page-link: "/cookies"
+cookies-page-link-title: "Cookies page"
+
 install-to-ide-link: "/install-to-ide.html"
 
 software-base-url: "/software"
@@ -46,7 +49,7 @@ flash-msg-link: "/assets/scripts/flash-msg.js"
 
 style-link: "/assets/css/style.css"
 
-software-images-base-url: "/assets/images/software" 
+software-images-base-url: "/assets/images/software"
 articles-images-base-url: "/assets/images/articles"
 
 
