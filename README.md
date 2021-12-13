@@ -1,10 +1,10 @@
 # DelphiDabbler.com source code
 
-This project contains a GitHub Pages project used to maintain a the majority of the source code and content of the [delphidabbler.com](https://delphidabbler.com) website.
+This GitHub Pages project contains the source code and content of the [delphidabbler.com](https://delphidabbler.com) website.
 
-The site is developed and maintained using Jekyll. Changes to be published to delphidabbler.com are first commited to `master` on this repo and are then transferred by FTP to the main site's server.
+The site is developed and maintained using Jekyll. Changes commited to `master` are automatially published to delphidabbler.com.
 
-> Although the website can be viewed at https://delphidabbler.github.io _please don't link to that_. All changes are pushed to the official site at https://delphidabbler.com - please link to that site instead.
+> Until 2021/12/09 this site was accessible via the delphidabbler.github.io address but now that address is simply rewritten as delphidabbler.com. Please ensure all links are to [https://delphdabbler.com](https://delphidabbler.com) and not the old github.io address.
 
 ## Contributing
 
@@ -30,15 +30,10 @@ The following licenses apply:
 
 ## A bit of background
 
-When this project was first launched it was thought that delphidabbler.com was due to close.
+From its inception in 2002 the site was PHP driven and hosted on two or three different servers.
 
-The idea was that much of the content from the old website would be moved to a new GitHub Pages site.
+In 2020 costs were increasing and the decision was taken to close the site, transferring the content to GitHub Pages. Just in time the site was rescued by the generous offer of free web space. By then the site had been completely rewritten as a static website built using Jekyll and uploaded to this repository.
 
-However, almost at the last minute, a generous offer from [Creo Hosting](https://www.creohosting.com/) to host the site saved the day and delphidabbler.com could continue.
+For just over a year the Jekyll site was maintained here but builds were uploaded to the new host's server. Unfortunately in late 2021 the new provider seemed to be experiencing problems. So, in mid December 2021, the GitHub pages site became the main host and the delphidabbler.com domain was "pointed" at the GitHub Pages servers.
 
-Although Creo had facilities to run the old PHP driven site with only some minor tweaks, that wasn't done for two reasons:
-
-1. The old site really needed a major modernisation to give it a fresher look and to make it mobile friendly.
-2. A lot of work had been put into porting the site to a Jekyll driven site on GitHub Pages.
-
-So, this repo was repurposed to maintain the code for the main site. The GitHub Pages site is used to test changes before publishing the generated content to the main site.
+And so here we are!
