@@ -5,37 +5,37 @@
 home-link: "/"
 home-link-title: "Home page"
 
-apps-link: "/programs.html"
+apps-link: "/programs"
 apps-link-title: "Applications page"
 
-lib-link: "/codelib.html"
+lib-link: "/codelib"
 lib-link-title: "Code Library page"
 
-articles-link: "/articles.html"
+articles-link: "/articles"
 articles-link-title: "Articles page"
 
-tips-link: "/tips.html"
+tips-link: "/tips"
 tips-link-title: "Hints and Tips page"
 
-snippets-link: "/snippets.html"
+snippets-link: "/snippets"
 snippets-link-title: "Code Snippets page"
 
-notes-link: "/notes/"
+notes-link: "/notes"
 notes-link-title: "Delphi Notes index page"
 
-docs-link: "/docs.html"
+docs-link: "/docs"
 docs-link-title: "Documentation page"
 
-about-link: "/about.html"
+about-link: "/about"
 about-link-title: "About page"
 
-credits-link: "/credits.html"
+credits-link: "/credits"
 credits-link-title: "Credits page"
 
 cookies-page-link: "/cookies"
 cookies-page-link-title: "Cookies page"
 
-install-to-ide-link: "/install-to-ide.html"
+install-to-ide-link: "/install-to-ide"
 
 software-base-url: "/software"
 
