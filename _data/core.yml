@@ -55,7 +55,7 @@ articles-images-base-url: "/assets/images/articles"
 
 # External links
 
-gravatar-url: "http://en.gravatar.com/delphidabbler"
+gravatar-url: "https://en.gravatar.com/delphidabbler"
 gravatar-link-title: "Peter Johnson's Gravatar account"
 
 twitter-url: "https://twitter.com/delphidabbler"
@@ -73,10 +73,10 @@ sourceforge-ddlib-project-link-title: "D Dab Lib project page on SourceForge"
 sourceforge-ddlib-repo-url: "https://sourceforge.net/p/ddablib/code/HEAD/tree/"
 sourceforge-ddlib-repo-link-title: "D Dab Lib project repo on SourceForge"
 
-dd-blog-url: "http://delphidabbler.blogspot.com/"
+dd-blog-url: "https://delphidabbler.blogspot.com/"
 dd-blog-link-title: "DelphiDabbler Blog on Blogspot"
 
-cs-blog-url: "http://codesnip-app.blogspot.com/"
+cs-blog-url: "https://codesnip-app.blogspot.com/"
 cs-blog-link-title: "CodeSnip Blog on Blogspot"
 
 cc-40-url: "https://creativecommons.org/licenses/by/4.0/"
@@ -94,10 +94,10 @@ jquery-license-link-title: "jQuery License on the jQuery web site"
 normalize-css-license-url: "https://raw.githubusercontent.com/necolas/normalize.css/master/LICENSE.md"
 normalize-css-license-link-title: "MIT license on normalize CSS GitHub page"
 
-apache-20-license-url: "http://www.apache.org/licenses/LICENSE-2.0"
+apache-20-license-url: "https://www.apache.org/licenses/LICENSE-2.0"
 apache-20-license-link-title: "Apache License v2.0 on apache.org"
 
-sil-ofl-11-license-url: "http://scripts.sil.org/OFL"
+sil-ofl-11-license-url: "https://scripts.sil.org/OFL"
 sil-ofl-11-license-link-title: "SIL Open Font license v1.1 on sil.org"
 
 mpl-2-license-url: "https://www.mozilla.org/MPL/2.0/"
