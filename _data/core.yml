@@ -100,7 +100,7 @@ apache-20-license-link-title: "Apache License v2.0 on apache.org"
 sil-ofl-11-license-url: "http://scripts.sil.org/OFL"
 sil-ofl-11-license-link-title: "SIL Open Font license v1.1 on sil.org"
 
-mpl-2-license-url: "http://www.mozilla.org/MPL/2.0/"
+mpl-2-license-url: "https://www.mozilla.org/MPL/2.0/"
 mpl-2-license-link-title: "Mozilla Public License v2.0 on mozilla.org"
 
 google-fonts-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro|Open+Sans+Condensed:700|Libre+Baskerville:400italic"
@@ -108,6 +108,8 @@ google-fonts-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,700|Sou
 font-awesome-url: "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
 
 jquery-url: "https://code.jquery.com/jquery-1.11.1.min.js"
+
+cookie-consent-url: "https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css"
 
 
 # Original site name
