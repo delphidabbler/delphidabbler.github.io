@@ -29,7 +29,7 @@ title: Applications
 					{% endif %}
         </div>
         <div class="panel-footer text-right">
-          <a href="{{ program.url }}" aria-label="{{ program.title | escape }} page on {{ site.data.core.orig-site-name | escape }}">More info</a>
+          <a href="{{ program.url | remove: ".html" }}" aria-label="{{ program.title | escape }} page on {{ site.data.core.orig-site-name | escape }}">More info</a>
         </div>
       </div>
     </div>

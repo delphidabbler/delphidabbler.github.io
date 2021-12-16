@@ -29,7 +29,7 @@ title: Code Library
 					{% endif %}
         </div>
         <div class="panel-footer text-right">
-          <a href="{{ project.url }}" aria-label="{{ project.title | escape }} page on {{ site.data.core.orig-site-name | escape }}">More info</a>
+          <a href="{{ project.url | remove: ".html" }}" aria-label="{{ project.title | escape }} page on {{ site.data.core.orig-site-name | escape }}">More info</a>
         </div>
       </div>
     </div>
