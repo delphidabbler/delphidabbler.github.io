@@ -2,10 +2,10 @@
 <meta http-equiv=X-UA-Compatible content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Peter Johnson (delphidabbler)">
-<meta name="copyright" content="Copyright (C) {{ "now" | date: "%Y" }}, Peter Johnson (https://gravatar.com/delphidabbler)"
+<meta name="copyright" content="Copyright (C) {{ "now" | date: "%Y" }}, Peter Johnson (https://gravatar.com/delphidabbler)">
 <meta name="description" content="{% if page.meta-desc %}{{ page.meta-desc | escape }}{% else %}Delphi source code and programming articles, tips etc.{% endif %}">
-<title>{% if page.meta-title %}{{page.meta-title | escape}}{% else %}{{ page.title | escape }}{% endif %}</title>
 {% if page.meta-keywords %}<meta name="keywords" content="{{ page.meta-keywords }}">{% endif %}
+<title>{% if page.meta-title %}{{page.meta-title | escape}}{% else %}{{ page.title | escape }}{% endif %}</title>
 {% if page.link-next %}<link rel="next" href="{{ page.link-next | escape }}">{% endif %}
 {% if page.link-prev %}<link rel="prev" href="{{ page.link-prev | escape }}">{% endif %}
 <link rel="stylesheet" href="{{ site.data.core.google-fonts-url }}">
