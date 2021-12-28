@@ -3,6 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Peter Johnson (delphidabbler)">
 <meta name="copyright" content="Copyright (C) {{ "now" | date: "%Y" }}, Peter Johnson (https://gravatar.com/delphidabbler)">
+{% if page.robots %}<meta name="robots" content="{{ page.robots }}">{% endif %}
 <meta name="description" content="{% if page.meta-desc %}{{ page.meta-desc | escape }}{% else %}Delphi applications, source code, programming articles, Pascal snippets, tips etc.{% endif %}">
 {% if page.meta-keywords %}<meta name="keywords" content="{{ page.meta-keywords }}">{% endif %}
 <title>{% if page.meta-title %}{{page.meta-title | escape}}{% else %}{{ page.title | escape }}{% endif %}</title>
