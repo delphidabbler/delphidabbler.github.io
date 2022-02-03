@@ -14,7 +14,7 @@ summary: "Components that get and filter names of files and folders dragged and 
 meta-title: "File Drag Drop Components for Delphi Pascal VCL | Open Source | 32 & 64 bit"
 meta-desc: "Delphi Pascal VCL components that get and filter the names of files and folders dragged and dropped from Windows Explorer. Require Delphi 7 & later."
 download-base-url: "https://sourceforge.net/projects/ddablib/files/dropfiles/"
-repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/dropfiles/
+repo-url: "https://github.com/delphidabbler/ddablib/tree/main/projects/dropfiles"
 want-header-buttons: true
 status: "current"
 ---
@@ -90,9 +90,6 @@ status: "current"
 						<span class="fa fa-ban fa-stack-2x text-danger"></span>
 					</span>
 					If you run into this problem note that it is a feature of Windows, not a bug in the code!
-				</p>
-				<p>
-					You can read more about the problem on this <a href="http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=736086&amp;SiteID=1">Microsoft forum</a>
 				</p>
 			</div>
 		</aside>
@@ -186,21 +183,7 @@ status: "current"
       <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
-      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the dropfiles project in the Subversion repo">trunk/projects/dropfiles</a></code> branch.
-    </p>
-    <p>
-      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
-    </p>
-    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/dropfiles/release-{{ page.version }} codedir</pre>
-    <p>
-      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
-    </p>
-    <p>
-      The latest development tree can be checked out using:
-    </p>
-    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/dropfiles codedir</pre>
-    <p>
-      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.github-ddlib-project-url }}" aria-label="{{ site.data.core.github-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Git repository on GitHub. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the dropfiles project in the Git repo">projects/dropfiles</a></code> directory. You can <code>git clone</code> the whole repo as required.
     </p>
   </div>
 </section>
@@ -267,7 +250,7 @@ status: "current"
       The <em>Drop Files Components</em> are comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/DropFilesComponents.md" aria-title="View the online documentation">here</a>
     </p>
     <p>
-      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/dropfiles/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+      The project's change log can be viewed <a href="https://raw.githubusercontent.com/delphidabbler/ddablib/main/projects/dropfiles/Docs/ChangeLog.txt" aria-title="View the change log in plain text">here</a>.
     </p>
     <p>
       A read-me file (<code>ReadMe.htm</code>) is included in the project download.
@@ -297,19 +280,16 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
-    </p>
-    <p>
-      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://github.com/delphidabbler/ddablib/issues">Issue Tracker</a>.
     </p>
     <p class="alert alert-info glyph">
-      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>dropfiles</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you reference <kbd>dropfiles</kbd> to make it clear which project you are referring to.
     </p>
     <p>
-      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+      If you have created a bug fix or have implemented a new feature please open a pull request for it.
     </p>
     <p>
-      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/DropFilesComponents.md">documentation</a> and/or <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/FAQs/DropFilesComponents.md">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+      Should you have any queries about using the components please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/DropFilesComponents.md">documentation</a> and/or <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/FAQs/DropFilesComponents.md">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://github.com/delphidabbler/ddablib/discussions">discussion group</a>.
     </p>
   </div>
 </section>

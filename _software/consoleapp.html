@@ -14,7 +14,7 @@ summary: "Source code of classes that simplify executing, and redirecting the I/
 meta-title: "Console Application Runner Classes for Delphi Pascal | Open Source | 32 & 64 bit"
 meta-desc: "Delphi Pascal classes that simplify execution of child console processes and redirection of their standard input/output. Require Delphi 7 & later"
 download-base-url: "https://sourceforge.net/projects/ddablib/files/consoleapp/"
-repo-url: https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/consoleapp/
+repo-url: "https://github.com/delphidabbler/ddablib/tree/main/projects/consoleapp"
 want-header-buttons: true
 status: "current"
 ---
@@ -40,7 +40,7 @@ status: "current"
     </h3>
     <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
       <p>
-        The classes come with numerous demo programs that illustrate how to use the them. Each demo is related to an example documented in the <span aria-hidden="true"><em>Examples</em> section of the project </span><a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ConsoleAppClasses.md" aria-label="main project documentation">documentation</a>. There is a VCL version of each demo and a few demos also have FireMonkey 2 versions as well.
+        The classes come with numerous demo programs that illustrate how to use the them. Each demo is related to an example documented in the <span aria-hidden="true"><em>Examples</em> section of the project </span><a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ConsoleApp.md" aria-label="main project documentation">documentation</a>. There is a VCL version of each demo and a few demos also have FireMonkey 2 versions as well.
       </p>
       <div class="alert alert-info">
         <p>
@@ -80,21 +80,7 @@ status: "current"
       <a class="btn btn-primary" role="button" href="{{ dl-url }}"  aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
     </p>
     <p>
-      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.sourceforge-ddlib-project-url }}" aria-label="{{ site.data.core.sourceforge-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Subversion repository. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the consoleapp project in the Subversion repo">trunk/projects/consoleapp</a></code> branch.
-    </p>
-    <p>
-      Subversion users can check out the source code of the current release from the repository on SourceForge by doing:
-    </p>
-    <pre class="small pre-scrollable kbd">svn checkout http://svn.code.sf.net/p/ddablib/code/tags/projects/consoleapp/release-{{ page.version }} codedir</pre>
-    <p>
-      where <code>codedir</code> is the directory where you want to checkout code. To check out other versions, simply specify a different version number.
-    </p>
-    <p>
-      The latest development tree can be checked out using:
-    </p>
-    <pre class="small pre-scrollable kbd"> svn checkout http://svn.code.sf.net/p/ddablib/code/trunk/projects/consoleapp codedir</pre>
-    <p>
-      Check outs are read only, but you can easily contribute code: see <em><a href="#feedback">Feedback &amp; Queries</a></em> below.
+      <em>{{ page.title }}</em> is a sub-project of the <a href="{{ site.data.core.github-ddlib-project-url }}" aria-label="{{ site.data.core.github-ddlib-project-link-title }}">DDabLib</a> project which is maintained in a Git repository on GitHub. The code is developed in the <code><a href="{{ page.repo-url }}" aria-title="Go to the consoleapp project in the Git repo">projects/consoleapp</a></code> directory. You can <code>git clone</code> the whole repo as required.
     </p>
   </div>
 </section>
@@ -158,7 +144,7 @@ status: "current"
       The <em>Console Application Runner Classes</em> are comprehensively documented online <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ConsoleApp.md" aria-title="View the online documentation">here</a>
     </p>
     <p>
-      The project's change log can be viewed on <a href="https://sourceforge.net/p/ddablib/code/HEAD/tree/trunk/projects/consoleapp/Docs/ChangeLog.txt" aria-title="Change log on SourceForge">SourceForge</a>
+      The project's change log can be viewed <a href="https://raw.githubusercontent.com/delphidabbler/ddablib/main/projects/consoleapp/Docs/ChangeLog.txt" aria-title="View the change log in plain text">here</a>.
     </p>
     <p>
       A read-me file (<code>ReadMe.htm</code>) is included in the project download.
@@ -177,19 +163,16 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      If you find any bugs or want to suggest a new feature please report them using the <a href="https://sourceforge.net/p/ddablib/tickets">Issue Tracker</a>.
-    </p>
-    <p>
-      Click the <em>Create Ticket</em> button to create a ticket then complete the form giving as much information as possible.
+      If you find any bugs or want to suggest a new feature please report them using the <a href="https://github.com/delphidabbler/ddablib/issues">Issue Tracker</a>.
     </p>
     <p class="alert alert-info glyph">
-      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you enter <kbd>consoleapp</kbd> in the <em>Project</em> edit box to make it clear which project you are referring to. You should also choose <kbd>Defect</kbd> in the <em>Type</em> drop down list to report a bug or <kbd>Enhancement</kbd> to request a new feature.
+      The issue tracker is shared among all the projects in the DelphiDabbler Code Library, so please make sure you reference <kbd>consoleapp</kbd> to make it clear which project you are referring to.
     </p>
     <p>
-      If you have created a bug fix or have implemented a new feature please attach a zip file to your ticket that contains your source code.
+      If you have created a bug fix or have implemented a new feature please open a pull request for it.
     </p>
     <p>
-      Should you have any queries about using the classes please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ConsoleApp.md">documentation</a> and/or <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/FAQs/ConsoleAppClasses.md">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://sourceforge.net/p/ddablib/discussion/">discussion group</a>.
+      Should you have any queries about using the classes please read the <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/Docs/ConsoleApp.md">documentation</a> and/or <a href="https://github.com/delphidabbler/ddab-lib-docs/blob/master/FAQs/ConsoleAppClasses.md">FAQ</a>. If you can't find an answer in the documentation then post a message in the <a href="https://github.com/delphidabbler/ddablib/discussions">discussion group</a>.
     </p>
   </div>
 </section>
