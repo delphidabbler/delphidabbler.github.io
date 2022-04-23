@@ -38,6 +38,17 @@ layout: default
 	</ul>
 {% endif %}
 
+{% if page.demo-url %}
+	<div class="alert alert-info">
+		<p>
+			<span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span> A <a href="{{ page.demo-url }}"><strong>demo program</strong></a> for the article is available in the <code>delphidabbler/article-demos</code> repository on GitHub.</p>
+
+		<p>
+			<strong>Note:</strong> The above link supersedes any link or repository referenced in the article.
+		</p>
+	</div>
+{% endif %}
+
 </div>
 {% endif %}
 
