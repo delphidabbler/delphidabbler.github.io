@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+{% include head.html %}
+
+<meta http-equiv="refresh" content="2;URL='{{ page.redirect-url }}'">
+
+</head>
+
+<body>
+
+<div class="container-fluid">
+
+<!-- BEGIN page header -->
+{% include header.html %}
+<!-- END page header -->
+
+<!-- BEGIN main navigation -->
+{% include navigation.html %}
+<!-- END main navigation -->
+
+</div><!-- /.container-fluid -->
+
+<div class="container">
+
+<!-- BEGIN main -->
+<!-- ACCESSIBILITY: main id is used as target to skip navigation -->
+<main id="content" roll="main">
+
+<!-- BEGIN page content -->
+<h1>Redirecting</h1>
+
+<p>You are being redirected to:</p>
+
+<p class="well"><a href="{{ page.redirect-url }}"><strong>{{ page.redirect-url | escape }}</strong></a></p>
+
+<p class="alert alert-warning glyph">If the redirection doesn't happen in a few seconds, click the link above.</p>
+
+{{ content }}
+<!-- END page content -->
+
+</main>
+<!-- END main -->
+
+{% include footer.html %}
+
+</div><!-- /.container -->
+
+<!-- BEGIN scripts -->
+{% include scripts.html %}
+<!-- END scripts -->
+
+</body>
+
+</html>
