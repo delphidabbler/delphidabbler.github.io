@@ -6,6 +6,9 @@ repository: "delphidabbler/delphidabbler.github.io"
 # see https://github.com/jekyll/jekyll/issues/7478
 theme: null
 
+plugins:
+  - jekyll-redirect-from
+
 exclude: [README.md, LICENSE.md, Gemfile, Gemfile.lock]
 
 collections:
