@@ -90,8 +90,8 @@ redirect_from:
 
     <p>
         When writing programs that use the <var>TWebBrowser</var> control as part of the user interface I've sometimes
-        needed to respond to user interaction with the control. The official way to do this is to extend the web
-        browser's <em>external</em> object, and this is the technique we will use in this article.
+        needed my program to respond to user interaction with HTML displayed in the control. The official way to do this
+        is to extend the web browser's <em>external</em> object, and this is the technique we will use in this article.
     </p>
 
     <p>
@@ -101,10 +101,10 @@ redirect_from:
 
     <p>
         We can extend the <em>external</em> object by adding methods to it that are implemented in Delphi rather than in
-        JavaScript or VBScript. We do this by creating a COM automation object that exposes the required methods and
-        then notifying the <var>TWebBrowser</var> control that the COM object extends the <em>external</em> object. The
-        new <em>external</em> object methods can then be called from JavaScript or VBScript running in the
-        <var>TWebBrowser</var>. When these methods are called our Delphi code executes.
+        JavaScript or VBScript. We do this by creating a COM automation object that exposes the required methods, then
+        notifying the <var>TWebBrowser</var> control that the COM object extends the <em>external</em> object. The new
+        <em>external</em> object methods can then be called from JavaScript or VBScript running in the
+        <var>TWebBrowser</var> control, which results in our Delphi code executing.
     </p>
 
     <p>
@@ -228,7 +228,7 @@ redirect_from:
         </li>
 
         <li>
-            Return any values from methods using a parameter that has the <var>[out,retval]</var> modifier.
+            Return any values from methods via a parameter that has an <var>[out,retval]</var> modifier.
         </li>
     </ol>
 
@@ -345,25 +345,30 @@ redirect_from:
     </div>
 
     <p>
-        These methods would then be implemented as required. Remember that we don't declare or implement any methods of
-        <var>IDispatch</var> since they are already implemented by <var>TAutoIntfObject</var>.
+        These methods would then be implemented as required.
+    </p>
+
+    <p class="callout callout-info">
+        Remember that we don't need to declare or implement anymethods of <var>IDispatch</var> since they are already
+        implemented by <var>TAutoIntfObject</var>.
     </p>
 
     <p>
         Now <var>TAutoIntfObject</var>'s implementation of the <var>IDispatch</var> methods depends on having access to
         the type library that describes the methods of the interfaces implemented by descendent classes. This is
-        achieved by passing an object that implements <var>ITypeLib</var> as a parameter to <var>TAutoIntfObject</var>'s
+        achieved by passing an object, that implements <var>ITypeLib</var> as a parameter, to
+        <var>TAutoIntfObject</var>'s
         constructor. It is our job to create such an <var>ITypeLib</var> object that &quot;knows about&quot; our type
         library.
     </p>
 
     <p>
-        We do this by declaring a parameter-less constructor for the derived class. In the constructor we call the
+        We do this by declaring a parameterless constructor for the derived class. In the constructor we call the
         <var>LoadTypeLib</var> API function, passing the name of our application as a parameter. <var>LoadTypeLib</var>
         accesses the type library information that is embedded in the application's resources and creates the required
-        <var>ITypeLib</var> object based on this information. The object is then passed to the inherited constructor.
-        Assuming our derived class is named <var>TMyExternal</var>, <span class="figureref">Listing 3</span> shows the
-        constructor's implementation.
+        <var>ITypeLib</var> object based on this information. We then pass this <var>ITypeLib</var> object to the
+        inherited constructor. Assuming our derived class is named <var>TMyExternal</var>, <span
+            class="figureref">Listing 3</span> shows the constructor's implementation.
     </p>
 
     <aside>
@@ -423,8 +428,8 @@ redirect_from:
     </h2>
 
     <p>
-        Having implemented the COM object that extends the <em>external</em> object how do we tell the web browser about
-        it?
+        Having implemented the COM object that extends the <em>external</em> object, how do we tell the web browser
+        about it?
     </p>
 
     <p>
@@ -466,9 +471,10 @@ redirect_from:
 
     <p>
         Doing all the hard work in <var>TNulWBContainer</var> means that our implementation of
-        <var>IDocHostUIHandler</var> and <var>IOleClientSite</var> can be quite simple if we descend it from
-        <var>TNulWBContainer</var>. <span class="figureref">Listing 4</span> has the declaration of such a class, which
-        we will call <var>TExternalContainer</var>. <span class="figureref">Listing 5</span> shows its implementation.
+        <var>IDocHostUIHandler</var> and <var>IOleClientSite</var> can be quite simple if we descend our container class
+        from <var>TNulWBContainer</var>. <span class="figureref">Listing 4</span> has the declaration of an example of
+        such a class, which we will call <var>TExternalContainer</var>. <span class="figureref">Listing 5</span> shows
+        its implementation.
     </p>
 
     <div id="listing-4" class="frame">
@@ -522,7 +528,7 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">ppDispatch</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fExternalObj</span><span class="sym">;</span></pre>
             <pre
-                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span><span class="space"> </span><span class="comment">// indicates we&apos;ve provided script</span></pre>
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span><span class="space"> </span></pre>
             <pre
                 class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
@@ -563,14 +569,18 @@ redirect_from:
 
     <p>
         Having implemented our <em>external</em> object extension and registered it with the browser control, it is now
-        time to look at how we call the object's methods from JavaScript. A similar approach is taken if you wish to use
-        VBScript rather than JavaScript, but the precise details are, as they say, left as an exercise!
+        time to look at how we call the object's methods from JavaScript.
+    </p>
+
+    <p class="callout callout-info">
+        A similar approach is taken if you wish to use VBScript rather than JavaScript, but the precise details are, as
+        they say, left as an exercise!
     </p>
 
     <p>
         All we have to do to call into our Delphi code from JavaScript is to reference the relevant methods of the
-        <em>external</em> object. For example to access external method <var>Foo</var> from JavaScript we would use the
-        code presented in <span class="figureref">Listing 6</span>.
+        <em>external</em> object. For example to access <em>external</em> method <var>Foo</var> from JavaScript we would
+        use the code presented in <span class="figureref">Listing 6</span>:
     </p>
 
     <div id="listing-6" class="frame">
@@ -694,10 +704,10 @@ redirect_from:
 
     <p>
         The program we will develop lists some of the programs available on the <em>DelphiDabbler</em> website. Clicking
-        one of the program names will display a brief description (précis) of the program in a box underneath the list
-        of programs. When the mouse is moved over a program name, the URL of the program's web page will be displayed in
-        the status bar. The status bar will clear when there is no program name under the mouse. The précis of each
-        program is stored in a data file that is read by our application.
+        one of the program names will display a brief description (précis) of the program, in a box underneath the list
+        of programs. When the mouse is moved over a program name, the URL of the its web page will be displayed in the
+        status bar. The status bar will clear when there is no program name under the mouse. The précis of each program
+        is stored in a data file that is read by our application.
     </p>
 
     <p>
@@ -751,7 +761,7 @@ redirect_from:
     </h3>
 
     <p>
-        To begin the project, start a new Delphi GUI application and set up the main form as follows:
+        To begin the project, start a new Delphi VCL GUI application and set up the main form as follows:
     </p>
 
     <ul>
@@ -809,13 +819,19 @@ redirect_from:
             <col style="width:25%;" />
             <thead>
                 <tr>
+                    <th scope="col">Method</th>
+                    <th scope="col">Parameters</th>
+                    <th scope="col">Type</th>
+                    <th class="last" scope="col">Modifiers</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
                     <td>GetPrecis</td>
                     <td>ProgID<br />Result</td>
                     <td>BSTR<br />BSTR&nbsp;*</td>
                     <td class="last">[in]<br />[out,retval]</td>
                 </tr>
-            </thead>
-            <tbody>
                 <tr>
                     <td>ShowURL</td>
                     <td>ProgID</td>
@@ -840,7 +856,7 @@ redirect_from:
         <code>Article22.tlb</code>. Delphi will now create a type library file of that name and a Pascal unit named
         <code>Article22_TLB.pas</code>. Opening <code>Article22_TLB.pas</code> will reveal the <var>IMyExternal</var>
         interface declaration shown in <span class="figureref">Listing 10</span>. (Note that the GUID will be
-        different).
+        different):
     </p>
 
     <div id="listing-10" class="frame">
@@ -904,13 +920,13 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">HideURL</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
             <pre
-                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">public</span></pre>
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="kwd">public</span></pre>
             <pre
-                class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span class="sym">;</span></pre>
+                class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span class="sym">;</span></pre>
             <pre
-                class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="kwd">destructor</span><span class="space"> </span><span class="ident">Destroy</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+                class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="kwd">destructor</span><span class="space"> </span><span class="ident">Destroy</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
             <pre
-                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+                class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
         <div class="caption">
             Listing 11
@@ -918,16 +934,15 @@ redirect_from:
     </div>
 
     <p>
-        As expected, the methods of <var>IMyExternal</var> are specified in the class's protected section. We also have
-        a private helper method &ndash; <var>ShowSBMsg</var> &ndash; that displays a given message in the status bar.
-        This method is used by both <var>ShowURL</var> and <var>HideURL</var> as we will see in a moment. The
-        <var>fData</var> string list is used to store the précis of the different programs. This field is accessed by
-        <var>GetPrecis</var>.
+        As expected, the methods of <var>IMyExternal</var> are specified in the class' protected section. We also have a
+        private helper method, <var>ShowSBMsg</var>, that displays a given message in the status bar. This method is
+        used by both <var>ShowURL</var> and <var>HideURL</var> as we will see in a moment. The <var>fData</var> string
+        list is used to store the précis of the different programs. This field is accessed by <var>GetPrecis</var>.
     </p>
 
     <p>
         Let us look at the implementation of the class. We will start with the constructor and destructor shown in <span
-            class="figureref">Listing 12</span>.
+            class="figureref">Listing 12</span>:
     </p>
 
     <div id="listing-12" class="frame">
@@ -986,7 +1001,7 @@ redirect_from:
 
     <p>
         Now move on to examine the implementation of the three <var>IMyExternal</var> methods shown in <span
-            class="figureref">Listing 13</span>.
+            class="figureref">Listing 13</span>:
     </p>
 
     <div id="listing-13" class="frame">
@@ -1125,7 +1140,8 @@ redirect_from:
     <p>
         We now create our custom container class, <var>TExternalContainer</var>, by descending from
         <var>TNulWBContainer</var> and overriding the <var>GetExternal</var> method to get the functionality we need. We
-        will use exactly the same code as we developed in <em><a href="#listing-4">listings 4 &amp; 5</a></em>.
+        will use exactly the same code as we developed in <a href="#listing-4"><span class="figureref">listings 4 &amp;
+                5</span></a>.
     </p>
 
 
@@ -1143,7 +1159,7 @@ redirect_from:
 
     <p>
         We will use the form's <var>OnShow</var> event handler to create <var>TExternalContainer</var>. We will also use
-        this event handler to load the required HTML file, as <span class="figureref">Listing 15</span> shows.
+        this event handler to load the required HTML file, as <span class="figureref">Listing 15</span> shows:
     </p>
 
     <div id="listing-15" class="frame">
@@ -1174,7 +1190,7 @@ redirect_from:
 
     <p>
         Having created the container object we must also ensure it gets freed. This is done in the form's
-        <var>OnHide</var> event handler as <span class="figureref">Listing 16</span> illustrates.
+        <var>OnHide</var> event handler as <span class="figureref">Listing 16</span> illustrates:
     </p>
 
     <div id="listing-16" class="frame">
@@ -1200,7 +1216,7 @@ redirect_from:
     <p>
         All that remains to be done is to create the HTML file that we loaded in <span class="figureref">Listing
             15</span>. This file is named <code>Article22.html</code> and <span class="figureref">listing 17</span>
-        shows the file in full.
+        shows the file in full:
     </p>
 
     <div id="listing-17" class="frame">
@@ -1319,6 +1335,11 @@ redirect_from:
         </div>
     </div>
 
+    <p>
+        Looking at the body section of the file we see that it contains a list of four program names, each defined as
+        links (<code>&lt;a&gt;</code> tags) that reference no URL.
+    </p>
+
     <div class="callout callout-info">
         <h4>
             Do-nothing links
@@ -1331,19 +1352,17 @@ redirect_from:
     </div>
 
     <p>
-        Looking at the body section of the file we see that it contains a list of four program names, each defined as
-        links (<code>&lt;a&gt;</code> tags) that reference no URL. Every link has a unique <var>id</var> attribute that
-        identifies the program to which it refers.
+        Every link has a unique <var>id</var> attribute that identifies the program to which it refers.
     </p>
 
     <p>
-        The a-links' <var>onclick</var> events call the <var>ShowPrecis</var> JavaScript routine passing in the id of
-        the relevant program as a parameter. <var>ShowPrecis</var> is defined in the HTML head section. The function
-        first finds the <code>&lt;div&gt;</code> tag with the id of &quot;precis&quot; and then finds the a-link element
-        associated with the program id. The HTML enclosed by the &quot;precis&quot; <code>&lt;div&gt;</code> tag is then
-        replaced by HTML comprising of the program name in bold, a line break and the actual précis of the program. The
-        précis is returned by the <var>external.GetPrecis</var> method, which executes <var>TMyExternal.GetPrecis</var>
-        in the Delphi code.
+        The a-links' <var>onclick</var> event handlers call the <var>ShowPrecis</var> JavaScript routine, passing in the
+        id of the relevant program as a parameter. <var>ShowPrecis</var> is defined in the HTML head section. The
+        function first finds the <code>&lt;div&gt;</code> tag with the id of &quot;precis&quot; and then finds the
+        a-link element associated with the program id. The HTML enclosed by the &quot;precis&quot;
+        <code>&lt;div&gt;</code> tag is then replaced by HTML comprising of the program name in bold, a line break and
+        the actual précis of the program. The précis is returned by the <var>external.GetPrecis</var> method, which
+        executes <var>TMyExternal.GetPrecis</var> in the Delphi code.
     </p>
 
     <p>
@@ -1354,9 +1373,9 @@ redirect_from:
     </p>
 
     <p>
-        The only other item of note in the HTML file is that the head section contains an embedded style sheet that
-        styles the <code>&lt;body&gt;</code>, <code>&lt;h1&gt;</code> and <code>&lt;div id=&quot;precis&quot;&gt;</code>
-        elements.
+        The only other item of note in the HTML file is that the <code>&lt;head&gt;</code> section contains an embedded
+        style sheet that styles the <code>&lt;body&gt;</code>, <code>&lt;h1&gt;</code> and
+        <code>&lt;div id=&quot;precis&quot;&gt;</code> elements.
     </p>
 
     <p>
@@ -1477,8 +1496,16 @@ redirect_from:
     </p>
 
     <p>
-        If you have any comments or queries, or if you wish to report any errors or bugs, please use the website's <a
-            href="https://github.com/delphidabbler/articles/issues">Issues page</a> on GitHub.
+        If you have any comments or queries, or if you wish to report any errors in the article, please use the
+        website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub
+        and reference article #22.
+    </p>
+
+    <p>
+        Bugs in the downloaded demo code should be reported in the separate <a
+            href="https://github.com/delphidabbler/article-demos"><code>delphidabbler/article-demos</code></a>
+        repository's <a href="https://github.com/delphidabbler/article-demos/issues">Issue page</a>, again referencing
+        article #22.
     </p>
 
 </section>
