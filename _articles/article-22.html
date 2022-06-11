@@ -1,13 +1,1484 @@
 ---
 article: 22
 title: "How to call Delphi code from scripts running in a TWebBrowser"
-summary: "When using a TWebBrowser control to display a user interface you may need to call your program's Delphi code in response to user input in the TWebBrowser or to get information to be displayed by the control. This article shows how."
+summary: "When using a TWebBrowser control to display a user interface you may need to call your program's Delphi code
+in response to user input in the TWebBrowser or to get information to be displayed by the control. This article shows
+how."
 meta-title: "How to call Delphi Pascal code from scripts running in TWebBrowser"
-meta-desc: "An article explaining how to call Delphi Pascal code from scripts running in an HTML document displayed in a TWebBrowser control."
+meta-desc: "An article explaining how to call Delphi Pascal code from scripts running in an HTML document displayed in a
+TWebBrowser control."
 demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-22"
-pages: 6
-offsite: 1
+pages: 1
 index: true
 redirect_from:
 - /articles/22
 ---
+
+<section id="contents">
+
+    <h2>
+        Contents
+    </h2>
+
+    <nav>
+        <div class="well">
+            <ul>
+                <li>
+                    <a href="#intro">Introduction</a>
+                </li>
+                <li>
+                    <a href="#overview">Overview</a>
+                </li>
+                <li>
+                    <a href="#extobj">Implementing the external object</a>
+                </li>
+                <li>
+                    <a href="#regext">Registering the external object with TWebBrowser</a>
+                </li>
+                <li>
+                    <a href="#calling-delphi">Calling into Delphi from JavaScript</a>
+                </li>
+                <li>
+                    <a href="#case-study">Case study</a>
+                    <ul>
+                        <li>
+                            <a href="#case-study-overview">Overview</a>
+                        </li>
+                        <li>
+                            <a href="#case-study-visual">Designing the main form</a>
+                        </li>
+                        <li>
+                            <a href="#case-study-extdef">Defining the external object</a>
+                        </li>
+                        <li>
+                            <a href="#case-study-extimp">Implementing the external object</a>
+                        </li>
+                        <li>
+                            <a href="#case-study-dochost">Implementing IDocHostUIHandler</a>
+                        </li>
+                        <li>
+                            <a href="#case-study-regext">Registering the external object</a>
+                        </li>
+                        <li>
+                            <a href="#case-study-html">Creating the HTML file</a>
+                        </li>
+                        <li>
+                            <a href="#case-study-source">Source code</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#summary">Summary</a>
+                </li>
+                <li>
+                    <a href="#references">References</a>
+                </li>
+                <li>
+                    <a href="#feedback">Feedback</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+</section>
+
+<section id="intro">
+
+    <h2>
+        Introduction
+    </h2>
+
+    <p>
+        When writing programs that use the <var>TWebBrowser</var> control as part of the user interface I've sometimes
+        needed to respond to user interaction with the control. The official way to do this is to extend the web
+        browser's <em>external</em> object, and this is the technique we will use in this article.
+    </p>
+
+    <p>
+        The <em>external</em> object is part of <var>TWebBrowser</var>'s document object model. The object enables
+        interaction with the environment surrounding the browser control &ndash; in this case our program.
+    </p>
+
+    <p>
+        We can extend the <em>external</em> object by adding methods to it that are implemented in Delphi rather than in
+        JavaScript or VBScript. We do this by creating a COM automation object that exposes the required methods and
+        then notifying the <var>TWebBrowser</var> control that the COM object extends the <em>external</em> object. The
+        new <em>external</em> object methods can then be called from JavaScript or VBScript running in the
+        <var>TWebBrowser</var>. When these methods are called our Delphi code executes.
+    </p>
+
+    <p>
+        The rest of this article examines how to use Delphi to create and manipulate
+        the <em>external</em> object.
+    </p>
+
+</section>
+
+<section id="overview">
+
+    <h2>
+        Overview
+    </h2>
+
+    <p>
+        The solution divides neatly into three main activities:
+    </p>
+
+    <ol class="wide">
+        <li>
+            Extend the <em>external</em> object in Delphi by creating a COM automation object that exposes the required
+            methods.
+        </li>
+
+        <li>
+            Register the extended <em>external</em> object with the browser control so that the object's methods can be
+            called from within the control. We do this by implementing the <var>IDocHostUIHandler</var> interface and
+            enabling the <var>TWebBrowser</var> control to use our implementation.
+        </li>
+
+        <li>
+            Call the methods of the extended <em>external</em> object from JavaScript running in the browser control.
+        </li>
+    </ol>
+
+    <p>
+        The next sections discuss each of the above activities in turn. Finally a case study will be presented that puts
+        the techniques we have learned into practise.
+    </p>
+
+</section>
+
+<section id="extobj">
+
+    <h2>
+        Implementing the external object
+    </h2>
+
+    <p>
+        As already noted we extend the <em>external</em> object by creating a COM automation object &ndash; i.e. one
+        that implements an interface that derives from <var>IDispatch</var>.
+    </p>
+
+    <p>
+        An easy way to do this is to derive the new class from <var>TAutoIntfObject</var>. This class implements the
+        methods of <var>IDispatch</var> and so saves us from having to do this ourselves. However,
+        <var>TAutoIntfObject</var> needs a type library to work with. Consequently we will use Delphi's Type Library
+        editor to create a suitable type library that defines our new interface.
+    </p>
+
+    <aside>
+        <div class="callout callout-info">
+            <h4>
+                Type Library Editor
+            </h4>
+            <p>
+                To create a new type library using the Type Library Editor in Delphi 7, display the <em>New Items</em>
+                dialogue by selecting the <em>File | New | Other</em> menu option. Then choose <em>Type Library</em>
+                from the dialogue's <em>ActiveX</em> tab.
+            </p>
+        </div>
+    </aside>
+
+    <p>
+        Once we have defined the required interface in the Type Library Editor we create the type library by pressing
+        <span class="text-smallcaps">Ctrl+S</span>. This will do four things:
+    </p>
+
+    <ol class="wide">
+        <li>
+            Create the type library (<code>.tlb</code>) file.
+        </li>
+
+        <li>
+            Include the type library in the program's resources by inserting a suitable <code>$R</code> compiler
+            directive in the project's
+            <code>.dpr</code> file.
+        </li>
+
+        <li>
+            Create a Pascal unit containing, amongst other things, the interface definition. The unit will have the same
+            name as the <code>.tlb</code> file but will end in <code>_TLB.pas</code>.
+        </li>
+
+        <li>
+            Add a reference to the <code>_TLB.pas</code> unit to the project file.
+        </li>
+    </ol>
+
+    <p>
+        When creating the interface in the Type Library Editor we must abide by the following rules:
+    </p>
+
+    <ol class="wide">
+        <li>
+            Ensure the new interface is derived from <var>IDispatch</var>.
+        </li>
+
+        <li>
+            Ensure all methods have a return value of <var>HRESULT</var>.
+        </li>
+
+        <li>
+            Use only automation compatible parameter types.
+        </li>
+
+        <li>
+            Ensure all <var>[out]</var> parameters are pointer types, i.e. they end with * (for example, <var>BSTR
+                *</var>).
+        </li>
+
+        <li>
+            Return any values from methods using a parameter that has the <var>[out,retval]</var> modifier.
+        </li>
+    </ol>
+
+    <p>
+        Once we have our new type library and interface we create a new class that descends from
+        <var>TAutoIntfObject</var>. Then we implement the methods of our interface in the class. This can be done by
+        copying the method prototypes from the interface declaration in the <code>*_TLB.pas</code> file and pasting them
+        into the class's declaration.
+    </p>
+
+    <p>
+        Note that Delphi creates the method prototypes using the <var>safecall</var> calling convention which means that
+        any <var>[out,retval]</var> parameters become function results. For example, suppose we use the Type Library
+        Editor to create an interface called <var>IMyIntf</var> that has two methods, <var>Foo</var> and <var>Bar</var>.
+        Assume the method parameters are defined as in <em>Table 1</em>.
+    </p>
+
+    <div class="frame table-responsive" id="table-1">
+        <table class="table" summary="Table of example routines to be created in type library editor">
+            <col style="width:25%;" />
+            <col style="width:25%;" />
+            <col style="width:25%;" />
+            <col style="width:25%;" />
+            <thead>
+                <tr>
+                    <th scope="col">Method</th>
+                    <th scope="col">Parameters</th>
+                    <th scope="col">Type</th>
+                    <th class="last" scope="col">Modifiers</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="2">Foo</td>
+                    <td>Param1</td>
+                    <td>long</td>
+                    <td class="last">[in]</td>
+                </tr>
+                <tr>
+                    <td>Result</td>
+                    <td>BSTR *</td>
+                    <td class="last">[out,retval]</td>
+                </tr>
+                <tr>
+                    <td>Bar</td>
+                    <td>Param1</td>
+                    <td>BSTR</td>
+                    <td class="last">[in]</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">
+            Table 1
+        </div>
+    </div>
+
+    <p>
+        The <code>*_TLB.pas</code> file created by Delphi would contain the following interface definition shown in
+        <span class="figureref">Listing 1</span>.
+    </p>
+
+    <div id="listing-1" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">IMyIntf</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">interface</span><span class="sym">(</span><span class="ident">IDispatch</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}&apos;</span><span class="sym">]</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Foo</span><span class="sym">(</span><span class="ident">Param1</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">Bar</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Param1</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 1
+        </div>
+    </div>
+
+    <p>
+        We would therefore include the following methods in our class declaration:
+    </p>
+
+    <div id="listing-2" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TMyClass</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TAutoIntfObject</span><span class="sym">,</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">IMyIntf</span><span class="sym">,</span><span class="space"> </span><span class="ident">IDispatch</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">    </span><span class="comment">{ IMyIntf methods }</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Foo</span><span class="sym">(</span><span class="ident">Param1</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">Bar</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Param1</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 2
+        </div>
+    </div>
+
+    <p>
+        These methods would then be implemented as required. Remember that we don't declare or implement any methods of
+        <var>IDispatch</var> since they are already implemented by <var>TAutoIntfObject</var>.
+    </p>
+
+    <p>
+        Now <var>TAutoIntfObject</var>'s implementation of the <var>IDispatch</var> methods depends on having access to
+        the type library that describes the methods of the interfaces implemented by descendent classes. This is
+        achieved by passing an object that implements <var>ITypeLib</var> as a parameter to <var>TAutoIntfObject</var>'s
+        constructor. It is our job to create such an <var>ITypeLib</var> object that &quot;knows about&quot; our type
+        library.
+    </p>
+
+    <p>
+        We do this by declaring a parameter-less constructor for the derived class. In the constructor we call the
+        <var>LoadTypeLib</var> API function, passing the name of our application as a parameter. <var>LoadTypeLib</var>
+        accesses the type library information that is embedded in the application's resources and creates the required
+        <var>ITypeLib</var> object based on this information. The object is then passed to the inherited constructor.
+        Assuming our derived class is named <var>TMyExternal</var>, <span class="figureref">Listing 3</span> shows the
+        constructor's implementation.
+    </p>
+
+    <aside>
+        <div class="callout callout-info">
+            <h4>
+                Type Library Resource
+            </h4>
+            <p>
+                Remember the <code>{$R&nbsp;*.tlb}</code> directive mentioned earlier ensures that the <code>.tlb</code>
+                file generated by the type library editor is included in our program's resources.
+            </p>
+        </div>
+    </aside>
+
+    <div id="listing-3" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">TMyExternal</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">TypeLib</span><span class="sym">:</span><span class="space"> </span><span class="ident">ITypeLib</span><span class="sym">;</span><span class="space">    </span><span class="comment">// type library information</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">ExeName</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">;</span><span class="space">  </span><span class="comment">// name of our program&apos;s exe file</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="comment">// Get name of application</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">ExeName</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ParamStr</span><span class="sym">(</span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="comment">// Load type library from application&apos;s resources</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">OleCheck</span><span class="sym">(</span><span class="ident">LoadTypeLib</span><span class="sym">(</span><span class="ident">PWideChar</span><span class="sym">(</span><span class="ident">ExeName</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">TypeLib</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="comment">// Call inherited constructor</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">inherited</span><span class="space"> </span><span class="ident">Create</span><span class="sym">(</span><span class="ident">TypeLib</span><span class="sym">,</span><span class="space"> </span><span class="ident">IMyExternal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="comment">// ...</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="comment">// Do any other initialisation here</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="comment">// ...</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 3
+        </div>
+    </div>
+
+</section>
+
+<section id="regext">
+
+    <h2>
+        Registering the external object with TWebBrowser
+    </h2>
+
+    <p>
+        Having implemented the COM object that extends the <em>external</em> object how do we tell the web browser about
+        it?
+    </p>
+
+    <p>
+        The answer is by creating a container object that hosts the web browser control. This object must implement the
+        <!---
+            TODO:
+            Link to article 18, #idochostuihandler
+        --->
+        <var>IDocHostUIHandler</var>
+        <!---
+            TODO: End link
+        --->
+        and
+        <!---
+            TODO:
+            Link to article 18, #ioleclientsite
+        --->
+        <var>IOleClientSite</var>
+        <!---
+            TODO: End link
+        --->
+        interfaces. <var>IDocHostUIHandler</var> has a <var>GetExternal</var> method that we must implement to return a
+        reference to our custom <em>external</em> object.
+    </p>
+
+    <p>
+        <var>IDocHostUIHandler</var> has many other methods that we have to implement, but we can get away with stubbing
+        them out. In another article
+        <!--
+            TODO:
+            When article#18 is converted to HTML, link directly to article 18, #tnulwbcontainer
+            and remove reference to part 3 below.
+        -->
+        (part 3 of &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot;) I discussed
+        <var>IDocHostUIHandler</var> in detail and presented a do nothing implementation, <var>TNulWBContainer</var>
+        [sic]. I won't repeat that presentation here, so please check out the linked article if you need to review how
+        this is done.
+    </p>
+
+    <p>
+        Doing all the hard work in <var>TNulWBContainer</var> means that our implementation of
+        <var>IDocHostUIHandler</var> and <var>IOleClientSite</var> can be quite simple if we descend it from
+        <var>TNulWBContainer</var>. <span class="figureref">Listing 4</span> has the declaration of such a class, which
+        we will call <var>TExternalContainer</var>. <span class="figureref">Listing 5</span> shows its implementation.
+    </p>
+
+    <div id="listing-4" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TExternalContainer</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TNulWBContainer</span><span class="sym">,</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">IDocHostUIHandler</span><span class="sym">,</span><span class="space"> </span><span class="ident">IOleClientSite</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">fExternalObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDispatch</span><span class="sym">;</span><span class="space">  </span><span class="comment">// external object implementation</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="comment">{ Re-implemented IDocHostUIHandler method }</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetExternal</span><span class="sym">(</span><span class="kwd">out</span><span class="space"> </span><span class="ident">ppDispatch</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDispatch</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">public</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">HostedBrowser</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 4
+        </div>
+    </div>
+
+    <div id="listing-5" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">TExternalContainer</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">HostedBrowser</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">inherited</span><span class="space"> </span><span class="ident">Create</span><span class="sym">(</span><span class="ident">HostedBrowser</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">fExternalObj</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TMyExternal</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TExternalContainer</span><span class="sym">.</span><span class="ident">GetExternal</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">out</span><span class="space"> </span><span class="ident">ppDispatch</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDispatch</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">ppDispatch</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fExternalObj</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span><span class="space"> </span><span class="comment">// indicates we&apos;ve provided script</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 5
+        </div>
+    </div>
+
+    <p>
+        Notice that we create an instance of our <em>external</em> object extension in the constructor and store it in a
+        field of type <var>IDispatch</var>. We then implement <var>GetExternal</var> to pass back a reference to the
+        <em>external</em> object in <var>ppDispatch</var> and return <var>S_OK</var> to indicate we have provided the
+        object.
+    </p>
+
+    <p>
+        We pass a reference to the web browser control we are hosting to the constructor. This reference is simply
+        passed on to the inherited constructor where it is recorded and notified that our object is its container. See
+        the implementation of
+        <!--
+            TODO:
+            When article #18 is converted to HTML, turn the following reference to
+            TNulWBContainer.Create into a link to
+            article 18 #tnulwbcontainer.create
+            Then remove link to whole of article #18 below and delete reference to part 3
+        -->
+        <var>TNulWBContainer.Create</var> for details of how this is done. (See part 3 of &quot;<a
+            href="./article-18">How to customise the TWebBrowser user interface</a>&quot;).
+    </p>
+
+</section>
+
+<section id="calling-delphi">
+
+    <h2>
+        Calling into Delphi from JavaScript
+    </h2>
+
+    <p>
+        Having implemented our <em>external</em> object extension and registered it with the browser control, it is now
+        time to look at how we call the object's methods from JavaScript. A similar approach is taken if you wish to use
+        VBScript rather than JavaScript, but the precise details are, as they say, left as an exercise!
+    </p>
+
+    <p>
+        All we have to do to call into our Delphi code from JavaScript is to reference the relevant methods of the
+        <em>external</em> object. For example to access external method <var>Foo</var> from JavaScript we would use the
+        code presented in <span class="figureref">Listing 6</span>.
+    </p>
+
+    <div id="listing-6" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span>external.Foo();</span></pre>
+        </div>
+        <div class="caption">
+            Listing 6
+        </div>
+    </div>
+
+    <p>
+        <em>external</em> object methods can be called anywhere that a JavaScript method call is valid &ndash; either
+        from event handlers of HTML elements or from blocks of JavaScript code. For example, say we have implemented the
+        interface shown in <span class="figureref">Listing 7</span> in Delphi, and have registered it as an extension of
+        the <em>external</em> object:
+    </p>
+
+    <div id="listing-7" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">ITest</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">interface</span><span class="sym">(</span><span class="ident">IDispatch</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}&apos;</span><span class="sym">]</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">SetLabel</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">      </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetEMail</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Name</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">      </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 7
+        </div>
+    </div>
+
+    <p>
+        Assume that <var>SetLabel</var> sets the caption of a <var>TLabel</var> to the given text and
+        <var>GetEMail</var> looks up the name of the given person in a database and returns their email address.
+    </p>
+
+    <p>
+        We can ensure the label's caption is set when a user clicks a link by using HTML such as that presented in <span
+            class="figureref">Listing 8</span>.
+    </p>
+
+    <div id="listing-8" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">&lt;body&gt;</span></pre>
+            <pre class="line"><span class="linenum">  2</span>  ...</pre>
+            <pre class="line"><span class="linenum">  3</span>  <span class="kwd">&lt;a</span></pre>
+            <pre class="line"><span class="linenum">  4</span>    <span class="ident">href</span>=&quot;#&quot;</pre>
+            <pre
+                class="line"><span class="linenum">  5</span>    <span class="ident">onclick</span>=&quot;external.SetLabel('Hello Delphi');&quot;</pre>
+            <pre
+                class="line"><span class="linenum">  6</span>  <span class="kwd">&gt;</span><span>Click me</span><span class="kwd">&lt;/a&gt;</span></pre>
+            <pre class="line"><span class="linenum">  7</span>  ...</pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">&lt;/body&gt;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 8
+        </div>
+    </div>
+
+    <p>
+        We can also write someone's email address into the HTML document using a block of JavaScript similar to that
+        given in <span class="figureref">Listing 9</span>.
+    </p>
+
+    <div id="listing-9" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">&lt;body&gt;</span></pre>
+            <pre class="line"><span class="linenum">  2</span>  ...</pre>
+            <pre
+                class="line"><span class="linenum">  3</span>  <span class="kwd">&lt;p&gt;</span><span>Fred's email address is:</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span>    <span class="kwd">&lt;script</span> <span class="ident">type</span>="text/JavaScript"<span class="kwd">&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span>      <span>document.write( external.GetEMail("fred") );</span></pre>
+            <pre class="line"><span class="linenum">  6</span>    <span class="kwd">&lt;/script&gt;</span></pre>
+            <pre class="line"><span class="linenum">  7</span>  <span class="kwd">&lt;/p&gt;</span></pre>
+            <pre class="line"><span class="linenum">  8</span>  ...</pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">&lt;/body&gt;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 9
+        </div>
+    </div>
+
+    <p>
+        As can be seen, once the hard work of setting up and registering the <em>external</em> object has been done, it
+        is very easy to call the required methods.
+    </p>
+
+    <p>
+        That concludes our discussion of the techniques involved in calling Delphi code from JavaScript. In the next
+        section we will work through a case study that draws all the strands together.
+    </p>
+
+</section>
+
+<section id="case-study">
+
+    <h2>
+        Case study
+    </h2>
+
+
+    <h3 id="case-study-overview">
+        Overview
+    </h3>
+
+    <p>
+        Our case study is a simple application that illustrates the techniques discussed in this article.
+    </p>
+
+    <p>
+        The program we will develop lists some of the programs available on the <em>DelphiDabbler</em> website. Clicking
+        one of the program names will display a brief description (précis) of the program in a box underneath the list
+        of programs. When the mouse is moved over a program name, the URL of the program's web page will be displayed in
+        the status bar. The status bar will clear when there is no program name under the mouse. The précis of each
+        program is stored in a data file that is read by our application.
+    </p>
+
+    <p>
+        Here is a screenshot of the completed program:
+    </p>
+
+    <div id="figure-1" class="frame">
+        <div>
+            <img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/22.gif"
+                alt="Screenshot of case study program" title="Screenshot of case study program" width="453"
+                height="281">
+        </div>
+        <div class="caption">
+            <em>Figure 1:</em> Screenshot of case study program
+        </div>
+    </div>
+
+    <p>
+        We will develop the program in the following order:
+    </p>
+
+    <ol>
+        <li>
+            Design the main form.
+        </li>
+
+        <li>
+            Define the required external object and create its type library / interface.
+        </li>
+
+        <li>
+            Implement the external object.
+        </li>
+
+        <li>
+            Implement the <var>IDocHostUIHandler</var> interface's <var>GetExternal</var> method.
+        </li>
+
+        <li>
+            Register the <var>IDocHostUIHandler</var> implementation with the web browser control.
+        </li>
+
+        <li>
+            Create the HTML file, containing the required JavaScript, that will be displayed in the browser control.
+        </li>
+    </ol>
+
+
+    <h3 id="case-study-visual">
+        Designing the main form
+    </h3>
+
+    <p>
+        To begin the project, start a new Delphi GUI application and set up the main form as follows:
+    </p>
+
+    <ul>
+        <li>
+            Drop a <var>TStatusBar</var> and set its <var>SimplePanel</var> and <var>AutoHint</var> properties to
+            <var>True</var>.
+        </li>
+
+        <li>
+            Drop a <var>TWebBrowser</var> control and set its <var>Align</var> property to <var>alClient</var>.
+        </li>
+    </ul>
+
+    <p>
+        That is all there is to the main form.
+    </p>
+
+
+    <h3 id="case-study-extdef">
+        Defining the external object
+    </h3>
+
+    <p>
+        Let us consider the methods we need to add to the browser's <em>external</em> object. From the specification
+        above we see that we need methods to perform the following actions:
+    </p>
+
+    <ol>
+        <li>
+            Get the précis of a specified program when a program name is clicked (<var>GetPrecis</var> method). We will
+            use an id string to uniquely identify each program.
+        </li>
+
+        <li>
+            Display the URL of a program's web page in the status bar when the mouse cursor is over a program name
+            (<var>ShowURL</var> method). Again we will pass the program's id as a parameter.
+        </li>
+
+        <li>
+            Clear the status bar when no program's name is under the cursor (<var>HideURL</var> method).
+        </li>
+    </ol>
+
+    <p>
+        We can now create an interface that contains each of the required methods. Start Delphi's Type Library Editor
+        and use it to create a new interface named <var>IMyExternal</var>. Now add three methods using the information
+        in <em>Table 2</em>.
+    </p>
+
+    <div class="frame table-responsive" id="table-1">
+        <table class="table" summary="Table of example routines to be created in type library editor">
+            <col style="width:25%;" />
+            <col style="width:25%;" />
+            <col style="width:25%;" />
+            <col style="width:25%;" />
+            <thead>
+                <tr>
+                    <td>GetPrecis</td>
+                    <td>ProgID<br />Result</td>
+                    <td>BSTR<br />BSTR&nbsp;*</td>
+                    <td class="last">[in]<br />[out,retval]</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ShowURL</td>
+                    <td>ProgID</td>
+                    <td>BSTR</td>
+                    <td class="last">[in]</td>
+                </tr>
+                <tr>
+                    <td>HideURL</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td class="last">-</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">
+            Table 2
+        </div>
+    </div>
+
+    <p>
+        Press <span class="text-smallcaps">Ctrl+S</span> to save the type library and name it
+        <code>Article22.tlb</code>. Delphi will now create a type library file of that name and a Pascal unit named
+        <code>Article22_TLB.pas</code>. Opening <code>Article22_TLB.pas</code> will reveal the <var>IMyExternal</var>
+        interface declaration shown in <span class="figureref">Listing 10</span>. (Note that the GUID will be
+        different).
+    </p>
+
+    <div id="listing-10" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">IMyExternal</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">interface</span><span class="sym">(</span><span class="ident">IDispatch</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{4F995D09-CF9E-4042-993E-C71A8AED661E}&apos;</span><span class="sym">]</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetPrecis</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">ProgID</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">      </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">ShowURL</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">ProgID</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">HideURL</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">
+            Listing 10
+        </div>
+    </div>
+
+
+    <h3 id="case-study-extimp">
+        Implementing the external object
+    </h3>
+
+    <p>
+        Now that we have created the <var>IMyExternal</var> interface, we implement it in a class named
+        <var>TMyExternal</var>. <span class="figureref">Listing 11</span> has the class declaration.
+    </p>
+
+    <div id="listing-11" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TMyExternal</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TAutoIntfObject</span><span class="sym">,</span><span class="space"> </span><span class="ident">IMyExternal</span><span class="sym">,</span><span class="space"> </span><span class="ident">IDispatch</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">fData</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStringList</span><span class="sym">;</span><span class="space"> </span><span class="comment">// info from data file</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">ShowSBMsg</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="comment">// helper method</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="comment">{ IMyExternal methods }</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetPrecis</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">ProgID</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">      </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">ShowURL</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">ProgID</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">HideURL</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">public</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="kwd">destructor</span><span class="space"> </span><span class="ident">Destroy</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 11
+        </div>
+    </div>
+
+    <p>
+        As expected, the methods of <var>IMyExternal</var> are specified in the class's protected section. We also have
+        a private helper method &ndash; <var>ShowSBMsg</var> &ndash; that displays a given message in the status bar.
+        This method is used by both <var>ShowURL</var> and <var>HideURL</var> as we will see in a moment. The
+        <var>fData</var> string list is used to store the précis of the different programs. This field is accessed by
+        <var>GetPrecis</var>.
+    </p>
+
+    <p>
+        Let us look at the implementation of the class. We will start with the constructor and destructor shown in <span
+            class="figureref">Listing 12</span>.
+    </p>
+
+    <div id="listing-12" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">TMyExternal</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">TypeLib</span><span class="sym">:</span><span class="space"> </span><span class="ident">ITypeLib</span><span class="sym">;</span><span class="space">    </span><span class="comment">// type library information</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">ExeName</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">;</span><span class="space">  </span><span class="comment">// name of our program&apos;s exe file</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="comment">// Get name of application</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">ExeName</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ParamStr</span><span class="sym">(</span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="comment">// Load type library from application&apos;s resources</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">OleCheck</span><span class="sym">(</span><span class="ident">LoadTypeLib</span><span class="sym">(</span><span class="ident">PWideChar</span><span class="sym">(</span><span class="ident">ExeName</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">TypeLib</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="comment">// Call inherited constructor</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">inherited</span><span class="space"> </span><span class="ident">Create</span><span class="sym">(</span><span class="ident">TypeLib</span><span class="sym">,</span><span class="space"> </span><span class="ident">IMyExternal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="comment">// Create and load string list from file</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">fData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TStringList</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">fData</span><span class="sym">.</span><span class="ident">LoadFromFile</span><span class="sym">(</span><span class="ident">ChangeFileExt</span><span class="sym">(</span><span class="ident">ExeName</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;.dat&apos;</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="kwd">destructor</span><span class="space"> </span><span class="ident">TMyExternal</span><span class="sym">.</span><span class="ident">Destroy</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="ident">fData</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 12
+        </div>
+    </div>
+
+    <p>
+        The first three executable lines in the constructor are boilerplate code that has been explained earlier in the
+        article. Following the call to the inherited constructor we create the <var>TStringList</var> object that is to
+        store the précis data. We then read the string list's contents from a data file named <code>Article22.dat</code>
+        that is expected to be found in the same directory as the application. The format of the data file is described
+        later. The destructor simply frees the string list.
+    </p>
+
+    <p>
+        Now move on to examine the implementation of the three <var>IMyExternal</var> methods shown in <span
+            class="figureref">Listing 13</span>.
+    </p>
+
+    <div id="listing-13" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TMyExternal</span><span class="sym">.</span><span class="ident">GetPrecis</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">ProgID</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fData</span><span class="sym">.</span><span class="ident">Values</span><span class="sym">[</span><span class="ident">ProgId</span><span class="sym">]</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMyExternal</span><span class="sym">.</span><span class="ident">HideURL</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">ShowSBMsg</span><span class="sym">(</span><span class="str">&apos;&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMyExternal</span><span class="sym">.</span><span class="ident">ShowURL</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">ProgID</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">ShowSBMsg</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="str">&apos;http://www.delphidabbler.com/software?id=&apos;</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">ProgID</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 13
+        </div>
+    </div>
+
+    <p>
+        <var>GetPrecis</var> looks up the given <var>ProgID</var> in the <var>Values</var> property of <var>fData</var>
+        and returns the value found there. The data file that was loaded into <var>fData</var> in the constructor
+        contains a line for each program. Each line has the format <code>ProgID=Precis</code>. The
+        <var>TStringList.Values[]</var> property is designed to work with strings in this format.
+    </p>
+
+    <p>
+        <var>HideURL</var> uses <var>ShowSBMsg</var> to display an empty string in the status bar, which has the effect
+        of clearing any previous message.
+    </p>
+
+    <p>
+        <var>ShowURL</var> simply appends its <var>ProgID</var> parameter to a literal string to produce the URL of the
+        program's web page. It then calls <var>ShowSBMsg</var> to display the URL in the status bar.
+    </p>
+
+    <p>
+        All that remains is to look at <span class="figureref">Listing 14</span>, which shows the implementation of
+        <var>ShowSBMsg</var>.
+    </p>
+
+    <div id="listing-14" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMyExternal</span><span class="sym">.</span><span class="ident">ShowSBMsg</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">HintAct</span><span class="sym">:</span><span class="space"> </span><span class="ident">THintAction</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">HintAct</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">THintAction</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">HintAct</span><span class="sym">.</span><span class="ident">Hint</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">HintAct</span><span class="sym">.</span><span class="ident">Execute</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="ident">HintAct</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 14
+        </div>
+    </div>
+
+    <p>
+        Hmm &ndash; no mention of the status bar! What's happening here is that we're creating an instance of the VCL's
+        <var>THintAction</var> action class, storing the message we want to display in its <var>Hint</var> property then
+        executing the action. A magical feature of <var>THintAction</var> is that it automatically displays its hint in
+        any <var>TStatusBar</var> that has its <var>AutoHint</var> property set to <var>True</var>. This let's us
+        decouple our <em>external</em> object implementation quite nicely from the program's form.
+    </p>
+
+
+    <h3 id="case-study-dochost">
+        Implementing IDocHostUIHandler
+    </h3>
+
+    <p>
+        As already noted, we are re-using code from an earlier article for our declaration of
+        <!--
+            TODO: Link to article-18, #idochostuihandler when available
+        -->
+        <var>IDocHostUIHandler</var>
+        <!--
+            TODO: End of link
+        -->
+        and for the do-nothing implementation of the interface,
+        <!--
+            TODO: Link to article-18, #tnulwbcontainer when available
+        -->
+        <var>TNulWBContainer</var>
+        <!--
+            TODO: End of link
+        -->
+        So, to begin with, we must add the <code>IntfDocHostUIHandler.pas</code> and <code>UNulContainer.pas</code>
+        units, developed in that article, to our project.
+    </p>
+
+    <div class="callout callout-info">
+        <h4>
+            Unit source code
+        </h4>
+        <p>
+            Units containing <var>IDocHostUIHandler</var> &amp; <var>TNulWBContainer</var> are included with this
+            article's <a href="#case-study-source">source code</a>.
+        </p>
+    </div>
+
+    <p>
+        We now create our custom container class, <var>TExternalContainer</var>, by descending from
+        <var>TNulWBContainer</var> and overriding the <var>GetExternal</var> method to get the functionality we need. We
+        will use exactly the same code as we developed in <em><a href="#listing-4">listings 4 &amp; 5</a></em>.
+    </p>
+
+
+    <h3 id="case-study-regext">
+        Registering the external object
+    </h3>
+
+    <p>
+        Our final piece of Delphi code registers our <var>TExternalContainer</var> object as a client site (container)
+        for the browser control. This is done in the main form simply by instantiating a <var>TExternalContainer</var>
+        object and passing a reference to the browser control to its constructor. Recall that
+        <var>TExternalContainer</var>'s inherited constructor automatically registers the object as a client site of the
+        contained web browser control.
+    </p>
+
+    <p>
+        We will use the form's <var>OnShow</var> event handler to create <var>TExternalContainer</var>. We will also use
+        this event handler to load the required HTML file, as <span class="figureref">Listing 15</span> shows.
+    </p>
+
+    <div id="listing-15" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormShow</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">fContainer</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TExternalContainer</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="ident">WebBrowser1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">ExtractFilePath</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="num">0</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;Article22.html&apos;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 15
+        </div>
+    </div>
+
+    <p>
+        Notice that we have stored a reference to the container object in a field named <var>fContainer</var>. Add such
+        a field, with type <var>TExternalContainer</var> to the form's declaration.
+    </p>
+
+    <p>
+        Having created the container object we must also ensure it gets freed. This is done in the form's
+        <var>OnHide</var> event handler as <span class="figureref">Listing 16</span> illustrates.
+    </p>
+
+    <div id="listing-16" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormHide</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">fContainer</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 16
+        </div>
+    </div>
+
+
+    <h3 id="case-study-html">
+        Creating the HTML file
+    </h3>
+
+    <p>
+        All that remains to be done is to create the HTML file that we loaded in <span class="figureref">Listing
+            15</span>. This file is named <code>Article22.html</code> and <span class="figureref">listing 17</span>
+        shows the file in full.
+    </p>
+
+    <div id="listing-17" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">&lt;?xml</span> <span class="ident">version</span>=&quot;1.0&quot;<span class="kwd">?&gt;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">&lt;!DOCTYPE</span> html</pre>
+            <pre
+                class="line"><span class="linenum">  4</span>  PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot;</pre>
+            <pre
+                class="line"><span class="linenum">  5</span>    &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;<span class="kwd">&gt;</span></pre>
+            <pre class="line"><span class="linenum">  6</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="kwd">&lt;html</span> <span class="ident">xmlns</span>=&quot;http://www.w3.org/1999/xhtml&quot;</pre>
+            <pre
+                class="line"><span class="linenum">  8</span>  <span class="ident">xml:lang</span>=&quot;en&quot; <span class="ident">lang</span>=&quot;en&quot;<span class="kwd">&gt;</span></pre>
+            <pre class="line"><span class="linenum">  9</span>  <span class="kwd">&lt;head&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span>    <span class="kwd">&lt;title&gt;</span>DelphiDabbler Articles<span class="kwd">&lt;/title&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span>    <span class="kwd">&lt;style</span> <span class="ident">type</span>=&quot;text/css&quot;<span class="kwd">&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span>      body {font-family: Tahoma; font-size: 10pt;}</pre>
+            <pre class="line"><span class="linenum"> 13</span>      h1 {font-size: 12pt;}</pre>
+            <pre
+                class="line"><span class="linenum"> 14</span>      #precis {border: 1px solid silver; padding: 4px;}</pre>
+            <pre class="line"><span class="linenum"> 15</span>    <span class="kwd">&lt;/style&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span>    <span class="kwd">&lt;script</span> <span class="ident">type</span>=&quot;text/javascript&quot;<span class="kwd">&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span>      function ShowPrecis(progID) {</pre>
+            <pre
+                class="line"><span class="linenum"> 18</span>        precisObj = document.getElementById(&quot;precis&quot;);</pre>
+            <pre class="line"><span class="linenum"> 19</span>        progObj = document.getElementById(progID);</pre>
+            <pre
+                class="line"><span class="linenum"> 20</span>        precisObj.innerHTML = progObj.innerHTML.bold()</pre>
+            <pre class="line"><span class="linenum"> 21</span>          + '\&lt;br /&gt;'></pre>
+            <pre class="line"><span class="linenum"> 22</span>          + external.GetPrecis(progID);</pre>
+            <pre class="line"><span class="linenum"> 23</span>      }</pre>
+            <pre class="line"><span class="linenum"> 24</span>    <span class="kwd">&lt;/script&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span>  <span class="kwd">&lt;/head&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span>  <span class="kwd">&lt;body&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span>    <span class="kwd">&lt;h1&gt;</span>DelphiDabbler Program Descriptions<span class="kwd">&lt;/h1&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span>    <span class="kwd">&lt;ul&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span>      <span class="kwd">&lt;li&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span>        <span class="kwd">&lt;a</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span>          <span class="ident">href</span>=&quot;javascript:void(0);&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 32</span>          <span class="ident">id</span>=&quot;codesnip&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 33</span>          <span class="ident">onclick</span>=&quot;ShowPrecis('codesnip');&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 34</span>          <span class="ident">onmouseover</span>=&quot;external.ShowURL('codesnip');&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 35</span>          <span class="ident">onmouseout</span>=&quot;external.HideURL()&quot;;</pre>
+            <pre
+                class="line"><span class="linenum"> 36</span>        <span class="kwd">&gt;</span>CodeSnip Database Viewer<span class="kwd">&lt;/a&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span>      <span class="kwd">&lt;/li&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 38</span>      <span class="kwd">&lt;li&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 39</span>        <span class="kwd">&lt;a</span></pre>
+            <pre
+                class="line"><span class="linenum"> 40</span>          <span class="ident">href</span>=&quot;javascript:void(0);&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 41</span>          <span class="ident">id</span>=&quot;htmlres&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 42</span>          <span class="ident">onclick</span>=&quot;ShowPrecis('htmlres');&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 43</span>          <span class="ident">onmouseover</span>=&quot;external.ShowURL('htmlres');&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 44</span>          <span class="ident">onmouseout</span>=&quot;external.HideURL()&quot;;</pre>
+            <pre
+                class="line"><span class="linenum"> 45</span>        <span class="kwd">&gt;</span>HTML Resource Compiler<span class="kwd">&lt;/a&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 46</span>      <span class="kwd">&lt;/li&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 47</span>      <span class="kwd">&lt;li&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 48</span>        <span class="kwd">&lt;a</span></pre>
+            <pre
+                class="line"><span class="linenum"> 49</span>          <span class="ident">href</span>=&quot;javascript:void(0);&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 50</span>          <span class="ident">id</span>=&quot;chi&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 51</span>          <span class="ident">onclick</span>=&quot;ShowPrecis('chi');&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 52</span>          <span class="ident">onmouseover</span>=&quot;external.ShowURL('chi');&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 53</span>          <span class="ident">onmouseout</span>=&quot;external.HideURL()&quot;;</pre>
+            <pre
+                class="line"><span class="linenum"> 54</span>        <span class="kwd">&gt;</span>Component Help Installer<span class="kwd">&lt;/a&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 55</span>      <span class="kwd">&lt;/li&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 56</span>      <span class="kwd">&lt;li&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 57</span>        <span class="kwd">&lt;a</span></pre>
+            <pre
+                class="line"><span class="linenum"> 58</span>          <span class="ident">href</span>=&quot;javascript:void(0);&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 59</span>          <span class="ident">id</span>=&quot;vis&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 60</span>          <span class="ident">onclick</span>=&quot;ShowPrecis('vis');&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 61</span>          <span class="ident">onmouseover</span>=&quot;external.ShowURL('vis');&quot;</pre>
+            <pre
+                class="line"><span class="linenum"> 62</span>          <span class="ident">onmouseout</span>=&quot;external.HideURL()&quot;;</pre>
+            <pre
+                class="line"><span class="linenum"> 63</span>        <span class="kwd">&gt;</span>Version Information Spy<span class="kwd">&lt;/a&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 64</span>      <span class="kwd">&lt;/li&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 65</span>    <span class="kwd">&lt;/ul&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 66</span>    <span class="kwd">&lt;div</span> <span class="ident">id</span>=&quot;precis&quot;<span class="kwd">&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 67</span>      Click a program name to see its description here.</pre>
+            <pre class="line"><span class="linenum"> 68</span>    <span class="kwd">&lt;/div&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 69</span>  <span class="kwd">&lt;/body&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 70</span><span class="kwd">&lt;/html&gt;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 17
+        </div>
+    </div>
+
+    <div class="callout callout-info">
+        <h4>
+            Do-nothing links
+        </h4>
+        <p>
+            To ensure that a link does nothing when clicked we set the <var>href</var> attribute to call the JavaScript
+            <var>void()</var> function, like this: <samp>href="javascript:void(0);"</samp>. It's also possible to simply
+            use <samp>href="#"</samp>.
+        </p>
+    </div>
+
+    <p>
+        Looking at the body section of the file we see that it contains a list of four program names, each defined as
+        links (<code>&lt;a&gt;</code> tags) that reference no URL. Every link has a unique <var>id</var> attribute that
+        identifies the program to which it refers.
+    </p>
+
+    <p>
+        The a-links' <var>onclick</var> events call the <var>ShowPrecis</var> JavaScript routine passing in the id of
+        the relevant program as a parameter. <var>ShowPrecis</var> is defined in the HTML head section. The function
+        first finds the <code>&lt;div&gt;</code> tag with the id of &quot;precis&quot; and then finds the a-link element
+        associated with the program id. The HTML enclosed by the &quot;precis&quot; <code>&lt;div&gt;</code> tag is then
+        replaced by HTML comprising of the program name in bold, a line break and the actual précis of the program. The
+        précis is returned by the <var>external.GetPrecis</var> method, which executes <var>TMyExternal.GetPrecis</var>
+        in the Delphi code.
+    </p>
+
+    <p>
+        Returning to the a-link tags, note that the <var>onmouseover</var> events directly call
+        <var>external.ShowURL</var> with the id of the required program while the <var>onmouseout</var> events call
+        <var>external.HideURL</var>. These JavaScript methods execute methods of the same name in
+        <var>TMyExternal</var>, which in turn show and hide the program's URL in the main window status bar.
+    </p>
+
+    <p>
+        The only other item of note in the HTML file is that the head section contains an embedded style sheet that
+        styles the <code>&lt;body&gt;</code>, <code>&lt;h1&gt;</code> and <code>&lt;div id=&quot;precis&quot;&gt;</code>
+        elements.
+    </p>
+
+    <p>
+        This description of the HTML file completes the discussion of the case study.
+    </p>
+
+
+    <h3 id="case-study-source">
+        Source code
+    </h3>
+
+    <p>
+        The case study is available for download from the
+        <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git
+        repository on GitHub. You can view the code in the
+        <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-22">article-22</a></code>
+        sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing
+        page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
+    </p>
+
+    <p>
+        Delphi 7 was used to create the program and it was tested on Windows XP Pro SP2 using Internet Explorer 6.
+    </p>
+
+    <p>
+        A <a
+            href="https://htmlpreview.github.io/?https://github.com/delphidabbler/article-demos/blob/master/article-22/ReadMe.html"><em>read-me</em></a>
+        file that describes how to use the source is included in the download.
+    </p>
+
+    <p class="callout callout-info">
+        <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is
+        merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its
+        current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF
+        ANY KIND, either express or implied. The code is open source &ndash; see the source files for any licensing
+        terms.
+    </p>
+
+    <p class="callout callout-danger glyph">
+        <span class="highlight">Delphi 2007</span> users: I've had a report that the demo code does not compile with
+        Delphi 2007 unless you rename the unit <code>Article22_TLB.pas</code> to <code>Article22TLB.pas</code> and
+        change references to it accordingly.
+    </p>
+
+</section>
+
+<section id="summary">
+
+    <h2>
+        Summary
+    </h2>
+
+    <p>
+        In this article we have investigated how to call into Delphi code from JavaScript running in a
+        <var>TWebBrowser</var> control.
+    </p>
+
+    <p>
+        We began by learning about the browser's <em>external</em> object and looked at how we can extend it using a COM
+        automation object that is registered with the browser control. We reused code from a previous article that
+        enables us to perform this registration.
+    </p>
+
+    <p>
+        Next we examined how the methods of the <em>external</em> object are called from JavaScript.
+    </p>
+
+    <p>
+        Finally a simple case study program was developed that exercised the code we had developed and demonstrated
+        Delphi code being called from within the web browser control. The source code of the case study was made
+        available for download.
+    </p>
+
+</section>
+
+<section id="references">
+
+    <h2>
+        References
+    </h2>
+
+    <p>
+        Various resources from the former Microsoft® Developer Network Library were used in researching this article.
+        The articles were:
+    </p>
+
+    <ul>
+        <li>
+            &quot;About the Browser - Extending the Dynamic HTML Object Model'&quot;
+        </li>
+        <li>
+            &quot;WebBrowser Customization&quot;
+        </li>
+        <li>
+            &quot;External Object&quot;
+        </li>
+    </ul>
+
+    <p class="callout callout-warning">
+        Unfortunately, these articles are no longer available at the URLs where they were originally found.
+    </p>
+
+    <p>
+        The article also depends heavily on information provided in the companion article: &quot;<a
+            href="./article-18">How to customise the TWebBrowser user interface</a>&quot;
+    </p>
+
+</section>
+
+<section id="feedback">
+
+    <h2>
+        Feedback
+    </h2>
+
+    <p>
+        I hope you found this article useful.
+    </p>
+
+    <p>
+        If you have any comments or queries, or if you wish to report any errors or bugs, please use the website's <a
+            href="https://github.com/delphidabbler/articles/issues">Issues page</a> on GitHub.
+    </p>
+
+</section>
