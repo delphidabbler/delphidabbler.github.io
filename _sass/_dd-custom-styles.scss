@@ -794,6 +794,17 @@ div.sw-meta {
   color: $kwd-color;
 }
 
+// Make var, .var and .kwd take on on link colour when inside a link tag
+// ** Bootstrap override
+a {
+  var,
+  .var,
+  .kwd {
+    color: $link-color;
+  }
+}
+
+
 // Styling of any (news) flash boxes
 // ** Custom
 .flash {
