@@ -65,6 +65,9 @@ redirect_from:
                         <li>
                             <a href="#case-study-source">Source code</a>
                         </li>
+                        <li>
+                            <a href="#case-study-data">Data file</a>
+                        </li>
                     </ul>
                 </li>
                 <li>
@@ -172,27 +175,22 @@ redirect_from:
                 Type Library Editor
             </h4>
             <p>
-                To create a new type library using the Type Library Editor in Delphi 7, display the <em>New Items</em>
-                dialogue by selecting the <em>File | New | Other</em> menu option. Then choose <em>Type Library</em>
-                from the dialogue's <em>ActiveX</em> tab.
+                Note that the Delphi Type Library Editor varies between versions of Delphi. Please refer to your
+                compiler's documentation for information about where to find the editor and ho to use it.
             </p>
         </div>
     </aside>
 
     <p>
         Once we have defined the required interface in the Type Library Editor we create the type library by pressing
-        <span class="text-smallcaps">Ctrl+S</span>. This will do four things:
+        <span class="text-smallcaps">Ctrl+S</span>. This will do three things:
     </p>
 
     <ol class="wide">
         <li>
-            Create the type library (<code>.tlb</code>) file.
-        </li>
-
-        <li>
-            Include the type library in the program's resources by inserting a suitable <code>$R</code> compiler
-            directive in the project's
-            <code>.dpr</code> file.
+            Depending on your version of Delphi it will either create the type library (<code>.tlb</code>) file directly
+            or create an intermediate <code>.ridl</code> file that will be compiled to the required <code>.tlb</code>
+            file when you next build the program.
         </li>
 
         <li>
@@ -204,6 +202,13 @@ redirect_from:
             Add a reference to the <code>_TLB.pas</code> unit to the project file.
         </li>
     </ol>
+
+    <p>
+        Some versions of the type library editor will also include the type library in the program's resources by
+        inserting a suitable <samp>$R</samp> compiler directive in the project's <code>.dpr</code> file. Other versions
+        don't do this for you. If this is the case you need to add the line <samp>{$R *.tlb}</samp> to your
+        <code>.dpr</code> file.
+    </p>
 
     <p>
         When creating the interface in the Type Library Editor we must abide by the following rules:
@@ -287,7 +292,7 @@ redirect_from:
 
     <p>
         The <code>*_TLB.pas</code> file created by Delphi would contain the following interface definition shown in
-        <span class="figureref">Listing 1</span>.
+        <span class="figureref">Listing 1</span>, except that the interface's GUID will be different.
     </p>
 
     <div id="listing-1" class="frame">
@@ -296,7 +301,7 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">IMyIntf</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">interface</span><span class="sym">(</span><span class="ident">IDispatch</span><span class="sym">)</span></pre>
             <pre
-                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}&apos;</span><span class="sym">]</span></pre>
+                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{E1CDA762-584F-4E9E-9808-2312C689FA17}&apos;</span><span class="sym">]</span></pre>
             <pre
                 class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Foo</span><span class="sym">(</span><span class="ident">Param1</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">;</span><span class="space"> </span><span class="kwd">safecall</span><span class="sym">;</span></pre>
             <pre
@@ -605,7 +610,7 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">ITest</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">interface</span><span class="sym">(</span><span class="ident">IDispatch</span><span class="sym">)</span></pre>
             <pre
-                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}&apos;</span><span class="sym">]</span></pre>
+                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{E1CDA762-584F-4E9E-9808-2312C689FA17}&apos;</span><span class="sym">]</span></pre>
             <pre
                 class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">SetLabel</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">WideString</span><span class="sym">)</span><span class="sym">;</span></pre>
             <pre
@@ -776,7 +781,7 @@ redirect_from:
     </ul>
 
     <p>
-        That is all there is to the main form.
+        That is all there is to the main form. SSave it with the default name, probably <code>Unit1.pas</code>.
     </p>
 
 
@@ -807,8 +812,9 @@ redirect_from:
 
     <p>
         We can now create an interface that contains each of the required methods. Start Delphi's Type Library Editor
-        and use it to create a new interface named <var>IMyExternal</var>. Now add three methods using the information
-        in <em>Table 2</em>.
+        and use it to create a new interface named <var>IMyExternal</var>. Make sure the new interface has
+        <var>IDispatch</var> as it parent interface. Now add three methods using the information in <em>Table 2</em>,
+        ensuring that each method has a return type of <var>HRESULT</var>.
     </p>
 
     <div class="frame table-responsive" id="table-1">
@@ -852,11 +858,12 @@ redirect_from:
     </div>
 
     <p>
-        Press <span class="text-smallcaps">Ctrl+S</span> to save the type library and name it
-        <code>Article22.tlb</code>. Delphi will now create a type library file of that name and a Pascal unit named
-        <code>Article22_TLB.pas</code>. Opening <code>Article22_TLB.pas</code> will reveal the <var>IMyExternal</var>
-        interface declaration shown in <span class="figureref">Listing 10</span>. (Note that the GUID will be
-        different):
+        Press <span class="text-smallcaps">Ctrl+S</span> to save the type library and name it either
+        <code>Article22.ridl</code>or <code>Article22.tlb</code>, depending on the version of Delhi in use &ndash; just
+        accept the suggested file type in any Save dialogue box. Either way, Delphi will now create a type library file
+        named <code>Article22.tlb</code> and a Pascal unit named <code>Article22_TLB.pas</code>. Opening
+        <code>Article22_TLB.pas</code> will reveal the <var>IMyExternal</var> interface declaration shown in <span
+            class="figureref">Listing 10</span>. (Note that the GUID will be different):
     </p>
 
     <div id="listing-10" class="frame">
@@ -886,6 +893,10 @@ redirect_from:
         </div>
     </div>
 
+    <p class="callout callout-info">
+        <code>Article22_TLB.pas</code> will also contain a <span class="kwd">dispinterface</span> named
+        <var>IMyExternalDisp</var>. You can ignore this since we won't be using it.
+    </p>
 
     <h3 id="case-study-extimp">
         Implementing the external object
@@ -893,7 +904,8 @@ redirect_from:
 
     <p>
         Now that we have created the <var>IMyExternal</var> interface, we implement it in a class named
-        <var>TMyExternal</var>. <span class="figureref">Listing 11</span> has the class declaration.
+        <var>TMyExternal</var>. We will add a new unit, <code>UMyExternal.pas</code> to store the class. <span
+            class="figureref">Listing 11</span> has the class declaration.
     </p>
 
     <div id="listing-11" class="frame">
@@ -1101,13 +1113,41 @@ redirect_from:
         decouple our <em>external</em> object implementation quite nicely from the program's form.
     </p>
 
+    <p>
+        Finally, we need to add a <span class="kwd">uses</span> clause, containing the following units in order for the
+        code to compile: <var>Classes</var>, <var>ComObj</var>, <var>SysUtils</var>, <var>ActiveX</var>,
+        <var>StdActns</var> and <var>Article22_TLB</var>.
+    </p>
+
+    <div class="callout callout-info">
+        <h4>
+            A note about unit names
+        </h4>
+        <p>
+            All unit names in this example are unqualified. Depending on which version of Delphi you are using you may
+            need to qualify the unit names with the required unit scope name. Unit scopes can vary between versions of
+            Delphi, so it is left to the reader to determine the required name qualificatons.
+        </p>
+        <p>
+            If you need help doing this you could try the DelphiDabbler <a href="/software/unit2ns">Unit2NS</a> program.
+        </p>
+    </div>
+
 
     <h3 id="case-study-dochost">
         Implementing IDocHostUIHandler
     </h3>
 
     <p>
-        As already noted, we are re-using code from an earlier article for our declaration of
+        As already noted, we are re-using code from an <a href="./article-18">earlier article</a>
+        <!--
+            TODO: Remove following when full links to article 18 are available
+        -->
+        (see part 3)
+        <!--
+            TODO: End of text to remove
+        -->
+        for our declaration of
         <!--
             TODO: Link to article-18, #idochostuihandler when available
         -->
@@ -1144,6 +1184,11 @@ redirect_from:
                 5</span></a>.
     </p>
 
+    <p>
+        We will create a new unit, <code>UExternalContainer.pas</code> for <var>TExternalContainer</var> and add a <span
+            class="kwd">uses</span> clause that references the following units: <var>ActiveX</var>, <var>SHDocVw</var>,
+        <var>UNulContainer</var>, <var>IntfDocHostUIHandler</var> and <var>UMyExternal</var>.
+    </p>
 
     <h3 id="case-study-regext">
         Registering the external object
@@ -1188,6 +1233,22 @@ redirect_from:
         a field, with type <var>TExternalContainer</var> to the form's declaration.
     </p>
 
+    <div class="callout callout-warning">
+        <h4>
+            Use <var>FormShow</var> and not <var>FormCreate</var>
+        </h4>
+        <p>
+            We have to create <var>TExternalContainer</var> in the form's <var>OnShow</var> event handler instead of
+            <var>OnCreate</var> (which is where we usually create objects) because the contained <var>TWebBrowser</var>
+            will raise an exception if we create the container object in <var>OnCreate</var>. Delaying construction
+            until the <var>OnShow</var> event handler gets called solves this problem.
+        </p>
+        <p>
+            Why? I don't really know, but I'm guessing that <var>TWebBrowser</var> requires the host form window to be
+            created before it can interact with any container object.
+        </p>
+    </div>
+
     <p>
         Having created the container object we must also ensure it gets freed. This is done in the form's
         <var>OnHide</var> event handler as <span class="figureref">Listing 16</span> illustrates:
@@ -1208,15 +1269,18 @@ redirect_from:
         </div>
     </div>
 
+    <p>
+        The last step is to add <var>UExternalContainer</var> to the main form's <span class="kwd">uses</span> clause.
+    </p>
 
     <h3 id="case-study-html">
         Creating the HTML file
     </h3>
 
     <p>
-        All that remains to be done is to create the HTML file that we loaded in <span class="figureref">Listing
-            15</span>. This file is named <code>Article22.html</code> and <span class="figureref">listing 17</span>
-        shows the file in full:
+        We now need to create the HTML file that we loaded in <a href="#listing-15"><span class="figureref">Listing
+                15</span></a>. This file is named <code>Article22.html</code> and <span class="figureref">listing
+            17</span> shows the file in full:
     </p>
 
     <div id="listing-17" class="frame">
@@ -1252,7 +1316,7 @@ redirect_from:
             <pre class="line"><span class="linenum"> 19</span>        progObj = document.getElementById(progID);</pre>
             <pre
                 class="line"><span class="linenum"> 20</span>        precisObj.innerHTML = progObj.innerHTML.bold()</pre>
-            <pre class="line"><span class="linenum"> 21</span>          + '\&lt;br /&gt;'></pre>
+            <pre class="line"><span class="linenum"> 21</span>          + '\&lt;br /&gt;'</pre>
             <pre class="line"><span class="linenum"> 22</span>          + external.GetPrecis(progID);</pre>
             <pre class="line"><span class="linenum"> 23</span>      }</pre>
             <pre class="line"><span class="linenum"> 24</span>    <span class="kwd">&lt;/script&gt;</span></pre>
@@ -1378,10 +1442,87 @@ redirect_from:
         <code>&lt;div id=&quot;precis&quot;&gt;</code> elements.
     </p>
 
+    <div class="callout callout-warning">
+        <h4>
+            Correct location of HTML file
+        </h4>
+        <p>
+            It is important that <code>Article22.html</code> can be found by the compiled program when it is run. By
+            default this is in the same directory as the executable file.
+        </p>
+        <p>
+            If you want to store the HTML file in a separate location you can either place a copy with the executable
+            file or modify the source code to change the expected location of the file (see <a href="#listing-15"><span
+                    class="figureref">Listing 15</span></a> line 5).
+        </p>
+    </div>
+
+    <h3 id="case-study-data">
+        Data file
+    </h3>
+
     <p>
-        This description of the HTML file completes the discussion of the case study.
+        The final step is to create the data file, named <code>Article22.dat</code>, that we load in <a
+            href="#listing-12"><var>TMyExternal.Create</var></a>. The file needs to be in the form
+        <code>Key=Value</code>, where <code>Key</code> is the id of one of the listed items of software and
+        <code>Value</code> is the text of a description of the software.
     </p>
 
+    <p>
+        You can use any content you want, providing all the software ids are used as keys.
+    </p>
+
+    <div class="callout callout-warning">
+        <h4>
+            Avoid HTML reserved characters
+        </h4>
+        <p>
+            When I said &quot;use any content you want&quot;, I didn't quite mean it! You need to make sure that the
+            <code>Value</code> items contain only characters that are safe to use in HTML. This is because the case
+            study code doesn't do any checking on the text. Production code should do this for security reasons.
+        </p>
+        <p>
+            Unsafe characters include <code>&gt;</code> (use the <code>&amp;gt;</code> character entity instead),
+            <code>&lt;</code> (use <code>&amp;lt;</code>), <code>&amp;</code> (use <code>&amp;amp;</code>) and
+            <code>&quot;</code> (use <code>&amp;quot;</code>).
+        </p>
+    </div>
+
+    <p>
+        <span class="figureref">Listing 18</span> shows the content of the file provided in the case study's source
+        code:
+    </p>
+
+    <div id="listing-17" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">codesnip</span><span class="sym">=</span>Offline viewer for routines from CodeSnip database. Displays source of each unit and can test compile with any supported installed version of Delphi and Free Pascal.</pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="kwd">htmlres</span><span class="sym">=</span>Compiles HTML and associated files into RT_HTML resources in 32 bit resource files suitable for use with Internet Explorer's res:// protocol or with TWebBrowser.</pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="kwd">chi</span><span class="sym">=</span>Installs OpenHelp compatible help files for components etc. into Delphi 3 to 7. Available as stand-alone Windows and console applications and as an expert that integrates with Delphi.</pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="kwd">vis</span><span class="sym">=</span>Displays the version information from any file that contains it. Includes shell extensions for easy access to version information from Explorer.</pre>
+        </div>
+        <div class="caption">
+            Listing 18
+        </div>
+    </div>
+
+    <div class="callout callout-warning">
+        <h4>
+            Correct location of data file
+        </h4>
+        <p>
+            It is important that <code>Article22.dat</code> can be found by the compiled program when it is run. By
+            default this is in the same directory as the executable file.
+        </p>
+        <p>
+            If you want to store the data file in a separate location you can either place a copy with the executable
+            file or modify the source code to change the expected location of the file (see <a href="#listing-12"><span
+                    class="figureref">Listing 12</span></a>, line 14).
+        </p>
+    </div>
 
     <h3 id="case-study-source">
         Source code
@@ -1414,11 +1555,15 @@ redirect_from:
         terms.
     </p>
 
-    <p class="callout callout-danger glyph">
-        <span class="highlight">Delphi 2007</span> users: I've had a report that the demo code does not compile with
-        Delphi 2007 unless you rename the unit <code>Article22_TLB.pas</code> to <code>Article22TLB.pas</code> and
-        change references to it accordingly.
-    </p>
+    <div class="callout callout-danger">
+        <h4>
+            Delph 2007 problems
+        </h4>
+        <p>
+            I've had a report that the demo code does not compile with Delphi 2007 unless you rename the unit
+            <code>Article22_TLB.pas</code> to <code>Article22TLB.pas</code> and change references to it accordingly.
+        </p>
+    </div>
 
 </section>
 
