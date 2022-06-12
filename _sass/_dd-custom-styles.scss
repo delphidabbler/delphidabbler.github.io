@@ -787,6 +787,15 @@ div.sw-meta {
   }
 }
 
+// Additional source code related definition for styling keywords outside a .code-pascal class
+// ** Custom
+.kwd {
+  font-weight: bold;
+  color: $kwd-color;
+}
+
+// Styling of any (news) flash boxes
+// ** Custom
 .flash {
     display: none;
 }
