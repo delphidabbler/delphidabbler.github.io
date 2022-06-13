@@ -1042,7 +1042,7 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">ShowSBMsg</span><span class="sym">(</span></pre>
             <pre
-                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="str">&apos;http://www.delphidabbler.com/software?id=&apos;</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">ProgID</span></pre>
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="str">&apos;https://delphidabbler.com/software/&apos;</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">ProgID</span></pre>
             <pre
                 class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
             <pre
@@ -1360,30 +1360,30 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 49</span>          <span class="ident">href</span>=&quot;javascript:void(0);&quot;</pre>
             <pre
-                class="line"><span class="linenum"> 50</span>          <span class="ident">id</span>=&quot;chi&quot;</pre>
+                class="line"><span class="linenum"> 50</span>          <span class="ident">id</span>=&quot;unit2ns&quot;</pre>
             <pre
-                class="line"><span class="linenum"> 51</span>          <span class="ident">onclick</span>=&quot;ShowPrecis('chi');&quot;</pre>
+                class="line"><span class="linenum"> 51</span>          <span class="ident">onclick</span>=&quot;ShowPrecis('unit2ns');&quot;</pre>
             <pre
-                class="line"><span class="linenum"> 52</span>          <span class="ident">onmouseover</span>=&quot;external.ShowURL('chi');&quot;</pre>
+                class="line"><span class="linenum"> 52</span>          <span class="ident">onmouseover</span>=&quot;external.ShowURL('unit2ns');&quot;</pre>
             <pre
                 class="line"><span class="linenum"> 53</span>          <span class="ident">onmouseout</span>=&quot;external.HideURL()&quot;;</pre>
             <pre
-                class="line"><span class="linenum"> 54</span>        <span class="kwd">&gt;</span>Component Help Installer<span class="kwd">&lt;/a&gt;</span></pre>
+                class="line"><span class="linenum"> 54</span>        <span class="kwd">&gt;</span>Unit2NS<span class="kwd">&lt;/a&gt;</span></pre>
             <pre class="line"><span class="linenum"> 55</span>      <span class="kwd">&lt;/li&gt;</span></pre>
             <pre class="line"><span class="linenum"> 56</span>      <span class="kwd">&lt;li&gt;</span></pre>
             <pre class="line"><span class="linenum"> 57</span>        <span class="kwd">&lt;a</span></pre>
             <pre
                 class="line"><span class="linenum"> 58</span>          <span class="ident">href</span>=&quot;javascript:void(0);&quot;</pre>
             <pre
-                class="line"><span class="linenum"> 59</span>          <span class="ident">id</span>=&quot;vis&quot;</pre>
+                class="line"><span class="linenum"> 59</span>          <span class="ident">id</span>=&quot;bdiff&quot;</pre>
             <pre
-                class="line"><span class="linenum"> 60</span>          <span class="ident">onclick</span>=&quot;ShowPrecis('vis');&quot;</pre>
+                class="line"><span class="linenum"> 60</span>          <span class="ident">onclick</span>=&quot;ShowPrecis('bdiff');&quot;</pre>
             <pre
-                class="line"><span class="linenum"> 61</span>          <span class="ident">onmouseover</span>=&quot;external.ShowURL('vis');&quot;</pre>
+                class="line"><span class="linenum"> 61</span>          <span class="ident">onmouseover</span>=&quot;external.ShowURL('bdiff');&quot;</pre>
             <pre
                 class="line"><span class="linenum"> 62</span>          <span class="ident">onmouseout</span>=&quot;external.HideURL()&quot;;</pre>
             <pre
-                class="line"><span class="linenum"> 63</span>        <span class="kwd">&gt;</span>Version Information Spy<span class="kwd">&lt;/a&gt;</span></pre>
+                class="line"><span class="linenum"> 63</span>        <span class="kwd">&gt;</span>BDiff / BPatch Utilities<span class="kwd">&lt;/a&gt;</span></pre>
             <pre class="line"><span class="linenum"> 64</span>      <span class="kwd">&lt;/li&gt;</span></pre>
             <pre class="line"><span class="linenum"> 65</span>    <span class="kwd">&lt;/ul&gt;</span></pre>
             <pre
@@ -1500,9 +1500,9 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  2</span><span class="kwd">htmlres</span><span class="sym">=</span>Compiles HTML and associated files into RT_HTML resources in 32 bit resource files suitable for use with Internet Explorer's res:// protocol or with TWebBrowser.</pre>
             <pre
-                class="line"><span class="linenum">  3</span><span class="kwd">chi</span><span class="sym">=</span>Installs OpenHelp compatible help files for components etc. into Delphi 3 to 7. Available as stand-alone Windows and console applications and as an expert that integrates with Delphi.</pre>
+                class="line"><span class="linenum">  3</span><span class="kwd">unit2ns</span><span class="sym">=</span>Maintains one or more 'mappings' of Delphi Pascal units to the namespaces to which they may belong. Copies the fully qualified namespace / unit name to the clipboard for pasting into Pascal code.</pre>
             <pre
-                class="line"><span class="linenum">  4</span><span class="kwd">vis</span><span class="sym">=</span>Displays the version information from any file that contains it. Includes shell extensions for easy access to version information from Explorer.</pre>
+                class="line"><span class="linenum">  4</span><span class="kwd">bdiff</span><span class="sym">=</span>BDiff computes differences between two binary files and outputs either a human readable file of a binary patch file. BPatch uses the binary patch files produced by BDiff to patch files.</pre>
         </div>
         <div class="caption">
             Listing 18
@@ -1538,7 +1538,7 @@ redirect_from:
     </p>
 
     <p>
-        Delphi 7 was used to create the program and it was tested on Windows XP Pro SP2 using Internet Explorer 6.
+        Delphi 7 was used to create the original version of the program and it was tested on Windows XP Pro SP2 using Internet Explorer 6. The same code base was later tested with Delphi XE and Delphi 11.0 Alexandria on Windows 11 and ran without change. Delphi 11.0 was also used to confirm the code was compatible with both 32 bit and 64 bit Windows targets. The program was then modified slightly and re-tested with Delphi XE and Delphi 11.0 Alexandria.
     </p>
 
     <p>
