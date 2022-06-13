@@ -100,7 +100,7 @@ redirect_from:
     </ol>
 
     <p>
-        There are a three other, related, questions that we will answer in this article. They arose when I was developing the <em><a href="/software/codesnip">CodeSnip Database Viewer</a> application</em>:
+        We're going to answer these in this article, along with three other related questions that arose when I was developing the <em><a href="/software/codesnip">CodeSnip Database Viewer</a> application</em>:
     </p>
 
     <ol class="wide" start="4">
@@ -116,11 +116,11 @@ redirect_from:
     </ol>
 
     <p>
-        The answer to the first question is to create an object that implements the <var>IDocHostUIHandler</var> interface and use the object to control the popup menu.
+        The answer to the <span class="text-smallcaps">question 1</span> is to create an object that implements the <var>IDocHostUIHandler</var> interface and use that object to control the behaviour of the popup menu.
     </p>
 
     <p>
-        A common solution to the second and third questions is to set one of the DOM object properties to some suitable value. For example, if <var>WB</var> has type <var>TWebBrowser</var>, we must wait until a document has loaded and then do:
+        A common solution to the <span class="text-smallcaps">questions 2 &amp; 3</span> is to set one of the DOM object properties to some suitable value. For example, if <var>WB</var> has type <var>TWebBrowser</var>, we must wait until a document has loaded and then do:
     </p>
 
     <div class="frame">
@@ -146,7 +146,7 @@ redirect_from:
     </p>
 
     <p>
-        <var>IDocHostUIHandler</var> also lets us provide a default Cascading Style Sheet (CSS) to the browser object. This provides an answer to the fourth question: we can dynamically create a style sheet that knows about a form's colour and fonts and tell the browser to use it.
+        <var>IDocHostUIHandler</var> also lets us provide a default Cascading Style Sheet (CSS) to the browser object. This provides an answer to <span class="text-smallcaps">question 4</span>: we can dynamically create a style sheet that knows about a form's colour and fonts and tell the browser to use it.
     </p>
 
     <p>
@@ -154,7 +154,7 @@ redirect_from:
     </p>
 
     <p>
-        Unsurprisingly then, this article is all about how to create an object that implements <var>IDocHostUIHandler</var> and use it to customize the browser control. Along the way we will also have to find out how to get <var>TWebBrowser</var> to know about, and use, the object.
+        Unsurprisingly then, this article is all about how to create an object that implements <var>IDocHostUIHandler</var> and how to use it to customize the browser control. Along the way we will also have to find out how to get <var>TWebBrowser</var> to interact with the object.
     </p>
 
 </section>
@@ -178,7 +178,7 @@ redirect_from:
             &quot;The mechanism for WebBrowser Control customization is designed to be automated when a <strong>container</strong> provides support for ActiveX controls. Whenever the WebBrowser Control is instantiated, it attempts to find <strong>IDocHostUIHandler</strong>, IDocHostUIHandler2 and IDocHostShowUI implementations from the <strong>host</strong>, if they are available. The WebBrowser Control does this by a QueryInterface call on the host's <strong>IOleClientSite</strong> interface.
         </p>
         <p>
-            &quot;This architecture works automatically for an application that implements an IOleClientSite interface and that passes an IOleClientSite pointer to the WebBrowser Control through the browser's IOleObject::SetClientSite method.&quot;
+            &quot;This architecture works automatically for an application that implements an IOleClientSite interface and that passes an IOleClientSite pointer to the WebBrowser Control through the browser's <strong>IOleObject::SetClientSite</strong> method.&quot;
         </p>
     </blockquote>
 
@@ -197,24 +197,20 @@ redirect_from:
             We need to notify the <var>TWebBrowser</var> that we are hosting it by passing a reference to our container's <var>IOleClientSite</var> interface to the browser control via its <var>IOleObject.SetClientSite</var> method.
         </li>
         <li>
-            The container object must also implement <var>IDocHostUIHandler</var>. This implementation must provide the required customization of the browser control. (We will not concern ourselves with <var>IDocHostUIHandler2</var> or <var>IDocHostShowUI</var> here).
+            The container object must also implement <var>IDocHostUIHandler</var>. This implementation will be used to provide the required customization of the browser control. (We will not concern ourselves with <var>IDocHostUIHandler2</var> or <var>IDocHostShowUI</var> here).
         </li>
     </ul>
-
-    <p>
-        In addition, our container class could expose properties to be used by <em>&quot;client code&quot;</em> to control various aspects of the browser's customization.
-    </p>
 
     <h3>
         A few design decisions
     </h3>
 
     <p>
-        We have establised that we need to develop a container control that supports <var>IOleClientSite</var>, <var>IDocHostUIHandler</var> and, by implication, <var>IUnknown</var>. The object will also expose customization properties.
+        We have establised that we need to develop a container control that supports <var>IOleClientSite</var>, <var>IDocHostUIHandler</var> and, by implication, <var>IUnknown</var>. The object will also expose properties that can be used calling code to control various aspects of the browser's customization..
     </p>
 
     <p>
-        Client code will instantiate the container object and manipulate its properties in the usual way. The web browser control will also access the container, but will do so via its supported interfaces. This means we will be mixing two different methods of access &ndash; by interface and by object reference. Whenever this is done on an object that supports reference counted interfaces there is a danger of the object being prematurely freed when an interface reference goes out of scope. Consequently we will manage the object's life time ourselves, i.e. it will not be reference counted.
+        Client code will instantiate the container object and manipulate its properties in the usual way. The web browser control will also access the container, but will do so automatically via its supported interfaces. This means we will be mixing two different methods of access &ndash; by interface and by object reference. Whenever this is done on an object that supports reference counted interfaces there is a danger of the object being prematurely freed when an interface reference goes out of scope. Consequently we will manage the object's lifetime ourselves, i.e. it will not be reference counted.
     </p>
 
     <p>
@@ -223,7 +219,7 @@ redirect_from:
 
     <ul class="wide">
         <li>
-            <var>TNulWBContainer</var> &ndash; a do-nothing container object that hosts the web browser control and implements all the required interfaces in way that has no visible effect on the web browser control. This provides a base class for classes that seek to customize <var>TWebBrowser</var> in different ways. The intention is that this base class can be reused.
+            <var>TNulWBContainer</var> [sic] &ndash; a do-nothing container object that hosts the web browser control and implements all the required interfaces in way that has no visible effect on the web browser control. This provides a base class for classes that seek to customize <var>TWebBrowser</var> in different ways.
         </li>
 
         <li>
@@ -346,7 +342,7 @@ redirect_from:
     </div>
 
     <p>
-        Here we simply check that the browser control passed to the constructor is not nil and record a reference to it in a field. Our container object then registers itself as the web browser's host by calling <var>SetBrowserOleClientSite</var> and passing a reference to the container's <var>IOleClientSite</var> interface.
+        Here we simply check that the browser control passed to the constructor is not nil and record a reference to it in a field. Our container object then registers itself as the web browser's host by calling <var>SetBrowserOleClientSite</var> and passing a reference to its own <var>IOleClientSite</var> interface.
     </p>
 
     <p>
@@ -430,7 +426,7 @@ redirect_from:
     </p>
 
     <p>
-        <var>IUnknown</var> is defined in the <code>System</code> unit. We begin by adding its methods to a protected section of <var>TNulWBContainer</var>'s declaration. <span class="figureref">Listing 6</span> shows the changes needed.
+        <var>IUnknown</var> is defined in the <var>System</var> unit. We begin by adding its methods to a protected section of <var>TNulWBContainer</var>'s declaration. <span class="figureref">Listing 6</span> shows the changes needed.
     </p>
 
     <div class="frame">
@@ -532,7 +528,7 @@ redirect_from:
             <var>IOleClientSite</var>
         </h4>
         <p>
-            <var>IOleClientSite</var> is declared in the <code>ActiveX</code> unit. The Delphi Windows SDK help provides a full description of the interface.
+            <var>IOleClientSite</var> is declared in the <var>ActiveX</var> unit. The Delphi Windows SDK help provides a full description of the interface.
         </p>
     </div>
 
@@ -706,7 +702,7 @@ redirect_from:
     </h3>
 
     <p>
-        Unlike the interfaces we have already implemented, Delphi doesn't supply a declaration of <var>IDocHostUIHandler</var> for us, so we have to provide this ourselves. <span class="figureref">Listing 10</span> defines <var>IDocHostUIHandler</var>. The comments in the code give brief explanations of each method.
+        At the time this code was being developed (with Delphi 7), no declaration of <var>IDocHostUIHandler</var> was available in the RTL. Therefore the interface is declared in <span class="figureref">Listing 10</span>. The comments in the code give brief explanations of each method.
     </p>
 
     <div class="frame">
@@ -863,15 +859,15 @@ redirect_from:
     </div>
 
     <p>
-        The various interfaces and structures referenced in this definition are defined in the <code>ActiveX</code> and <code>Windows</code> units. The exception is <var>TDocHostUIInfo</var> which is defined <a href="#tdochostuiinfo">later in the article</a>.
+        The various interfaces and structures referenced in this definition are defined in the <var>ActiveX</var> and <var>Windows</var> units. The exception is (or was?) <var>TDocHostUIInfo</var> which is defined <a href="#tdochostuiinfo">later in the article</a>.
     </p>
 
     <p>
-        Now we have defined the interface we can create the &quot;do nothing&quot; implementation in our class. To begin with add all the methods of <var>IDocHostUIHandler</var> to the protected section of <var>TNulWBContainer</var>'s declaration. I have not shown the new declaration here since it will simply repeat the methods shown in <span class="figureref">Listing 10</span>.
+        Now we have defined the interface we can create the &quot;do nothing&quot; implementation in our class. To begin with, add all the methods of <var>IDocHostUIHandler</var> to the protected section of <var>TNulWBContainer</var>'s declaration. I have not shown the new declaration here since it will simply repeat the methods shown in <span class="figureref">Listing 10</span>.
     </p>
 
     <p>
-        <span class="figureref">Listing 11</span> shows how we stub out the methods in such a way as to leave the browser object unchanged. An exploration of the MSDN documentation for the interface, along with some experimentation showed me the way. The comments in the listing should explain.
+        <span class="figureref">Listing 11</span> shows how we stub out the methods in such a way as to leave the browser object unchanged. An exploration of the <a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa753260(v=vs.85)">MSDN documentation for the interface</a>, along with some experimentation, showed me the way. The comments in the listing should explain.
     </p>
 
     <div class="frame">
@@ -1106,7 +1102,7 @@ redirect_from:
     </div>
 
     <p>
-        That completes the implementation of the &quot;do nothing&quot;, reusable, base class. If we were to create an instance of this object it would successfully host a <var>TWebBrowser</var> control, but would have no visible effect upon it.
+        That completes the implementation of the &quot;do nothing&quot; base class. If we were to create an instance of this object it would successfully host a <var>TWebBrowser</var> control, but would have no visible effect upon it.
     </p>
 
 </section>
@@ -1143,8 +1139,17 @@ redirect_from:
     </ol>
 
     <p>
-        We will define properties to configure the customization. We will then need to re-implement just two methods of <var>IDocHostUIHandler</var> to achieve the desired results &ndash; <var>ShowContextMenu</var> and <var>GetHostInfo</var>. <var>ShowContextMenu</var> controls the display of the popup menu and <var>GetHostInfo</var> enables the browser control's appearance to be customized.
+        We will define properties to configure the customization. We will then need to re-implement just two methods of <var>IDocHostUIHandler</var> to achieve the desired results:
     </p>
+
+    <ol>
+        <li>
+            <var>ShowContextMenu</var> to control the display of the popup menu;
+        </li>
+        <li>
+            <var>GetHostInfo</var> to enable the browser control's appearance to be customized.
+        </li>
+    </ol>
 
     <p>
         <span class="figureref">Listing 12</span> shows the declaration of <var>TWBContainer</var>.
@@ -1231,7 +1236,7 @@ redirect_from:
             <var>AllowTextSelection</var> &ndash; permits text selection in the browser control when true and inhibits it when false.
         </li>
         <li>
-            <var>CSS</var> &ndash; provides the default cascading style sheet. This string property must contain valid CSS or be set to the empty string. When set we use this property to customize the document appearance.
+            <var>CSS</var> &ndash; provides the default cascading style sheet. This string property must contain valid CSS or be set to the empty string. We use this property to customize the document appearance.
         </li>
     </ul>
 
@@ -1511,7 +1516,7 @@ redirect_from:
 
 
     <p>
-        And that completes the browser customization code. If you need to specify different customizations simply define a new class that descends from <var>TNulWBContainer</var> and provide the required functionality by re-implementing the appropriate <var>IDocHostUIHandler</var> methods.
+        And that completes the browser customization code. If you need to specify different customizations define a new class that descends from <var>TNulWBContainer</var> and provide the required functionality by re-implementing the appropriate <var>IDocHostUIHandler</var> methods.
     </p>
 
     <div class="callout callout-info">
@@ -1519,12 +1524,12 @@ redirect_from:
             Other examples
         </h4>
         <p>
-            <a href="./article-22">Article #22</a>: &quot;How to call Delphi code from scripts running in a TWebBrowser&quot; demonstrates another class that descends from <var>TNulWBContainer</var>, this time re-implementing the <var>GetExternal</var> method.
+            Article #22: &quot;<a href="./article-22">How to call Delphi code from scripts running in a TWebBrowser</a>&quot; demonstrates another class that descends from <var>TNulWBContainer</var>, this time re-implementing the <var>GetExternal</var> method.
         </p>
     </div>
 
     <p>
-        To use our customization class simply create an instance of <var>TWBContainer</var>, passing a reference to the browser control that is to be customized, set the required properties of <var>TWBContainer</var> then load the required document.
+        To use our customization class create an instance of <var>TWBContainer</var>, passing a reference to the browser control that is to be customized, set the required properties of <var>TWBContainer</var> then load the required document.
     </p>
 
     <div class="callout callout-warning">
@@ -1595,11 +1600,16 @@ redirect_from:
         </li>
 
         <li>
-            Drop a <var>TWebBrowser</var> control, set its <var>Align</var> property to <var>alTop</var> and size it to take up most of the form. Leave room for the 'Close' button below it. Set its <var>PopupMenu</var> property to <var>PopupMenu1</var>.
+            Drop a <var>TWebBrowser</var> control, set its <var>Align</var> property to <var>alTop</var> and size it to take up most of the form. Leave room for the 'Close' button below it. Set the <var>TWebBrowser</var>'s' <var>PopupMenu</var> property to <var>PopupMenu1</var>.
         </li>
 
         <li>
-            Add the <var>XPMan</var> unit (Delphi 7 and later) to the form's <var>uses</var> clause to ensure the application displays themes if available. <strong>Note:</strong> This may not be necessary with later Delphis that can enable themes by default in the project resource file.
+            <p>
+                Add the <var>XPMan</var> unit (Delphi 7 and later) to the form's <var>uses</var> clause to ensure the application displays themes if available.
+            </p>
+            <p class="callout callout-info">
+                <strong>Note:</strong> This step may not be necessary with later Delphis that can enable themes by default in the project resource file.
+            </p>
         </li>
     </ul>
 
@@ -1692,7 +1702,7 @@ redirect_from:
     </div>
 
     <p>
-        This code defines a document which has:
+        This HTML defines a document which has:
     </p>
 
     <ul>
@@ -1727,7 +1737,7 @@ redirect_from:
         Doesn't look much like a dialogue box does it? There are numerous problems:
     </p>
 
-    <ol class="wide">
+    <ol>
         <li>
             The browser control is displaying its default border and scroll bar.
         </li>
@@ -1865,7 +1875,7 @@ redirect_from:
 
     <ul class="wide">
         <li>
-            First we provide a template for a cascading style sheet we will use to make the HTML take on the appearance of the dialogue box. This template includes some format strings as placeholders for colour and font information that will be filled in at run time.
+            First we provide a template for a cascading style sheet that we will use to make the HTML take on the appearance of the dialogue box. This template includes some format strings as placeholders for colour and font information that will be filled in at run time.
         </li>
 
         <li>
@@ -2004,7 +2014,7 @@ redirect_from:
     </div>
 
     <p>
-        All the code has now been completed. The source code can be <a href="#demo-code">downloaded below</a>.
+        All the code has now been completed. The source code can be downloaded in the next section  .
     </p>
 
 </section>
@@ -2029,7 +2039,7 @@ redirect_from:
 
     <ul class="wide">
         <li>
-            Two applications &ndash; <code>WBUIArtDemo1.exe</code> and <code>WBUIArtDemo2.exe</code> &ndash; that include Delphi code for stages 1 and 2 of the sample application.
+            Two applications &ndash; <code>WBUIArtDemo1.exe</code> and <code>WBUIArtDemo2.exe</code> &ndash; that include Delphi code for stages 1 and 2 of the sample application respectively.
         </li>
         <li>
             Separate units containing the null and custom container classes &ndash; <code>UNulContainer.pas</code> and <code>UContainer.pas</code>.
@@ -2116,15 +2126,15 @@ redirect_from:
     </p>
 
     <p>
-        If you have any observations, comments or have found any errors there are two places you the please raise an issue in one of two places:
+        If you have any observations, comments, or have found any errors there are two places you can report them:
     </p>
 
     <ol class="wide">
         <li>
-            For anything to do with the article content please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>, making sure you mention &quot;Article #18&quot;.
+            For anything to do with the article content (but demo code download) please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>, making sure you mention &quot;Article #18&quot;.
         </li>
         <li>
-            If you've found a bug in the downloaded source code please report it on the <code>delphidabbler/article-demos</code> <a href="https://github.com/delphidabbler/article-demos/issues">Issues page</a>. Again mention &quot;Article #18&quot;.
+            If you've found a bug in the demo code download please report it on the <code>delphidabbler/article-demos</code> <a href="https://github.com/delphidabbler/article-demos/issues">Issues page</a>. Again mention &quot;Article #18&quot;.
         </li>
     </ol>
 
