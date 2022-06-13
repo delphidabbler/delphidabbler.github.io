@@ -439,39 +439,19 @@ redirect_from:
 
     <p>
         The answer is by creating a container object that hosts the web browser control. This object must implement the
-        <!---
-            TODO:
-            Link to article 18, #idochostuihandler
-        --->
-        <var>IDocHostUIHandler</var>
-        <!---
-            TODO: End link
-        --->
-        and
-        <!---
-            TODO:
-            Link to article 18, #ioleclientsite
-        --->
-        <var>IOleClientSite</var>
-        <!---
-            TODO: End link
-        --->
-        interfaces. <var>IDocHostUIHandler</var> has a <var>GetExternal</var> method that we must implement to return a
-        reference to our custom <em>external</em> object.
+        <var><a href="./article-18#idochostuihandler">IDocHostUIHandler</a></var> and <var><a
+                href="./article-18#ioleclientsite">IOleClientSite</a></var> interfaces. <var>IDocHostUIHandler</var> has
+        a <var>GetExternal</var> method that we must implement to return a reference to our custom <em>external</em>
+        object.
     </p>
 
     <p>
         <var>IDocHostUIHandler</var> has many other methods that we have to implement, but we can get away with stubbing
-        them out. In another article
-        <!--
-            TODO:
-            When article#18 is converted to HTML, link directly to article 18, #tnulwbcontainer
-            and remove reference to part 3 below.
-        -->
-        (part 3 of &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot;) I discussed
-        <var>IDocHostUIHandler</var> in detail and presented a do nothing implementation, <var>TNulWBContainer</var>
-        [sic]. I won't repeat that presentation here, so please check out the linked article if you need to review how
-        this is done.
+        them out. In the article &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot;
+        I discussed <var>IDocHostUIHandler</var> in detail and presented a do nothing implementation named
+        <var>TNulWBContainer</var> [sic]. I won't repeat that presentation here, so please check out the <a
+            href="./article-18#tnulwbcontainer"><em>Developing a reusable base class</em></a> section of the article if
+        you need to review how this is done.
     </p>
 
     <p>
@@ -552,16 +532,8 @@ redirect_from:
     <p>
         We pass a reference to the web browser control we are hosting to the constructor. This reference is simply
         passed on to the inherited constructor where it is recorded and notified that our object is its container. See
-        the implementation of
-        <!--
-            TODO:
-            When article #18 is converted to HTML, turn the following reference to
-            TNulWBContainer.Create into a link to
-            article 18 #tnulwbcontainer.create
-            Then remove link to whole of article #18 below and delete reference to part 3
-        -->
-        <var>TNulWBContainer.Create</var> for details of how this is done. (See part 3 of &quot;<a
-            href="./article-18">How to customise the TWebBrowser user interface</a>&quot;).
+        the implementation of <a href="./article-18#tnulwbcontainer.create"><var>TNulWBContainer.Create</var></a> in <a
+            href="./article-18">article #18</a> for details of how this is done.
     </p>
 
 </section>
@@ -1139,32 +1111,11 @@ redirect_from:
     </h3>
 
     <p>
-        As already noted, we are re-using code from an <a href="./article-18">earlier article</a>
-        <!--
-            TODO: Remove following when full links to article 18 are available
-        -->
-        (see part 3)
-        <!--
-            TODO: End of text to remove
-        -->
-        for our declaration of
-        <!--
-            TODO: Link to article-18, #idochostuihandler when available
-        -->
-        <var>IDocHostUIHandler</var>
-        <!--
-            TODO: End of link
-        -->
-        and for the do-nothing implementation of the interface,
-        <!--
-            TODO: Link to article-18, #tnulwbcontainer when available
-        -->
-        <var>TNulWBContainer</var>
-        <!--
-            TODO: End of link
-        -->
-        So, to begin with, we must add the <code>IntfDocHostUIHandler.pas</code> and <code>UNulContainer.pas</code>
-        units, developed in that article, to our project.
+        As already noted, we are re-using code from an <a href="./article-18">earlier article</a> for our declaration of
+        <a href="./article-18#idochostuihandler"><var>IDocHostUIHandler</var></a> and for the do-nothing implementation
+        of the interface, <a href="./article-18#tnulwbcontainer"><var>TNulWBContainer</var></a> So, to begin with, we
+        must add the <code>IntfDocHostUIHandler.pas</code> and <code>UNulContainer.pas</code> units, developed in that
+        article, to our project.
     </p>
 
     <div class="callout callout-info">
@@ -1538,7 +1489,10 @@ redirect_from:
     </p>
 
     <p>
-        Delphi 7 was used to create the original version of the program and it was tested on Windows XP Pro SP2 using Internet Explorer 6. The same code base was later tested with Delphi XE and Delphi 11.0 Alexandria on Windows 11 and ran without change. Delphi 11.0 was also used to confirm the code was compatible with both 32 bit and 64 bit Windows targets. The program was then modified slightly and re-tested with Delphi XE and Delphi 11.0 Alexandria.
+        Delphi 7 was used to create the original version of the program and it was tested on Windows XP Pro SP2 using
+        Internet Explorer 6. The same code base was later tested with Delphi XE and Delphi 11.0 Alexandria on Windows 11
+        and ran without change. Delphi 11.0 was also used to confirm the code was compatible with both 32 bit and 64 bit
+        Windows targets. The program was then modified slightly and re-tested with Delphi XE and Delphi 11.0 Alexandria.
     </p>
 
     <p>
