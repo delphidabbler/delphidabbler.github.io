@@ -3,7 +3,8 @@ article: 3
 title: "How to read data embedded in your program's resources"
 summary: "Having embedded files and/or data in your executable (article #2) you need to get them out again - read on!"
 meta-title: "Use Delphi Pascal to read data embedded in a program's resources | How to"
-meta-desc: "An article that shows how to use Delphi Pascal to extract data files that were previously compiled into in a Windows program's resources."
+meta-desc: "An article that shows how to use Delphi Pascal to extract data files that were previously compiled into in a
+Windows program's resources."
 demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-02+03"
 link-prev: "/articles/article-2"
 pages: 1
@@ -13,117 +14,148 @@ redirect_from:
 ---
 <h2>
     Why do it?
-  </h2>
+</h2>
 
-  <p>
-    In a <a href="./article-2">previous article</a> we dealt with why and how to embed data from a file in your program's
-    resources. If we do that we're going to want to extract it again.
-  </p>
+<p>
+    In a <a href="./article-2">previous article</a> we dealt with why and how to embed data from a file in your
+    program's resources. If we do that we're going to want to extract it again.
+</p>
 
-  <h2>
+<h2>
     How it's done
-  </h2>
+</h2>
 
-  <p>
-    This article assumes that the data you embedded was in the <var>RCDATA</var>
-    format. This is a user-defined data format so we also assume that you know
-    how to decode the format.
-  </p>
+<p>
+    This article assumes that the data you embedded was in the <var>RCDATA</var> format. This is a user-defined data
+    format so we also assume that you know how to decode the format.
+</p>
 
-  <p>
-    Reading it back from the resource is very simple due to the
-    <var>TResourceStream</var> class that ships with Delphi. You create a
-    <var>TResourceStream</var> in one of two ways:
-  </p>
+<p>
+    Reading it back from the resource is very simple due to the <var>TResourceStream</var> class that ships with Delphi.
+    You create a <var>TResourceStream</var> in one of two ways:
+</p>
 
-  <div class="frame">
+<div class="frame">
     <div class="code-pascal">
         <pre class="line"><span class="linenum">  1</span><span class="kwd">var</span></pre>
-        <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">RS</span><span class="sym">:</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">;</span></pre>
+        <pre
+            class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">RS</span><span class="sym">:</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">;</span></pre>
         <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
-        <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="comment">// Do this if the resource is named</span></pre>
-        <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">RS</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span></pre>
-        <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">HInstance</span><span class="sym">,</span><span class="space">     </span><span class="comment">// your app or DLL instance handle</span></pre>
-        <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">ResourceName</span><span class="sym">,</span><span class="space">  </span><span class="comment">// string containing resource name</span></pre>
-        <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">RT_RCDATA</span><span class="sym">)</span><span class="sym">;</span><span class="space">    </span><span class="comment">// identifies RCDATA resource type</span></pre>
-        <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="comment">// ... or do this if it is identified by an ordinal </span></pre>
-        <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="comment">//     value (per my article on writing the data)</span></pre>
-        <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">RS</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">.</span><span class="ident">CreateFromID</span><span class="sym">(</span></pre>
-        <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">HInstance</span><span class="sym">,</span><span class="space">     </span><span class="comment">// as above</span></pre>
-        <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">ResourceID</span><span class="sym">,</span><span class="space">    </span><span class="comment">// Word identifier</span></pre>
-        <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">RT_RCDATA</span><span class="sym">)</span><span class="sym">;</span><span class="space">    </span><span class="comment">// as above</span></pre>
+        <pre
+            class="line"><span class="linenum">  4</span><span class="space">  </span><span class="comment">// Do this if the resource is named</span></pre>
+        <pre
+            class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">RS</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span></pre>
+        <pre
+            class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">HInstance</span><span class="sym">,</span><span class="space">     </span><span class="comment">// your app or DLL instance handle</span></pre>
+        <pre
+            class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">ResourceName</span><span class="sym">,</span><span class="space">  </span><span class="comment">// string containing resource name</span></pre>
+        <pre
+            class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">RT_RCDATA</span><span class="sym">)</span><span class="sym">;</span><span class="space">    </span><span class="comment">// identifies RCDATA resource type</span></pre>
+        <pre
+            class="line"><span class="linenum">  9</span><span class="space">  </span><span class="comment">// ... or do this if it is identified by an ordinal </span></pre>
+        <pre
+            class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="comment">//     value (per my article on writing the data)</span></pre>
+        <pre
+            class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">RS</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">.</span><span class="ident">CreateFromID</span><span class="sym">(</span></pre>
+        <pre
+            class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">HInstance</span><span class="sym">,</span><span class="space">     </span><span class="comment">// as above</span></pre>
+        <pre
+            class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">ResourceID</span><span class="sym">,</span><span class="space">    </span><span class="comment">// Word identifier</span></pre>
+        <pre
+            class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">RT_RCDATA</span><span class="sym">)</span><span class="sym">;</span><span class="space">    </span><span class="comment">// as above</span></pre>
         <pre class="line"><span class="linenum"> 15</span><span class="kwd">end</span><span class="sym">;</span></pre>
     </div>
     <div class="caption">
         Listing 1
     </div>
-  </div>
+</div>
 
-  <p>
-    You now just use the stream to read the data as if it was coming from a
-    file. You can't write to a <var>TResourceStream</var> as data embedded in an
-    executable file is read only.
-  </p>
+<p>
+    You now just use the stream to read the data as if it was coming from a file. You can't write to a
+    <var>TResourceStream</var> as data embedded in an executable file is read only.
+</p>
 
-  <p>
-    To copy your embedded file into another stream (say <var>Stm</var> of type
-    <var>TStream</var>) you can use this code:
-  </p>
+<p>
+    To copy your embedded file into another stream (say <var>Stm</var> of type <var>TStream</var>) you can use this
+    code:
+</p>
 
-  <div class="frame">
+<div class="frame">
     <div class="code-pascal">
-        <pre class="line"><span class="linenum">  1</span><span class="ident">Stm</span><span class="sym">.</span><span class="ident">CopyFrom</span><span class="sym">(</span><span class="ident">RS</span><span class="sym">,</span><span class="space"> </span><span class="ident">RS</span><span class="sym">.</span><span class="ident">Size</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre
+            class="line"><span class="linenum">  1</span><span class="ident">Stm</span><span class="sym">.</span><span class="ident">CopyFrom</span><span class="sym">(</span><span class="ident">RS</span><span class="sym">,</span><span class="space"> </span><span class="ident">RS</span><span class="sym">.</span><span class="ident">Size</span><span class="sym">)</span><span class="sym">;</span></pre>
     </div>
     <div class="caption">
         Listing 2
     </div>
-  </div>
+</div>
 
-  <p>
-    As an example, say we have a program that includes a resource file that
-    contains an <var>RCDATA</var> resource which has a copy of a rich text file
-    inside it. The program displays the embedded rich text in a rich edit
-    component. This is the code we need:
-  </p>
+<p>
+    As an example, say we have a program that includes a resource file that contains an <var>RCDATA</var> resource which
+    has a copy of a rich text file inside it. The program displays the embedded rich text in a rich edit component. This
+    is the code we need:
+</p>
 
-  <div class="frame">
+<div class="frame">
     <div class="code-pascal">
         <pre class="line"><span class="linenum">  1</span><span class="kwd">var</span></pre>
-        <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">RS</span><span class="sym">:</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">;</span></pre>
+        <pre
+            class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">RS</span><span class="sym">:</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">;</span></pre>
         <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
-        <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="comment">// Create resource stream (resource id is 100)</span></pre>
-        <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">RS</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">.</span><span class="ident">CreateFromID</span><span class="sym">(</span><span class="ident">HInstance</span><span class="sym">,</span></pre>
-        <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="num">100</span><span class="sym">,</span><span class="space"> </span><span class="ident">RT_RCDATA</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">try</span></pre>
-        <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="comment">// Load the rich edit component</span></pre>
-        <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">RichEdit1</span><span class="sym">.</span><span class="ident">Lines</span><span class="sym">.</span><span class="ident">LoadFromStream</span><span class="sym">(</span><span class="ident">RS</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">finally</span></pre>
-        <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="comment">// Free the stream</span></pre>
-        <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">RS</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        <pre
+            class="line"><span class="linenum">  4</span><span class="space">  </span><span class="comment">// Create resource stream (resource id is 100)</span></pre>
+        <pre
+            class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">RS</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TResourceStream</span><span class="sym">.</span><span class="ident">CreateFromID</span><span class="sym">(</span><span class="ident">HInstance</span><span class="sym">,</span></pre>
+        <pre
+            class="line"><span class="linenum">  6</span><span class="space">    </span><span class="num">100</span><span class="sym">,</span><span class="space"> </span><span class="ident">RT_RCDATA</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre
+            class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">try</span></pre>
+        <pre
+            class="line"><span class="linenum">  8</span><span class="space">    </span><span class="comment">// Load the rich edit component</span></pre>
+        <pre
+            class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">RichEdit1</span><span class="sym">.</span><span class="ident">Lines</span><span class="sym">.</span><span class="ident">LoadFromStream</span><span class="sym">(</span><span class="ident">RS</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre
+            class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">finally</span></pre>
+        <pre
+            class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="comment">// Free the stream</span></pre>
+        <pre
+            class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">RS</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span></pre>
+        <pre
+            class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         <pre class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
     </div>
     <div class="caption">
         Listing 3
     </div>
-  </div>
+</div>
 
-  <h2>
+<h2>
     Demo Code
-  </h2>
+</h2>
 
-  <p>
-    A demo program to accompany this article (and the related <a href="./article-2">article</a>) can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.
+<p>
+    A demo program to accompany this article (and the related <a href="./article-2">article</a>) can be found in the
+    <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository
+    on GitHub.
 </p>
 
 <p>
-    You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-02%2B03">article-02+03</a></code> sub-directory. Alternatively download a zip file containing all the available demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
+    You can view the code in the
+    <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-02%2B03">article-02+03</a></code>
+    sub-directory. Alternatively download a zip file containing all the available demos by going to the repository's
+    landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
 </p>
 
-  <p>
-    The demo demonstrates what has been described here. The zip file contains a pair of projects. The first is a program that embeds a supplied rich text file in a resource file. The second program includes the resource file and displays the rich text in a rich edit component as above.
-  </p>
+<p>
+    The demo demonstrates what has been described here. The zip file contains a pair of projects. The first is a program
+    that embeds a supplied rich text file in a resource file. The second program includes the resource file and displays
+    the rich text in a rich edit component as above.
+</p>
 
 <p class="callout callout-info">
-<span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is <a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#license">open source</a> and is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+    <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a
+    proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in
+    finished applications. The code is <a
+        href="https://github.com/delphidabbler/article-demos/blob/master/README.md#license">open source</a> and is
+    provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
 </p>
