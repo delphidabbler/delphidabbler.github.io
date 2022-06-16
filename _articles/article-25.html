@@ -1,13 +1,1735 @@
 ---
 article: 25
 title: "How to handle drag and drop in a TWebBrowser control"
-summary: "Sometimes you need to be able to customise how a TWebBrowser control handles drag and drop, or you may need to prevent the control from accepting files dropped it. This article explains how."
+summary: "Sometimes you need to be able to customise how a TWebBrowser control handles drag and drop, or you may need to
+prevent the control from accepting files dropped it. This article explains how."
 meta-title: "Use Delphi Pascal to handle drag and drop in a TWebBrowser control | How to"
-meta-desc: "An article that explains how to use Delphi Pascal to customise how drag and drop is handled by a TWebBrowser control."
-demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-25"
-pages: 4
-offsite: 1
+meta-desc: "An article that explains how to use Delphi Pascal to customise how drag and drop is handled by a TWebBrowser
+control."
+pages: 1
 index: true
 redirect_from:
 - /articles/25
 ---
+<section id="contents">
+    <h2>
+        Contents
+    </h2>
+
+    <nav>
+        <div class="well">
+            <ul>
+                <li>
+                    <a href="#intro">Introduction</a>
+                </li>
+                <li>
+                    <a href="#dragdrop">When TWebBrowser Accepts Drag-Drop</a>
+                </li>
+                <li>
+                    <a href="#overview">Overview of Solution</a>
+                </li>
+                <li>
+                    <a href="#generic">Generic Implementation of Solution</a>
+                    <ul>
+                        <li>
+                            <a href="#container">Creating the Web Browser Container</a>
+                        </li>
+                        <li>
+                            <a href="#idroptarget">Implementing IDropTarget</a>
+                        </li>
+                        <li>
+                            <a href="#boilerplate">Some Boilerplate Code for the Main Form</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#casestudies">Case Studies</a>
+                    <ul>
+                        <li>
+                            <a href="#casestudy1">Case Study 1: Inhibiting Drag and Drop</a>
+                        </li>
+                        <li>
+                            <a href="#casestudy2">Case Study 2: Accepting Files and Text Dropped on the Browser
+                                Control</a>
+                            <ul>
+                                <li>
+                                    <a href="#cs2-idroptarget">Implementation of IDropTarget</a>
+                                </li>
+                                <li>
+                                    <a href="#cs2-mainform">The Main Form</a>
+                                </li>
+                                <li>
+                                    <a href="#cs2-html">HTML of Displayed Page</a>
+                                </li>
+                                <li>
+                                    <a href="#cs2-exercise">Exercising the Code</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#demo">Demo Code</a>
+                </li>
+                <li>
+                    <a href="#gofurther">Going Further</a>
+                </li>
+                <li>
+                    <a href="#summary">Summary</a>
+                </li>
+                <li>
+                    <a href="#references">References</a>
+                </li>
+                <li>
+                    <a href="#feedback">Feedback</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+</section>
+
+<section id="intro">
+
+    <h2>
+        Introduction
+    </h2>
+
+    <p>
+        While programming an application that uses a <var>TWebBrowser</var> component to display part of its interface I
+        noticed that, although the application didn't use drag and drop, the <var>TWebBrowser</var> was indicating it
+        would accept file drops. What is more, <var>TWebBrowser</var> would load and display text and HTML files,
+        ruining my carefully designed output. Not only that but the control would also display a dialogue box offering
+        to download some types of files.
+    </p>
+
+    <p>
+        Obviously this kind of behaviour is not desirable, so I began to search for a means of inhibiting this default
+        behaviour. My first goal was to find the circumstances under which <var>TWebBrowser</var> accepts drag-drop.
+        Next was simply to stop <var>TWebBrowser</var> accepting file drops. Later, in another application I needed to
+        go further and accept certain types of file drops, but wanted to control how this was handled. I then moved on
+        to considering if I could handle text dragged from other applications and dropped on the browser control.
+    </p>
+
+    <p>
+        The remainder of this article presents my findings in the hope they will be useful to others who have been
+        experiencing similar problems.
+    </p>
+
+</section>
+
+<section id="dragdrop">
+
+    <h2>
+        When <var>TWebBrowser</var> Accepts Drag-Drop
+    </h2>
+
+    <p>
+        Any application that contains a <var>TWebBrowser</var> will not normally accept dragged files unless you
+        intervene. However, if the application initialises OLE by calling <var>OleInitialize</var> then
+        <var>TWebBrowser</var> <strong>will</strong> accept and try to display or download files dragged onto it!
+    </p>
+
+    <p>
+        Try it. Create a new GUI application and drop a <var>TWebBrowser</var> control on it then build and run the
+        application. Try dragging a file from Explorer over the browser control. The &quot;no entry&quot; cursor will be
+        displayed indicating that the file can't be dropped.
+    </p>
+
+    <p>
+        Now add <var>OnCreate</var> and <var>OnDestroy</var> event handlers to the main form as shown in <span
+            class="figureref">Listing 1</span>.
+    </p>
+
+    <div id="listing-1" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">uses</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">ActiveX</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="preproc">{$R *.dfm}</span></pre>
+            <pre class="line"><span class="linenum">  5</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">OleInitialize</span><span class="sym">(</span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">OleUninitialize</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 1
+        </div>
+    </div>
+
+    <p>
+        Run the modified application and again drag a file from Explorer over the browser control. This time you will
+        see a &quot;shortcut&quot; cursor. Drop the file and <var>TWebBrowser</var> will either display it or try to
+        download it, depending on the file type. HTML and text files will be displayed as if you had navigated to them.
+    </p>
+
+    <p>
+        This little experiment illustrates the cirumstances when we need to take control of the web browser's handling
+        of drag and drop. They are:
+    </p>
+
+    <ul class="wide">
+        <li>
+            Our application needs to initialise OLE.
+        </li>
+        <li>
+            We either don't want, or want to take control of, <var>TWebBrowser</var>'s drag-drop handling.
+        </li>
+    </ul>
+
+    <p>
+        If these circumstances apply to you, then read on. We'll start by looking at how to take charge of the browser
+        control's drag and drop.
+    </p>
+
+</section>
+
+<section id="overview">
+
+    <h2>
+        Overview of Solution
+    </h2>
+
+    <p>
+        In <a href="./article-24">article #24</a> we investigated how to handle OLE drag and drop by implementing the
+        <var>IDropTarget</var> interface. <var>TWebBrowser</var> uses this method of accepting dragged objects. This
+        means that we need to implement <var>IDropTarget</var> and find a way to get the browser control to use our
+        implementation instead of its own.
+    </p>
+
+    <p>
+        So how do we supply our own drag drop handler to <var>TWebBrowser</var>? The answer will come as no surprise if
+        you have read some of my earlier <var>TWebBrowser</var> articles. We must implement the
+        <var>IDocHostUIHandler</var> interface and use its <var>GetDropTarget</var> method to hook up our custom
+        <var>IDropTarget</var> implementation with <var>TWebBrowser</var>.
+    </p>
+
+    <p>
+        Once we have implemented <var>IDocHostUIHandler</var> we must tell the browser control about it. Whenever
+        <var>TWebBrowser</var> is instantiated it tries to find a <var>IDocHostUIHandler</var> implementation in its
+        host (or container). This is done by querying the host's <var>IOleClientSite</var> interface. This also means we
+        need to implement <var>IOleClientSite</var> in the same object as <var>IDocHostUIHandler</var>.
+    </p>
+
+    <div class="callout callout-info">
+        <h4>
+            Further reading
+        </h4>
+        <p>
+            For detailed information about creating a container for <var>TWebBrowser</var> and implementing
+            <var>IOleClientSite</var> and <var>IDocHostUIHandler</var> please see &quot;<a href="article-18">How to
+                customise the TWebBrowser user interface</a>&quot;.
+        </p>
+    </div>
+
+    <p>
+        So, to summarise we will:
+    </p>
+
+    <ol>
+        <li>
+            Create a container for the web browser control that implements <var>IDocHostUIHandler</var> and
+            <var>IOleClientSite</var> and associate this container with the web browser control.
+        </li>
+        <li>
+            Create an implementation of <var>IDropTarget</var> that handles drag and drop as we would like.
+        </li>
+        <li>
+            Use the <var>IDocHostUIHandler.GetDropTarget</var> method to notify the browser control about our
+            <var>IDropTarget</var> implementation.
+        </li>
+    </ol>
+
+</section>
+
+<section id="generic">
+
+    <h2>
+        Generic Implementation of Solution
+    </h2>
+
+
+    <h3 id="container">
+        Creating the Web Browser Container
+    </h3>
+
+    <p>
+        Luckily, in &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot; we developed
+        a reusable, generic browser container class &ndash; <a
+            href="./article-18#tnulwbcontainer">TNulWBContainer</a></var> &ndash; that provided minimal implementations
+        of <var><a href="./article-18#idochostuihandler">IDocHostUIHandler</a></var> and <var><a
+                href="./article-18#ioleclientsite">IOleClientSite</a></var>. A do-nothing implementation of
+        <var>IDocHostUIHandler</var> was provided that leaves the browser control's behaviour unchanged. This class also
+        takes care of associating our object with the browser control as its container. We can use this class as a base
+        class for our container class and just add the functionality we need.
+    </p>
+
+    <div class="callout callout-info">
+        <h4>
+            Where's the Source?
+        </h4>
+        <p>
+            Source for <var>TNulWBContainer</var> and <var>IDocHostUIHandler</var> is not listed in this article.
+            However the code is provided in this article's <a href="#demo">demo code</a> , in the
+            <var>UNulContainer</var> and <var>IntfDocHostUIHandler</var> units.
+        </p>
+    </div>
+
+    <p>
+        We will reuse the above code here and define a sub class named <var>TWBDragDropContainer</var> that overrides
+        the default implementation of <var>IDocHostUIHandler.GetDropTarget</var> to ensure the browser control hooks
+        into our <var>IDropTarget</var> implementation.
+    </p>
+
+    <p>
+        We will make the new class as general as possible by providing a <var>DropTarget</var> property that can be set
+        to any object that implements <var>IDropTarget</var>. This way the class' user can change the drag drop
+        behaviour of the browser control simply by assigning a different object to the <var>DropTarget</var> property.
+    </p>
+
+    <p>
+        <span class="figureref">Listing 2</span> shows the whole of the <code>UWBDragDropContainer</code> unit that
+        contains our implementation of <var>TWBDragDropContainer</var>.
+    </p>
+
+    <div id="listing-2" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">unit</span><span class="space"> </span><span class="ident">UWBDragDropContainer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">uses</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">ActiveX</span><span class="sym">,</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">IntfDocHostUIHandler</span><span class="sym">,</span><span class="space"> </span><span class="ident">UNulContainer</span><span class="sym">;</span><span class="space">  </span><span class="comment">// from article #18</span></pre>
+            <pre class="line"><span class="linenum">  8</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum"> 10</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">TWBDragDropContainer</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TNulWBContainer</span><span class="sym">,</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">IUnknown</span><span class="sym">,</span><span class="space"> </span><span class="ident">IOleClientSite</span><span class="sym">,</span><span class="space"> </span><span class="ident">IDocHostUIHandler</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="ident">fDropTarget</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetDropTarget</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">pDropTarget</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">      </span><span class="kwd">out</span><span class="space"> </span><span class="ident">ppDropTarget</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="kwd">public</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">DropTarget</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDropTarget</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fDropTarget</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fDropTarget</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 25</span></pre>
+            <pre
+                class="line"><span class="linenum"> 26</span><span class="comment">{ TWBDragDropContainer }</span></pre>
+            <pre class="line"><span class="linenum"> 27</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TWBDragDropContainer</span><span class="sym">.</span><span class="ident">GetDropTarget</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">pDropTarget</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="kwd">out</span><span class="space"> </span><span class="ident">ppDropTarget</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 32</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">fDropTarget</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 33</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 34</span><span class="space">    </span><span class="comment">// We are handling drag-drop: notify browser of drop target object</span></pre>
+            <pre
+                class="line"><span class="linenum"> 35</span><span class="space">    </span><span class="ident">ppDropTarget</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fDropTarget</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 36</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 37</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre
+                class="line"><span class="linenum"> 38</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre
+                class="line"><span class="linenum"> 39</span><span class="space">    </span><span class="comment">// We are not handling drag-drop: use inherited default behaviour</span></pre>
+            <pre
+                class="line"><span class="linenum"> 40</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">inherited</span><span class="space"> </span><span class="ident">GetDropTarget</span><span class="sym">(</span><span class="ident">pDropTarget</span><span class="sym">,</span><span class="space"> </span><span class="ident">ppDropTarget</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 41</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 42</span></pre>
+            <pre
+                class="line"><span class="linenum"> 43</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">
+            Listing 2
+        </div>
+    </div>
+
+    <p>
+        Our new class includes a reimplementation of the inherited <var>GetDropTarget</var> method and defines the new
+        <var>DropTarget</var> property.
+    </p>
+
+    <p>
+        <var>GetDropTarget</var> checks to see if a drop target handler is assigned to the <var>DropTarget</var>
+        property. If so we return a reference to our drop target object via the method's <var>ppDropTarget</var>
+        parameter and return <var>S_OK</var>. Conversely if <var>DropTarget</var> is unassigned then we just call the
+        inherited <var>GetDropTarget</var> method to get the default behaviour. Doing all the hard work in the base
+        class has made this class very easy to implement.
+    </p>
+
+
+    <h3 id="idroptarget">
+        Implementing IDropTarget
+    </h3>
+
+    <p>
+        <a href="./article-24">Article #24</a>, &quot;How to receive data dragged from other applications&quot;,
+        discussed how to implement <var>IDropTarget</var>. Implementation depends on what type of data the application
+        will accept, so we won't discuss that further in this section. We will come back to look a couple of specific
+        examples later.
+    </p>
+
+
+    <h3 id="boilerplate">
+        Some Boilerplate Code for the Main Form
+    </h3>
+
+    <p>
+        To use our web browser container object we need to create it in the main form and set its <var>DropTarget</var>
+        property. <span class="figureref">Listing 3</span> shows the code that needs to be added to the main form.
+    </p>
+
+    <div id="listing-3" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">unit</span><span class="space"> </span><span class="ident">FmDemo3</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">uses</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span><span class="sym">,</span><span class="space"> </span><span class="ident">UWBDragDropContainer</span><span class="sym">,</span><span class="space"> </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre class="line"><span class="linenum">  7</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">TForm1</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TForm</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="ident">WebBrowser1</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">fWBContainer</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWBDragDropContainer</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="ident">Form1</span><span class="sym">:</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 25</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">uses</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="ident">ActiveX</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="preproc">{$R *.dfm}</span></pre>
+            <pre class="line"><span class="linenum"> 30</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre class="line"><span class="linenum"> 32</span></pre>
+            <pre
+                class="line"><span class="linenum"> 33</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 35</span><span class="space">  </span><span class="ident">OleInitialize</span><span class="sym">(</span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="ident">fWBContainer</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TWBDragDropContainer</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="ident">WebBrowser1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 37</span><span class="space">  </span><span class="ident">fWBContainer</span><span class="sym">.</span><span class="ident">DropTarget</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TMyDropTarget</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 38</span><span class="space">  </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span class="sym">(</span><span class="str">&apos;about:blank&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 39</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 40</span></pre>
+            <pre
+                class="line"><span class="linenum"> 41</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 42</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 43</span><span class="space">  </span><span class="ident">fWBContainer</span><span class="sym">.</span><span class="ident">DropTarget</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 44</span><span class="space">  </span><span class="ident">OleUninitialize</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 45</span><span class="space">  </span><span class="ident">FreeAndNil</span><span class="sym">(</span><span class="ident">fWBContainer</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 46</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 47</span></pre>
+            <pre
+                class="line"><span class="linenum"> 48</span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre class="line"><span class="linenum"> 49</span></pre>
+            <pre
+                class="line"><span class="linenum"> 50</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">
+            Listing 3
+        </div>
+    </div>
+
+    <p>
+        In the form's <var>OnCreate</var> event handler we create an instance of <var>TWBDragDropContainer</var> and
+        assign its <var>DropTarget</var> property with our drop target object (<a href="#casestudies">see below</a> for
+        examples of such an object). Next we navigate to <code>about:blank</code> just to ensure the browser control has
+        created a document object<sup>&dagger;</sup>. The drop target object won't be noticed by the browser until this
+        has been done. Of course you could load any document here, instead of loading <code>about:blank</code>. We also
+        intialise OLE as before.
+    </p>
+
+    <p class="callout callout-warning">&dagger; When navigating to <code>about:blank</code> it would be better practice
+        to wait for the document to finish loading before continuing.
+    </p>
+
+    <p>
+        In <var>FormDestroy</var> we simply clear the container object's <var>DropTarget</var> property before freeing
+        the container itself. It is probably not necessary to set <var>DropTarget</var> to <span class="kwd">nil</span>,
+        but it is neater, and may be safer, to explicitly release it. Then we unintialise OLE and free our container
+        object.
+    </p>
+
+    <p>
+        That takes care of the implementation of <var>IDocHostUIHandler</var> and how to notify the browser control of
+        it's implementation. We can now move on to look at exactly how we implement the drop target. This is done by
+        means of a couple of case studies.
+    </p>
+
+</section>
+
+<section id="casestudies">
+
+    <h2>
+        Case studies
+    </h2>
+
+
+    <h3 id="casestudy1">
+        Case Study 1: Inhibiting Drag and Drop
+    </h3>
+
+    <p>
+        I mentioned in the introduction that one of my goals was to stop web browser controls accepting drag and drop.
+        This case study will show how to do that by creating a &quot;do nothing&quot; implementation of
+        <var>IDropTarget</var> named <var>TNulDropTarget</var> in the unit <var>UNulDropTarget</var>. See <span
+            class="figureref">Listing 4</span>.
+    </p>
+
+    <div id="listing-4" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">unit</span><span class="space"> </span><span class="ident">UNulDropTarget</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">uses</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Windows</span><span class="sym">,</span><span class="space"> </span><span class="ident">ActiveX</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  9</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">TNulDropTarget</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TInterfacedObject</span><span class="sym">,</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="comment">{ IDropTarget methods }</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DragEnter</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DragOver</span><span class="sym">(</span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">      </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DragLeave</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Drop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">      </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 23</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="comment">{ TNulDropTarget }</span></pre>
+            <pre class="line"><span class="linenum"> 25</span></pre>
+            <pre
+                class="line"><span class="linenum"> 26</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TNulDropTarget</span><span class="sym">.</span><span class="ident">DragEnter</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_NONE</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 32</span></pre>
+            <pre
+                class="line"><span class="linenum"> 33</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TNulDropTarget</span><span class="sym">.</span><span class="ident">DragLeave</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 35</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 36</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span></pre>
+            <pre
+                class="line"><span class="linenum"> 38</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TNulDropTarget</span><span class="sym">.</span><span class="ident">DragOver</span><span class="sym">(</span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 39</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 40</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 41</span><span class="space">  </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_NONE</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 42</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 43</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 44</span></pre>
+            <pre
+                class="line"><span class="linenum"> 45</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TNulDropTarget</span><span class="sym">.</span><span class="ident">Drop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 46</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 47</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 48</span><span class="space">  </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_NONE</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 49</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 50</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 51</span></pre>
+            <pre
+                class="line"><span class="linenum"> 52</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">
+            Listing 4
+        </div>
+    </div>
+
+    <p>
+        All we do is set the cursor effect to <var>DROPEFFECT_NONE</var> in all relevant methods and return
+        <var>S_OK</var> from each method.
+    </p>
+
+    <p>
+        We now need to make two minor modifications to the <a href="#listing-3">boilerplate</a> code that was presented
+        earlier: we must use <var>UNulDropTarget</var> and alter the <var>FormCreate</var> method to create a
+        <var>TNulDropTarget</var> object. <span class="figureref">Listing 5</span> shows the changes.
+    </p>
+
+    <div id="listing-5" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">uses</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span><span class="sym">,</span><span class="space"> </span><span class="ident">UNulDropTarget</span><span class="sym">,</span><span class="space"> </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre class="line"><span class="linenum">  3</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">fWBContainer</span><span class="sym">.</span><span class="ident">DropTarget</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TNulDropTarget</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 5
+        </div>
+    </div>
+
+    <p>
+        If you run this code you will not be able to drop any dragged object on the web browser control. You can prove
+        this works by commenting out the line in <var>FormCreate</var> where <var>fWBContainer.DropTarget</var> is
+        assigned. The browser's default drag-drop will be enabled once more.
+    </p>
+
+    <h3 id="casestudy2">
+        Case Study 2: Accepting Files and Text Dropped on the Browser Control
+    </h3>
+
+    <p>
+        This case study will be more complex. We will start with a browser control containing an HTML document that
+        displays some instructions along with a placeholder box where data extracted from dragged and dropped objects
+        can be displayed. We will accept two kinds of data objects:
+    </p>
+
+    <ol class="wide">
+        <li>
+            Text dragged and dropped from other applications. This text will be displayed as pre-formatted text.
+        </li>
+        <li>
+            Files dragged and dropped from Explorer. The names of the files will be listed.
+        </li>
+    </ol>
+
+
+    <h4 id="cs2-idroptarget">
+        Implementation of <var>IDropTarget</var>
+    </h4>
+
+    <p>
+        Let us begin by looking at how to implement <var>IDropTarget</var>. This code is more complicated than we've
+        seen before for two reasons:
+    </p>
+
+    <ol class="wide">
+        <li>
+            We actually have to handle some dropped data &ndash; in fact we handle two different kinds of data.
+        </li>
+        <li>
+            We have to communicate with the main form to enable the form to display the data. We could reduce this
+            complexity by implementing <var>IDropTarget</var> in the main form, but I prefer to separate the code out.
+        </li>
+    </ol>
+
+    <p>
+        <span class="figureref">Listing 6</span> shows the declaration of <var>TCustomDropTarget</var>, our class that
+        implements <var>IDropTarget</var>.
+    </p>
+
+    <div id="listing-6" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">IDropHandler</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">interface</span><span class="sym">(</span><span class="ident">IInterface</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{C6A5B98C-9D4C-4205-B0C2-3F964938DF26}&apos;</span><span class="sym">]</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">HandleText</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Text</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">HandleFiles</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Files</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStrings</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">TCustomDropTarget</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TInterfacedObject</span><span class="sym">,</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="ident">fCanDrop</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">fDropHandler</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDrophandler</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">CanDrop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetTextFromObj</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">      </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">GetFileListFromObj</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">      </span><span class="kwd">const</span><span class="space"> </span><span class="ident">FileList</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStrings</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">DisplayData</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">DisplayFileList</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">DisplayText</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="comment">{ IDropTarget methods }</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DragEnter</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 25</span><span class="space">      </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 26</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DragOver</span><span class="sym">(</span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="space">      </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DragLeave</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Drop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 30</span><span class="space">      </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span><span class="space">  </span><span class="kwd">public</span></pre>
+            <pre
+                class="line"><span class="linenum"> 32</span><span class="space">    </span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Handler</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDropHandler</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 33</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 6
+        </div>
+    </div>
+
+    <p>
+        For now, ignore the <var>IDropHandler</var> interface and the private methods of <var>TCustomDropTarget</var>
+        &ndash; they will be explained later. We will start by looking at how the <var>IDropTarget</var> methods are
+        implemented. <span class="figureref">Listing 7</span> shows the methods.
+    </p>
+
+    <div id="listing-7" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">DragEnter</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">fCanDrop</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CanDrop</span><span class="sym">(</span><span class="ident">dataObj</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fCanDrop</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="sym">(</span><span class="ident">dwEffect</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_NONE</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">DragLeave</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">DragOver</span><span class="sym">(</span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fCanDrop</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="sym">(</span><span class="ident">dwEffect</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_NONE</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 25</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">Drop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span><span class="space">  </span><span class="ident">fCanDrop</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CanDrop</span><span class="sym">(</span><span class="ident">dataObj</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 32</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fCanDrop</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="sym">(</span><span class="ident">dwEffect</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 33</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 34</span><span class="space">    </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 35</span><span class="space">    </span><span class="ident">DisplayData</span><span class="sym">(</span><span class="ident">dataObj</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre
+                class="line"><span class="linenum"> 37</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre
+                class="line"><span class="linenum"> 38</span><span class="space">    </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_NONE</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 39</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 7
+        </div>
+    </div>
+
+    <div class="callout callout-info">
+        <h4 class="caption">
+            About <var>IDropTarget</var> &amp; <var>IDataObject</var>
+        </h4>
+        <p>
+            If you are not comfortable working with these interfaces please see &quot;<a href="./article-24">How to
+                receive data dragged from other applications</a>&quot; which explains how to implement
+            <var>IDropTarget</var> and use the methods of <var>IDataObject</var>. I won't spend much time explaining
+            this here.
+        </p>
+    </div>
+
+    <p>
+        In <var>DragEnter</var> we check if we can handle the dragged data by calling the <var>CanDrop</var> method and
+        recording its result for later use. If we can handle the data we intend to instruct Windows to display the copy
+        cursor by setting <var>dwEffect</var> to <var>DROPEFFECT_COPY</var>. However before we can do this we must check
+        that the caller supports copying by checking that <var>dwEffect</var> includes <var>DROPEFFECT_COPY</var>.
+        Should we not be able to handle the data, or the caller doesn't support copying, we inhibit the drop by setting
+        <var>dwEffect</var> to <var>DROPEFFECT_NONE</var>.
+    </p>
+
+    <p>
+        In <var>DragOver</var> we test <var>fCanDrop</var> and again check that the caller supports copying before
+        setting <var>dwEfect</var>.
+    </p>
+
+    <p>
+        We need do nothing in <var>DragLeave</var>, so we simply return <var>S_OK</var>.
+    </p>
+
+    <p>
+        Finally, in <var>Drop</var> we re-check the data object and <var>dwEffect</var> to see if we should accept the
+        drop and again set <var>dwEffect</var> accordingly. If we are accepting the drop we call <var>DisplayData</var>
+        to interpret the data object and to display it.
+    </p>
+
+    <div class="callout callout-danger">
+        <h4>
+            Spot the deliberate mistake!
+        </h4>
+        <p>
+            Lines 7, 21 &amp; 35 in <span class="figureref"><a href="#listing-7">Lisiting 7</a></span> are redundant,
+            because we can only get to them if <var>dwEffect</var> already includes <var>DROPEFFECT_COPY</var>.
+        </p>
+        <p>
+            But the code comments our intention, so we'll let that go!
+        </p>
+    </div>
+
+    <p>
+        So, how do we tell if we accept the dragged data object? It's simple. We accept data objects that store text
+        (with format type <var>CF_TEXT</var>) or those that can list files dropped on the application (with format type
+        <var>CF_HDROP</var>). The <var>CanDrop</var> method checks for these formats, as <span class="figureref">Listing
+            8</span> shows:
+    </p>
+
+    <div id="listing-8" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">CanDrop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">QueryGetData</span><span class="sym">(</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">CF_HDROP</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">or</span><span class="space"> </span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">QueryGetData</span><span class="sym">(</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">CF_TEXT</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 8
+        </div>
+    </div>
+
+    <p>
+        <var>CanDrop</var> uses <var>MakeFormatEtc</var> to populate the <var>TFormatEtc</var> structure required by the
+        data object's <var>QueryGetData</var> method. <var>MakeFormatEtc</var>, which was explained in <a
+            href="./article-24#listing-17">article #24</a>, is shown in <span class="figureref">Listing 9</span>.
+    </p>
+
+    <div id="listing-9" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">cfFormat</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">ptd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">dwAspect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DVASPECT_CONTENT</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">lindex</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">-</span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TYMED_HGLOBAL</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 9
+        </div>
+    </div>
+
+    <p>
+        Let us move on to examine how we extract the information to be displayed from the data object. <span
+            class="figureref">Listing 10</span> presents all the relevant methods.
+    </p>
+
+    <div id="listing-10" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">DisplayData</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">QueryGetData</span><span class="sym">(</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">CF_HDROP</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">DisplayFileList</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">QueryGetData</span><span class="sym">(</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">CF_TEXT</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">DisplayText</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">raise</span><span class="space"> </span><span class="ident">Exception</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="str">&apos;Drop data object not supported&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">DisplayFileList</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">Files</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStringList</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">fDropHandler</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">Files</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TStringList</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">      </span><span class="ident">GetFileListFromObj</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">,</span><span class="space"> </span><span class="ident">Files</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">      </span><span class="ident">fDropHandler</span><span class="sym">.</span><span class="ident">HandleFiles</span><span class="sym">(</span><span class="ident">Files</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">      </span><span class="ident">FreeAndNil</span><span class="sym">(</span><span class="ident">Files</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 25</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">DisplayText</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">fDropHandler</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 30</span><span class="space">    </span><span class="ident">fDropHandler</span><span class="sym">.</span><span class="ident">HandleText</span><span class="sym">(</span><span class="ident">GetTextFromObj</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">,</span><span class="space"> </span><span class="ident">CF_TEXT</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 32</span></pre>
+            <pre
+                class="line"><span class="linenum"> 33</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">GetFileListFromObj</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum"> 34</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space"> </span><span class="ident">FileList</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStrings</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="ident">Medium</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStgMedium</span><span class="sym">;</span><span class="space">         </span><span class="comment">// storage medium containing file list</span></pre>
+            <pre
+                class="line"><span class="linenum"> 37</span><span class="space">  </span><span class="ident">DroppedFileCount</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">  </span><span class="comment">// number of dropped files</span></pre>
+            <pre
+                class="line"><span class="linenum"> 38</span><span class="space">  </span><span class="ident">I</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">                 </span><span class="comment">// loops thru dropped files</span></pre>
+            <pre
+                class="line"><span class="linenum"> 39</span><span class="space">  </span><span class="ident">FileNameLength</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">    </span><span class="comment">// length of a dropped file name</span></pre>
+            <pre
+                class="line"><span class="linenum"> 40</span><span class="space">  </span><span class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space">           </span><span class="comment">// name of a dropped file</span></pre>
+            <pre class="line"><span class="linenum"> 41</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 42</span><span class="space">  </span><span class="comment">// Get required storage medium from data object</span></pre>
+            <pre
+                class="line"><span class="linenum"> 43</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">GetData</span><span class="sym">(</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">CF_HDROP</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">Medium</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 44</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 45</span><span class="space">    </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 46</span><span class="space">      </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 47</span><span class="space">        </span><span class="comment">// Get count of files dropped</span></pre>
+            <pre
+                class="line"><span class="linenum"> 48</span><span class="space">        </span><span class="ident">DroppedFileCount</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DragQueryFile</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum"> 49</span><span class="space">          </span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">,</span><span class="space"> </span><span class="hex">$FFFFFFFF</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span></pre>
+            <pre
+                class="line"><span class="linenum"> 50</span><span class="space">        </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 51</span><span class="space">        </span><span class="comment">// Get name of each file dropped and process it</span></pre>
+            <pre
+                class="line"><span class="linenum"> 52</span><span class="space">        </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">Pred</span><span class="sym">(</span><span class="ident">DroppedFileCount</span><span class="sym">)</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre
+                class="line"><span class="linenum"> 53</span><span class="space">        </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 54</span><span class="space">          </span><span class="comment">// get length of file name, then name itself</span></pre>
+            <pre
+                class="line"><span class="linenum"> 55</span><span class="space">          </span><span class="ident">FileNameLength</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DragQueryFile</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">,</span><span class="space"> </span><span class="ident">I</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 56</span><span class="space">          </span><span class="ident">SetLength</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">,</span><span class="space"> </span><span class="ident">FileNameLength</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 57</span><span class="space">          </span><span class="ident">DragQueryFile</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum"> 58</span><span class="space">            </span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">,</span><span class="space"> </span><span class="ident">I</span><span class="sym">,</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">FileNameLength</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span></pre>
+            <pre
+                class="line"><span class="linenum"> 59</span><span class="space">          </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 60</span><span class="space">          </span><span class="comment">// add file name to list</span></pre>
+            <pre
+                class="line"><span class="linenum"> 61</span><span class="space">          </span><span class="ident">FileList</span><span class="sym">.</span><span class="ident">Add</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 62</span><span class="space">        </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 63</span><span class="space">      </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 64</span><span class="space">        </span><span class="comment">// Tidy up - release the drop handle</span></pre>
+            <pre
+                class="line"><span class="linenum"> 65</span><span class="space">        </span><span class="comment">// don&apos;t use DropH again after this</span></pre>
+            <pre
+                class="line"><span class="linenum"> 66</span><span class="space">        </span><span class="ident">DragFinish</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 67</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 68</span><span class="space">    </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 69</span><span class="space">      </span><span class="ident">ReleaseStgMedium</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 70</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 71</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 72</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 73</span></pre>
+            <pre
+                class="line"><span class="linenum"> 74</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">GetTextFromObj</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 75</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 76</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum"> 77</span><span class="space">  </span><span class="ident">Medium</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStgMedium</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 78</span><span class="space">  </span><span class="ident">PText</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 79</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 80</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">GetData</span><span class="sym">(</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">Fmt</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">Medium</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 81</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 82</span><span class="space">    </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">Fmt</span><span class="sym">)</span><span class="sym">.</span><span class="ident">tymed</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 83</span><span class="space">    </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 84</span><span class="space">      </span><span class="ident">PText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GlobalLock</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 85</span><span class="space">      </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 86</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">PText</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 87</span><span class="space">      </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 88</span><span class="space">        </span><span class="ident">GlobalUnlock</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 89</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 90</span><span class="space">    </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 91</span><span class="space">      </span><span class="ident">ReleaseStgMedium</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 92</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 93</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre
+                class="line"><span class="linenum"> 94</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre
+                class="line"><span class="linenum"> 95</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 96</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 10
+        </div>
+    </div>
+
+    <p>
+        Recall that <var>DisplayData</var> is called when a data object is dropped. All it does is test the format of
+        the dropped data and call <var>DisplayFileList</var> if files were dropped or <var>DisplayText</var> if text was
+        dropped. No other data format should have been passed to <var>DisplayData</var>, so we raise an exception if
+        that is the case.
+    </p>
+
+    <p>
+        <var>DisplayFileList</var> simply creates a string list to receive the names of the dropped files and calls
+        <var>GetFileListFromObj</var> to extract the file list from the data object. Similarly, <var>DisplayText</var>
+        calls <var>GetTextFromObj</var> to extract the dropped text from the data object.
+    </p>
+
+    <div class="callout callout-info">
+        <h4>
+            <var>GetTextFromObj</var> &amp; <var>GetFileListFromObj</var>
+        </h4>
+        <p>
+            Similar methods are explained in detail in article #24. See &quot;<a href="./article-24#getdata-eg1">Example
+                1: Text stored in global memory</a>&quot; and &quot;
+            <a href="./article-24#getdata-eg2">Example 2: File list stored in global memory</a>&quot; for details.
+        </p>
+    </div>
+
+    <p>
+        You will have noticed that both <var>DisplayFileList</var> and <var>DisplayText</var> only get data from the
+        data object if the <var>fDropHandler</var> field is set. They also call methods on <var>fDropHandler</var> when
+        it is set. So what is <var>fDropHandler</var>?
+    </p>
+
+    <p>
+        Put simply <var>fDropHandler</var> is the means by which we communicate with the main form.
+        <var>fDropHandler</var> is an instance of an object that supports <var>IDropHandler</var>, the interface we
+        declared in <span class="figureref"><a href="#listing-6">Listing 6</a></span>. A reference to such an object is
+        passed to <var>TCustomDropTarget</var>'s constructor and recorded in <var>fDropHandler</var>. The relevant
+        methods of <var>IDropHandler</var> are called by <var>DisplayFileList</var> and <var>DisplayText</var>. <span
+            class="figureref">Listing 11</span> shows the constructor, which needs no further explanation.
+    </p>
+
+    <div id="listing-11" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Handler</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDropHandler</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">inherited</span><span class="space"> </span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">fDropHandler</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Handler</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 11
+        </div>
+    </div>
+
+    <p>
+        And where is <var>IDropHandler</var> implemented? It could be any object that knows how to display the data, so
+        where better than the main form?
+    </p>
+
+    <h4 id="cs2-mainform">
+        The Main Form
+    </h4>
+
+    <p>
+        The main form contains a web browser control to display the HTML page. From what we've said above, the form must
+        also implement <var>IDropHandler</var>.
+    </p>
+
+    <p>
+        Using a blank form, drop a <var>TWebBrowser</var> control on it, aligned to fill all the form's client area.
+        Create <var>onCreate</var>, <var>OnDestroy</var> and <var>OnShow</var> event handlers and change the form's
+        interface section to look like <span class="figureref">Listing 12</span>:
+    </p>
+
+    <div id="listing-12" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">uses</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span><span class="sym">,</span><span class="space"> </span><span class="ident">ActiveX</span><span class="sym">,</span><span class="space"> </span><span class="ident">MSHTML</span><span class="sym">,</span><span class="space"> </span><span class="sym">..</span><span class="sym">.</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">TForm1</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TForm</span><span class="sym">,</span><span class="space"> </span><span class="ident">IDropHandler</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">WebBrowser1</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormShow</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="ident">fWBContainer</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWBDragDropContainer</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">SetBoxInnerHTML</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">HTML</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="comment">{ IDropHandler methods }</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">HandleText</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Text</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">HandleFiles</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Files</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStrings</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 12
+        </div>
+    </div>
+
+    <p>
+        Now implement <var>FormCreate</var>, <var>FormDestroy</var> and <var>FormShow</var> as shown in <span
+            class="figureref">Listing 13</span>.
+    </p>
+
+    <div id="listing-13" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">OleInitialize</span><span class="sym">(</span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">fWBContainer</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TWBDragDropContainer</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="ident">WebBrowser1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">fWBContainer</span><span class="sym">.</span><span class="ident">DropTarget</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TCustomDropTarget</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="ident">Self</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span class="sym">(</span><span class="ident">ExtractFilePath</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="num">0</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;Page.html&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">fWBContainer</span><span class="sym">.</span><span class="ident">DropTarget</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">OleUninitialize</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">FreeAndNil</span><span class="sym">(</span><span class="ident">fWBContainer</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormShow</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">while</span><span class="space"> </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">ReadyState</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="ident">READYSTATE_COMPLETE</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="ident">Sleep</span><span class="sym">(</span><span class="num">5</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">ProcessMessages</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 13
+        </div>
+    </div>
+
+    <p>
+        In <var>FormCreate</var> we once again initialise OLE. We then create a web browser container object and use it
+        to assign the drop target, now implemented by <var>TCustomDropTarget</var>. A reference to this form is passed
+        to <var>TCustomDropTarget</var>'s constructor, because our form implements <var>IDropHandler</var>. Instead of
+        navigating to <code>about:blank</code> we navigate to an HTML page named <code>Page.html</code> in the same
+        directory as the executable program. We will discuss this file later.
+    </p>
+
+    <p>
+        <var>FormDestroy</var> simply tidies up, while <var>FormShow</var> pauses until the HTML document has fully
+        loaded.
+    </p>
+
+    <p>
+        We still have to implement the methods of <var>IDropHandler</var>, so let us do that now. <span
+            class="figureref">Listing 14</span> shows our implementation, along with that of the helper method,
+        <var>SetBoxInnerHTML</var> that is used update the display.
+    </p>
+
+    <div id="listing-14" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">HandleFiles</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Files</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStrings</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Idx</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">HTML</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">HTML</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&lt;ul&gt;&apos;</span><span class="str">#13</span><span class="str">#10</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">Idx</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">Pred</span><span class="sym">(</span><span class="ident">Files</span><span class="sym">.</span><span class="ident">Count</span><span class="sym">)</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">HTML</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">HTML</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">      </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;&lt;li&gt;&apos;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">      </span><span class="sym">+</span><span class="space"> </span><span class="ident">MakeSafeHTMLText</span><span class="sym">(</span><span class="ident">Files</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">      </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;&lt;/li&gt;&apos;</span><span class="str">#13</span><span class="str">#10</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">HTML</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">HTML</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;&lt;/ul&gt;&apos;</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">SetBoxInnerHTML</span><span class="sym">(</span><span class="ident">HTML</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">HandleText</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Text</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="ident">SetBoxInnerHTML</span><span class="sym">(</span><span class="str">&apos;&lt;pre&gt;&apos;</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">MakeSafeHTMLText</span><span class="sym">(</span><span class="ident">Text</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;&lt;/pre&gt;&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">SetBoxInnerHTML</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">HTML</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="ident">BoxDiv</span><span class="sym">:</span><span class="space"> </span><span class="ident">IHTMLElement</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="ident">Doc</span><span class="sym">:</span><span class="space"> </span><span class="ident">IHTMLDocument3</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 26</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Supports</span><span class="sym">(</span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Document</span><span class="sym">,</span><span class="space"> </span><span class="ident">IHTMLDocument3</span><span class="sym">,</span><span class="space"> </span><span class="ident">Doc</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span><span class="space">    </span><span class="ident">BoxDiv</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Doc</span><span class="sym">.</span><span class="ident">getElementById</span><span class="sym">(</span><span class="str">&apos;box&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">BoxDiv</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 30</span><span class="space">      </span><span class="ident">BoxDiv</span><span class="sym">.</span><span class="ident">innerHTML</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">HTML</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 32</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 14
+        </div>
+    </div>
+
+    <p>
+        <var>SetBoxInnerHTML</var> examines the displayed HTML document to find an element with an id of
+        &quot;box&quot;. If such an element exists its inner
+        HTML is set to the code passed to method as a parameter. This causes the required HTML to be displayed in the
+        document. The HTML document presented <a href="#listing-16">below</a> contains a <span
+            class="kwd">&lt;div&gt;</span> with the required id.
+    </p>
+
+    <p>
+        <var>HandleFiles</var> accepts a string list containing the names of the dropped files. It creates a HTML
+        unordered list of file names. <var>HandleText</var> simply encloses the text passed to it in <span
+            class="kwd">&lt;pre&gt;</span> tags.
+    </p>
+
+    <p>
+        Both <var>HandleFiles</var> and <var>HandleText</var> make use of a helper function named
+        <var>MakeSafeHTMLText</var> that ensures the text contains only valid HTML characters.
+        <var>MakeSafeHTMLText</var>, which was taken from the <a
+            href="https://github.com/delphidabbler/code-snippets/tree/master/csdb">DelphiDabbler Code Snippets
+            Database</a>, appears in <span class="figureref">Listing 15</span> below.
+    </p>
+
+    <div id="listing-15" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">MakeSafeHTMLText</span><span class="sym">(</span><span class="ident">TheText</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Idx</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="comment">// loops thru the given text</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">Idx</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">TheText</span><span class="sym">)</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">case</span><span class="space"> </span><span class="ident">TheText</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">      </span><span class="str">&apos;&lt;&apos;</span><span class="sym">:</span><span class="space">  </span><span class="comment">// opens tags</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;&amp;lt;&apos;</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">      </span><span class="str">&apos;&gt;&apos;</span><span class="sym">:</span><span class="space">  </span><span class="comment">// closes tags</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;&amp;gt;&apos;</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">      </span><span class="str">&apos;&amp;&apos;</span><span class="sym">:</span><span class="space">  </span><span class="comment">// begins char references</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;&amp;amp;&apos;</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="str">&apos;&quot;&apos;</span><span class="sym">:</span><span class="space">  </span><span class="comment">// quotes (can be a problem in quoted attributes)</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;&amp;quot;&apos;</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">      </span><span class="str">#0</span><span class="sym">..</span><span class="str">#31</span><span class="sym">,</span><span class="space"> </span><span class="str">#127</span><span class="sym">..</span><span class="str">#255</span><span class="sym">:</span><span class="space">  </span><span class="comment">// control and special chars</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;&amp;#&apos;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">          </span><span class="sym">+</span><span class="space"> </span><span class="ident">SysUtils</span><span class="sym">.</span><span class="ident">IntToStr</span><span class="sym">(</span><span class="ident">Ord</span><span class="sym">(</span><span class="ident">TheText</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;;&apos;</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">      </span><span class="kwd">else</span><span class="space">  </span><span class="comment">// compatible text: pass thru</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">TheText</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 15
+        </div>
+    </div>
+
+
+    <h4 id="cs2-html">
+        HTML of Displayed Page
+    </h4>
+
+    <p>
+        All that remains now is to show the content of <code>Page.html</code>, the HTML page displayed in the web
+        browser control, which we do in <span class="figureref">Listing 16</span>.
+    </p>
+
+    <div id="listing-16" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">&lt;!DOCTYPE</span> <span class="ident">html</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span>  <span class="kwd">PUBLIC</span> &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot;</pre>
+            <pre
+                class="line"><span class="linenum">  3</span>  &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;<span class="kwd">&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="kwd">&lt;html </span><span class="ident">xmlns</span><span class="sym">=</span>&quot;http://www.w3.org/1999/xhtml&quot; <span class="ident">xml:lang</span><span class="sym">=</span>&quot;en&quot; <span class="ident">lang</span><span class="sym">=</span>&quot;en&quot;<span class="kwd">&gt;</span></pre>
+            <pre class="line"><span class="linenum">  5</span>  <span class="kwd">&lt;head&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span>    <span class="kwd">&lt;title&gt;</span>Article #25 Demo 4<span class="kwd">&lt;/title&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span>    <span class="kwd">&lt;style</span> <span class="ident">type</span><span class="sym">=</span>&quot;text/css&quot;<span class="kwd">&gt;</span></pre>
+            <pre class="line"><span class="linenum">  8</span>      #box {</pre>
+            <pre class="line"><span class="linenum">  9</span>        background-color: #ff9;</pre>
+            <pre class="line"><span class="linenum"> 10</span>        border: 1px silver solid;</pre>
+            <pre class="line"><span class="linenum"> 11</span>        padding: 0.25em;</pre>
+            <pre class="line"><span class="linenum"> 12</span>        margin: 6px 0;</pre>
+            <pre class="line"><span class="linenum"> 13</span>        height: 160px;</pre>
+            <pre class="line"><span class="linenum"> 14</span>        width: 420px;</pre>
+            <pre class="line"><span class="linenum"> 15</span>        overflow: auto;</pre>
+            <pre class="line"><span class="linenum"> 16</span>      }</pre>
+            <pre class="line"><span class="linenum"> 17</span>    <span class="kwd">&lt;/style&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span>  <span class="kwd">&lt;/head&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span>  <span class="kwd">&lt;body&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span>    <span class="kwd">&lt;h1&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span>      Drag Drop Test</pre>
+            <pre class="line"><span class="linenum"> 22</span>    <span class="kwd">&lt;/h1&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span>    <span class="kwd">&lt;p&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span>      Drag and drop one or more files or a text selection on this</pre>
+            <pre class="line"><span class="linenum"> 25</span>      browser control.</pre>
+            <pre class="line"><span class="linenum"> 26</span>    <span class="kwd">&lt;/p&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span>    <span class="kwd">&lt;div</span> <span class="ident">id</span><span class="sym">=</span>&quot;box&quot;<span class="kwd">&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span>      <span class="kwd">&lt;div</span> <span class="ident">style</span><span class="sym">=</span>&quot;text-align:center;vertical-align:bottom;&quot;<span class="kwd">&gt;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span>        <span class="kwd">&lt;em&gt;</span>Dragged and dropped text or list of files will be</pre>
+            <pre
+                class="line"><span class="linenum"> 30</span>      displayed here.<span class="kwd">&lt;/em&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span>      <span class="kwd">&lt;/div&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 32</span>    <span class="kwd">&lt;/div&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 33</span>  <span class="kwd">&lt;/body&gt;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="kwd">&lt/html&gt;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 16
+        </div>
+    </div>
+
+    <p>
+        The main thing to note is the <span class="kwd">&lt;div&gt;</span> with id of &quot;box&quot; which is where the
+        dropped text or file list is displayed. We style the <span class="kwd">&lt;div&gt;</span> with a silver border
+        and pale yellow background, and give it a fixed height and width so that scroll bars will appear for any
+        oversized content.
+    </p>
+
+    <h4 id="cs2-exercise">
+        Exercising the Code
+    </h4>
+
+    <p>
+        Run this code and experiment by dragging single and multiple files from Explorer and by selecting and dragging
+        text from a text editor or word processor that supports text drag and drop.
+    </p>
+
+    <p>
+        This completes our investigation of how to handle drag and drop in the <var>TWebBrowser</var> control.
+    </p>
+
+</section>
+
+<section id="demo">
+
+    <h2>
+        Demo Code
+    </h2>
+
+    <p>
+        A demo program to accompany this article can be found in the
+        <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git
+        repository on GitHub.
+    </p>
+
+    <p>
+        You can view the code in the
+        <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-25">article-25</a></code>
+        sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing
+        page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
+    </p>
+
+    <p>
+        The demo includes the complete source code of four demo programs. See the demo's <a
+            href="https://github.com/delphidabbler/article-demos/blob/master/article-25/README.md">README.md</a> file
+        for details.
+    </p>
+
+    <div class="callout callout-info">
+        <p>
+            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is
+            merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its
+            current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY
+            OF ANY KIND, either express or implied.
+        </p>
+        <p>
+            The demo is open source. See the demo's <a
+                href="https://github.com/delphidabbler/article-demos/blob/master/article-25/LICENSE.md">LICENSE.md</a>
+            file for licensing details.
+        </p>
+    </div>
+
+</section>
+
+<section id="gofurther">
+
+    <h2>
+        Going Further
+    </h2>
+
+    <p>
+        My GUI for the <a href="/software/pashi">PasHi Pascal Highlighter</a>, <em>PasHiGUI</em>, program uses a
+        <var>TWebBrowser</var> control and overrides drag and drop
+        using similar methods to those described here. If you are interested in seeing how this works please feel free
+        to download and examine the program's
+        source code.
+    </p>
+
+</section>
+
+<section id="summary">
+
+    <h2>
+        Summary
+    </h2>
+
+    <p>
+        In this article we discovered that the default drag and drop behaviour of a <var>TWebBrowser</var> control
+        varies depending on whether OLE has been initialised.
+    </p>
+
+    <p>
+        We examined general techniques that can be used to override the web browser control's drag drop handling by
+        implementing the <var>IDropTarget</var>, <var>IDocHostUIHandler</var> and <var>IOleSlientSite</var> interfaces.
+    </p>
+
+    <p>
+        Next we looked at how to inhibit <var>TWebBrowser</var> from handling drag and drop at all.
+    </p>
+
+    <p>
+        Finally we moved on to learn how to customise the control's handling of drag and drop in applications that need
+        to support drag and drop but do not want the control's default behaviour.
+    </p>
+
+</section>
+
+<section id="references">
+
+    <h2>
+        References
+    </h2>
+
+    <p>
+        The Windows API help file supplied with Delphi provided documentation for <var>IDropTarget</var>.
+    </p>
+
+    <p>
+        Two of my earlier articles provide much of the background information relied on in this article. They are:
+    </p>
+
+    <ul class="wide">
+        <li>
+            &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot; provides detailed
+            information on hosting and modifying
+            the behaviour of <var>TWebBrowser</var> controls.
+        </li>
+        <li>
+            &quot;<a href="./article-24">How to receive data dragged from other applications</a>&quot; explains how to
+            handle OLE drag and drop.
+        </li>
+    </ul>
+
+</section>
+
+<section id="feedback">
+
+    <h2>
+        Feedback
+    </h2>
+
+    <p>
+        I hope you enjoyed this article and found it useful.
+    </p>
+
+    <p>
+        If you have any observations, comments, or have found any errors there are two places you can report them.
+    </p>
+
+    <ol class="wide">
+        <li>
+            For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this
+            website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>. You
+            <strong>must</strong> mention that the issue relates to <code>article-25</code>.
+        </li>
+        <li>
+            For bugs in the demo code see the demo's
+            <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code>
+            for details of how to report them.
+        </li>
+    </ol>
+
+</section>
