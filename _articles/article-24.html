@@ -1,13 +1,1986 @@
 ---
 article: 24
 title: "How to receive data dragged from other applications"
-summary: "The standard Windows API method of handling drag and drop is fine for catching files dragged from Explorer, but how do we handle data dragged and dropped from other applications? This article explains."
+summary: "The standard Windows API method of handling drag and drop is fine for catching files dragged from Explorer,
+but how do we handle data dragged and dropped from other applications? This article explains."
 meta-title: "Use Delphi Pascal to receive data dragged from other applications | How to"
-meta-desc: "An article that explains how to use Delphi Pascal and the IDropTarget & IDataObject interfaces to handle data dragged & dropped from other applications."
+meta-desc: "An article that explains how to use Delphi Pascal and the IDropTarget & IDataObject interfaces to handle
+data dragged & dropped from other applications."
 demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-24"
-pages: 6
-offsite: 1
+pages: 1
 index: true
 redirect_from:
 - /articles/24
 ---
+<section id="contents">
+
+    <h2>
+        Contents
+    </h2>
+
+    <nav>
+
+        <div class="well">
+            <ul>
+                <li>
+                    <a href="#intro">Introduction</a>
+                </li>
+                <li>
+                    <a href="#idroptarget">About <var>IDropTarget</var></a>
+                </li>
+                <li>
+                    <a href="#idataobject">About <var>IDataObject</var></a>
+                </li>
+                <li>
+                    <a href="#dataformats">Understanding Data Formats</a>
+                </li>
+                <li>
+                    <a href="#querying">Querying the Data Object</a>
+                    <ul>
+                        <li>
+                            <a href="#checking">Checking for a specified data format</a>
+                        </li>
+                        <li>
+                            <a href="#enum">Enumerating all data formats</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#getdata">Getting Data from the Data Object</a>
+                    <ul>
+                        <li>
+                            <a href="#getdata-eg1">Example 1: Text stored in global memory</a>
+                        </li>
+                        <li>
+                            <a href="#getdata-eg2">Example 2: File list stored in global memory</a>
+                        </li>
+                        <li>
+                            <a href="#getdata-eg3">Example 3: Data stored in a stream</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#implement">Implementing <var>IDropTarget</var></a>
+                    <ul>
+                        <li>
+                            <a href="#boilerplate">Boilerplate code</a>
+                        </li>
+                        <li>
+                            <a href="#implement-eg1">Example 1: Listing data formats</a>
+                        </li>
+                        <li>
+                            <a href="#implement-eg2">Example 2: Displaying data from selected data formats</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#demo">Demo code</a>
+                </li>
+                <li>
+                    <a href="#gofurther">Going Further</a>
+                </li>
+                <li>
+                    <a href="#summary">Summary</a>
+                </li>
+                <li>
+                    <a href="#references">References</a>
+                </li>
+                <li>
+                    <a href="#feedback">Feedback</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+</section>
+
+<section id="intro">
+
+    <h2>
+        Introduction
+    </h2>
+
+    <p>
+        In <a href="./article-11">article #11</a> we looked at how to catch files dragged and dropped on our application
+        from Explorer. That's fine as far as it goes, but what about catching objects dragged and dropped from other
+        applications? For example, how do we catch a text selection dragged from a text editor or word processor, or
+        what about an HTML selection dragged from your web browser?
+    </p>
+
+    <p>
+        In order to receive such objects we have to make our application into a &quot;drop target&quot; that is
+        recognised by Windows. We do this using COM (or OLE) drag and drop. As is usual with COM, we have to create an
+        object that implements an interface &ndash; <var>IDropTarget</var> in this case &ndash; and then tell Windows
+        about it. Windows then calls the methods of our implementation of <var>IDropTarget</var> to notify us of drag
+        drop events.
+    </p>
+
+    <p>
+        If we accept a dropped object, Windows makes the dropped object's data available via an object that supports the
+        <var>IDataObject</var> interface. This object can provide the data in one or more data formats. Several
+        different delivery mechanisms may be supported and objects can be targetted at different output devices. Source
+        applications may also advise how the data should be rendered. Our application needs to examine the available
+        data formats and decide if it can accept any of them. If so we must also be able to extract the data from the
+        data object.
+    </p>
+
+    <p>
+        In this article we will:
+    </p>
+
+    <ul class="wide">
+        <li>
+            Show how to register an application's window as a drop target.
+        </li>
+        <li>
+            Interact with Windows to give visual feedback about whether we will accept a drop.
+        </li>
+        <li>
+            Show how to examine all data formats supported by an object.
+        </li>
+        <li>
+            Give examples of how to extract data from certain kinds of data object.
+        </li>
+    </ul>
+
+    <p>
+        The first thing we need to do is to get to know the <var>IDropTarget</var> and <var>IDataObject</var>
+        interfaces. We begin this in the next section.
+    </p>
+
+</section>
+
+<section id="idroptarget">
+
+    <h2>
+        About <var>IDropTarget</var>
+    </h2>
+
+    <p>
+        <var>IDropTarget</var> descends directly from <var>IUnknown</var> and implements four additional methods. The
+        definition of the interface is found in Delphi's <var>ActiveX</var> unit and is reproduced in <span
+            class="figureref">Listing 1</span>.
+    </p>
+
+    <div id="listing-1" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">IDropTarget</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">interface</span><span class="sym">(</span><span class="ident">IUnknown</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{00000122-0000-0000-C000-000000000046}&apos;</span><span class="sym">]</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DragEnter</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">      </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DragOver</span><span class="sym">(</span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">      </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DragLeave</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Drop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 1
+        </div>
+    </div>
+
+    <p>
+        A description of the methods and how we use them follows:
+    </p>
+
+    <dl>
+        <dt>
+            <var>DragEnter</var>
+        </dt>
+        <dd>
+            <p>
+                Called when the user first drags an object over the window that is registered for drag and drop.
+                Parameters are:
+            </p>
+            <dl class="light narrow">
+                <dt>
+                    <var>dataObj</var>
+                </dt>
+                <dd>
+                    Describes the object being dragged. We will examine this object in detail later.
+                </dd>
+                <dt>
+                    <var>grfKeyState</var>
+                </dt>
+                <dd>
+                    Bit mask describing which mouse buttons and &quot;shift&quot; (modifier) keys are pressed. We may
+                    want to use this information to decide how to handle the operation and to help decide the value
+                    assigned to <var>dwEffect</var> (see below).
+                </dd>
+                <dt>
+                    <var>pt</var>
+                </dt>
+                <dd>
+                    The mouse location.
+                </dd>
+                <dt>
+                    <var>dwEffect</var>
+                </dt>
+                <dd>
+                    Describes the cursor effect used for the operation. When the method is called it contains a bit mask
+                    detailing the permitted effects and must be set to a single value decribing the desired effect
+                    within the method. Effects are: the &quot;no entry&quot; cursor (meaning we can't accept a drop),
+                    the copy cursor, the move cursor or the shortcut cursor.
+                </dd>
+            </dl>
+        </dd>
+        <dt>
+            <var>DragOver</var>
+        </dt>
+        <dd>
+            <p>
+                Called repeatedly as the user moves the mouse over our window. The parameters are the same as for
+                <var>DragEnter</var> except that <var>dataObj</var> is not provided here. We use this method to modify
+                the the cursor according to the mouse position and any change in the mouse button or modifier keys.
+            </p>
+        </dd>
+        <dt>
+            <var>DragLeave</var>
+        </dt>
+        <dd>
+            <p>
+                Called to inform us that the user has dragged the object off our window without dropping the object. We
+                use this to tidy up if necessary.
+            </p>
+        </dd>
+        <dt>
+            <var>Drop</var>
+        </dt>
+        <dd>
+            <p>
+                Called if the user drops the object over our window. The parameters are exactly the same as for
+                <var>DragEnter</var>. When this method is called we process the dropped object and tidy up. Note that
+                <var>DragLeave</var> is not called if the object is dropped. <var>Drop</var> is not called if the
+                &quot;no entry&quot; cursor has been requested.
+            </p>
+        </dd>
+    </dl>
+
+    <p class="callout callout-info">
+        Further information can be found in Delphi's Windows API help file.
+    </p>
+
+    <p>
+        When implementing <var>IDropTarget</var> we may need to examine the data object, the permitted drop effects and
+        the modifier keys to answer the following questions:
+    </p>
+
+    <ul>
+        <li>
+            Can we accept the object?
+        </li>
+        <li>
+            How should we handle the object if dropped?
+        </li>
+    </ul>
+
+    <p>
+        We will answer these questions later in the article when we look at implementing <var>IDropTarget</var>.
+    </p>
+
+</section>
+
+<section id="idataobject">
+
+    <h2 id="idataobject">
+        About <var>IDataObject</var>
+    </h2>
+
+    <p>
+        Again the declaration of <var>IDataObject</var> is provided in the <var>ActiveX</var> unit. <span
+            class="figureref">Listing 2</span> replicates the definition.
+    </p>
+
+    <div id="listing-2" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">IDataObject</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">interface</span><span class="sym">(</span><span class="ident">IUnknown</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="sym">[</span><span class="str">&apos;{0000010E-0000-0000-C000-000000000046}&apos;</span><span class="sym">]</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetData</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">formatetcIn</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">      </span><span class="kwd">out</span><span class="space"> </span><span class="ident">medium</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStgMedium</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetDataHere</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">formatetc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">      </span><span class="kwd">out</span><span class="space"> </span><span class="ident">medium</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStgMedium</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">QueryGetData</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">formatetc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetCanonicalFormatEtc</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">formatetc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="kwd">out</span><span class="space"> </span><span class="ident">formatetcOut</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">SetData</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">formatetc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">      </span><span class="kwd">var</span><span class="space"> </span><span class="ident">medium</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStgMedium</span><span class="sym">;</span><span class="space"> </span><span class="ident">fRelease</span><span class="sym">:</span><span class="space"> </span><span class="ident">BOOL</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">EnumFormatEtc</span><span class="sym">(</span><span class="ident">dwDirection</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">out</span><span class="space"> </span><span class="ident">enumFormatEtc</span><span class="sym">:</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">      </span><span class="ident">IEnumFormatEtc</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DAdvise</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">formatetc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">      </span><span class="ident">advf</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space"> </span><span class="ident">advSink</span><span class="sym">:</span><span class="space"> </span><span class="ident">IAdviseSink</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">      </span><span class="kwd">out</span><span class="space"> </span><span class="ident">dwConnection</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 25</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DUnadvise</span><span class="sym">(</span><span class="ident">dwConnection</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 26</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">EnumDAdvise</span><span class="sym">(</span><span class="kwd">out</span><span class="space"> </span><span class="ident">enumAdvise</span><span class="sym">:</span><span class="space"> </span><span class="ident">IEnumStatData</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 2
+        </div>
+    </div>
+
+    <p>
+        <var>IDataObject</var> is supported by data objects dragged and dropped over our window. We don't need to
+        implement this interface &ndash; Windows provides an instance to us via the methods of <var>IDropTarget</var>.
+        Not all the methods are required when handling drag and drop. The only ones of interest to us in this article
+        are:
+    </p>
+
+    <dl>
+        <dt>
+            <var>GetData</var>
+        </dt>
+        <dd>
+            <p>
+                Unsurprisingly this method retrieves data from the drop object. We specify a desired data format, medium
+                and target device in the method's <var>formatetcIn</var> parameter and, if the object supports it, the
+                method returns the required data encapsulated in a storage medium via its <var>medium</var> parameter.
+                We will discuss storage media in detail later.
+            </p>
+        </dd>
+
+        <dt>
+            <var>QueryGetData</var>
+        </dt>
+        <dd>
+            <p>
+                Checks whether the data object can provide data in the required format.
+            </p>
+        </dd>
+
+        <dt>
+            <var>EnumFormatEtc</var>
+        </dt>
+        <dd>
+            <p>
+                Returns an enumerator that can iterate through the various data formats, media and target devices
+                supported by the data object.
+            </p>
+        </dd>
+    </dl>
+
+    <p>
+        The <var>GetDataHere</var> and <var>GetCanonicalFormatEtc</var> methods could also be of use but are not
+        considered in this article.
+    </p>
+
+    <p>
+        As has been observed, data objects can store different versions of the same data in various formats. It is
+        important that we have a reasonable understanding of them. In the next section we examine data formats in more
+        detail.
+    </p>
+
+</section>
+
+<section id="dataformats">
+
+    <h2>
+        Understanding Data Formats
+    </h2>
+
+    <p>
+        In this section we will investigate various data formats used to transfer data from <var>IDataObject</var>
+        instances. There are four different attributes of data formats to be considered:
+    </p>
+
+    <ol class="wide">
+        <li>
+            <p>
+                <strong>The data format</strong>
+            </p>
+            <p>
+                Just like the clipboard a data object can store data in numerous different formats. In fact, data
+                objects use the same way of describing data formats as that used by the clipboard. A format may be one
+                of the built-in ones such as <var>CF_TEXT</var> or an application defined format such as &quot;Rich Text
+                Format&quot;.
+            </p>
+        </li>
+        <li>
+            <p>
+                <strong>The storage medium used to transfer the data</strong>
+            </p>
+            <p>
+                Data can be delivered via various different mechanisms. These mechanisms are described by the
+                <var>TYMED_*</var> enumeration and are:
+            </p>
+            <dl class="narrow light">
+                <dt>
+                    <var>TYMED_HGLOBAL</var>
+                </dt>
+                <dd>
+                    The data is transferred via global memory accessed via a global memory handle of type
+                    <var>HGLOBAL</var>.
+                </dd>
+                <dt>
+                    <var>TYMED_FILE</var>
+                </dt>
+                <dd>
+                    The data is transferred via a disk file.
+                </dd>
+                <dt>
+                    <var>TYMED_ISTREAM</var>
+                </dt>
+                <dd>
+                    The data is transferred as a stream accessed through an <var>IStream</var> interface.
+                </dd>
+                <dt>
+                    <var>TYMED_ISTORAGE</var>
+                </dt>
+                <dd>
+                    The data is transferred in a Windows storage object accessed through an <var>IStorage</var>
+                    interface.
+                </dd>
+                <dt>
+                    <var>TYMED_GDI</var>
+                </dt>
+                <dd>
+                    The data is specified by a GDI component accessed via a <var>HBITMAP</var> handle.
+                </dd>
+                <dt>
+                    <var>TYMED_MFPICT</var>
+                </dt>
+                <dd>
+                    The data is a metafile accessed via a <var>HMETAFILEPICT</var> handle.
+                </dd>
+                <dt>
+                    <var>TYMED_ENHMF</var>
+                </dt>
+                <dd>
+                    The data is an enhanced metafile accessed via a <var>HENHMETAFILE</var> handle.
+                </dd>
+            </dl>
+            <p>
+                The way we access the data depends on the storage medium. By far the most common storage medium is the
+                global memory handle and we will concentrate mainly on that mechanism in this article.
+            </p>
+        </li>
+        <li>
+            <p>
+                <strong>The &quot;Aspect&quot;, or view of the data</strong>
+            </p>
+            <p>
+                This indicates how much detail should be provided when rendering the data. The possible aspects are:
+            </p>
+            <ul class="narrow">
+                <li>
+                    a full representation as an embedded object,
+                </li>
+                <li>
+                    a thumbnail view,
+                </li>
+                <li>
+                    an icon view,
+                </li>
+                <li>
+                    a print preview.
+                </li>
+            </ul>
+            <p>
+                The first of these is the norm and the only one considered in this article.
+            </p>
+        </li>
+        <li>
+            <p>
+                <strong>The target device</strong>
+            </p>
+            <p>
+                The type of device the data is targetted at can also be specified. However, the usual case is that the
+                data is device independent and this is the only case considered by this article.
+            </p>
+        </li>
+    </ol>
+
+    <p>
+        Windows encapsulates all this information inside a <var>TFormatEtc</var> structure, defined in the
+        <var>ActiveX</var> unit. <span class="figureref">Listing 3</span> reproduces the definitions.
+    </p>
+
+    <div id="listing-3" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">tagFORMATETC</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">record</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">cfFormat</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">ptd</span><span class="sym">:</span><span class="space"> </span><span class="ident">PDVTargetDevice</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">dwAspect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">lindex</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">tymed</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">TFormatEtc</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">tagFORMATETC</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 3
+        </div>
+    </div>
+
+    <p>
+        The fields are discussed briefly below:
+    </p>
+
+    <dl>
+        <dt>
+            <var>cfFormat</var>
+        </dt>
+        <dd>
+            <p>
+                Tells us about the data format and is a clipboard format identifier.
+            </p>
+        </dd>
+
+        <dt>
+            <var>ptd</var>
+        </dt>
+        <dd>
+            <p>
+                Informs about the target device and is a structure of type <var>DVTARGETDEVICE</var>. The value of this
+                field is <span class="keyword">nil</span> if the data is device independent. We will always set this
+                value to <span class="keyword">nil</span> in this article.
+            </p>
+        </dd>
+
+        <dt>
+            <var>dwAspect</var>
+        </dt>
+        <dd>
+            <p>
+                The view aspect. In all the cases we will consider, this value will be <var>DVASPECT_CONTENT</var>
+                meaning we should represent the data as an embedded object. Other possible values are
+                <var>DVASPECT_THUMBNAIL</var>, <var>DVASPECT_ICON</var> and <var>DVASPECT_DOCPRINT</var>.
+            </p>
+        </dd>
+
+        <dt>
+            <var>lindex</var>
+        </dt>
+        <dd>
+            <p>
+                Tells us when the view aspect must be split across page boundaries. Often, and in all cases considered
+                here, <var>lindex</var> is -1 indicating that all the data should be displayed.
+            </p>
+        </dd>
+
+        <dt>
+            <var>tymed</var>
+        </dt>
+        <dd>
+            <p>
+                Describes the media type of the storage medium. This is one of the <var>TYMED_*</var> enumeration values
+                discussed above.
+            </p>
+        </dd>
+    </dl>
+
+    <p class="callout callout-info">
+        See Delphi's Windows API help file for more detailed information.
+    </p>
+
+    <p>
+        We will use <var>TFormatEtc</var> structures in one of two ways:
+    </p>
+
+    <ol>
+        <li>
+            We will examine structures filled in by Windows to learn about a data object's format.
+        </li>
+        <li>
+            We will set up our own structures to request objects in a required format.
+        </li>
+    </ol>
+
+    <p>
+        That concludes the discussion of data objects. Armed with this knowledge we can move on to discuss how to
+        interogate, and extract data from, data objects.
+    </p>
+
+</section>
+
+<section id="querying">
+
+    <h2>
+        Querying the Data Object
+    </h2>
+
+    <p>
+        We often need to query an object to find out about the formats it supports. There are two distinct ways to do
+        this. The first is to enquire whether the data object supports a specified format and the second is to enumerate
+        all the supported formats. We will consider each of these in turn.
+    </p>
+
+    <h3 id="checking">
+        Checking for a specified data format
+    </h3>
+
+    <p>
+        To check for a specific format we call the data object's <var>QueryGetData</var> method, passing it a
+        <var>TFormatEtc</var> structure that describes the required data format. <span class="figureref">Listing
+            4</span> defines a helper routine that finds this information for a given clipboard format and storage
+        medium.
+    </p>
+
+    <div id="listing-4" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">HasFormat</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Tymed</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">cfFormat</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">ptd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span><span class="space">                    </span><span class="comment">// device independent</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">dwAspect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DVASPECT_CONTENT</span><span class="sym">;</span><span class="space">  </span><span class="comment">// full detail</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">lindex</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">-</span><span class="num">1</span><span class="sym">;</span><span class="space">                  </span><span class="comment">// all the data</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Tymed</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">QueryGetData</span><span class="sym">(</span><span class="ident">FmtEtc</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 4
+        </div>
+    </div>
+
+    <p>
+        Here we pass a <var>IDataObject</var> instance to the helper function along with the required clipboard format
+        and storage medium type. We record the clipboard format and storage medium type in a <var>TFormatEtc</var>
+        structure and set its other fields to default values. Once we have set up the <var>TFormatEtc</var> structure we
+        pass it to the data object's <var>QueryGetData</var> method and check the return value. A return of
+        <var>S_OK</var> indicates the format is supported.
+    </p>
+
+    <h3 id="enum">
+        Enumerating all data formats
+    </h3>
+
+    <p>
+        <var>IDataObject</var> can provide a standard Windows enumerator that iterates through all data formats
+        supported by a data object. The skeleton code in <span class="figureref">Listing 5</span> show how to use the
+        enumeration.
+    </p>
+
+
+    <div id="listing-5" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">EnumDataFormats</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Enum</span><span class="sym">:</span><span class="space"> </span><span class="ident">IEnumFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">FormatEtc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">OleCheck</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">EnumFormatEtc</span><span class="sym">(</span><span class="ident">DATADIR_GET</span><span class="sym">,</span><span class="space"> </span><span class="ident">Enum</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">while</span><span class="space"> </span><span class="ident">Enum</span><span class="sym">.</span><span class="ident">Next</span><span class="sym">(</span><span class="num">1</span><span class="sym">,</span><span class="space"> </span><span class="ident">FormatEtc</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">    </span><span class="comment">// Do something with FormatEtc here</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 5
+        </div>
+    </div>
+
+    <p>
+        We first call the <var>EnumFormatEtc</var> method of the data object to get the required enumerator. We pass the
+        <var>DATADIR_GET</var> flag to the method to indicate that we want to know about data formats we can read from
+        the data object (rather the formats we could write to the object). If all goes well the method passes the
+        enumerator out via the <var>Enum</var> parameter. If the call fails the <var>OleCheck</var> traps the error
+        return and raises an exception.
+    </p>
+
+    <div class="callout callout-info">
+        <h4>
+            Example code
+        </h4>
+        <p>
+            One of the examples in this article's <a href="#demo">demo code</a> uses this technique to list data formats
+            in a list view.
+        </p>
+    </div>
+
+    <p>
+        Once we have the enumerator we repeatedly call its <var>Next</var> method passing <kbd>1</kbd> as the first
+        parameter to indicate we want one <var>TFormatEtc</var> structure at each iteration. For as long as there is
+        more information available the method sets <var>FormatEtc</var> and returns <var>S_OK</var>. When the data
+        formats are exhausted the method returns <var>S_FALSE</var> and the loop ends. Within the <span
+            class="keyword">while</span> loop we can do something with data formats, such as list them in a dialog box.
+    </p>
+
+</section>
+
+<section id="getdata">
+
+    <h2>
+        Getting Data from the Data Object
+    </h2>
+
+    <p>
+        Once we know the data format we want, the easiest way to get data from the data object is via its
+        <var>GetData</var> method. The skeleton code presented in <span class="figureref">Listing 6</span> shows how to
+        approach this.
+    </p>
+
+    <div id="listing-6" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">GetDataFromObj</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Tymed</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Medium</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStgMedium</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">cfFormat</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">ptd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">dwAspect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DVASPECT_CONTENT</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">lindex</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">-</span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Tymed</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">OleCheck</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">GetData</span><span class="sym">(</span><span class="ident">FmtEtc</span><span class="sym">,</span><span class="space"> </span><span class="ident">Medium</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">tymed</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="comment">// Do something with the data from Medium</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="ident">ReleaseStgMedium</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 6
+        </div>
+    </div>
+
+    <p>
+        Just like in <span class="figureref"><a href="#listing-4">Listing 4</a> </span> we must fill in the
+        <var>TFormatEtc</var> structure with details of the required data format as specified by the <var>Fmt</var> and
+        <var>Tymed</var> parameters. Next we call the data object's <var>GetData</var> method passing in the data format
+        structure. If the method succeeds it returns <var>S_OK</var> and sets <var>Medium</var> to reference the
+        required storage medium. <var>Medium</var> should have the same value in its <var>tymed</var> field as
+        <var>FmtEtc</var> so we use an assertion to check this. If <var>GetData</var> fails it causes
+        <var>OleCheck</var> to raise an exception.
+    </p>
+
+    <p>
+        Now we have the storage medium we can then do something with it, for example display the information it
+        contains. Once we have finished with the storage medium we must release its data structures. How this is done
+        varies depending on the medium type. Fortunately Windows provides the <var>ReleaseStgMedium</var> method that
+        knows how to free the required data structures, so we simply call that routine.
+    </p>
+
+    <p>
+        Now it's all very well saying &quot;do something with the data from <var>Medium&quot;</var>, but what exactly is
+        that &quot;something&quot;? Well, the answer depends on both the data format and the media type. So next we'll
+        look at a few examples of working with different data formats and data types.
+    </p>
+
+    <h3 id="getdata-eg1">
+        Example 1: Text stored in global memory
+    </h3>
+
+    <p>
+        Several data formats provide their data as ANSI text stored in global memory. Examples are:
+    </p>
+
+    <ul>
+        <li>
+            <var>CF_TEXT</var> &ndash; a standard format.
+        </li>
+        <li>
+            <var>CF_FILENAMEA</var> &ndash; a format defined by the shell for passing filenames.
+        </li>
+        <li>
+            Rich Text Format
+        </li>
+        <li>
+            HTML Format
+        </li>
+    </ul>
+
+    <div class="callout callout-warning">
+        <h4>
+            ANSI Text?
+        </h4>
+        <p>
+            Notice how I mentioned ANSI text above. When this article was written I was using Delphi 7 and there was no
+            Unicode support. The code presented here assumes that
+        </p>
+        <p class="indent">
+            <code>type string = AnsiString</code>
+        </p>
+        <p>
+            What effect compiling this code with
+        </p>
+        <p class="indent">
+            <code>type string = UnicodeString</code>
+        </p>
+        <p>
+            with later compilers has not been tested.
+        </p>
+    </div>
+
+    <p>
+        <span class="figureref">Listing 7</span> shows an example of how to retrieve plain text data from global memory.
+        The function can be passed any clipboard format that uses plain text data and will return the text as a string.
+    </p>
+
+    <div id="listing-7" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetTextFromDataObj</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">FormatEtc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Medium</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStgMedium</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">PText</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">FormatEtc</span><span class="sym">.</span><span class="ident">cfFormat</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">FormatEtc</span><span class="sym">.</span><span class="ident">ptd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">FormatEtc</span><span class="sym">.</span><span class="ident">dwAspect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DVASPECT_CONTENT</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">FormatEtc</span><span class="sym">.</span><span class="ident">lindex</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">-</span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">FormatEtc</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TYMED_HGLOBAL</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">OleCheck</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">GetData</span><span class="sym">(</span><span class="ident">FormatEtc</span><span class="sym">,</span><span class="space"> </span><span class="ident">Medium</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">TYMED_HGLOBAL</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">PText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GlobalLock</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">PText</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">      </span><span class="ident">GlobalUnlock</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="ident">ReleaseStgMedium</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 25</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 7
+        </div>
+    </div>
+
+    <p>
+        The routine starts the same as <span class="figureref"><a href="#listing-6">Listing 6</a></span> except that we
+        hard wire the <var>TYMED_HGLOBAL</var> media type. The code that retrieves the text begins after the
+        <var>Assert</var> statement. We lock the global memory handle (accessed via a field of the <var>TStgMedium</var>
+        structure returned by <var>GetData</var> in <var>Medium</var>) and store the resulting pointer in
+        <var>PText</var>. <var>PText</var> now points to the start of a zero termimated string of ANSI characters, so we
+        simply set the function result to that string. Finally we unlock the memory handle and then call
+        <var>ReleaseStgMedium</var>, which in turn frees the storage medium's memory.
+    </p>
+
+    <h3 id="getdata-eg2">
+        Example 2: File list stored in global memory
+    </h3>
+
+    <p>
+        In <a href="./article-11">article #11</a> we noted that the list of files dropped on a window was accessed via a
+        <var>HDROP</var> handle and we used the <var>DragQueryXXX</var> API functions to get at the list of files. Well,
+        the same principle applies for OLE drag and drop. The related clipboard format is <var>CF_HDROP</var> and the
+        medium type is <var>TYMED_HGLOBAL</var>. The drop handle is stored in the <var>TStgMedium.hGlobal</var> field.
+        <span class="figureref">Listing 8</span> is based on <span class="figureref"><a
+                href="./article-11#listing-7">article #11 listing 7</a></span>, but it gets its drop handle from the
+        data object instead of from a Windows message.
+    </p>
+
+    <div id="listing-8" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">GetFileListFromObj</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">FileList</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStrings</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span><span class="space">         </span><span class="comment">// specifies required data format</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Medium</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStgMedium</span><span class="sym">;</span><span class="space">         </span><span class="comment">// storage medium containing file list</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">DroppedFileCount</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">  </span><span class="comment">// number of dropped files</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">I</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">                 </span><span class="comment">// loops thru dropped files</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">FileNameLength</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">    </span><span class="comment">// length of a dropped file name</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space">           </span><span class="comment">// name of a dropped file</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="comment">// Get required storage medium from data object</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">cfFormat</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CF_HDROP</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">ptd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">dwAspect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DVASPECT_CONTENT</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">lindex</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">-</span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TYMED_HGLOBAL</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="ident">OleCheck</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">GetData</span><span class="sym">(</span><span class="ident">FmtEtc</span><span class="sym">,</span><span class="space"> </span><span class="ident">Medium</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">      </span><span class="comment">// Get count of files dropped</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">      </span><span class="ident">DroppedFileCount</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DragQueryFile</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">        </span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">,</span><span class="space"> </span><span class="hex">$FFFFFFFF</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">      </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">      </span><span class="comment">// Get name of each file dropped and process it</span></pre>
+            <pre
+                class="line"><span class="linenum"> 25</span><span class="space">      </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">Pred</span><span class="sym">(</span><span class="ident">DroppedFileCount</span><span class="sym">)</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre
+                class="line"><span class="linenum"> 26</span><span class="space">      </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="space">        </span><span class="comment">// get length of file name, then name itself</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span><span class="space">        </span><span class="ident">FileNameLength</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DragQueryFile</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">,</span><span class="space"> </span><span class="ident">I</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span><span class="space">        </span><span class="ident">SetLength</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">,</span><span class="space"> </span><span class="ident">FileNameLength</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 30</span><span class="space">        </span><span class="ident">DragQueryFile</span><span class="sym">(</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span><span class="space">          </span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">,</span><span class="space"> </span><span class="ident">I</span><span class="sym">,</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">FileNameLength</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span></pre>
+            <pre
+                class="line"><span class="linenum"> 32</span><span class="space">        </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 33</span><span class="space">        </span><span class="comment">// add file name to list</span></pre>
+            <pre
+                class="line"><span class="linenum"> 34</span><span class="space">        </span><span class="ident">FileList</span><span class="sym">.</span><span class="ident">Add</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 35</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 36</span><span class="space">    </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 37</span><span class="space">      </span><span class="comment">// Tidy up - release the drop handle</span></pre>
+            <pre
+                class="line"><span class="linenum"> 38</span><span class="space">      </span><span class="comment">// don&apos;t use DropH again after this</span></pre>
+            <pre
+                class="line"><span class="linenum"> 39</span><span class="space">      </span><span class="ident">DragFinish</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 40</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 41</span><span class="space">  </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 42</span><span class="space">    </span><span class="ident">ReleaseStgMedium</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 43</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 44</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 8
+        </div>
+    </div>
+
+    <p>
+        This routine gets a list of dropped files from the the provided data object and stores the file names in the
+        routine's <var>FileList</var> string list parameter. It begins, as usual by populating a <var>TFormatEtc</var>
+        with the required information (this time requesting the <var>CF_HDROP</var> format and <var>TYMED_HGLOBAL</var>
+        storage medium). It then gets the data from the data object.
+    </p>
+
+    <p>
+        We pass the value of the storage medium's <var>hGlobal</var> field to <var>DragQueryFile</var> to get the number
+        of dropped files. Next we loop through all the dropped files getting the name of each file name by making two
+        more calls to the ever so flexible <var>DragQueryFile</var> function. The first call gets the length of the
+        filename, to enable us to allocate a string of the required length. The second call reads the file name into the
+        string. The file name is then added to the list. When the loop finishes a call to <var>DragFinish</var>
+        finalises the drop handle. Finally, we release the storage medium's memory by means of the now familiar call to
+        <var>ReleaseStgMedium</var>.
+    </p>
+
+    <h3 id="getdata-eg3">
+        Example 3: Data stored in a stream
+    </h3>
+
+    <p>
+        Most data objects you will encounter when handling drag and drop will make their data available through a memory
+        handle accessed via <var>TStgMedium</var>'s <var>hGlobal</var> field. However you will occasionally come across
+        the other storage media types. We will take a very brief look at just one more here &ndash; data streams
+        accessed via the <var>IStream</var> interface.
+    </p>
+
+    <p>
+        Get the the required medium in the usual way, but specify <var>TYMED_ISTREAM</var> in <var>TFormatEtc</var>'s
+        <var>tymed</var> field. Obtain the medium as normal by calling the data object's <var>GetData</var> method. Once
+        you have the storage medium cast it's <var>pstm</var> field to <var>IStream</var> and use the methods of
+        <var>IStream</var> to manipulate the data.
+    </p>
+
+    <p>
+        Now we have an understanding of how to manipulate data objects we are at long last in a position to look at how
+        to implement the <var>IDropTarget</var> interface.
+    </p>
+
+</section>
+
+<section id="implement">
+
+    <h2>
+        Implementing <var>IDropTarget</var>
+    </h2>
+
+    <p>
+        We will illustrate how to implement <var>IDropTarget</var> by considering two examples.
+    </p>
+
+    <p>
+        In both examples we will implement <var>IDropTarget</var> in the main form. Since <var>TForm</var> implements
+        <var>IUnknown</var> we don't have to bother implementing its methods. Therefore all we need to do is implement
+        the <var>IDropTarget</var> methods.
+    </p>
+
+    <h3 id="boilerplate">
+        Boilerplate code
+    </h3>
+
+    <p>
+        Both examples share some boilerplate code, which is presented in <span class="figureref">Listing 9</span>.
+    </p>
+
+    <div id="listing-9" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">unit</span><span class="space"> </span><span class="ident">Form1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">type</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">TForm1</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TForm</span><span class="sym">,</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">)</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="comment">{ IDropTarget methods }</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">.</span><span class="ident">DragEnter</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">DropTargetDragEnter</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DropTargetDragEnter</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">      </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">.</span><span class="ident">DragOver</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">DropTargetDragOver</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DropTargetDragOver</span><span class="sym">(</span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">      </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">.</span><span class="ident">DragLeave</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">DropTargetDragLeave</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DropTargetDragLeave</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 25</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 26</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">IDropTarget</span><span class="sym">.</span><span class="ident">Drop</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">DropTargetDrop</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DropTargetDrop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">:</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span><span class="space">      </span><span class="ident">Longint</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="kwd">public</span></pre>
+            <pre
+                class="line"><span class="linenum"> 30</span><span class="space">    </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 32</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 34</span></pre>
+            <pre
+                class="line"><span class="linenum"> 35</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDragEnter</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 38</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 39</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 40</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 41</span></pre>
+            <pre
+                class="line"><span class="linenum"> 42</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDragLeave</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 43</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 44</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 45</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 46</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 47</span></pre>
+            <pre
+                class="line"><span class="linenum"> 48</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDragOver</span><span class="sym">(</span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 49</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 50</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 51</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 52</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 53</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 54</span></pre>
+            <pre
+                class="line"><span class="linenum"> 55</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDrop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 56</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 57</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 58</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre
+                class="line"><span class="linenum"> 59</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 60</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 61</span></pre>
+            <pre
+                class="line"><span class="linenum"> 62</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 63</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 64</span><span class="space">  </span><span class="ident">OleInitialize</span><span class="sym">(</span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 65</span><span class="space">  </span><span class="ident">OleCheck</span><span class="sym">(</span><span class="ident">RegisterDragDrop</span><span class="sym">(</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="ident">Self</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 66</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 67</span></pre>
+            <pre
+                class="line"><span class="linenum"> 68</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 69</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 70</span><span class="space">  </span><span class="ident">RevokeDragDrop</span><span class="sym">(</span><span class="ident">Handle</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 71</span><span class="space">  </span><span class="ident">OleUninitialize</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 72</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 73</span></pre>
+            <pre
+                class="line"><span class="linenum"> 74</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">
+            Listing 9
+        </div>
+    </div>
+
+    <p>
+        First of all notice that the class declaration for <var>TForm1</var> includes <var>IDropTarget</var>. Further
+        down in the <span class="keyword">protected</span> section we declare the methods of <var>IDropTarget</var>. We
+        have used Delphi's method resolution clauses to rename each of the methods. This has been done because
+        <var>TForm</var> already has a method called <var>DragOver</var> that clashes with, and gets hidden by, the
+        method of the same name in <var>IDropTarget</var>. Each of <var>IDropTarget</var>'s methods should return
+        <var>S_OK</var> to indicate a successful completion.
+    </p>
+
+    <p>
+        The remaining code are the handlers of the form's <var>OnCreate</var> and <var>OnDestroy</var> events &ndash;
+        <var>FormCreate</var> and <var>FormDestroy</var>. In <var>FormCreate</var> we first initialise OLE then call the
+        <var>RegisterDragDrop</var> API function to register our implementation of <var>IDropTarget</var> &ndash; in
+        this case our own form &ndash; as the drag-drop handler for the main window. Finally, in <var>FormDestroy</var>,
+        we unregister drag-drop for the window by calling <var>RevokeDragDrop</var>. Lastly we unitialise OLE.
+    </p>
+
+    <div class="callout callout-info">
+        <h4>
+            Registering Drag-drop Implementations
+        </h4>
+        <p>
+            You can register any object that implements <var>IDropTarget</var> as the drag-drop handler for any window.
+            It doesn't have to be the main form class or its window.
+        </p>
+    </div>
+
+    <h3 id="implement-eg1">
+        Example 1: Listing data formats
+    </h3>
+
+    <p>
+        In this first example we will list all the data formats supported by a data object dropped on a form. Our main
+        window will accept <em>any</em> dropped object and will enumerate its data formats when dropped.
+    </p>
+
+    <p>
+        To begin, create a new project and add all the boilerplate code from <span class="figureref"><a
+                href="#listing-9">Listing 9</a></span>. Now drop a <var>TListView</var> control on the form, name it
+        <kbd>lvDisplay</kbd>, set it's <var>ViewStyle</var> property to <kbd>vsReport</kbd> and add four columns titled
+        <kbd>Format</kbd>, <kbd>Storage Medium</kbd>, <kbd>Aspect</kbd> and <kbd>lindex</k>.
+    </p>
+
+    <p>
+        Given that we will accept any object we will always display a copy cursor whenever an object is dragged over the
+        form. Furthermore, we won't take any notice of modifier keys and have no need to examine the object until it is
+        dropped. These observations lead us to implement the <var>DropTargetDragEnter</var>,
+        <var>DropTargetDragLeave</var> and <var>DropTargetDragOver</var> methods as shown in <span
+            class="figureref">Listing 10</span>.
+    </p>
+
+    <div id="listing-10" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDragEnter</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDragLeave</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDragOver</span><span class="sym">(</span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 18</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 10
+        </div>
+    </div>
+
+    <p>
+        All we are doing here is to get Windows to display the copy cursor by setting the <var>dwEffect</var> parameter
+        of <var>DropTargetDragEnter</var> and <var>DropTargetDragOver</var> to <var>DROPEFFECT_COPY</var>.
+        <var>DropTargetDragLeave</var> is left unchanged from the boilerplate code.
+    </p>
+
+    <p>
+        All the action takes place in <var>DropTargetDrop</var> as is shown in <span class="figureref">Listing
+            11</span>.
+    </p>
+
+    <div id="listing-11" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDrop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Enum</span><span class="sym">:</span><span class="space"> </span><span class="ident">IEnumFormatEtc</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">FormatEtc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">OleCheck</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">EnumFormatEtc</span><span class="sym">(</span><span class="ident">DATADIR_GET</span><span class="sym">,</span><span class="space"> </span><span class="ident">Enum</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">lvDisplay</span><span class="sym">.</span><span class="ident">Clear</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">while</span><span class="space"> </span><span class="ident">Enum</span><span class="sym">.</span><span class="ident">Next</span><span class="sym">(</span><span class="num">1</span><span class="sym">,</span><span class="space"> </span><span class="ident">FormatEtc</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="ident">DisplayDataInfo</span><span class="sym">(</span><span class="ident">FormatEtc</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DisplayDataInfo</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">FmtEtc</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="ident">LI</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="ident">LI</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">lvDisplay</span><span class="sym">.</span><span class="ident">Items</span><span class="sym">.</span><span class="ident">Add</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="ident">LI</span><span class="sym">.</span><span class="ident">Caption</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CBFormatDesc</span><span class="sym">(</span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">cfFormat</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="ident">LI</span><span class="sym">.</span><span class="ident">SubItems</span><span class="sym">.</span><span class="ident">Add</span><span class="sym">(</span><span class="ident">TymedDesc</span><span class="sym">(</span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">tymed</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="ident">LI</span><span class="sym">.</span><span class="ident">SubItems</span><span class="sym">.</span><span class="ident">Add</span><span class="sym">(</span><span class="ident">AspectDesc</span><span class="sym">(</span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">dwAspect</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="ident">LI</span><span class="sym">.</span><span class="ident">SubItems</span><span class="sym">.</span><span class="ident">Add</span><span class="sym">(</span><span class="ident">IntToStr</span><span class="sym">(</span><span class="ident">FmtEtc</span><span class="sym">.</span><span class="ident">lindex</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 11
+        </div>
+    </div>
+
+    <p>
+        First we set the cursor to <var>DROPEFFECT_COPY</var> and clear the list view. Next we get a data format
+        enumerator from the data object. Using the enumerator we get each supported data format and display information
+        from it's <var>TFormatEtc</var> structure using a subsidiary method, <var>DisplayDataInfo</var>. Finally we
+        return <var>S_OK</var>.
+    </p>
+
+    <p>
+        <var>DisplayDataInfo</var> simply adds a new item to the list view that displays information about the
+        <var>FmtEtc</var> structure passed to the method as a parameter. The following helper routines are used to get
+        the display information:
+    </p>
+
+    <ul class="wide">
+        <li>
+            <var>CBFormatDesc</var> &ndash; returns a description of the clipboard format specified by
+            <var>FmtEtc.cfFormat</var>. The function can handle both built-in and custom clipboard formats.
+        </li>
+        <li>
+            <var>TymedDesc</var> &ndash; returns the name of the <var>TYMED_*</var> constant that describes the value of
+            <var>FmtEtc.tymed</var>.
+        </li>
+        <li>
+            <var>AspectDesc</var> &ndash; returns the name of the <var>DVASPECT_*</var> constant describing
+            <var>FmtEtc.dwAspect</var>.
+        </li>
+    </ul>
+
+    <p>
+        These routines are not listed here because they are trivial and not relevant to the main subject. However the
+        routines are supplied with the associated <a href="#demo">demo program</a>.
+    </p>
+
+    <h3 id="implement-eg2">
+        Example 2: Displaying data from selected data formats
+    </h3>
+
+    <p>
+        This example is more like somethings you may need to implement in a real world application &ndash; it checks the
+        data object being dragged and decides whether it can accept the object or not. If it can accept the object the
+        program displays a textual representation of the data.
+    </p>
+
+    <p>
+        Our application will accept the following data object types, all of which must be provided via a global memory
+        storage medium:
+    </p>
+
+    <ul class="wide">
+        <li>
+            Plain text in the <var>CF_TEXT</var> format. Text dropped on the application will be displayed in the main
+            window.
+        </li>
+        <li>
+            HTML code in the custom &quot;HTML format&quot;. The HTML source code will be displayed in full in the main
+            window. The plain text version of the code will also be displayed if it is available.
+        </li>
+    </ul>
+
+    <p>
+        The program will also attempt to move the data from the source application if the <span
+            class="keycap">Shift</span> key is held down. Otherwise if either no or any other modifier key is held down
+        the data will be copied.
+    </p>
+
+    <p>
+        To begin with, start a new application and drop two <var>TMemo</var> controls onto the main form. Arrange them
+        one above the other and name the top one &quot;edText&quot; and the lower one &quot;edHTML&quot;. Now add the
+        boilerplate code from <span class="figureref"><a href="#listing-9">Listing 9</a></span>.
+    </p>
+
+    <p>
+        Before we get started on the code proper, recall that we will be handling &quot;HTML Format&quot; data objects.
+        Since this is a custom format we need to register it. We do this by declaring a global variable named
+        <var>CF_HTML</var> in the form unit's <span class="keyword">implementation</span> section and by registering the
+        format with Windows in the <span class="keyword">initialization</span> section, storing the format identifier in
+        <var>CF_TEXT</var>. <span class="figureref">Listing 12</span> illustrates the code.
+    </p>
+
+    <div id="listing-12" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre class="line"><span class="linenum">  6</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="kwd">var</span><span class="space">  </span><span class="ident">CF_HTML</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">;</span><span class="space"> </span><span class="comment">// identifier for HTML clipboard format</span></pre>
+            <pre class="line"><span class="linenum">  8</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre class="line"><span class="linenum"> 10</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">initialization</span></pre>
+            <pre class="line"><span class="linenum"> 12</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="ident">CF_HTML</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">RegisterClipboardFormat</span><span class="sym">(</span><span class="str">&apos;HTML Format&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span></pre>
+            <pre
+                class="line"><span class="linenum"> 15</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">
+            Listing 12
+        </div>
+    </div>
+
+
+    <p>
+        We will begin by considering the <var>IDropTarget.DragEnter</var> method, implemented as
+        <var>DropTargetDragEnter</var>, as shown in <span class="figureref">Listing 13</span> below. The listing also
+        shows two helper methods called by <var>DropTargetDragEnter</var>.
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDragEnter</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">fCanDrop</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CanDrop</span><span class="sym">(</span><span class="ident">dataObj</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CursorEffect</span><span class="sym">(</span><span class="ident">dwEffect</span><span class="sym">,</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span></pre>
+            <pre
+                class="line"><span class="linenum">  9</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">CanDrop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">QueryGetData</span><span class="sym">(</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">CF_TEXT</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">QueryGetData</span><span class="sym">(</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">CF_HTML</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">CursorEffect</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">AllowedEffects</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">KeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_NONE</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fCanDrop</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="sym">(</span><span class="ident">KeyState</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="ident">MK_SHIFT</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">MK_SHIFT</span><span class="sym">)</span><span class="space"> </span><span class="kwd">and</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">      </span><span class="sym">(</span><span class="ident">DROPEFFECT_MOVE</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="ident">AllowedEffects</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">DROPEFFECT_MOVE</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_MOVE</span></pre>
+            <pre
+                class="line"><span class="linenum"> 25</span><span class="space">    </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="sym">(</span><span class="ident">DROPEFFECT_COPY</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="ident">AllowedEffects</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 26</span><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DROPEFFECT_COPY</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 13
+        </div>
+    </div>
+
+    <p>
+        After setting the required return value in <var>DropTargetDragEnter</var>, the first thing we do is check if the
+        data object can be dropped, i.e. if it supports either of the data formats we are interested in. We hand this
+        decision off to <var>CanDrop</var> and store the result in the private <var>fCanDrop</var> field for use later
+        (in <var>DropTargetDragOver</var>).
+    </p>
+
+    <p>
+        <var>CanDrop</var> simply queries the data object to see if it supports the <var>CF_TEXT</var> data format. If
+        it doesn't the data object is queried again for the HTML format. If neither format is supported then false is
+        returned. Note that <var>CanDrop</var> calls the convenience <var><a href="#listing-17">MakeFormatEtc</a></var>
+        method that simply constructs an appropriate <var>TFormatEtc</var> structure to pass to
+        <var>IDataObject.QueryGetData</var>.
+    </p>
+
+    <p>
+        Back in <var>DropTargetDragEnter</var> the next thing we do is to determine the required cursor effect. Again
+        this is handed off to a helper method, <var>CursorEffect</var>. <var>DropTargetDragEnter</var> passes the
+        bitmask of allowed cursor effects, from its <var>dwEffect</var> parameter, along with the keyboard and mouse
+        state, from the <var>grfKeyState</var> parameter, to <var>CursorEffect</var>. This method calculates the
+        required cursor effect according to the following rules:
+    </p>
+
+    <ul>
+        <li>
+            If the data object does not support the required data formats return <var>DROPEFFECT_NONE</var>.
+        </li>
+        <li>
+            If the <span class="keycap">Shift</span> key is pressed and the <var>DROPEFFECT_MOVE</var> effect is allowed
+            return <var>DROPEFFECT_MOVE</var>.
+        </li>
+        <li>
+            If any other, or no, modifier keys are pressed, or if <var>DROPEFFECT_MOVE</var> is reqested but not
+            allowed, <var>DROPEFFECT_COPY</var> is returned.
+        </li>
+    </ul>
+
+    <p>
+        <span class="figureref">Listing 14</span> shows the next <var>IDropTarget</var> method, <var>DragOver</var>,
+        implemented as <var>DropTargetDragOver</var>.
+    </p>
+
+    <div id="listing-14" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDragOver</span><span class="sym">(</span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CursorEffect</span><span class="sym">(</span><span class="ident">dwEffect</span><span class="sym">,</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 14
+        </div>
+    </div>
+
+    <p>
+        All we do here is set the cursor effect once again, using the current key state from the <var>grfKeyState</var>
+        parameter and the permitted cursor effects from <var>dwEffect</var>. The cursor state may change between calls
+        to this method because the pressed modifier keys may have changed.
+    </p>
+
+    <p>
+        Next up is <var>DragLeave</var>, implemented as <var>DropTargetDragLeave</var>. As is shown by <span
+            class="figureref">Listing 15</span>, this method is unchanged from the <a href="#listing-9">boilerplate
+            code</a>.
+    </p>
+
+    <div id="listing-15" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDragLeave</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 15
+        </div>
+    </div>
+
+    <p>
+        The final <var>IDropTarget</var> method to consider is <var>Drop</var>, implemented as
+        <var>DropTargetDrop</var>. <span class="figureref">Listing 16</span> shows this method along with helper methods
+        that are used to display the data.
+    </p>
+
+    <div id="listing-16" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DropTargetDrop</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">dataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">grfKeyState</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">pt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPoint</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">dwEffect</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HResult</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">S_OK</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">fCanDrop</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CanDrop</span><span class="sym">(</span><span class="ident">dataObj</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">dwEffect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CursorEffect</span><span class="sym">(</span><span class="ident">dwEffect</span><span class="sym">,</span><span class="space"> </span><span class="ident">grfKeyState</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">DisplayData</span><span class="sym">(</span><span class="ident">dataObj</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span></pre>
+            <pre
+                class="line"><span class="linenum"> 10</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">DisplayData</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">edText</span><span class="sym">.</span><span class="ident">Text</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetTextFromObj</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">,</span><span class="space"> </span><span class="ident">CF_TEXT</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">edHTML</span><span class="sym">.</span><span class="ident">Text</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetTextFromObj</span><span class="sym">(</span><span class="ident">DataObj</span><span class="sym">,</span><span class="space"> </span><span class="ident">CF_HTML</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span></pre>
+            <pre
+                class="line"><span class="linenum"> 16</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">GetTextFromObj</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">:</span><span class="space"> </span><span class="ident">IDataObject</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="kwd">var</span></pre>
+            <pre
+                class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="ident">Medium</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStgMedium</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="ident">PText</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">DataObj</span><span class="sym">.</span><span class="ident">GetData</span><span class="sym">(</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">Fmt</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">Medium</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre
+                class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum"> 24</span><span class="space">    </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="ident">Fmt</span><span class="sym">)</span><span class="sym">.</span><span class="ident">tymed</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 25</span><span class="space">    </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 26</span><span class="space">      </span><span class="ident">PText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GlobalLock</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 27</span><span class="space">      </span><span class="kwd">try</span></pre>
+            <pre
+                class="line"><span class="linenum"> 28</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">PText</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 29</span><span class="space">      </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 30</span><span class="space">        </span><span class="ident">GlobalUnlock</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">.</span><span class="ident">hGlobal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 31</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 32</span><span class="space">    </span><span class="kwd">finally</span></pre>
+            <pre
+                class="line"><span class="linenum"> 33</span><span class="space">      </span><span class="ident">ReleaseStgMedium</span><span class="sym">(</span><span class="ident">Medium</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 34</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 35</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre
+                class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre
+                class="line"><span class="linenum"> 37</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum"> 38</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 16
+        </div>
+    </div>
+
+    <p>
+        <var>DropTargetDrop</var> starts by re-checking data object to see if we can handle it and then sets the drop
+        cursor. Finally it calls <var>DisplayData</var> to display the data from the dropped data object.
+    </p>
+
+    <p>
+        <var>DisplayData</var> simply sets the text of the two memo controls to the strings returned from
+        <var>GetTextFromObj</var>. <var>GetTextFromObj</var> is called twice, once to retrieve any plain text
+        (<var>CF_TEXT</var>) and again to retrieve any HTML Format (<var>CF_HTML</var>) data as text from the data
+        object. <var>GetTextFromObj</var> will return the empty string if the requested data format is not available.
+    </p>
+
+    <p>
+        <var>GetTextFromObj</var> extracts text data from the data object in the format specified in its <var>Fmt</var>
+        parameter. It does this by calling <var><a href="#listing-17">MakeFormatEtc</a></var> to create a
+        <var>TFormatEtc</var> structure that describes the desired clipboard format. This structure is passed to the
+        data object's <var>GetData</var> method. If the method returns a value other than <var>S_OK</var> then the
+        requested format is not supported and the empty string is returned. Otherwise the now familiar code to retrieve
+        text from a global memory handle is executed and the text is returned.
+    </p>
+
+    <p>
+        All that remains to do now is to implement the <var>MakeFormatEtc</var> helper method referred to above. The
+        method is presented in <span class="figureref">Listing 17</span> below.
+    </p>
+
+    <div id="listing-17" class="frame">
+        <div class="code-pascal">
+            <pre
+                class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">MakeFormatEtc</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">:</span><span class="space"> </span><span class="ident">TClipFormat</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">TFormatEtc</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre
+                class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">cfFormat</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Fmt</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">ptd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">dwAspect</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">DVASPECT_CONTENT</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">lindex</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">-</span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">Result</span><span class="sym">.</span><span class="ident">tymed</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TYMED_HGLOBAL</span><span class="sym">;</span></pre>
+            <pre
+                class="line"><span class="linenum">  8</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 17
+        </div>
+    </div>
+
+    <p>
+        All the method does is set up and return a <var>TFormatEtc</var> structure that requires a
+        <var>TYMED_HGLOBAL</var> medium type for the clipboard format passed in the method's <var>Fmt</var> parameter.
+        The code should be familiar by now.
+    </p>
+
+    <p>
+        Our examination of how to catch data dragged and dropped from other applications is now complete.
+    </p>
+
+</section>
+
+<section id="demo">
+
+    <h2>
+        Demo Code
+    </h2>
+
+    <p>
+        A demo program to accompany this article can be found in the
+        <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git
+        repository on GitHub.
+    </p>
+
+    <p>
+        You can view the code in the
+        <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-24">article-24</a></code>
+        sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing
+        page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
+    </p>
+
+    <p>
+        The demo includes the complete source to the two examples presented in the <a href="#implement">previous
+            section</a> See the demo's <a
+            href="https://github.com/delphidabbler/article-demos/blob/master/article-24/README.md">README.md</a> file
+        for details.
+    </p>
+
+    <div class="callout callout-info">
+        <p>
+            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is
+            merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its
+            current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY
+            OF ANY KIND, either express or implied.
+        </p>
+        <p>
+            The demo is open source. See the demo's <a
+                href="https://github.com/delphidabbler/article-demos/blob/master/article-24/LICENSE.md">LICENSE.md</a>
+            file for licensing details.
+        </p>
+    </div>
+
+</section>
+
+<section id="gofurther">
+
+    <h2>
+        Going Further
+    </h2>
+
+    <p>
+        While the code presented in this article works fine, it does rather clutter up the code of the main form. A more
+        tidy, but slightly more complex, solution is to implement <var>IDropTarget</var> in a separate class and to call
+        back to the main program to determine whether a dragged object can be dropped and how to configure the drag
+        cursor. It is also possible to wrap up the code that interogates and reads data objects into a separate class.
+    </p>
+
+    <p>
+        My GUI program for the <a href="/software/pashi">PasHi Pascal Syntax Highlighter</a> uses OLE drag-drop handling
+        and isolates the <var>IDropTarget</var> implementation in its own class. If you are interested in this approach
+        please feel free to download and examine the program's source code.
+    </p>
+
+</section>
+
+<section id="summary">
+
+    <h2>
+        Summary
+    </h2>
+
+    <p>
+        This article has provided an introduction to working with OLE Drag and Drop and has shown how to implement
+        <var>IDropTarget</var> and how interogate and extract some kinds of data from a data object via its
+        <var>IDataObject</var> interface. The article also showed how to register a window to receive OLE drag-drop
+        notifications by associating an <var>IDropTarget</var> implementation with the window.
+    </p>
+
+    <p>
+        In addition, a demo providing source code of the two examples was also made available.
+    </p>
+
+    <p>
+        Finally some suggestions were made about to how to improve the code by isolating the <var>IDropTarget</var> code
+        in its own class.
+    </p>
+
+</section>
+
+<section id="references">
+
+    <h2>
+        References
+    </h2>
+
+    <p>
+        The Windows API help file provided with Delphi proved invaluable in writing this article, as did an in depth
+        article published, I believe, on UNDO. Unfortunately I haven't been able to find a recent working link to that
+        article.
+    </p>
+
+</section>
+
+<section id="feedback">
+
+    <h2>
+        Feedback
+    </h2>
+
+    <p>
+        I hope you enjoyed this article and found it useful.
+    </p>
+
+    <p>
+        If you have any observations, comments, or have found any errors there are two places you can report them.
+    </p>
+
+    <ol class="wide">
+        <li>
+            For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this
+            website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>. You
+            <strong>must</strong> mention that the issue relates to <code>article-24</code>.
+        </li>
+        <li>
+            For bugs in the demo code see the demo's
+            <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code>
+            for details of how to report them.
+        </li>
+    </ol>
+
+</section>
