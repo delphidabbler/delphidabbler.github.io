@@ -922,19 +922,6 @@ redirect_from:
         to interpret the data object and to display it.
     </p>
 
-    <div class="callout callout-danger">
-        <h4>
-            Spot the deliberate mistake!
-        </h4>
-        <p>
-            Lines 7, 21 &amp; 35 in <span class="figureref"><a href="#listing-7">Lisiting 7</a></span> are redundant,
-            because we can only get to them if <var>dwEffect</var> already includes <var>DROPEFFECT_COPY</var>.
-        </p>
-        <p>
-            But the code comments our intention, so we'll let that go!
-        </p>
-    </div>
-
     <p>
         So, how do we tell if we accept the dragged data object? It's simple. We accept data objects that store text
         (with format type <var>CF_TEXT</var>) or those that can list files dropped on the application (with format type
