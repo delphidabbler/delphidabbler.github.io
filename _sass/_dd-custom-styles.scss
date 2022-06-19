@@ -232,6 +232,13 @@ a[href^="http"] {
     content: "";
   }
 }
+// Modifies external link for http:// URLs to add a warning triangle followed by nbsp
+// before external link glyph
+a[href^="http:"] {
+  &::after {
+    content: "\f071\202f\f08e"
+  }
+}
 
 // Prepends an appropriate glyph to messages in alert boxes when .glyph class included.
 //** Custom
