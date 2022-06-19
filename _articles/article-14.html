@@ -1,13 +1,1957 @@
 ---
 article: 14
 title: "How to load and save documents in TWebBrowser in a Delphi-like way"
-summary: "A presentation of the development of a wrapper class for TWebBrowser that simplifies navigation, the loading and saving of HTML when using the control."
+summary: "A presentation of the development of a wrapper class for TWebBrowser that simplifies navigation, the loading
+and saving of HTML when using the control."
 meta-title: "Use Delphi Pascal to load & save documents in a TWebBrowser | How to"
-meta-desc: "An article that uses Delphi Pascal to develop a wrapper class for TWebBrowser that simplifies navigation and loading and saving HTML documents."
-demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-14"
-pages: 1
-offsite: 1
+meta-desc: "An article that uses Delphi Pascal to develop a wrapper class for TWebBrowser that simplifies navigation and
+loading and saving HTML documents."
 index: true
 redirect_from:
 - /articles/14
 ---
+<section id="content">
+
+    <h2>
+        Contents
+    </h2>
+
+    <nav>
+        <div class="well">
+            <ul>
+                <li>
+                    <a href="#intro">Why Do It?</a>
+                </li>
+                <li>
+                    <a href="#requirements">Requirements</a>
+                </li>
+                <li>
+                    <a href="#implementation">Implementation</a>
+                    <ul>
+                        <li>
+                            <a href="#stage1">Stage 1: Basic Implementation</a>
+                        </li>
+                        <li>
+                            <a href="#stage2">Stage 2: Adding Unicode Support</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#conclusion">Conclusion</a>
+                </li>
+                <li>
+                    <a href="#demo">Demo Program</a>
+                </li>
+                <li>
+                    <a href="#acknowledgements">Acknowledgements</a>
+                </li>
+            </ul>
+        </div>
+
+    </nav>
+
+</section>
+
+<section id="intro">
+
+    <h2>
+        Why do it
+    </h2>
+
+    <p>
+        I use the <var>TWebBrowser</var> control quite a lot. But, since the control is simply a wrapper round the
+        Microsoft&reg; control, it doesn't really do things the &quot;Delphi way&quot;.
+    </p>
+
+    <p>
+        If, like me, you've found yourself saving dynamically generated HTML code to disk just so you can access it
+        using <var>TWebBrowser.Navigate()</var> you probably know what I mean. You wouldn't have to do such a thing with
+        a native Delphi control such as a <var>TMemo</var> &ndash; you would simply access a relevant property like
+        <var>TMemo.Lines[]</var> or use a method like <var>TMemo.LoadFromStream</var>. You can also do this with
+        <var>TWebBrowser</var>, but its not straightforward &ndash; not very &quot;Delphi&quot; &ndash; you have to
+        query and manipulate interfaces and all sorts of stuff. It's all so very COM!
+    </p>
+
+    <p>
+        So, I decided to create a wrapper class for <var>TWebBrowser</var> that makes navigating, loading and saving a
+        whole lot easier and more intuitive. This article walks through the development of that class and examines some
+        of the key techniques for working with <var>TWebBrowser</var> along the way.
+    </p>
+
+    <div class="callout callout-warning">
+        <p>
+            A word of caution before we get started. The code I'll present here is for illustration purposes only. Don't
+            expect it to be perfect for production code, although you should be able to use it as a basis.
+        </p>
+        <p>
+            Do feel free to take the core unit from the demo and modify, specialise or generalise it for your own
+            purposes. It's open source and licensed under the MPL / GLP / LGPL tri-license, which should suit most
+            open-source hackers.
+        </p>
+    </div>
+
+</section>
+
+<section id="requirements">
+
+    <h2>
+        Requirements
+    </h2>
+
+    <p>
+        The approach we will take is to develop a wrapper class for <var>TWebBrowser</var> rather than derive a new
+        class from it. Let's first decide which of the main functions of the web browser we want to be able to access
+        easily &ndash; these will be our requirements for the wrapper class. Here's the list I drew up:
+    </p>
+
+    <ul class="wide">
+        <li>
+            Load HTML code into an existing document from a local file, a stream or a string.
+        </li>
+
+        <li>
+            Navigate to a URL (as now) but without worrying about remembering the <code>file://</code> protocol when
+            loading an local file and with easy access to HTML resources using the <code>res://</code> protocol.
+        </li>
+
+        <li>
+            Programmatically save the browser's content as HTML source code. We should also be able to store the content
+            in a string or write it to a stream or file.
+        </li>
+
+        <li>
+            Provide access to the underlying <var>TWebBrowser</var> object so that we can use it directly to access any
+            functionality not provided by the new code.
+        </li>
+    </ul>
+
+    <p>
+        Now we're living in a Unicode world the following extra requirements will be added:
+    </p>
+
+    <ul class="wide">
+        <li>
+            Be able to read and write HTML code in ANSI or Unicode encodings. And be able to specify the encoding used
+            when saving a document or when loading from a string.
+        </li>
+        <li>
+            Get the encoding used by the browser object for the current document.
+        </li>
+    </ul>
+
+    <p>
+        From this list you can see we are focussing on navigating, loading and saving documents.
+    </p>
+
+</section>
+
+<section id="implementation">
+
+    <h2>
+        Implementation
+    </h2>
+
+    <p>
+        Now we have our specification we will approach implementation in two stages:
+    </p>
+
+    <ul class="wide">
+        <li>
+            <strong>Stage 1:</strong> Basic implementation of the first set of requirements. This code will be suitable
+            for most Delphi compilers.
+        </li>
+        <li>
+            <strong>Stage 2:</strong> Add on the required Unicode support. This will require Delphi 2009 or later.
+        </li>
+    </ul>
+
+
+    <h3 id="stage1">
+        Stage 1: Basic Implementation
+    </h3>
+
+    <p>
+        This first stage won't worry about Unicode support other than that needed to make the code compile and work with
+        Delphi 2009 and later.
+    </p>
+
+    <p>
+        Here is an outline of a class that, once implemented, meets our basic requirements:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="space"> </span><span
+                    class="ident">TWebBrowserWrapper</span><span class="space"> </span><span class="sym">=</span><span
+                    class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span
+                    class="ident">TObject</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">fWebBrowser</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TWebBrowser</span><span class="sym">;</span><span class="space"> </span><span
+                    class="comment">// wrapped control</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">InternalLoadDocumentFromStream</span><span class="sym">(</span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Stream</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">InternalSaveDocumentToStream</span><span class="sym">(</span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Stream</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span class="kwd">public</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">WebBrowser</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TWebBrowser</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span class="ident">LoadFromFile</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span
+                    class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">LoadFromStream</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">Stream</span><span class="sym">:</span><span
+                    class="space"> </span><span class="ident">TStream</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">LoadFromString</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">HTML</span><span class="sym">:</span><span class="space">
+                </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span><span
+                    class="space"> </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span
+                    class="kwd">function</span><span class="space"> </span><span
+                    class="ident">NavigateToLocalFile</span><span class="sym">(</span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">FileName</span><span
+                    class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span
+                    class="sym">)</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">NavigateToResource</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">Module</span><span class="sym">:</span><span
+                    class="space"> </span><span class="ident">HMODULE</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">ResName</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span
+                    class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space">
+                </span><span class="ident">ResType</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">PChar</span><span class="space"> </span><span class="sym">=</span><span class="space">
+                </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span><span
+                    class="space"> </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">NavigateToResource</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">ModuleName</span><span class="sym">:</span><span
+                    class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">ResName</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span
+                    class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space">
+                </span><span class="ident">ResType</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">PChar</span><span class="space"> </span><span class="sym">=</span><span class="space">
+                </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span><span
+                    class="space"> </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">NavigateToURL</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">URL</span><span class="sym">:</span><span class="space">
+                </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space"> </span><span
+                    class="kwd">function</span><span class="space"> </span><span class="ident">SaveToString</span><span
+                    class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span class="ident">SaveToStream</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">Stm</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TStream</span><span class="sym">)</span><span class="sym">;</span><span class="space">
+                </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span class="ident">SaveToFile</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span
+                    class="kwd">string</span><span class="sym">)</span><span class="sym">;</span><span class="space">
+                </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space"> </span><span
+                    class="kwd">property</span><span class="space"> </span><span class="ident">WebBrowser</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TWebBrowser</span><span
+                    class="space"> </span><span class="kwd">read</span><span class="space"> </span><span
+                    class="ident">fWebBrowser</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 1
+        </div>
+    </div>
+
+    <p>
+        The first thing to notice is the <var>WebBrowser</var> property that enables access to the wrapped control. The
+        public methods fall naturally into several groups and, rather than explaining the purpose of each method now, we
+        will look at them in groups. The protected &quot;helper&quot; methods will be discussed along with the public
+        methods they service.
+    </p>
+
+
+    <h4 id="stage1-constructor">
+        Constructor
+    </h4>
+
+    <p>
+        The constructor is very simple &ndash; it just stores a reference to the <var>TWebBrowser</var> control that the
+        object is wrapping. This control reference is passed as a parameter to the constructor:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">constructor</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">WebBrowser</span><span class="sym">:</span><span
+                    class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="kwd">inherited</span><span class="space"> </span><span class="ident">Create</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">fWebBrowser</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">WebBrowser</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 2
+        </div>
+    </div>
+
+
+    <h4 id="stage1-nav">
+        Navigation Methods
+    </h4>
+
+    <p>
+        We have declared three different methods for navigation:
+    </p>
+
+    <ul class="wide">
+        <li>
+            <var>NavigateToURL</var> &ndash; A thin wrapper around the existing <var>TWebBrowser.Navigate</var> method
+            that only deals with standard URLs and intelligently sets the cache and history flags. The main difference
+            between this method and the underlying control's method is that our method blocks until the required
+            document has completely downloaded.
+        </li>
+
+        <li>
+            <var>NavigateToLocalFile</var> &ndash; This convenience method simply adds the required <code>file://</code>
+            protocol to the URL before calling <var>NavigateToURL</var>.
+        </li>
+
+        <li>
+            <var>NavigateToResource</var> &ndash; Loads HTML code from the program's (or other module's) resources into
+            the browser. Overloaded versions of this method allow resources to be accessed by instance handle (like the
+            <var>TResourceStream</var> constructors) or by providing the name of the module containing the resources.
+        </li>
+    </ul>
+
+    <p>
+        <var>NavigateToLocalFile</var> and both versions of <var>NavigateToResource</var> work by creating the required
+        URL from the parameters passed to them and then calling <var>NavigateToURL</var> to do the actual navigation.
+        Let's first look at how <var>NavigateToURL</var> handles the navigation then come back to look at how the other
+        routines put the URLs together.
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">NavigateToURL</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">URL</span><span class="sym">:</span><span class="space">
+                </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 2</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span class="ident">Pause</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">ADelay</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">Cardinal</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span class="kwd">var</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">StartTC</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">Cardinal</span><span class="sym">;</span><span class="space"> </span><span
+                    class="comment">// tick count when routine called</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span class="kwd">begin</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="ident">StartTC</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">Windows</span><span class="sym">.</span><span
+                    class="ident">GetTickCount</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span class="kwd">repeat</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="ident">Application</span><span class="sym">.</span><span
+                    class="ident">ProcessMessages</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="kwd">until</span><span class="space"> </span><span class="ident">Int64</span><span
+                    class="sym">(</span><span class="ident">Windows</span><span class="sym">.</span><span
+                    class="ident">GetTickCount</span><span class="sym">)</span><span class="space"> </span><span
+                    class="sym">-</span><span class="space"> </span><span class="ident">Int64</span><span
+                    class="sym">(</span><span class="ident">StartTC</span><span class="sym">)</span><span class="space">
+                </span><span class="sym">&gt;=</span><span class="space"> </span><span class="ident">ADelay</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
+                    class="ident">Flags</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">OleVariant</span><span class="sym">;</span><span class="space"> </span><span
+                    class="comment">// flags that determine action</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span class="comment">//
+                    Don&apos;t record in history</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span><span
+                    class="ident">Flags</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">navNoHistory</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
+                    class="kwd">if</span><span class="space"> </span><span class="ident">AnsiStartsText</span><span
+                    class="sym">(</span><span class="str">&apos;res://&apos;</span><span class="sym">,</span><span
+                    class="space"> </span><span class="ident">URL</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space"> </span><span
+                    class="kwd">or</span><span class="space"> </span><span class="ident">AnsiStartsText</span><span
+                    class="sym">(</span><span class="str">&apos;file://&apos;</span><span class="sym">,</span><span
+                    class="space"> </span><span class="ident">URL</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space"> </span><span
+                    class="kwd">or</span><span class="space"> </span><span class="ident">AnsiStartsText</span><span
+                    class="sym">(</span><span class="str">&apos;about:&apos;</span><span class="sym">,</span><span
+                    class="space"> </span><span class="ident">URL</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space"> </span><span
+                    class="kwd">or</span><span class="space"> </span><span class="ident">AnsiStartsText</span><span
+                    class="sym">(</span><span class="str">&apos;javascript:&apos;</span><span class="sym">,</span><span
+                    class="space"> </span><span class="ident">URL</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space"> </span><span
+                    class="kwd">or</span><span class="space"> </span><span class="ident">AnsiStartsText</span><span
+                    class="sym">(</span><span class="str">&apos;mailto:&apos;</span><span class="sym">,</span><span
+                    class="space"> </span><span class="ident">URL</span><span class="sym">)</span><span class="space">
+                </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space"> </span><span class="comment">//
+                    don&apos;t use cache for local files</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space"> </span><span
+                    class="ident">Flags</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">Flags</span><span class="space"> </span><span
+                    class="kwd">or</span><span class="space"> </span><span class="ident">navNoReadFromCache</span><span
+                    class="space"> </span><span class="kwd">or</span><span class="space"> </span><span
+                    class="ident">navNoWriteToCache</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space"> </span><span class="comment">// Do
+                    the navigation and wait for it to complete</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space"> </span><span
+                    class="ident">WebBrowser</span><span class="sym">.</span><span class="ident">Navigate</span><span
+                    class="sym">(</span><span class="ident">URL</span><span class="sym">,</span><span class="space">
+                </span><span class="ident">Flags</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space"> </span><span
+                    class="kwd">while</span><span class="space"> </span><span class="ident">WebBrowser</span><span
+                    class="sym">.</span><span class="ident">ReadyState</span><span class="space"> </span><span
+                    class="sym">&lt;&gt;</span><span class="space"> </span><span
+                    class="ident">READYSTATE_COMPLETE</span><span class="space"> </span><span class="kwd">do</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space"> </span><span
+                    class="ident">Pause</span><span class="sym">(</span><span class="num">5</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 3
+        </div>
+    </div>
+
+    <p>
+        This method essentially falls into two parts. Firstly we decide whether to use the browser's cache to access the
+        document. The decision is based on whether the document is stored locally or is on the internet. We simply check
+        the start of the URL string for some known local protocols etc. and don't use the cache if the URL conforms to
+        one of these types. It would be a simple matter to adapt the method by adding a default parameter to let the
+        user of the code specify what if any caching should take place. This is left as an exercise. The final part of
+        the routine simply uses the browser object's <var>Navigate()</var> method to load the resource into the
+        document. We then go into a loop and wait for the document to load completely. The local <var>Pause</var>
+        procedure does a busy wait, polling the message queue for about 5ms at a time.
+    </p>
+
+    <p>
+        Now let us review the specialised navigation methods. The simplest of these is the
+        <var>NagivateToLocalFile</var> method. This method simply checks if the file exists and, if so, prefixes the
+        given file name with the <code>file://</code> protocol then calls <var>NavigateToURL</var>. If the file doesn't
+        exist no action is taken. A boolean value indicating whether the file exists is returned. You may prefer to
+        modify the method to raise an exception when the file does not exist.
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">function</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">NavigateToLocalFile</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">FileName</span><span
+                    class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span
+                    class="sym">)</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">FileExists</span><span class="sym">(</span><span
+                    class="ident">FileName</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="kwd">if</span><span class="space"> </span><span class="ident">Result</span><span
+                    class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span
+                    class="ident">NavigateToURL</span><span class="sym">(</span><span
+                    class="str">&apos;file://&apos;</span><span class="space"> </span><span class="sym">+</span><span
+                    class="space"> </span><span class="ident">FileName</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 4
+        </div>
+    </div>
+
+    <p>
+        <var>NavigateToResource</var> is slightly more complicated in that we need to create the required URL using the
+        IE specific <code>res://</code> protocol URL. We discussed this protocol in <a href="./article-10">article
+            #10</a> where we also developed some functions to return <code>res://</code> formatted URLs. (We will re-use
+        these functions later).
+    </p>
+
+    <p>
+        Two overloaded methods are provided. Both methods create the required URL for a given module, resource name and
+        an optional resource type. They then call <var>NavigateToURL</var> to do the actual navigation. The overloaded
+        methods vary in the way the module is described. The first method accepts the handle of a loaded module (pass
+        <var>HInstance</var> to access the current program). The second method is simply passed a module name as a
+        string. If the resource type parameter is omitted then it is left out of the URL &ndash; the <code>res://</code>
+        protocol simply defaults to expecting an <var>RT_HTML</var> (=<var>MakeIntResource(23)</var>) resource in such
+        cases. Here are the methods:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">NavigateToResource</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">Module</span><span class="sym">:</span><span
+                    class="space"> </span><span class="ident">HMODULE</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">ResName</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">ResType</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">NavigateToURL</span><span class="sym">(</span><span
+                    class="ident">MakeResourceURL</span><span class="sym">(</span><span class="ident">Module</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">ResName</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">ResType</span><span
+                    class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 6</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">NavigateToResource</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">ModuleName</span><span class="sym">:</span><span
+                    class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">ResName</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">ResType</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="ident">NavigateToURL</span><span class="sym">(</span><span
+                    class="ident">MakeResourceURL</span><span class="sym">(</span><span
+                    class="ident">ModuleName</span><span class="sym">,</span><span class="space"> </span><span
+                    class="ident">ResName</span><span class="sym">,</span><span class="space"> </span><span
+                    class="ident">ResType</span><span class="sym">)</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 5
+        </div>
+    </div>
+
+    <p>
+        As can be seen, the methods simply rely on overloaded versions of the <var>MakeResourceURL</var> function. The
+        implementation of these functions is <a href="./article-10#generate-buildurl">described in article #10</a>. In
+        both cases we could improve the methods by checking that the required resources exist and raising an exception
+        or returning false if not. This is left as an exercise (<em>hint:</em> use the Windows <var>FindResource</var>
+        function to check for the resource's existence).
+    </p>
+
+    <p class="callout callout-info">
+        The <var>MakeResourceURL</var> functions are included in the demo source code that accompanies this article.
+    </p>
+
+    <h4 id="stage1-docload">
+        Document Loading Methods
+    </h4>
+
+    <p>
+        There are three methods that load new content into an existing document:
+    </p>
+
+    <ul class="wide">
+        <li>
+            <var>LoadFromString</var> &ndash; Replaces the current document with the HTML code stored in a string.
+        </li>
+
+        <li>
+            <var>LoadFromFile</var> &ndash; Replaces the current document with the HTML code read from a file.
+        </li>
+
+        <li>
+            <var>LoadFromStream</var> &ndash; Replaces the current document with the HTML code read from a stream.
+        </li>
+    </ul>
+
+    <p>
+        At first sight <var>LoadFromFile</var> is similar to <var>NavigateToLocalFile</var>, but
+        <var>NavigateToLocalFile</var> reads a file into the browser, creating a new document whereas
+        <var>LoadFromFile</var> requires that a document already exists and replaces it's HTML code &ndash; i.e. the
+        HTML is changed dynamically.
+    </p>
+
+    <p>
+        Both <var>LoadFromString</var> and <var>LoadFromFile</var> simply create a suitable stream and call
+        <var>LoadFromStream</var>, which in turn uses the protected <var>InternalLoadDocumentFromStream</var> method to
+        perform the actual loading of the code. Let's first look at the file and string methods, which are very similar:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">LoadFromFile</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">FileName</span><span class="sym">:</span><span
+                    class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="ident">FileStream</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TFileStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">FileStream</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TFileStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span
+                    class="ident">FileName</span><span class="sym">,</span><span class="space"> </span><span
+                    class="ident">fmOpenRead</span><span class="space"> </span><span class="kwd">or</span><span
+                    class="space"> </span><span class="ident">fmShareDenyNone</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="ident">LoadFromStream</span><span class="sym">(</span><span
+                    class="ident">FileStream</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="ident">FileStream</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 14</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">LoadFromString</span><span class="sym">(</span><span class="kwd">const</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span
+                    class="ident">HTML</span><span class="sym">:</span><span class="space"> </span><span
+                    class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TStringStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TStringStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span><span class="ident">HTML</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space"> </span><span
+                    class="ident">LoadFromStream</span><span class="sym">(</span><span
+                    class="ident">StringStream</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 6
+        </div>
+    </div>
+
+    <p>
+        As can be seen this is all quite straightforward if you're used to using <var>TStream</var>s.
+        <var>LoadFromFile</var> opens a read-only <var>TFileStream</var> onto the file and passes the stream to
+        <var>LoadFromStream</var>. Similarly <var>LoadFromString</var> uses the very useful <var>TStringStream</var>
+        class to open a stream that can read the HTML code string.
+    </p>
+
+    <p>
+        <var>LoadFromStream</var> itself is quite straightforward because it hands most of its work off to
+        <var>InternalLoadFromStream</var>:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">LoadFromStream</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">Stream</span><span class="sym">:</span><span
+                    class="space"> </span><span class="ident">TStream</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="ident">NavigateToURL</span><span class="sym">(</span><span
+                    class="str">&apos;about:blank&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">InternalLoadDocumentFromStream</span><span class="sym">(</span><span
+                    class="ident">Stream</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 7
+        </div>
+    </div>
+
+    <p>
+        The main thing to note here is that we must ensure there is a document present in <var>TWebBrowser</var> since,
+        as we will see in a moment, we need it in order to load the code from the stream. We do this by navigating to
+        the special <code>about:blank</code> document, which simply creates a blank document in the web browser control.
+        Once we have our blank document we load the stream into it using <var>InternalLoadDocumentFromStream</var>,
+        which is defined below:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">InternalLoadDocumentFromStream</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Stream</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">PersistStreamInit</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">IPersistStreamInit</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">StreamAdapter</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">IStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space">
+                </span><span class="ident">Assigned</span><span class="sym">(</span><span
+                    class="ident">WebBrowser</span><span class="sym">.</span><span class="ident">Document</span><span
+                    class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
+                    class="ident">Exit</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span class="comment">// Get
+                    IPersistStreamInit interface on document object</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="kwd">if</span><span class="space"> </span><span class="ident">WebBrowser</span><span
+                    class="sym">.</span><span class="ident">Document</span><span class="sym">.</span><span
+                    class="ident">QueryInterface</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="ident">IPersistStreamInit</span><span class="sym">,</span><span class="space"> </span><span
+                    class="ident">PersistStreamInit</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
+                    class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space">
+                </span><span class="ident">S_OK</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span class="kwd">begin</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span class="comment">// Clear
+                    document</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
+                    class="kwd">if</span><span class="space"> </span><span class="ident">PersistStreamInit</span><span
+                    class="sym">.</span><span class="ident">InitNew</span><span class="space"> </span><span
+                    class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="space">
+                </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span class="kwd">begin</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span><span class="comment">// Get
+                    IStream interface on stream</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
+                    class="ident">StreamAdapter</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TStreamAdapter</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span><span class="ident">Stream</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space"> </span><span class="comment">// Load
+                    data from Stream into WebBrowser</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space"> </span><span
+                    class="ident">PersistStreamInit</span><span class="sym">.</span><span class="ident">Load</span><span
+                    class="sym">(</span><span class="ident">StreamAdapter</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 8
+        </div>
+    </div>
+
+    <p>
+        And this is where it gets more complicated &ndash; for the first time we have to mess around with the COM stuff.
+    </p>
+
+    <p>
+        We check that the web browser control's document object is available and bail out if not. We then check to see
+        if the document supports the <var>IPersistStreamInit</var> interface, getting a reference to the supporting
+        object. <var>IPersistStreamInit</var> is used to effectively &quot;clear&quot; the document object (using the
+        interface's <var>InitNew</var> method). If this succeeds we finally load the stream's content into the document
+        by calling the <var>IPersistStreamInit.Load</var> method.
+    </p>
+
+    <p>
+        <var>IPersistStreamInit.Load</var> accepts a stream object, but the stream it expects is a COM one that must
+        support the <var>IStream</var> interface. Since <var>TStream</var> does not natively support this interface, we
+        have to find some way to provide it. <var>TStreamAdapter</var> from Delphi's <var>Classes</var> unit comes to
+        the rescue here &ndash; this object implements <var>IStream</var> and translates <var>IStream</var>'s method
+        calls into equivalent calls onto the <var>TStream</var> object that it wraps. We create the needed
+        <var>TStreamAdapter</var> object by passing a reference to our stream in its constructor. Finally, we pass the
+        adpated stream to <var>IPersistStreamInit.Load,</var> and we're done.
+    </p>
+
+    <p>
+        If you're wandering why we don't free <var>StreamAdapter</var> and <var>PersistStreamInit</var> it's because
+        they are both interfaced objects and will be automatically destroyed at the end of the method by Delphi's built
+        in interface reference counting. Note that even though the stream adapter class is freed, the underlying
+        <var>TStream</var> object continues to exist, which is what we want.
+    </p>
+
+    <p>
+        Note that the browser control interprets the encoding of the stream and sets the document's character set
+        accordingly. However, the character set can also be specified in HTML code.
+    </p>
+
+
+    <h4 id="stage1-docsave">
+        Document Saving Methods
+    </h4>
+
+    <p>
+        There are three methods that are used to save a document's code. They complement the three <var>LoadXXX</var>
+        methods as follows:
+    </p>
+
+    <ul class="wide">
+        <li>
+            <var>SaveToString</var> &ndash; Returns the document contents in a string.
+        </li>
+
+        <li>
+            <var>SaveToFile</var> &ndash; Saves the document contents to a specified file.
+        </li>
+
+        <li>
+            <var>SaveToStream</var> &ndash; Saves the document contents to a given stream.
+        </li>
+    </ul>
+
+    <p>
+        Like their <var>LoadXXX</var> counterparts, the <var>SaveToFile</var> and <var>SaveToString</var> methods simply
+        map down onto <var>SaveToStream</var>, after creating suitable output streams. Their operation is quite simple
+        and needs little explanation:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">SaveToFile</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">FileName</span><span class="sym">:</span><span
+                    class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="ident">FileStream</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TFileStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">FileStream</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TFileStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span><span class="ident">FileName</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">fmCreate</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="ident">SaveToStream</span><span class="sym">(</span><span
+                    class="ident">FileStream</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="ident">FileStream</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 12</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">function</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">SaveToString</span><span class="sym">:</span><span class="space"> </span><span
+                    class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TStringStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TStringStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span><span class="str">&apos;&apos;</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space"> </span><span
+                    class="ident">SaveToStream</span><span class="sym">(</span><span
+                    class="ident">StringStream</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space"> </span><span
+                    class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">StringStream</span><span class="sym">.</span><span
+                    class="ident">DataString</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 9
+        </div>
+    </div>
+
+    <p>
+        The only thing of note in the above methods is the use of <var>TStringStream</var>'s <var>DataString</var>
+        property to read out the completed string after writing to the stream.
+    </p>
+
+    <p>
+        The <var>SaveToStream</var> method follows. It's as simple as it could be, it just calls
+        <var>InternalSaveDocumentToStream</var>.
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">SaveToStream</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">Stm</span><span class="sym">:</span><span class="space">
+                </span><span class="ident">TStream</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="ident">InternalSaveDocumentToStream</span><span class="sym">(</span><span
+                    class="ident">Stm</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 10
+        </div>
+    </div>
+
+    <p>
+        Finally, we get to see how the protected <var>InternalSaveDocumentToStream</var> method is implemented. It
+        interacts with the browser control to save the whole document to a stream.
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">InternalSaveDocumentToStream</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Stream</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">StreamAdapter</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">IStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">PersistStreamInit</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">IPersistStreamInit</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space">
+                </span><span class="ident">Assigned</span><span class="sym">(</span><span
+                    class="ident">WebBrowser</span><span class="sym">.</span><span class="ident">Document</span><span
+                    class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
+                    class="ident">Exit</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="kwd">if</span><span class="space"> </span><span class="ident">WebBrowser</span><span
+                    class="sym">.</span><span class="ident">Document</span><span class="sym">.</span><span
+                    class="ident">QueryInterface</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="ident">IPersistStreamInit</span><span class="sym">,</span><span class="space"> </span><span
+                    class="ident">PersistStreamInit</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space">
+                </span><span class="ident">S_OK</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span class="kwd">begin</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span
+                    class="ident">StreamAdapter</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TStreamAdapter</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span><span class="ident">Stream</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
+                    class="ident">PersistStreamInit</span><span class="sym">.</span><span class="ident">Save</span><span
+                    class="sym">(</span><span class="ident">StreamAdapter</span><span class="sym">,</span><span
+                    class="space"> </span><span class="ident">True</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+        </div>
+        <div class="caption">
+            Listing 11
+        </div>
+    </div>
+
+    <p>
+        Note that, like in <var>InternalLoadDocumentFromStream</var>, we again try to get the web browser document's
+        <var>IPersistStreamInit</var> interface and then use its <var>Save</var> method to write the document to the
+        stream. We also use <var>TStreamAdapter</var> once again to provide the required <var>IStream</var> interface
+        for the <var>TStream</var>.
+    </p>
+
+    <p>
+        Note that the browser control writes the stream in the correct encoding for the document.
+    </p>
+
+
+    <h3 id="stage2">
+        Stage 2: Adding Unicode Support
+    </h3>
+
+    <p>
+        Since the browser control supports different character encodings we need to add support for this to our code.
+        For much of this we're going to rely on the encoding support built into Delphi 2009 and later, so get ready for
+        some conditionally defined code.
+    </p>
+
+    <p class="callout callout-info">
+        Thanks to Mauricio Julio for suggesting some of the ideas and code used in this section. Particular thanks are
+        due for the <var>GetStreamEncoding</var> function (see <span class="figureref"><a href="#listing-14">Listing
+                14</a></span>) from his <a href="http://tcycomponents.sourceforge.net/">TcyComponents pack</a>.
+    </p>
+
+    <p>
+        When we discussed requirements we decided we needed to be able to specify an encoding when writing to files and
+        streams and when reading from a string. To handle this we define new overloads of the <var>SaveToStream</var>,
+        <var>SaveToFile</var> and <var>LoadFromString</var> methods.
+    </p>
+
+    <p>
+        The second requirement was to provide access to the encoding used for the browser control's current document.
+    </p>
+
+    <p>
+        Taking these into account the definition of our <var>TWebBrowserWrapper</var> class becomes:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="space"> </span><span
+                    class="ident">TWebBrowserWrapper</span><span class="space"> </span><span class="sym">=</span><span
+                    class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span
+                    class="ident">TObject</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">fWebBrowser</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TWebBrowser</span><span class="sym">;</span><span class="space"> </span><span
+                    class="comment">// wrapped control</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">InternalLoadDocumentFromStream</span><span class="sym">(</span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Stream</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">InternalSaveDocumentToStream</span><span class="sym">(</span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Stream</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span class="preproc">{$IFDEF
+                    UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="kwd">function</span><span class="space"> </span><span
+                    class="ident">GetDocumentEncoding</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TEncoding</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="preproc">{$ENDIF}</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="kwd">public</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
+                    class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">WebBrowser</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TWebBrowser</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span class="ident">LoadFromFile</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span
+                    class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">LoadFromStream</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">Stream</span><span class="sym">:</span><span
+                    class="space"> </span><span class="ident">TStream</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">LoadFromString</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">HTML</span><span class="sym">:</span><span class="space">
+                </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span><span
+                    class="space"> </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span class="preproc">{$IFDEF
+                    UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">LoadFromString</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">HTML</span><span class="sym">:</span><span class="space">
+                </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TEncoding</span><span
+                    class="sym">)</span><span class="sym">;</span><span class="space"> </span><span
+                    class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space"> </span><span
+                    class="preproc">{$ENDIF}</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space"> </span><span
+                    class="kwd">function</span><span class="space"> </span><span
+                    class="ident">NavigateToLocalFile</span><span class="sym">(</span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">FileName</span><span
+                    class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span
+                    class="sym">)</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">NavigateToResource</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">Module</span><span class="sym">:</span><span
+                    class="space"> </span><span class="ident">HMODULE</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">ResName</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span
+                    class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space">
+                </span><span class="ident">ResType</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">PChar</span><span class="space"> </span><span class="sym">=</span><span class="space">
+                </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span><span
+                    class="space"> </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">NavigateToResource</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">ModuleName</span><span class="sym">:</span><span
+                    class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">ResName</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span
+                    class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space">
+                </span><span class="ident">ResType</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">PChar</span><span class="space"> </span><span class="sym">=</span><span class="space">
+                </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span><span
+                    class="space"> </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span
+                    class="ident">NavigateToURL</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">URL</span><span class="sym">:</span><span class="space">
+                </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space"> </span><span
+                    class="kwd">function</span><span class="space"> </span><span class="ident">SaveToString</span><span
+                    class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span class="ident">SaveToStream</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">Stm</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TStream</span><span class="sym">)</span><span class="sym">;</span><span class="space">
+                </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space"> </span><span class="preproc">{$IFDEF
+                    UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span class="ident">SaveToStream</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">Stm</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TEncoding</span><span
+                    class="sym">)</span><span class="sym">;</span><span class="space"> </span><span
+                    class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space"> </span><span
+                    class="preproc">{$ENDIF}</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span class="ident">SaveToFile</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span
+                    class="kwd">string</span><span class="sym">)</span><span class="sym">;</span><span class="space">
+                </span><span class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space"> </span><span class="preproc">{$IFDEF
+                    UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space"> </span><span
+                    class="kwd">procedure</span><span class="space"> </span><span class="ident">SaveToFile</span><span
+                    class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span
+                    class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span
+                    class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TEncoding</span><span
+                    class="sym">)</span><span class="sym">;</span><span class="space"> </span><span
+                    class="kwd">overload</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space"> </span><span
+                    class="preproc">{$ENDIF}</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="space"> </span><span
+                    class="kwd">property</span><span class="space"> </span><span class="ident">WebBrowser</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TWebBrowser</span><span
+                    class="space"> </span><span class="kwd">read</span><span class="space"> </span><span
+                    class="ident">fWebBrowser</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 38</span><span class="space"> </span><span class="preproc">{$IFDEF
+                    UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 39</span><span class="space"> </span><span
+                    class="kwd">property</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TEncoding</span><span
+                    class="space"> </span><span class="kwd">read</span><span class="space"> </span><span
+                    class="ident">GetDocumentEncoding</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 40</span><span class="space"> </span><span
+                    class="preproc">{$ENDIF}</span></pre>
+            <pre class="line"><span class="linenum"> 41</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">
+            Listing 12
+        </div>
+    </div>
+
+    <h4 id="stage2-encoding">
+        Encoding Property
+    </h4>
+
+    <p>
+        We provide access to the browser's current document encoding via the read only <var>Encoding</var> property
+        which has a read accessor method named <var>GetDocumentEncoding</var>, defined in the following listing.
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="preproc">{$IFDEF UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">function</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">GetDocumentEncoding</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TEncoding</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">Doc</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">IHTMLDocument2</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">DocStm</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="ident">Assert</span><span class="sym">(</span><span class="ident">Assigned</span><span
+                    class="sym">(</span><span class="ident">WebBrowser</span><span class="sym">.</span><span
+                    class="ident">Document</span><span class="sym">)</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
+                    class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TEncoding</span><span class="sym">.</span><span
+                    class="ident">Default</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="kwd">if</span><span class="space"> </span><span class="ident">WebBrowser</span><span
+                    class="sym">.</span><span class="ident">Document</span><span class="sym">.</span><span
+                    class="ident">QueryInterface</span><span class="sym">(</span><span
+                    class="ident">IHTMLDocument2</span><span class="sym">,</span><span class="space"> </span><span
+                    class="ident">Doc</span><span class="sym">)</span><span class="space"> </span><span
+                    class="sym">=</span><span class="space"> </span><span class="ident">S_OK</span><span class="space">
+                </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span class="kwd">begin</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="ident">DocStm</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TMemoryStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span
+                    class="ident">InternalSaveDocumentToStream</span><span class="sym">(</span><span
+                    class="ident">DocStm</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
+                    class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">GetStreamEncoding</span><span class="sym">(</span><span
+                    class="ident">DocStm</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span
+                    class="ident">DocStm</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="preproc">{$ENDIF}</span></pre>
+        </div>
+        <div class="caption">
+            Listing 13
+        </div>
+    </div>
+
+    <p>
+        To get the document encoding we need to examine the structure of the stream that is generated when then the
+        document is saved. We first record the default encoding to return if we can't examine the document for any
+        reason. Once we have a reference to the current document in <var>Doc</var> we create a memory stream object and
+        save the browser content into it by calling <var>InternalSaveDocumentToStream</var>. The resulting stream is
+        then examined by Mauricio Julio's <var>GetStreamEncoding</var> function to get the encoding. <span
+            class="figureref">Listing 14</span> shows the implementation of <var>GetStreamEncoding</var>.
+    </p>
+
+    <div class="frame" id="listing-14">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="preproc">{$IFDEF UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">function</span><span class="space">
+                </span><span class="ident">GetStreamEncoding</span><span class="sym">(</span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Stream</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span
+                    class="sym">)</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TEncoding</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">Bytes</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TBytes</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">Size</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">Int64</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="ident">Stream</span><span class="sym">.</span><span class="ident">Seek</span><span
+                    class="sym">(</span><span class="num">0</span><span class="sym">,</span><span class="space">
+                </span><span class="ident">soFromBeginning</span><span class="sym">)</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
+                    class="ident">Size</span><span class="space"> </span><span class="sym">:=</span><span class="space">
+                </span><span class="ident">Stream</span><span class="sym">.</span><span class="ident">Size</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="ident">SetLength</span><span class="sym">(</span><span class="ident">Bytes</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">Size</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="ident">Stream</span><span class="sym">.</span><span class="ident">ReadBuffer</span><span
+                    class="sym">(</span><span class="ident">Pointer</span><span class="sym">(</span><span
+                    class="ident">Bytes</span><span class="sym">)</span><span class="sym">^</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">Size</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="kwd">nil</span><span class="sym">;</span><span class="space">
+                </span><span class="comment">// must initialise Result to pass as var param below</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
+                    class="ident">TEncoding</span><span class="sym">.</span><span
+                    class="ident">GetBufferEncoding</span><span class="sym">(</span><span
+                    class="ident">Bytes</span><span class="sym">,</span><span class="space"> </span><span
+                    class="ident">Result</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="preproc">{$ENDIF}</span></pre>
+        </div>
+        <div class="caption">
+            Listing 14
+        </div>
+    </div>
+
+    <p>
+        This routine simply copies the provided stream into a <var>TBytes</var> array then uses the
+        <var>GetBufferEncoding</var> class method of <var>TEncoding</var> to determine the encoding.
+    </p>
+
+    <h4 id="stage2-docload">
+        Revised Document Loading Methods
+    </h4>
+
+    <p>
+        As noted already we will provide a new overloaded version of <var>LoadFromString</var> that takes a
+        <var>TEncoding</var> parameter that determines the encoding that will be used to load the string containing the
+        HTML. We will also need to re-implement the original <var>LoadFromString</var> method. Here's the new code:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="preproc">{$IFDEF UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">LoadFromString</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">HTML</span><span class="sym">:</span><span class="space">
+                </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TEncoding</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">HTMLStm</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TMemoryStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="ident">Assert</span><span class="sym">(</span><span class="ident">Assigned</span><span
+                    class="sym">(</span><span class="ident">Encoding</span><span class="sym">)</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
+                    class="ident">HTMLStm</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TMemoryStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="ident">StringToStreamBOM</span><span class="sym">(</span><span class="ident">HTML</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">HTMLStm</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="ident">HTMLStm</span><span class="sym">.</span><span class="ident">Position</span><span
+                    class="space"> </span><span class="sym">:=</span><span class="space"> </span><span
+                    class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
+                    class="ident">LoadFromStream</span><span class="sym">(</span><span class="ident">HTMLStm</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
+                    class="ident">HTMLStm</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="preproc">{$ENDIF}</span></pre>
+            <pre class="line"><span class="linenum"> 18</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">LoadFromString</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">HTML</span><span class="sym">:</span><span class="space">
+                </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="preproc">{$IFDEF UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space"> </span><span
+                    class="ident">LoadFromString</span><span class="sym">(</span><span class="ident">HTML</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">TEncoding</span><span
+                    class="sym">.</span><span class="ident">Default</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="preproc">{$ELSE}</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TStringStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TStringStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span><span class="ident">HTML</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space"> </span><span
+                    class="ident">LoadFromStream</span><span class="sym">(</span><span
+                    class="ident">StringStream</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="preproc">{$ENDIF}</span></pre>
+        </div>
+        <div class="caption">
+            Listing 15
+        </div>
+    </div>
+
+    <p>
+        The first thing to note is that, on non-Unicode compilers, the original version of <var>LoadFromString</var> is
+        unchanged. However the Unicode version now calls the new overloaded version of the method, passing the default
+        encoding in the <var>Encoding</var> parameter.
+    </p>
+
+    <p>
+        The new, Unicode only, overloaded method first writes the the string to a temporary memory stream, encoded
+        according to the <var>Encoding</var> parameter. The stream is prefixed by any byte order mark required by the
+        encoding. All this work is done by the <var>StringToStreamBOM</var> helper routine that is shown in <span
+            class="figureref">Listing 16</span>. Once we have the stream we simply call the existing
+        <var>LoadFromStream</var> method to load the stream into the document.
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="preproc">{$IFDEF UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">StringToStreamBOM</span><span class="sym">(</span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">S</span><span
+                    class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span
+                    class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space">
+                </span><span class="ident">Stm</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TEncoding</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">Bytes</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TBytes</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span
+                    class="ident">Preamble</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TBytes</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
+                    class="ident">Assert</span><span class="sym">(</span><span class="ident">Assigned</span><span
+                    class="sym">(</span><span class="ident">Encoding</span><span class="sym">)</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="ident">Bytes</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">Encoding</span><span class="sym">.</span><span
+                    class="ident">GetBytes</span><span class="sym">(</span><span class="ident">S</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="ident">Preamble</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">Encoding</span><span class="sym">.</span><span
+                    class="ident">GetPreamble</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="kwd">if</span><span class="space"> </span><span class="ident">Length</span><span
+                    class="sym">(</span><span class="ident">Preamble</span><span class="sym">)</span><span
+                    class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span
+                    class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
+                    class="ident">Stm</span><span class="sym">.</span><span class="ident">WriteBuffer</span><span
+                    class="sym">(</span><span class="ident">Preamble</span><span class="sym">[</span><span
+                    class="num">0</span><span class="sym">]</span><span class="sym">,</span><span class="space">
+                </span><span class="ident">Length</span><span class="sym">(</span><span
+                    class="ident">Preamble</span><span class="sym">)</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span
+                    class="ident">Stm</span><span class="sym">.</span><span class="ident">WriteBuffer</span><span
+                    class="sym">(</span><span class="ident">Bytes</span><span class="sym">[</span><span
+                    class="num">0</span><span class="sym">]</span><span class="sym">,</span><span class="space">
+                </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">Bytes</span><span
+                    class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="preproc">{$ENDIF}</span></pre>
+        </div>
+        <div class="caption">
+            Listing 16
+        </div>
+    </div>
+
+    <p>
+        <var>StringToStreamBOM</var> first converts the string into a byte array according the required encoding. It
+        then writes any required byte order mark to the stream (stored in the <var>Preamble</var> variable) followed by
+        the byte array.
+    </p>
+
+    <h4 id="stage2-docsave">
+        Revised Document Saving Methods
+    </h4>
+
+    <p>
+        In addition to providing new overloaded versions of <var>SaveToStream</var> and <var>SaveToFile</var> we must
+        re-implement <var>SaveToString</var> when compiling with Unicode compilers to take account of the browser
+        document's encoding.
+    </p>
+
+    <p>
+        We will first look at the revised <var>SaveToString</var> method before discussing the new overloaded methods.
+        Here is the new implementation of <var>SaveToString</var>.
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="kwd">function</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">SaveToString</span><span class="sym">:</span><span class="space"> </span><span
+                    class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="preproc">{$IFDEF UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
+                    class="ident">MS</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TMemoryStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">Encoding</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TEncoding</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span
+                    class="ident">Bytes</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TBytes</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
+                    class="ident">MS</span><span class="space"> </span><span class="sym">:=</span><span class="space">
+                </span><span class="ident">TMemoryStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="ident">SaveToStream</span><span class="sym">(</span><span class="ident">MS</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span class="comment">// This
+                    stream may have a pre-amble indicating encoding</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
+                    class="ident">Encoding</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">GetStreamEncoding</span><span class="sym">(</span><span
+                    class="ident">MS</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span
+                    class="ident">MS</span><span class="sym">.</span><span class="ident">Position</span><span
+                    class="space"> </span><span class="sym">:=</span><span class="space"> </span><span
+                    class="ident">Length</span><span class="sym">(</span><span class="ident">Encoding</span><span
+                    class="sym">.</span><span class="ident">GetPreamble</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
+                    class="ident">SetLength</span><span class="sym">(</span><span class="ident">Bytes</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">MS</span><span
+                    class="sym">.</span><span class="ident">Size</span><span class="space"> </span><span
+                    class="sym">-</span><span class="space"> </span><span class="ident">MS</span><span
+                    class="sym">.</span><span class="ident">Position</span><span class="sym">)</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
+                    class="ident">MS</span><span class="sym">.</span><span class="ident">ReadBuffer</span><span
+                    class="sym">(</span><span class="ident">Bytes</span><span class="sym">[</span><span
+                    class="num">0</span><span class="sym">]</span><span class="sym">,</span><span class="space">
+                </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">Bytes</span><span
+                    class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span
+                    class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">Encoding</span><span class="sym">.</span><span
+                    class="ident">GetString</span><span class="sym">(</span><span class="ident">Bytes</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
+                    class="ident">MS</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="preproc">{$ELSE}</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TStringStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TStringStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span><span class="str">&apos;&apos;</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space"> </span><span
+                    class="ident">SaveToStream</span><span class="sym">(</span><span
+                    class="ident">StringStream</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space"> </span><span
+                    class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">StringStream</span><span class="sym">.</span><span
+                    class="ident">DataString</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space"> </span><span
+                    class="ident">StringStream</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="preproc">{$ENDIF}</span></pre>
+        </div>
+        <div class="caption">
+            Listing 17
+        </div>
+    </div>
+
+    <p>
+        Just like with <var>LoadFromString</var> the non-Unicode version of <var>SaveToString</var> remains unchanged.
+    </p>
+
+    <p>
+        The Unicode version of the method writes the browser's document into a temporary memory stream. This is done
+        because we need to interpret the output stream according to its encoding. So we call
+        <var>GetStreamEncoding</var> to find the encoding used to generate the stream. Next we set the memory stream's
+        position to skip over any byte order mark (preamble). The remainder of the stream is then copied into a byte
+        array that we can pass to the <var>GetString</var> method of <var>TEncoding</var> which, in turn, returns the
+        required string.
+    </p>
+
+    <p>
+        Having disposed of the most complex method we now turn to the new overloaded versions of <var>SaveToFile</var>
+        and <var>SaveToStream</var>:
+    </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum"> 1</span><span class="preproc">{$IFDEF UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 2</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">SaveToFile</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">FileName</span><span class="sym">:</span><span
+                    class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TEncoding</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 4</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
+                    class="ident">FileStream</span><span class="sym">:</span><span class="space"> </span><span
+                    class="ident">TFileStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 6</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
+                    class="ident">FileStream</span><span class="space"> </span><span class="sym">:=</span><span
+                    class="space"> </span><span class="ident">TFileStream</span><span class="sym">.</span><span
+                    class="ident">Create</span><span class="sym">(</span><span class="ident">FileName</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">fmCreate</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span class="kwd">try</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
+                    class="ident">SaveToStream</span><span class="sym">(</span><span
+                    class="ident">FileStream</span><span class="sym">,</span><span class="space"> </span><span
+                    class="ident">Encoding</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
+                    class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
+                    class="ident">FileStream</span><span class="sym">.</span><span class="ident">Free</span><span
+                    class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
+                    class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="preproc">{$ENDIF}</span></pre>
+            <pre class="line"><span class="linenum"> 15</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="preproc">{$IFDEF UNICODE}</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">procedure</span><span class="space">
+                </span><span class="ident">TWebBrowserWrapper</span><span class="sym">.</span><span
+                    class="ident">SaveToStream</span><span class="sym">(</span><span class="kwd">const</span><span
+                    class="space"> </span><span class="ident">Stm</span><span class="sym">:</span><span class="space">
+                </span><span class="ident">TStream</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
+                    class="kwd">const</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">:</span><span class="space"> </span><span class="ident">TEncoding</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space"> </span><span
+                    class="ident">HTML</span><span class="sym">:</span><span class="space"> </span><span
+                    class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space"> </span><span
+                    class="ident">HTML</span><span class="space"> </span><span class="sym">:=</span><span class="space">
+                </span><span class="ident">SaveToString</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space"> </span><span
+                    class="ident">StringToStreamBOM</span><span class="sym">(</span><span class="ident">HTML</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">Stm</span><span
+                    class="sym">,</span><span class="space"> </span><span class="ident">Encoding</span><span
+                    class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">end</span><span class="sym">;</span>
+            </pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="preproc">{$ENDIF}</span></pre>
+        </div>
+
+        <div class="caption">
+            Listing 18
+        </div>
+    </div>
+
+    <p>
+        <var>SaveToFile</var> is very similar to the version that does not take an <var>Encoding</var>. It creates a
+        stream onto the file then passes the stream and the encoding to the overloaded version of
+        <var>SaveToStream</var>.
+    </p>
+
+    <p>
+        In contrast the overload of <var>SaveToStream</var> is very different. First it calls <var>SaveToString</var> to
+        retrieve a string containing the document's content as HTML. It does this because <var>SaveToString</var>
+        handles the document encoding correctly. We then save the string to the stream using the encoding provided in
+        the <var>Encoding</var> parameter, prefixed by any required byte order mark.
+    </p>
+
+    <p class="callout callout-warning">
+        If <var>Encoding</var> is the same as the document's encoding then calling this method is wasteful. You should
+        call the <var>SaveToStream</var> overload that does not take an <var>Encoding</var> parameter instead.
+    </p>
+
+</section>
+
+<section id="conclusion">
+
+    <h2>
+        Conclusion
+    </h2>
+
+    <p>
+        So there we have it, a class that makes <var>TWebBrowser</var> a lot more friendly to use when loading and
+        saving documents.
+    </p>
+
+    <p>
+        There is obviously a lot more we could do. A couple of things immediately spring to mind.
+    </p>
+
+    <ol class="wide">
+        <li>
+            We retro-fit some of the Unicode functionality and support for non-ANSI encodings to the pre-Unicode
+            compiler code. The present code when compiled with anything earlier than Delphi 2009 will not save document
+            content to strings correctly if the document character set is not ANSI.
+        </li>
+        <li>
+            <p>
+                Although this code checks input and output streams for preambles that identify HTML file and document
+                encodings, it does not check any encoding included explicitly in the HTML.
+            </p>
+            <div class="callout callout-info">
+                <h4>
+                    Hint
+                </h4>
+                <p>
+                    Check the <var><a
+                            href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/jj160620(v=vs.85)">IHTMLDocument2.charset</a></var>
+                    property or the <code><a
+                            href="https://www.w3.org/TR/2012/WD-html-markup-20120329/meta.http-equiv.content-type.html">&lt;meta
+                            http-equiv=&quot;Content-Type&quot; &hellip;&gt;</a></code> declaration.
+                </p>
+            </div>
+        </li>
+    </ol>
+
+    <p>
+        I hope the code will be useful and has shared some insight into the way this large and often obscure control
+        works.
+    </p>
+
+    <p>
+        If you think I've missed anything major, have found an error, or if you have relevant code to share, please tell
+        me about it using this website's <a
+            href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>. You
+        <strong>must</strong> mention that the issue relates to <code>article-14</code>.
+    </p>
+
+</section>
+
+<section id="demo">
+
+    <h2>
+        Demo Program
+    </h2>
+
+    <p>
+        A demo program to accompany this article can be found in the <code><a
+                href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git
+        repository on GitHub.
+    </p>
+
+    <p>
+        You can view the code in the <code><a
+                href="https://github.com/delphidabbler/article-demos/tree/master/article-14">article-14</a></code>
+        sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing
+        page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
+    </p>
+
+    <p>
+        See the demo's <a
+            href="https://github.com/delphidabbler/article-demos/blob/master/article-14/README.md">README.md</a> file
+        for details.
+    </p>
+
+    <p class="callout callout-danger">
+        As noted above, the code presented in this article does not work correctly when loading and saving in Unicode
+        (or UTF-8) when built with a non-Unicode version of Delphi. These limitations are also present in the demo.
+        Choosing Unicode or UTF-8 examples when loading strings into the demo will fail when it is built with compilers
+        earlier than Delphi 2009.
+    </p>
+
+    <div class="callout callout-info">
+        <p>
+            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is
+            merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its
+            current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY
+            OF ANY KIND, either express or implied.
+        </p>
+        <p>
+            The demo is open source. See the demo's <a
+                href="https://github.com/delphidabbler/article-demos/blob/master/article-14/LICENSE.md">LICENSE.md</a>
+            file for licensing details.
+        </p>
+    </div>
+
+</section>
+
+<section id="acknowledgements">
+
+    <h2>
+        Acknowledgements
+    </h2>
+
+    <p>
+        Several people's ideas and code samples have been used in developing this code. In particular I'd like to thank
+        Christian Schwarz, Nick Hodges and Babur Saylan for writing some very useful tips on working with
+        <var>TWebBrowser</var> at the now defunct &quot;Delphi Pool&quot; website.
+    </p>
+
+    <p>
+        Various useful articles were also found on the Microsoft Developer Network. Unfortunately but links to the
+        articles have been lost.
+    </p>
+
+    <p>
+        Thanks are also due to Mauricio Julio for his ideas and code.
+    </p>
+
+</section>
