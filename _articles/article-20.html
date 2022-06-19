@@ -1,13 +1,767 @@
 ---
 article: 20
 title: "How to extract version information using the Windows API"
-summary: "Executable files can contain a resource containing version information. The Windows API provides tools for extracting the information. Here's how to use it."
+summary: "Executable files can contain a resource containing version information. The Windows API provides tools for
+extracting the information. Here's how to use it."
 meta-title: "Use Delphi Pascal to get version information from a Windows program | How to"
-meta-desc: "An article about using the Windows API from Delphi Pascal to extract version information from the resources of a Windows program or DLL."
-demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-20"
-pages: 1
-offsite: 1
+meta-desc: "An article about using the Windows API from Delphi Pascal to extract version information from the resources
+of a Windows program or DLL."
 index: true
 redirect_from:
 - /articles/20
 ---
+<section id="intro">
+
+<h2>
+    Introduction
+</h2>
+
+<p>
+    The Windows API provides a method to extract version information from an executable file. The API is rather archane and some knowledge of how version information is stored in an executable file helps to understand how to use it.
+</p>
+
+<p>
+    This article starts with a brief overview of how version information is laid out in a file. It then goes on to develop some code that tests whether version information is present and extracts it if so. We then wrap the code up in a class before finally looking at some of the limitations of the approach we have taken.
+</p>
+
+</section>
+
+<section id="overview">
+
+<h2>
+    Version Information Overview
+</h2>
+
+<p>
+    Version information is stored in an executable file's resources. The binary format of this data is complex and is not described here. Conceptually though, version information contains a record that provides a machine-readable binary description of a file (<em>fixed file information</em>) and one or more <em>string tables</em> that provide human-readable information. String tables can be localised &ndash; so there can be a string table for each supported language or code page. Because of this, version information also contains a table of supported languages and associated code pages (the <em>translation table</em>) that effectively provides an index into the string tables.
+</p>
+
+<p>
+    Although version information supports multiple languages it is rare to find executables that take advantage of this &ndash; there is usually only one string table. Most of the source code I have seen only handles one string table, but the code we will discuss here can handle multiple string tables.
+</p>
+
+<p>
+    Reflecting the organisation discussed above, version information is structured in three main parts.
+</p>
+
+<h3>
+    Fixed file information
+</h3>
+
+<p>
+    This is a data structure that contains binary information about the executable file. Windows declares this structure as <var>VS_FIXEDFILEINFO</var> and the Delphi equivalent is <var>TVSFixedFileInfo</var>, defined as follows:
+</p>
+
+<div class="frame">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">tagVS_FIXEDFILEINFO</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">packed</span><span class="space"> </span><span class="kwd">record</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">dwSignature</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// always $feef04bd</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">dwStrucVersion</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// version of structure</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">dwFileVersionMS</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// most significant file version</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">dwFileVersionLS</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// least significant file version</span></pre>
+        <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">dwProductVersionMS</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// most significant product version</span></pre>
+        <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">dwProductVersionLS</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// last significant product version</span></pre>
+        <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">dwFileFlagsMask</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// masks valid flags in dwFileFlags</span></pre>
+        <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="ident">dwFileFlags</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// bit mask of attributes of file</span></pre>
+        <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="ident">dwFileOS</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// flags describing target OS</span></pre>
+        <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">dwFileType</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// flag describing type of file</span></pre>
+        <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">dwFileSubtype</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// sub type for file: keyboard driver</span></pre>
+        <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">dwFileDateMS</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// most significant part of file date</span></pre>
+        <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="ident">dwFileDateLS</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// least significant part of file date</span></pre>
+        <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 17</span><span class="space">  </span></pre>
+        <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="ident">TVSFixedFileInfo</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">tagVS_FIXEDFILEINFO</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 1
+    </div>
+</div>
+
+<p>
+    The fields of this record are <a href="https://docs.microsoft.com/en-us/windows/win32/menurc/vs-versioninfo">described the Windows documentation</a> so we won't discuss them further here.
+</p>
+
+<h3>
+    Variable file information
+</h3>
+
+<p>
+    According to the Windows documentation, this section can be user-defined. However, in practise it always contains a table of &quot;translation&quot; information. Each entry in the table is a pair of language and character set identifiers that together provide a key that can be used to access a string table. We can define an entry in this table with the following record (not defined by Windows):
+</p>
+
+<div class="frame">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TTransRec</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">packed</span><span class="space"> </span><span class="kwd">record</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">Lang</span><span class="sym">,</span><span class="space"> </span><span class="comment">// language code</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">CharSet</span><span class="sym">:</span><span class="space"> </span><span class="ident">Word</span><span class="sym">;</span><span class="space"> </span><span class="comment">// character set (code page)</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 2
+    </div>
+</div>
+
+<h3>
+    String file information
+</h3>
+
+<p>
+    This section stores a string table for each &quot;translation&quot; listed in the <em>variable file information</em> section. The entries in string tables are name / value pairs &ndash; i.e. the string values are accessed by specifying a string name. Windows defines several standard names:
+</p>
+
+<ul>
+    <li>
+        <var>Comments</var>
+    </li>
+    <li>
+        <var>CompanyName</var>
+    </li>
+    <li>
+        <var>FileDescription</var>
+    </li>
+    <li>
+        <var>FileVersion</var>
+    </li>
+    <li>
+        <var>InternalName</var>
+    </li>
+    <li>
+        <var>LegalCopyright</var>
+    </li>
+    <li>
+        <var>LegalTrademarks</var>
+    </li>
+    <li>
+        <var>OriginalFilename</var>
+    </li>
+    <li>
+        <var>PrivateBuild</var>
+    </li>
+    <li>
+        <var>ProductName</var>
+    </li>
+    <li>
+        <var>ProductVersion</var>
+    </li>
+    <li>
+        <var>SpecialBuild</var>
+    </li>
+</ul>
+
+<p>
+    The intended purpose and restrictions on use of these names are set out in the Windows documentation for the &quot;<a href="https://docs.microsoft.com/en-us/windows/win32/menurc/versioninfo-resource#remarks">VERSIONINFO resource</a>&quot; topic. User defined names are also permitted.
+</p>
+
+<h3>
+    Accessing the data
+</h3>
+
+<p>
+    These different sections of the resource are accessed using an addressing system that is similar to a file path. The &quot;paths&quot; are:
+</p>
+
+<dl>
+    <dt>
+        <code>\</code>
+    </dt>
+    <dd>
+        <p>
+            Accesses fixed file information.
+        </p>
+    </dd>
+
+    <dt>
+        <code>\VarFileInfo\Translation</code>
+    </dt>
+    <dd>
+        <p>
+            Accesses the &quot;translation&quot; table. The table is a sequence of <var>TTransRec</var> records.
+        </p>
+    </dd>
+
+    <dt>
+        <code>\StringFileInfo\&lt;translation-code&gt;\&lt;string-name&gt;</code>
+    </dt>
+    <dd>
+        <p>
+            Accesses a named entry in a given string table, where
+        </p>
+        <ul>
+            <li>
+                <code>&lt;translation-code&gt</code> is a concatenation the hexadecimal representations of the translation's language code and the associated character set code.
+            </li>
+            <li>
+                <code>&lt;string-name&gt;</code> is the name of the desired string value.
+            </li>
+        </ul>
+        <p>
+            For example to access the &quot;ProductName&quot; string in the string table associated with translation &quot;040904E4&quot; the &quot;path&quot; is <code>\StringFileInfo\040904E4\ProductName</code>.
+        </p>
+    </dd>
+</dl>
+
+<p>
+    This all looks rather horrendous &ndash; and if you write code to access the raw version information binary it is (believe me, I've <a href="/software/vibindata">done it</a>!). However the Windows API provides three functions that assist in extracting the code. In the next section we'll review the API calls and write some Delphi wrappers to make them easier to use before finally developing our version information class.
+</p>
+
+</section>
+
+<section id="code">
+
+<h2>
+    Writing the code
+</h2>
+
+<h3>
+    Windows API functions
+</h3>
+
+<p>
+    Windows provides the following functions to use to access version information.
+</p>
+
+<dl>
+
+    <dt>
+        GetFileVersionInfoSize
+    </dt>
+
+    <dd>
+        <div class="frame para">
+            <div class="code-pascal">
+                <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetFileVersionInfoSize</span><span class="sym">(</span><span class="ident">lptstrFilename</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">lpdwHandle</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+                </div>
+                            <div class="caption">
+                Listing 3
+            </div>
+        </div>
+        <p>
+            This function returns the size of the given executable file's version information. It returns <samp>0</samp> if there is no version information present. We have to pass a dummy variable as <var>lpdwHandle</var> &ndash; the function just sets it to <samp>0</samp>. Who comes up with this stuff?!
+        </p>
+    </dd>
+
+    <dt>
+        GetFileVersionInfo
+    </dt>
+
+    <dd>
+        <div class="frame para">
+            <div class="code-pascal">
+                <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetFileVersionInfo</span><span class="sym">(</span><span class="ident">lptstrFilename</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">dwHandle</span><span class="sym">,</span><span class="space"> </span><span class="ident">dwLen</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="ident">lpData</span><span class="sym">:</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">BOOL</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+                </div>
+                            <div class="caption">
+                Listing 4
+            </div>
+        </div>
+        <p>
+            Once we know the size of the version information we have to create a buffer the same size and then call this function to copy the version information from the executable file into the buffer. We pass the name of the file, a dummy <samp>0</samp> value to <var>dwHandle</var>, followed by the size of the buffer and the buffer pointer itself. The function returns true on success and false on failure.
+        </p>
+    </dd>
+
+    <dt>
+        VerQueryValue
+    </dt>
+
+    <dd>
+        <div class="frame para">
+            <div class="code-pascal">
+                <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">VerQueryValue</span><span class="sym">(</span><span class="ident">pBlock</span><span class="sym">:</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">;</span><span class="space"> </span><span class="ident">lpSubBlock</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">lplpBuffer</span><span class="sym">:</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">puLen</span><span class="sym">:</span><span class="space"> </span><span class="ident">UINT</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">BOOL</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+                </div>
+                            <div class="caption">
+                Listing 5
+            </div>
+        </div>
+        <p>
+            This function is used to read data from the version information buffer we filled using <var>GetFileVersionInfo</var>. We pass the buffer as the first parameter. The next parameter takes a pointer to the &quot;path&quot; that specifies the information we need (as described above). The function sets the pointer variable passed as <var>lplpBuffer</var> to point to the requested data. <var>puLen</var> is set to the length of the data. The function returns true on success and false on failure. If the function fails <var>lplpBuffer</var> has an indeterminate value and can cause a GPF if read.
+        </p>
+    </dd>
+
+</dl>
+
+<p>
+    A full description of these functions can be read in the <a href="https://docs.microsoft.com/en-us/windows/win32/menurc/version-information-functions">Windows API documentation</a>. As can be seen the calls we need to make are complex and require a lot of pointer manipulation. In the next section we hide some of this complexity in wrapper routines.
+</p>
+
+
+<h3>
+    Delphi wrapper routines
+</h3>
+
+<p>
+    Let us now define some wrapper functions that (a) hide the API routines and (b) give easy access to the fixed file information, string values and translation table.
+</p>
+
+<p>
+    We will create five routines:
+</p>
+
+<ol class="wide">
+    <li>
+        <var>GetVerInfoSize</var> &ndash; a thin wrapper round the <var>GetFileVersionInfoSize</var> API function.
+    </li>
+    <li>
+        <var>GetVerInfo</var> &ndash; a thin wrapper round the <var>GetFileVersionInfo</var> API function.
+    </li>
+    <li>
+        <var>GetFFI</var> &ndash; gets the fixed file information from the version information buffer using <var>VerQueryValue</var>.
+    </li>
+    <li>
+        <var>GetTransTable</var> &ndash; uses <var>VerQueryValue</var> to get and return the translation table as a dynamic array of <var>TTransRec</var>.
+    </li>
+    <li>
+        <var>GetVerInfoStr</var> &ndash; returns the value of a string table entry using <var>VerQueryValue</var>.
+    </li>
+</ol>
+
+
+<h4>
+    GetVerInfoSize
+</h4>
+
+<div class="frame para">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetVerInfoSize</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Dummy</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// Dummy handle parameter</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetFileVersionInfoSize</span><span class="sym">(</span><span class="ident">PChar</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">Dummy</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 6
+    </div>
+</div>
+
+<p>
+    This function simply prevents us from having to provide the dummy parameter that is required when calling <var>GetFileVersionInfoSize</var>.
+</p>
+
+<h4>
+    GetVerInfo
+</h4>
+
+<div class="frame para">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">GetVerInfo</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Size</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">:</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">GetFileVersionInfo</span><span class="sym">(</span><span class="ident">PChar</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="ident">Size</span><span class="sym">,</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">raise</span><span class="space"> </span><span class="ident">Exception</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="str">&apos;Can&apos;&apos;t load version information&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 7
+    </div>
+</div>
+
+<p>
+    This wrapper function just calls down into <var>GetFileVersionInfo</var> and raises an exception if the call fails.
+</p>
+
+
+<h4>
+    GetFFI
+</h4>
+
+<div class="frame para">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetFFI</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">:</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">TVSFixedFileInfo</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Size</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// Size of fixed file info read</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Ptr</span><span class="sym">:</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">;</span><span class="space"> </span><span class="comment">// Pointer to FFI data</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="comment">// Read the fixed file info</span></pre>
+        <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">VerQueryValue</span><span class="sym">(</span><span class="ident">Buffer</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;\&apos;</span><span class="sym">,</span><span class="space"> </span><span class="ident">Ptr</span><span class="sym">,</span><span class="space"> </span><span class="ident">Size</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+        <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">raise</span><span class="space"> </span><span class="ident">Exception</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="str">&apos;Can&apos;&apos;t read fixed file information&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="comment">// Check that data read is correct size</span></pre>
+        <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Size</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">TVSFixedFileInfo</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+        <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">raise</span><span class="space"> </span><span class="ident">Exception</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="str">&apos;Fixed file information record wrong size&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">PVSFixedFileInfo</span><span class="sym">(</span><span class="ident">Ptr</span><span class="sym">)</span><span class="sym">^</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 8
+    </div>
+</div>
+
+<p>
+    <var>GetFFI</var> gets fixed file information from the version information data. We call <var>VerQueryValue</var> with a &quot;path&quot; of <samp>\</samp> and then check if the call succeeds and that the returned data is the correct size. Exceptions are raised if any error is detected.
+</p>
+
+<h4>
+    GetTransTable
+</h4>
+
+<div class="frame para">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TTransRec</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">packed</span><span class="space"> </span><span class="kwd">record</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">Lang</span><span class="sym">,</span><span class="space"> </span><span class="comment">// language code</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">CharSet</span><span class="sym">:</span><span class="space"> </span><span class="ident">Word</span><span class="sym">;</span><span class="space"> </span><span class="comment">// character set (code page)</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">PTransRec</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="sym">^</span><span class="ident">TTransRec</span><span class="sym">;</span><span class="space"> </span><span class="comment">// pointer to TTransRec</span></pre>
+        <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">TTransRecArray</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">array</span><span class="space"> </span><span class="kwd">of</span><span class="space"> </span><span class="ident">TTransRec</span><span class="sym">;</span><span class="space"> </span><span class="comment">// translation table</span></pre>
+        <pre class="line"><span class="linenum">  8</span></pre>
+        <pre class="line"><span class="linenum">  9</span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetTransTable</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">:</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">TTransRecArray</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 10</span><span class="kwd">var</span></pre>
+        <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">TransRec</span><span class="sym">:</span><span class="space"> </span><span class="ident">PTransRec</span><span class="sym">;</span><span class="space"> </span><span class="comment">// pointer to a translation record</span></pre>
+        <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Size</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// size of data read</span></pre>
+        <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">RecCount</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="comment">// number of translation records</span></pre>
+        <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">Idx</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="comment">// loops thru translation records</span></pre>
+        <pre class="line"><span class="linenum"> 15</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="comment">// Read translation data</span></pre>
+        <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="ident">VerQueryValue</span><span class="sym">(</span></pre>
+        <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="ident">Buffer</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;\VarFileInfo\Translation&apos;</span><span class="sym">,</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">(</span><span class="ident">TransRec</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">Size</span></pre>
+        <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="comment">// Get record count and set length of array</span></pre>
+        <pre class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="ident">RecCount</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Size</span><span class="space"> </span><span class="kwd">div</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">TTransRec</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="ident">SetLength</span><span class="sym">(</span><span class="ident">Result</span><span class="sym">,</span><span class="space"> </span><span class="ident">RecCount</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="comment">// Loop thru table storing records in array</span></pre>
+        <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">Idx</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">Pred</span><span class="sym">(</span><span class="ident">RecCount</span><span class="sym">)</span><span class="space"> </span><span class="kwd">do</span></pre>
+        <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum"> 26</span><span class="space">    </span><span class="ident">Result</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TransRec</span><span class="sym">^</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">TransRec</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 29</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 9
+    </div>
+</div>
+
+<p>
+    This routine fetches the translation table from the version information. It gets the raw data using <var>VarFileInfo</var> then calculates the number of translation records by dividing the size of the raw data by the size of a translation record. We then size the dynamic array appropriately and copy each record into the array.
+</p>
+
+<p>
+    We also need to define the <var>TTransRec</var>, <var>PTransRec</var> and <var>TTransRecArray</var> types required by the routine.
+</p>
+
+
+<h4>
+    GetVerInfoStr
+</h4>
+
+<div class="frame para">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetVerInfoStr</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">:</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">Trans</span><span class="sym">,</span><span class="space"> </span><span class="ident">StrName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="kwd">var</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Data</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span><span class="space"> </span><span class="comment">// the string value data</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Dummy</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="comment">// size of value data (unused)</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Path</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="comment">// &quot;path&quot; to string value</span></pre>
+        <pre class="line"><span class="linenum">  7</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="comment">// Build &quot;path&quot; from translation and string name</span></pre>
+        <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">Path</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;\StringFileInfo\&apos;</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">Trans</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="str">&apos;\&apos;</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">StrName</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="comment">// Read the string: return &apos;&apos; if string doesn&apos;t exist</span></pre>
+        <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">VerQueryValue</span><span class="sym">(</span><span class="ident">Buffer</span><span class="sym">,</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">(</span><span class="ident">Path</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">(</span><span class="ident">Data</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">Dummy</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+        <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Data</span></pre>
+        <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">else</span></pre>
+        <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 15</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 10
+    </div>
+</div>
+
+<p>
+    This function returns the value of given string from the string table associated with a given translation. We build the &quot;path&quot; needed to access the string value and use <var>VerQueryValue</var> to get the string value. If the string exists we return the data, cast to a string. Otherwise we return the empty string.
+</p>
+
+<p class="callout callout-info">
+    At first sight it may seem strange that we don't allocate memory for <var>Data</var> before calling <var>VerQueryValue</var>, but there's no need because <var>VerQueryValue</var> sets <var>Data</var> to point to a part of the given <var>Buffer</var>. What is important is that we make a <em>copy</em> of the memory pointed to by <var>Data</var> before returning from our function, which happens implicitly in <span class="figureref">line 12</span>.
+</p>
+
+<p>
+    The <a href="#demo">demo program</a> accompanying this article shows how to use the routines.
+</p>
+
+<p>
+    The next step is to encapsulate the whole process in a class.
+</p>
+
+<h3>
+    Object oriented solution
+</h3>
+
+<p>
+    The class we will develop is rather simple but has all the needed functionality. It can detect whether a file contains version information and can extract fixed file information, the translation table and strings from a given string table. Here's the class declaration:
+</p>
+
+<div class="frame">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TVerInfo</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TObject</span><span class="sym">)</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">private</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">fFixedFileInfo</span><span class="sym">:</span><span class="space"> </span><span class="ident">TVSFixedFileInfo</span><span class="sym">;</span><span class="space"> </span><span class="comment">// fixed file info record</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">fTransTable</span><span class="sym">:</span><span class="space"> </span><span class="ident">TTransRecArray</span><span class="sym">;</span><span class="space"> </span><span class="comment">// translation table</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">fHasVerInfo</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span><span class="space"> </span><span class="comment">// whether file contains ver info</span></pre>
+        <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">fVerInfo</span><span class="sym">:</span><span class="space"> </span><span class="ident">Pointer</span><span class="sym">;</span><span class="space"> </span><span class="comment">// buffer storing ver info</span></pre>
+        <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetString</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Trans</span><span class="sym">,</span><span class="space"> </span><span class="ident">Name</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetTranslation</span><span class="sym">(</span><span class="ident">Idx</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetTranslationCount</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">public</span></pre>
+        <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">destructor</span><span class="space"> </span><span class="ident">Destroy</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">HasVerInfo</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fHasVerInfo</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">FixedFileInfo</span><span class="sym">:</span><span class="space"> </span><span class="ident">TVSFixedFileInfo</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fFixedFileInfo</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">Translations</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">]</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">GetTranslation</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">TranslationCount</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">GetTranslationCount</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">Strings</span><span class="sym">[</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Trans</span><span class="sym">,</span><span class="space"> </span><span class="ident">Name</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">]</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">GetString</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 11
+    </div>
+</div>
+
+<p>
+    The constructor receives the name of the file to be examined. The <var>HasVerInfo</var> property is true if the file contains version information. The <var>FixedFileInfo</var> property contains a copy of the fixed file info record. <var>TranslationCount</var> records the number of translations in the file while <var>Translations</var> is a zero based array property of string values corresponding to the translations. <var>Strings</var> is a two dimensional array property that returns the value of a string table entry with name <var>Name</var> in the string table specified by <var>Trans</var>.
+</p>
+
+<p>
+    Internally we store the translation table in a dynamic array of <var>TTransRec</var> records. Both the translation and the fixed file information are recorded when the class is created. String file information is read from version information as values are requested from the <var>Strings</var> property.
+</p>
+
+<p>
+    Most of the work is done in the constructor. We use the routines developed above to simplify the code. So, let us start by looking at the constructor:
+</p>
+
+<div class="frame">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">TVerInfo</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">BufSize</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="comment">// size of ver info buffer</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">inherited</span><span class="space"> </span><span class="ident">Create</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="comment">// Get size of buffer: no ver info if size = 0</span></pre>
+        <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">BufSize</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetVerInfoSize</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">fHasVerInfo</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">BufSize</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fHasVerInfo</span><span class="space"> </span><span class="kwd">then</span></pre>
+        <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="comment">// Read ver info into buffer</span></pre>
+        <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">GetMem</span><span class="sym">(</span><span class="ident">fVerInfo</span><span class="sym">,</span><span class="space"> </span><span class="ident">BufSize</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">GetVerInfo</span><span class="sym">(</span><span class="ident">FileName</span><span class="sym">,</span><span class="space"> </span><span class="ident">BufSize</span><span class="sym">,</span><span class="space"> </span><span class="ident">fVerInfo</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="comment">// Read fixed file info and translation table</span></pre>
+        <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="ident">fFixedFileInfo</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetFFI</span><span class="sym">(</span><span class="ident">fVerInfo</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">fTransTable</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetTransTable</span><span class="sym">(</span><span class="ident">fVerInfo</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum"> 18</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 12
+    </div>
+</div>
+
+<p>
+    We first use <var>GetVerInfoSize</var> to find the size of the version information data. We set the <var>HasVerInfo</var> property to record if there is version information (by checking the size of the data), and if there is none, we skip the rest of the code.
+</p>
+
+<p>
+    If we do have version information we allocate a buffer to hold it then load the version information from the file using the <var>GetVerInfo</var> routine. We next use the <var>GetFFI</var> and <var>GetTransTable</var> routines to store the fixed file information and translation table in fields.
+</p>
+
+<p>
+    The destructor is very simple: we just free the version info buffer:
+</p>
+
+<div class="frame">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">destructor</span><span class="space"> </span><span class="ident">TVerInfo</span><span class="sym">.</span><span class="ident">Destroy</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="comment">// Free ver info buffer</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">FreeMem</span><span class="sym">(</span><span class="ident">fVerInfo</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 13
+    </div>
+</div>
+
+<p>
+    We'll look at the <var>GetTranslation</var> method next. This simple method returns a string representation of the translation at a given index in the table. The string representation is simply the concatenation of the translation's language code and character set / code page code in hexadecimal:
+</p>
+
+<div class="frame">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TVerInfo</span><span class="sym">.</span><span class="ident">GetTranslation</span><span class="sym">(</span><span class="ident">Idx</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">fHasVerInfo</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="sym">(</span><span class="ident">Idx</span><span class="space"> </span><span class="sym">&gt;=</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="sym">(</span><span class="ident">Idx</span><span class="space"> </span><span class="sym">&lt;</span><span class="space"> </span><span class="ident">fTranslationCount</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// Return string representation of translation at given index</span></pre>
+        <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Format</span><span class="sym">(</span></pre>
+        <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="str">&apos;%4.4x%4.4x&apos;</span><span class="sym">,</span><span class="space"> </span><span class="sym">[</span><span class="ident">fTransTable</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="sym">.</span><span class="ident">Lang</span><span class="sym">,</span><span class="space"> </span><span class="ident">fTransTable</span><span class="sym">[</span><span class="ident">Idx</span><span class="sym">]</span><span class="sym">.</span><span class="ident">CharSet</span><span class="sym">]</span></pre>
+        <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 14
+    </div>
+</div>
+
+<p>
+    Since this method should not be called when there is no version information available we use an assertion to guard against this. The other assertion simply checks that the requested index is in range.
+</p>
+
+<p>
+    The <var>GetTranslationCount</var> method simply returns the size of the dynamic array that stores the translation table:
+</p>
+
+<div class="frame">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TVerInfo</span><span class="sym">.</span><span class="ident">GetTranslationCount</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">fTransTable</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 15
+    </div>
+</div>
+
+<p>
+    There is no need to check whether version information is available since this method will return <samp>0</samp> in that case.
+</p>
+
+<p>
+    This leaves just the <var>GetString</var> method, which is trivial:
+</p>
+
+<div class="frame">
+    <div class="code-pascal">
+        <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TVerInfo</span><span class="sym">.</span><span class="ident">GetString</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Trans</span><span class="sym">,</span><span class="space"> </span><span class="ident">Name</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+        <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">fHasVerInfo</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetVerInfoStr</span><span class="sym">(</span><span class="ident">fVerInfo</span><span class="sym">,</span><span class="space"> </span><span class="ident">Trans</span><span class="sym">,</span><span class="space"> </span><span class="ident">Name</span><span class="sym">)</span><span class="sym">;</span></pre>
+        <pre class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+            <div class="caption">
+        Listing 16
+    </div>
+</div>
+
+<p>
+    The heavy lifting is done by the <var>GetVerInfoStr</var> routine. We simply check we have version information and then return the result of calling <var>GetVerInfoStr</var>. Recall that <var>GetVerInfoStr</var> returns the empty string if there is no such string name in the given translation.
+</p>
+
+<p>
+    That's the class completed. Again this can be tested using the demo code (below).
+</p>
+
+<p class="callout callout-info">
+    It's not the best of practise to leave much of the functionality of this class in routines outside the class. Normally I would move those routines inside the class and adjust them accordingly. But that would lengthen this article considerably while adding no new pertinent information. So I'll leave that tidying up as an exercise!
+</p>
+
+</section>
+
+<section id="demo">
+
+<h2>
+    Demo Code
+</h2>
+
+<p>
+    A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.
+</p>
+
+<p>
+    You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-20">article-20</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
+</p>
+
+<p>
+    See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-20/README.md">README.md</a> file for details.
+</p>
+
+<div class="callout callout-info">
+    <p>
+        <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
+    </p>
+    <p>
+        The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-20/LICENSE.md">LICENSE.md</a> file for licensing details.
+    </p>
+</div>
+
+<p>
+    For a more comprehensive solution to the problem of extracting version information see my <a href="/software/verinfo">Version Information Component</a>.
+</p>
+
+</section>
+
+<section id="limitations">
+
+<h2>
+    Limitations
+</h2>
+
+<p>
+    While the solution works well in the majority of cases, it is by no means perfect. There are two major shortcomings:
+</p>
+
+<ol class="wide">
+    <li>
+        While standard and non-standard string information can be accessed, the user must know in advance what non-standard string names are present in the version information. The code cannot enumerate the string names. This can't be done using the official API: more advanced methods are required.
+     </li>
+
+    <li>
+        Several programs contain version information that does not follow the Microsoft guidelines &ndash; i.e. the structure of the binary version information is non-standard. The API functions can fail on some of these programs
+    </li>
+</ol>
+
+<div class="callout callout-info">
+    <p>
+        I have written a DLL, <em><a href="/software/vibindata">VIBinData</a></em>, that solves most of these problems by parsing the version information binary resource data and being tolerant of variations from the standard. So if you need to handle badly behaved programs, or want to enumerate all the strings in a string table, feel free to uses it. It is quite well documented. To see how to parse the raw version information data take a look at the source code.
+    </p>
+    <p class="alert alert-warning glyph">
+        Note that <cdoe>VIBinData.dll</cdoe> is a 32 bit only DLL.
+    </p>
+</div>
+
+</section>
+
+<section id="summary">
+
+<h2>
+    Summary
+</h2>
+
+<p>
+    In this article we have reviewed how Windows handles version information and makes it accessible to programmers via the API. We noted that the API is rather cumbersome and so went on to develop wrapper routines to hide some of the complexity. We then wrote a class that encapsulates the version information and provides a simpler interface for the developer. A demo program was provided that implements and tests the code. Finally we reviewed some of the limitations of the code.
+</p>
+
+</section>
+
+<section id="feedback">
+
+<h2>
+    Feedback
+</h2>
+
+<p>
+    I hope the article has been useful.
+</p>
+
+<p>
+    If you have any comments, suggestions or have found any errors there are two places you can report them.
+</p>
+
+<ol class="wide">
+    <li>
+        For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this
+        website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>. You
+        <strong>must</strong> mention that the issue relates to <code>article-20</code>.
+    </li>
+    <li>
+        For bugs in the demo code see the demo's
+        <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code>
+        for details of how to report them.
+    </li>
+</ol>
+
+</section>
