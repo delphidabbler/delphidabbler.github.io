@@ -758,6 +758,13 @@ div.sw-meta {
   font-variant: small-caps;
 }
 
+// Sets top and bottom borders of a div to emulate that of a p tag
+// ** Custom
+div.para {
+  margin-bottom: ceil($line-height-computed / 2);
+  margin-top: ceil($line-height-computed / 2);
+}
+
 // Styling for references to figures (tables, listings etc.) Used mainly in articles
 // ** Custom
 .figureref {
