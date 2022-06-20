@@ -4,10 +4,501 @@ title: "How to get notified when the content of the clipboard changes"
 summary: "Sometimes we need need to know when the content of the clipboard has changed. This article shows how."
 meta-title: "Use Delphi Pascal to detect when the Windows clipboard is changed | How to"
 meta-desc: "An article that shows how to use Delphi Pascal to receive a notification when the content of the Windows clipboard changes."
-demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-09"
-pages: 1
-offsite: 1
 index: true
 redirect_from:
 - /articles/9
 ---
+<section id="why-do-it">
+
+    <h2>Why do it?</h2>
+
+    <p>It is often useful to know when the clipboard's contents have changed. For example you may wish to enable or disable a <em>Paste</em> button on a toolbar according to whether the clipboard contains data in a format supported by your application or not. Alternatively you may wish to display details of the items on the clipboard.</p>
+
+</section>
+
+<section id="how-its-done">
+
+    <h2>How it's done</h2>
+
+    <h3>Overview</h3>
+
+    <p>Windows provides two different methods that can be used to get notifications when the clipboard contents change.</p>
+
+    <p>The preferred method is to use the &quot;listener&quot; API. However this is not supported on all versions of Windows - support started with Windows Vista. On older OSs the older clipboard viewer chain API needs to be used. This older API is unreliable since it depends on each application that uses it to maintain the &quot;chain&quot; of viewers. All it needs is one badly behaved (or crashed) application to corrupt the chain. The newer API is managed by Windows and doesn't suffer from this major design headache.</p>
+
+    <h3>Using the clipboard listener API</h3>
+
+    <p>This API is quite simple to use and if your app is running on Windows Vista or later, it's the one you <em>should</em> use. You need to register one of the application's windows to receive a notification from Windows when the clipboard format changes. That window receives a <var>WM_CLIPBOARDUPDATE</var> message when the content changes.</p>
+
+    <p>To register window to use to receive notification you call the <var>AddClipboardFormatListener</var> API function, passing it the handle of the window. Before the application terminates you must also call the <var>RemoveClipboardFormatListener</var> function, passing the same window handle.</p>
+
+    <p>The last step is to handle the <var>WM_CLIPBOARDUPDATE</var> message in the registered window's message loop and take whatever action you need to take when the clipboard changes.</p>
+
+    <p>Assuming you have a standard Delphi VCL application and you want to use the main form's window to receive change notifications, you can use code like the following.</p>
+
+    <p>To register the main form window insert the following code into your main form's <var>OnCreate</var> event handler:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMainForm</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="comment">// ... other code</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">AddClipboardFormatListener</span><span class="sym">(</span><span class="ident">Handle</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// ... other code</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 1</div>
+    </div>
+
+    <p>To un-register the window insert the following code into the form's <var>OnDestroy</var> handler:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMainForm</span><span class="sym">.</span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="comment">// ... other code</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">RemoveClipboardFormatListener</span><span class="sym">(</span><span class="ident">Handle</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// ... other code</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 2</div>
+    </div>
+
+    <p>Finally you need to handle the <var>WM_CLIPBOARDUPDATE</var> message. To do this create a new message handler in you main form class like this:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  6</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">TMainForm</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TForm</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WMClipboardUpdate</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">      </span><span class="kwd">message</span><span class="space"> </span><span class="ident">WM_CLIPBOARDUPDATE</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 17</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 19</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 21</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMainForm</span><span class="sym">.</span><span class="ident">WMClipboardUpdate</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="comment">// Do require clipboard change processing here</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="comment">// ...</span></pre>
+        </div>
+        <div class="caption">Listing 3</div>
+    </div>
+
+    <h3>Using the clipboard viewer chain</h3>
+
+    <p>When using this API you also need to register a window to receive notifications. The API is more convoluted than the &quot;listener&quot; API discussed above.</p>
+
+    <p>The registered window is known as a clipboard viewer. Windows maintains a linked list of clipboard viewers &ndash; the clipboard chain. Each viewer window is responsible for passing on notifications to any window that follows it in the chain. Since Windows relies on the cooperation of viewer applications, a badly behaved application can bring down the whole notification system. It is therefore important to play by the rules. The viewer window should also be un-registered before the associated application terminates.</p>
+
+    <p>When the content of the clipboard changes, Windows notifies them first window in the chain by sending it a <var>WM_DRAWCLIPBOARD</var> message. This window is responsible for passing the message to the next registered viewer window, and so on down the list. Consequently it can be seen that each clipboard viewer needs to record the identity of the next window in the chain.</p>
+
+    <p>Windows also notifies the windows in the clipboard chain when clipboard viewers are removed from the list. This is done by passing a <var>WM_CHANGECBCHAIN</var> message to the first window in the chain. The parameters of <var>WM_CHANGECBCHAIN</var> identify the window being removed along with the window that follows it in the chain. The message is passed along the chain until the window preceding that being removed is found. That window then updates its record of the next window in the chain.</p>
+
+    <p>In summary, here are the key steps in creating, managing and deleting a clipboard viewer:</p>
+
+    <ul class="wide">
+        <li>Register the viewer window by calling the <var>SetClipboardViewer</var> API function. This function returns the handle of the next window in the chain (or <samp>0</samp> if no such window).</li>
+        <li>Keep track of viewer windows that are removed by processing the <var>WM_CHANGECBCHAIN</var> message and passing it along the chain or updating the record of the next window in the chain as necessary.</li>
+        <li>Respond to clipboard changes by handling the <var>WM_DRAWCLIPBOARD</var> message and passing the message along the chain.</li>
+        <li>Before closing the application remove the viewer window from the clipboard chain by calling the <var>ChangeClipboardChain</var> API function.</li>
+    </ul>
+
+    <p>As before we assume that we have a Delphi VCL application that will use it's main form to receive notifications of clipboard changes. Here's an outline of the required code.</p>
+
+    <p>To register the main form window as a clipboard viewer we call the <var>SetClipboardViewer</var> API function in the application's <var>FormCreate</var> event handler. <var>SetClipboardViewer</var> returns the handle of the next window in the viewer chain which we must record in a form field for future reference. The handle may be <samp>0</samp> if we are the first viewer in the chain. Here is an outline of the code:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">TMainForm</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TForm</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="ident">fNextCBViewWnd</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMainForm</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="comment">// ... other code</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SetClipboardViewer</span><span class="sym">(</span><span class="ident">Handle</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="comment">// ... other code</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 4</div>
+    </div>
+
+    <p>We need to un-register our viewer window when the application is closing. In the <var>FormDestroy</var> event handler we add the required call to <var>ChangeClipboardChain</var>, as follows:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMainForm</span><span class="sym">.</span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="comment">// ... other code</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">ChangeClipboardChain</span><span class="sym">(</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="ident">fNextCBViewWnd</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// ... other code</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 5</div>
+    </div>
+
+    <p>Finally we need to handle the <var>WM_CHANGECBCHAIN</var> and <var>WM_DRAWCLIPBOARD</var> messages. We declare a message handler method for each in the form's interface and implement the methods as follows:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">TMainForm</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TForm</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WMChangeCBChain</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">message</span><span class="space"> </span><span class="ident">WM_CHANGECBCHAIN</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WMDrawClipboard</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">message</span><span class="space"> </span><span class="ident">WM_DRAWCLIPBOARD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMainForm</span><span class="sym">.</span><span class="ident">WMChangeCBChain</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="comment">// A window has been detached from clipboard chain</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">WParam</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">    </span><span class="comment">// our next window has changed: record it</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="comment">// we don&apos;t pass the message on since we handled it</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">    </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">LParam</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">    </span><span class="comment">// our next window has not changed: pass message on</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">    </span><span class="comment">// if next window exists (i.e. handle &lt;&gt; 0)</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">      </span><span class="ident">SendMessage</span><span class="sym">(</span><span class="ident">fNextCBViewWnd</span><span class="sym">,</span><span class="space"> </span><span class="ident">WM_CHANGECBCHAIN</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">WParam</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">LParam</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMainForm</span><span class="sym">.</span><span class="ident">WMDrawClipboard</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 38</span><span class="space">  </span><span class="comment">// Clipboard content has changed</span></pre>
+            <pre class="line"><span class="linenum"> 39</span><span class="space">  </span><span class="comment">// </span></pre>
+            <pre class="line"><span class="linenum"> 40</span><span class="space">  </span><span class="comment">// do something here to respond to change in clipboard</span></pre>
+            <pre class="line"><span class="linenum"> 41</span><span class="space">  </span><span class="comment">//</span></pre>
+            <pre class="line"><span class="linenum"> 42</span><span class="space">  </span><span class="comment">// now pass message along to next window in chain, if it exists</span></pre>
+            <pre class="line"><span class="linenum"> 43</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 44</span><span class="space">    </span><span class="ident">SendMessage</span><span class="sym">(</span><span class="ident">fNextCBViewWnd</span><span class="sym">,</span><span class="space"> </span><span class="ident">WM_DRAWCLIPBOARD</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">WParam</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">LParam</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 45</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 46</span><span class="space"> </span></pre>
+            <pre class="line"><span class="linenum"> 47</span><span class="comment">// ...</span></pre>
+        </div>
+        <div class="caption">Listing 6</div>
+    </div>
+
+    <p>The <var>WParam</var> value of <var>WM_CHANGECBCHAIN</var> is the handle of the window to be removed while the <var>LParam</var> value is the handle of the window that follows it in the chain (or <samp>0</samp> if there is no following window). If the window that follows ours in the chain is the one to be removed we replace our record of its handle with the handle of the following window. In this case the message has been handled and there is no need to pass it further down the chain. However, if the window being removed is not the next window in the chain we simply forward the message on to the next window (if it exists).</p>
+
+    <p>When a <var>WM_DRAWCLIPBOARD</var> message is received we first take some suitable action in response to the change and then pass the message and parameters on to the next window (if any) in the chain.</p>
+
+    <section id="eg-project">
+
+        <h2>Example project</h2>
+
+        <p>An example project is presented below. This project implements a very basic text editor that has buttons to cut, copy and paste text. The <em>Paste</em> button is enabled only when there is text on the clipboard. In order to implement the <em>Paste</em> button functionality, the program's main window is registered as a clipboard viewer. The <em>Copy</em> and <em>Cut</em> buttons are enabled only when some text is selected in the edit control. These buttons are presented only for completeness and their workings are not relevant to the purpose of this article.</p>
+
+        <h3>Project file</h3>
+
+        <p>The demo's project file, <code>CBEdit.dpr</code>, is defined below:</p>
+
+        <div class="frame">
+            <div class="code-pascal">
+                <pre class="line"><span class="linenum">  1</span><span class="kwd">program</span><span class="space"> </span><span class="ident">CBEdit</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">  2</span></pre>
+                <pre class="line"><span class="linenum">  3</span><span class="kwd">uses</span></pre>
+                <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Forms</span><span class="sym">,</span></pre>
+                <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">FmEditor</span><span class="space"> </span><span class="kwd">in</span><span class="space"> </span><span class="str">&apos;FmEditor.pas&apos;</span><span class="space"> </span><span class="comment">{EditorForm}</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">  6</span></pre>
+                <pre class="line"><span class="linenum">  7</span><span class="preproc">{$R *.RES}</span></pre>
+                <pre class="line"><span class="linenum">  8</span></pre>
+                <pre class="line"><span class="linenum">  9</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Initialize</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">CreateForm</span><span class="sym">(</span><span class="ident">TEditorForm</span><span class="sym">,</span><span class="space"> </span><span class="ident">EditorForm</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Run</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">.</span></pre>
+            </div>
+            <div class="caption">Listing 7</div>
+        </div>
+
+        <h3>Form unit</h3>
+
+        <p>The form is defined in a file named <code>FmEditor.dfm</code> as follows (non-essential items have been removed):</p>
+
+        <div class="frame">
+            <div class="code-pascal">
+                <pre class="line"><span class="linenum">  1</span><span class="kwd">object</span><span class="space"> </span><span class="ident">EditorForm</span><span class="sym">:</span><span class="space"> </span><span class="ident">TEditorForm</span></pre>
+                <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">Left</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">190</span></pre>
+                <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Top</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">107</span></pre>
+                <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Width</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">696</span></pre>
+                <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Height</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">480</span></pre>
+                <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Caption</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="str">&apos;EditorForm&apos;</span></pre>
+                <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">OnCreate</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">FormCreate</span></pre>
+                <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">OnDestroy</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">FormDestroy</span></pre>
+                <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">object</span><span class="space"> </span><span class="ident">Panel1</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPanel</span></pre>
+                <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="ident">Align</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">alTop</span></pre>
+                <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">object</span><span class="space"> </span><span class="ident">btnCut</span><span class="sym">:</span><span class="space"> </span><span class="ident">TButton</span></pre>
+                <pre class="line"><span class="linenum"> 12</span><span class="space">      </span><span class="ident">Left</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">8</span></pre>
+                <pre class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="ident">Top</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">8</span></pre>
+                <pre class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="ident">Caption</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="str">&apos;Cut&apos;</span></pre>
+                <pre class="line"><span class="linenum"> 15</span><span class="space">      </span><span class="ident">OnClick</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">btnCutClick</span></pre>
+                <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">end</span></pre>
+                <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="kwd">object</span><span class="space"> </span><span class="ident">btnCopy</span><span class="sym">:</span><span class="space"> </span><span class="ident">TButton</span></pre>
+                <pre class="line"><span class="linenum"> 18</span><span class="space">      </span><span class="ident">Left</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">88</span></pre>
+                <pre class="line"><span class="linenum"> 19</span><span class="space">      </span><span class="ident">Top</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">8</span></pre>
+                <pre class="line"><span class="linenum"> 20</span><span class="space">      </span><span class="ident">Caption</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="str">&apos;Copy&apos;</span></pre>
+                <pre class="line"><span class="linenum"> 21</span><span class="space">      </span><span class="ident">OnClick</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">btnCopyClick</span></pre>
+                <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="kwd">end</span></pre>
+                <pre class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="kwd">object</span><span class="space"> </span><span class="ident">btnPaste</span><span class="sym">:</span><span class="space"> </span><span class="ident">TButton</span></pre>
+                <pre class="line"><span class="linenum"> 24</span><span class="space">      </span><span class="ident">Left</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">168</span></pre>
+                <pre class="line"><span class="linenum"> 25</span><span class="space">      </span><span class="ident">Top</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">8</span></pre>
+                <pre class="line"><span class="linenum"> 26</span><span class="space">      </span><span class="ident">Caption</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="str">&apos;Paste&apos;</span></pre>
+                <pre class="line"><span class="linenum"> 27</span><span class="space">      </span><span class="ident">OnClick</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">btnPasteClick</span></pre>
+                <pre class="line"><span class="linenum"> 28</span><span class="space">    </span><span class="kwd">end</span></pre>
+                <pre class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="kwd">end</span></pre>
+                <pre class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="kwd">object</span><span class="space"> </span><span class="ident">RichEdit1</span><span class="sym">:</span><span class="space"> </span><span class="ident">TRichEdit</span></pre>
+                <pre class="line"><span class="linenum"> 31</span><span class="space">    </span><span class="ident">Align</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">alClient</span></pre>
+                <pre class="line"><span class="linenum"> 32</span><span class="space">    </span><span class="ident">OnSelectionChange</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">RichEdit1SelectionChange</span></pre>
+                <pre class="line"><span class="linenum"> 33</span><span class="space">  </span><span class="kwd">end</span></pre>
+                <pre class="line"><span class="linenum"> 34</span><span class="kwd">end</span></pre>
+            </div>
+            <div class="caption">Listing 8</div>
+        </div>
+
+        <p>Finally, the code associated with the form is stored in <code>FmEditor.pas</code> and is as follows:</p>
+
+        <div class="frame">
+            <div class="code-pascal">
+                <pre class="line"><span class="linenum">  1</span><span class="kwd">unit</span><span class="space"> </span><span class="ident">FmEditor</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">  2</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+                <pre class="line"><span class="linenum">  4</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum">  5</span><span class="kwd">uses</span></pre>
+                <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Forms</span><span class="sym">,</span><span class="space"> </span><span class="ident">StdCtrls</span><span class="sym">,</span><span class="space"> </span><span class="ident">ComCtrls</span><span class="sym">,</span><span class="space"> </span><span class="ident">Classes</span><span class="sym">,</span><span class="space"> </span><span class="ident">Controls</span><span class="sym">,</span><span class="space"> </span><span class="ident">Windows</span><span class="sym">,</span><span class="space"> </span><span class="ident">Messages</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">  7</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum">  8</span><span class="kwd">const</span></pre>
+                <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="comment">// WM_CLIPBOARDUPDATE is not defined in the Messages unit of all supported</span></pre>
+                <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="comment">// versions of Delphi, so we defined it here for safety.</span></pre>
+                <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">WM_CLIPBOARDUPDATE</span><span class="space">  </span><span class="sym">=</span><span class="space"> </span><span class="hex">$031D</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 12</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum"> 13</span><span class="kwd">type</span></pre>
+                <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">TEditorForm</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TForm</span><span class="sym">)</span></pre>
+                <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="ident">btnCut</span><span class="sym">:</span><span class="space"> </span><span class="ident">TButton</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">btnCopy</span><span class="sym">:</span><span class="space"> </span><span class="ident">TButton</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">btnPaste</span><span class="sym">:</span><span class="space"> </span><span class="ident">TButton</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="ident">RichEdit1</span><span class="sym">:</span><span class="space"> </span><span class="ident">TRichEdit</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">RichEdit1SelectionChange</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">btnCutClick</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">btnCopyClick</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 24</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">btnPasteClick</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="kwd">private</span></pre>
+                <pre class="line"><span class="linenum"> 26</span><span class="space">    </span><span class="comment">// Flag indicating if the new style clipboard format listener API is</span></pre>
+                <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="comment">// available on the current OS.</span></pre>
+                <pre class="line"><span class="linenum"> 28</span><span class="space">    </span><span class="ident">fUseNewAPI</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 29</span><span class="space">    </span><span class="comment">// Handle of next clipboard viewer handle in chain. Used only when old</span></pre>
+                <pre class="line"><span class="linenum"> 30</span><span class="space">    </span><span class="comment">// clipboard viewer API is in use, i.e. when fUseNewAPI is False.</span></pre>
+                <pre class="line"><span class="linenum"> 31</span><span class="space">    </span><span class="ident">fNextCBViewWnd</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 32</span><span class="space">    </span><span class="comment">// References to AddClipboardFormatListener and</span></pre>
+                <pre class="line"><span class="linenum"> 33</span><span class="space">    </span><span class="comment">// RemoveClipboardFormatListenerAPI functions. These references are nil if</span></pre>
+                <pre class="line"><span class="linenum"> 34</span><span class="space">    </span><span class="comment">// the functions are not supported by the OS, i.e. if fUseNewAPI is False.</span></pre>
+                <pre class="line"><span class="linenum"> 35</span><span class="space">    </span><span class="ident">fAddClipboardFormatListener</span><span class="sym">:</span><span class="space"> </span><span class="kwd">function</span><span class="sym">(</span><span class="ident">hwnd</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">BOOL</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 36</span><span class="space">    </span><span class="ident">fRemoveClipboardFormatListener</span><span class="sym">:</span><span class="space"> </span><span class="kwd">function</span><span class="sym">(</span><span class="ident">hwnd</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">BOOL</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 37</span><span class="space">    </span><span class="comment">// References to SetClipboardViewer and ChangeClipboardChain API functions.</span></pre>
+                <pre class="line"><span class="linenum"> 38</span><span class="space">    </span><span class="comment">// These references is are if the newer clipboard format listener API is</span></pre>
+                <pre class="line"><span class="linenum"> 39</span><span class="space">    </span><span class="comment">// available, i.e. if fUseNewAPI is True.</span></pre>
+                <pre class="line"><span class="linenum"> 40</span><span class="space">    </span><span class="ident">fSetClipboardViewer</span><span class="sym">:</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="sym">(</span><span class="ident">hWndNewViewer</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 41</span><span class="space">    </span><span class="ident">fChangeClipboardChain</span><span class="sym">:</span><span class="space"> </span><span class="kwd">function</span><span class="sym">(</span><span class="ident">hWndRemove</span><span class="sym">,</span><span class="space"> </span><span class="ident">hWndNewNext</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">BOOL</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 42</span><span class="space">      </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 43</span><span class="space">    </span><span class="comment">// Message handlers</span></pre>
+                <pre class="line"><span class="linenum"> 44</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WMClipboardUpdate</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">message</span><span class="space"> </span><span class="ident">WM_CLIPBOARDUPDATE</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 45</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WMChangeCBChain</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">message</span><span class="space"> </span><span class="ident">WM_CHANGECBCHAIN</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 46</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WMDrawClipboard</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">message</span><span class="space"> </span><span class="ident">WM_DRAWCLIPBOARD</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 47</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 48</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum"> 49</span><span class="kwd">var</span></pre>
+                <pre class="line"><span class="linenum"> 50</span><span class="space">  </span><span class="ident">EditorForm</span><span class="sym">:</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 51</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum"> 52</span><span class="kwd">implementation</span></pre>
+                <pre class="line"><span class="linenum"> 53</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum"> 54</span><span class="kwd">uses</span></pre>
+                <pre class="line"><span class="linenum"> 55</span><span class="space">  </span><span class="ident">SysUtils</span><span class="sym">,</span><span class="space"> </span><span class="ident">Clipbrd</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 56</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum"> 57</span><span class="preproc">{$R *.dfm}</span></pre>
+                <pre class="line"><span class="linenum"> 58</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum"> 59</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">.</span><span class="ident">btnCopyClick</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 60</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum"> 61</span><span class="space">  </span><span class="ident">RichEdit1</span><span class="sym">.</span><span class="ident">CopyToClipboard</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 62</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 63</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum"> 64</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">.</span><span class="ident">btnCutClick</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 65</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum"> 66</span><span class="space">  </span><span class="ident">RichEdit1</span><span class="sym">.</span><span class="ident">CutToClipboard</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 67</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 68</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum"> 69</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">.</span><span class="ident">btnPasteClick</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 70</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum"> 71</span><span class="space">  </span><span class="ident">RichEdit1</span><span class="sym">.</span><span class="ident">PasteFromClipboard</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 72</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 73</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum"> 74</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 75</span><span class="kwd">const</span></pre>
+                <pre class="line"><span class="linenum"> 76</span><span class="space">  </span><span class="ident">cUserKernelLib</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="str">&apos;user32.dll&apos;</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 77</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum"> 78</span><span class="space">  </span><span class="comment">// Enable / disable buttons at start-up</span></pre>
+                <pre class="line"><span class="linenum"> 79</span><span class="space">  </span><span class="ident">btnPaste</span><span class="sym">.</span><span class="ident">Enabled</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Clipboard</span><span class="sym">.</span><span class="ident">HasFormat</span><span class="sym">(</span><span class="ident">CF_TEXT</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 80</span><span class="space">  </span><span class="ident">btnCut</span><span class="sym">.</span><span class="ident">Enabled</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">RichEdit1</span><span class="sym">.</span><span class="ident">SelLength</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 81</span><span class="space">  </span><span class="ident">btnCopy</span><span class="sym">.</span><span class="ident">Enabled</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">btnCut</span><span class="sym">.</span><span class="ident">Enabled</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 82</span><span class="space">  </span><span class="comment">// Load required API functions: 1st try to load modern clipboard listener API</span></pre>
+                <pre class="line"><span class="linenum"> 83</span><span class="space">  </span><span class="comment">// functions. If that fails try to load old-style clipboard viewer API</span></pre>
+                <pre class="line"><span class="linenum"> 84</span><span class="space">  </span><span class="comment">// functions. This should never fail, but we raise an exception if the</span></pre>
+                <pre class="line"><span class="linenum"> 85</span><span class="space">  </span><span class="comment">// impossible happens!</span></pre>
+                <pre class="line"><span class="linenum"> 86</span><span class="space">  </span><span class="ident">fAddClipboardFormatListener</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetProcAddress</span><span class="sym">(</span></pre>
+                <pre class="line"><span class="linenum"> 87</span><span class="space">    </span><span class="ident">GetModuleHandle</span><span class="sym">(</span><span class="ident">cUserKernelLib</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;AddClipboardFormatListener&apos;</span></pre>
+                <pre class="line"><span class="linenum"> 88</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 89</span><span class="space">  </span><span class="ident">fRemoveClipboardFormatListener</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetProcAddress</span><span class="sym">(</span></pre>
+                <pre class="line"><span class="linenum"> 90</span><span class="space">    </span><span class="ident">GetModuleHandle</span><span class="sym">(</span><span class="ident">cUserKernelLib</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;RemoveClipboardFormatListener&apos;</span></pre>
+                <pre class="line"><span class="linenum"> 91</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 92</span><span class="space">  </span><span class="ident">fUseNewAPI</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">fAddClipboardFormatListener</span><span class="sym">)</span></pre>
+                <pre class="line"><span class="linenum"> 93</span><span class="space">    </span><span class="kwd">and</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">fRemoveClipboardFormatListener</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 94</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">fUseNewAPI</span><span class="space"> </span><span class="kwd">then</span></pre>
+                <pre class="line"><span class="linenum"> 95</span><span class="space">  </span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum"> 96</span><span class="space">    </span><span class="ident">fSetClipboardViewer</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetProcAddress</span><span class="sym">(</span></pre>
+                <pre class="line"><span class="linenum"> 97</span><span class="space">      </span><span class="ident">GetModuleHandle</span><span class="sym">(</span><span class="ident">cUserKernelLib</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;SetClipboardViewer&apos;</span></pre>
+                <pre class="line"><span class="linenum"> 98</span><span class="space">    </span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 99</span><span class="space">    </span><span class="ident">fChangeClipboardChain</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetProcAddress</span><span class="sym">(</span></pre>
+                <pre class="line"><span class="linenum">100</span><span class="space">      </span><span class="ident">GetModuleHandle</span><span class="sym">(</span><span class="ident">cUserKernelLib</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;ChangeClipboardChain&apos;</span></pre>
+                <pre class="line"><span class="linenum">101</span><span class="space">    </span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">102</span><span class="space">    </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">fSetClipboardViewer</span><span class="sym">)</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">fChangeClipboardChain</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">103</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">104</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fUseNewAPI</span><span class="space"> </span><span class="kwd">then</span></pre>
+                <pre class="line"><span class="linenum">105</span><span class="space">  </span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum">106</span><span class="space">    </span><span class="comment">// Register window as clipboard listener</span></pre>
+                <pre class="line"><span class="linenum">107</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">fAddClipboardFormatListener</span><span class="sym">(</span><span class="ident">Self</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+                <pre class="line"><span class="linenum">108</span><span class="space">      </span><span class="ident">RaiseLastOSError</span><span class="sym">;</span><span class="space"> </span><span class="comment">// On early Delphis use RaiseLastWin32Error instead</span></pre>
+                <pre class="line"><span class="linenum">109</span><span class="space">  </span><span class="kwd">end</span></pre>
+                <pre class="line"><span class="linenum">110</span><span class="space">  </span><span class="kwd">else</span></pre>
+                <pre class="line"><span class="linenum">111</span><span class="space">  </span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum">112</span><span class="space">    </span><span class="comment">// Register window as clipboard viewer, storing handle of next window in</span></pre>
+                <pre class="line"><span class="linenum">113</span><span class="space">    </span><span class="comment">// chain</span></pre>
+                <pre class="line"><span class="linenum">114</span><span class="space">    </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fSetClipboardViewer</span><span class="sym">(</span><span class="ident">Self</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">115</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">116</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">117</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum">118</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">.</span><span class="ident">FormDestroy</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">119</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum">120</span><span class="space">  </span><span class="comment">// Remove clipboard listener or viewer</span></pre>
+                <pre class="line"><span class="linenum">121</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fUseNewAPI</span><span class="space"> </span><span class="kwd">then</span></pre>
+                <pre class="line"><span class="linenum">122</span><span class="space">    </span><span class="ident">fRemoveClipboardFormatListener</span><span class="sym">(</span><span class="ident">Self</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">)</span></pre>
+                <pre class="line"><span class="linenum">123</span><span class="space">  </span><span class="kwd">else</span></pre>
+                <pre class="line"><span class="linenum">124</span><span class="space">    </span><span class="ident">fChangeClipboardChain</span><span class="sym">(</span><span class="ident">Self</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="ident">fNextCBViewWnd</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">125</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">126</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum">127</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">.</span><span class="ident">RichEdit1SelectionChange</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">128</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum">129</span><span class="space">  </span><span class="ident">btnCut</span><span class="sym">.</span><span class="ident">Enabled</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">RichEdit1</span><span class="sym">.</span><span class="ident">SelLength</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">130</span><span class="space">  </span><span class="ident">btnCopy</span><span class="sym">.</span><span class="ident">Enabled</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">btnCut</span><span class="sym">.</span><span class="ident">Enabled</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">131</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">132</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum">133</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">.</span><span class="ident">WMChangeCBChain</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">134</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum">135</span><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="kwd">not</span><span class="space"> </span><span class="ident">fUseNewAPI</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">136</span><span class="space">  </span><span class="comment">// Windows is detaching a clipboard viewer</span></pre>
+                <pre class="line"><span class="linenum">137</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">WParam</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="kwd">then</span></pre>
+                <pre class="line"><span class="linenum">138</span><span class="space">    </span><span class="comment">// window being detached is next one: record new &quot;next&quot; window</span></pre>
+                <pre class="line"><span class="linenum">139</span><span class="space">    </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">LParam</span><span class="sym">)</span></pre>
+                <pre class="line"><span class="linenum">140</span><span class="space">  </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+                <pre class="line"><span class="linenum">141</span><span class="space">    </span><span class="comment">// window being detached is not next: pass message along</span></pre>
+                <pre class="line"><span class="linenum">142</span><span class="space">    </span><span class="ident">SendMessage</span><span class="sym">(</span><span class="ident">fNextCBViewWnd</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">Msg</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">WParam</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">LParam</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">143</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">144</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum">145</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">.</span><span class="ident">WMClipboardUpdate</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">146</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum">147</span><span class="space">  </span><span class="comment">// Clipboard content changed: enable paste button if text is on clipboard</span></pre>
+                <pre class="line"><span class="linenum">148</span><span class="space">  </span><span class="ident">btnPaste</span><span class="sym">.</span><span class="ident">Enabled</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Clipboard</span><span class="sym">.</span><span class="ident">HasFormat</span><span class="sym">(</span><span class="ident">CF_TEXT</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">149</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">150</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum">151</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TEditorForm</span><span class="sym">.</span><span class="ident">WMDrawClipboard</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">152</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum">153</span><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="kwd">not</span><span class="space"> </span><span class="ident">fUseNewAPI</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">154</span><span class="space">  </span><span class="comment">// Clipboard content changed</span></pre>
+                <pre class="line"><span class="linenum">155</span><span class="space">  </span><span class="comment">// enable paste button if text on clipboard</span></pre>
+                <pre class="line"><span class="linenum">156</span><span class="space">  </span><span class="ident">btnPaste</span><span class="sym">.</span><span class="ident">Enabled</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Clipboard</span><span class="sym">.</span><span class="ident">HasFormat</span><span class="sym">(</span><span class="ident">CF_TEXT</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">157</span><span class="space">  </span><span class="comment">// pass on message to any next window in viewer chain</span></pre>
+                <pre class="line"><span class="linenum">158</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fNextCBViewWnd</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+                <pre class="line"><span class="linenum">159</span><span class="space">    </span><span class="ident">SendMessage</span><span class="sym">(</span><span class="ident">fNextCBViewWnd</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">Msg</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">WParam</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">LParam</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">160</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">161</span><span class="space"> </span></pre>
+                <pre class="line"><span class="linenum">162</span><span class="kwd">end</span><span class="sym">.</span></pre>
+            </div>
+            <div class="caption">Listing 9</div>
+        </div>
+
+        <p>This application first tries to load the clipboard listener API functions from the OS kernel. If this fails we are running on an OS that does not support this API so we fall back to using the old clipboard viewer chain API and load the required functions from the kernel. We use an assertion to check that the old API has been found as exepected.</p>
+
+        <p>The <var>fUseNewAPI</var> field is used to inform the app which API is being used. If we're using the new API we add our forms window handle as a listener, otherwise we hook into the clipboard viewer chain. The necessary tidying up is done when the form is destroyed.</p>
+
+        <p>The remainder of the code needs little further explanation. We enable the cut and copy buttons only when some text is selected in the rich edit control. The paste button is enabled or disabled each time the clipboard contents change, depending on whether the <var>CF_TEXT</var> format is available on the clipboard. The code in three custom message handlers was explained earlier in the article.</p>
+
+    </section>
+
+    <section id="demo">
+
+        <h2>Demo program</h2>
+
+        <p>A demo program to accompany this article, based on the <a href="#eg-project">example project above</a>, can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
+
+        <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-09">article-09</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
+
+        <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-09/README.md">README.md</a> file for details.</p>
+
+        <div class="callout callout-info">
+            <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+            <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-09/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+        </div>
+
+    </section>
+
+    <section id="component">
+
+        <h2>Component</h2>
+
+        <p>A <a href="/software/cbview">clipboard viewer component</a> that triggers an event whenever the clipboard changes is available from this site. This component uses a hidden window which is registered as the clipboard viewer with Windows. The use of such a hidden window is described in <a href="./article-1">article #1</a>.</p>
+
+    </section>
