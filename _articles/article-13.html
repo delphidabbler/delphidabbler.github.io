@@ -4,10 +4,1217 @@ title: "How to run a single instance of an application"
 summary: "Describes how to ensure only a single instance of an application runs and how to pass command line data to a running program instance."
 meta-title: "Use Delphi Pascal to run a single instance of an application | How to"
 meta-desc: "An article that describes how to use Delphi Pascal to execute only a single instance of an application and how to pass data to a running program instance."
-demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-13"
-pages: 4
-offsite: 1
 index: true
 redirect_from:
 - /articles/13
 ---
+<section id="contents">
+
+    <h2>
+        Contents
+    </h2>
+
+    <nav>
+
+        <div class="well">
+
+            <ul>
+                <li><a href="#abstract">Abstract</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li>
+                    <a href="#first-attempt">An initial approach</a>
+                    <ul>
+                        <li><a href="#progrunning">Finding if your program is running</a></li>
+                        <li><a href="#cmdline">Passing the command line to a previous instance</a></li>
+                        <li><a href="#activateprev">Activating the previous Instance</a></li>
+                        <li><a href="#finishing">Finishing touches</a></li>
+                        <li><a href="#puttingittogether">Putting it all together</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#oop">An object oriented solution</a>
+                    <ul>
+                        <li><a href="#overviewoop">Overview</a></li>
+                        <li><a href="#usingleinst">The USingleInst unit</a></li>
+                        <li><a href="#modprj">Modifications to the project file</a></li>
+                        <li><a href="#modmain">Modifications to the main form</a></li>
+                        <li><a href="#override">Overriding TSingleInst</a></li>
+                    </ul>
+                </li>
+                <li><a href="#demo">Demonstration code</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+                <li><a href="#feedback">Feedback</a></li>
+            </ul>
+
+        </div>
+
+    </nav>
+
+</section>
+
+<section id="abstract">
+
+    <h2>Abstract</h2>
+
+    <p>This article discusses how to ensure that just a single instance of an application can be run. An application does this by checking if an instance is already running and terminating it if so. We also look at how a duplicate instance can pass its command line parameters to the existing instance before terminating.</p>
+
+</section>
+
+<section id="overview">
+
+    <h2>Overview</h2>
+
+    <p>The method we will use to prevent multiple application instances is based on the detection of an application with a known main window class. Once such an application is detected we then pass any command line data via the <var>WM_COPYDATA</var> message.</p>
+
+    <p><span class="figureref">Listing 1</span> outlines the methodology we will be using in pseudo-code:</p>
+
+    <div id="listing-1" class="frame">
+        <pre class="source-body">search for a top level window of the correct class
+if such a window exists
+  activate the window
+  pass any command line data to the window using WM_COPYDATA
+  terminate this application instance
+else
+  start this application as normal
+  process the command line parameters
+end</pre>
+        <div class="caption">Listing 1</div>
+    </div>
+
+    <div class="callout callout-info">
+
+        <h4>Alternatives</h4>
+
+        <p>Mutexes can be used to detect muliple application instances and memory mapped files can be used to exchange data. These techniques are not persued here.</p>
+
+    </div>
+
+</section>
+
+<section id="first-attempt">
+
+    <h2>An Initial Approach</h2>
+
+    <h3 id="progrunning">Finding if your program is running</h3>
+
+    <p>We use the <var>FindWindow</var> Windows API routine to search for a top level window of the required class. This routine can check for window captions, (unreliable because they can change while a program is running), the window class name (better), or both. We opt to check for the window class name regardless of the caption.</p>
+
+    <p>There is a problem with this approach though &ndash; by default Delphi uses a form's class name as the name of the associated window class. For example, if a form's class is named <var>TForm1</var> then its window class name is also <var>TForm1</var>. Since it's possible to have two or more different Delphi applications running at the same time, both of which use this window class name we need to give our program's main window a class name that is extremely unlikely to be used by another application. We do this by overriding the main form's <var>CreateParams</var> method as follows:</p>
+
+    <div id="listing-2" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">CreateParams</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Params</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCreateParams</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">StrCopy</span><span class="sym">(</span><span class="ident">Params</span><span class="sym">.</span><span class="ident">WinClassName</span><span class="sym">,</span><span class="space"> </span><span class="ident">cWindowClassName</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 2</div>
+    </div>
+
+    <p><var>cWindowClassName</var> is a constant set to some suitable class name. To ensure uniqueness we could use a GUID. However I find that a name based on company name, the name of the application and possibly the major version number is human friendly and is sufficiently unlikely to be used by other applications. An example is <samp>DelphiDabbler.MyApp.2</samp>.</p>
+
+    <p>Now that we have a suitable window class name we can find the main window handle of any already existing instance of our application by using the following function:</p>
+
+    <div id="listing-3" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">FindDuplicateMainWdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FindWindow</span><span class="sym">(</span><span class="ident">cWindowClassName</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 3</div>
+    </div>
+
+    <p>The function will return the handle of any top level window with the required class name or it will return <samp>0</samp> if there is no such window. So, if the function returns <samp>0</samp> we deduce that there is no pre-existing instance and can run our application. But, if the function returns a non zero value an existing instance is already running and we should terminate our current instance.</p>
+
+    <p>We need to be <span class="highlight">very careful</span> where we place this test &ndash; if we run the check after we have created our application's main window then the function will always return a window handle, and this may be the handle of our own window! Therefore it is important to run this check before the application creates its main form. We can do this by performing the check in the project (<code>.dpr</code>) file, before the main form is created. The project file can be modified as follows:</p>
+
+    <div id="listing-4" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">CanStart</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Wdw</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FindDuplicateMainWdw</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Wdw</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="comment">// no instance running: we can start our app</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="comment">// instance running: try to pass command line to it</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="comment">// terminate this instance if this succeeds</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="comment">// (SwitchToPrevInst routine explained later)</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">SwitchToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CanStart</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Initialize</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">CreateForm</span><span class="sym">(</span><span class="ident">TForm1</span><span class="sym">,</span><span class="space"> </span><span class="ident">Form1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Run</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">Listing 4</div>
+    </div>
+
+    <p>As can be seen the application start-up code calls <var>CanStart</var> to determine whether this instance of the program should be started as normal. If <var>CanStart</var> returns true then the normal application start-up code is executed as normal. On the other hand if <var>CanStart</var> returns false then the application terminates straight away.</p>
+
+    <p>There are two circumstances under which <var>CanStart</var> returns true:</p>
+
+    <ol class="wide">
+
+        <li>When there is no other instance of the application running.</li>
+
+        <li>When there <em>is</em> another instance running but for some reason we can't pass any command line parameters on to it. In this case we start our instance as well to ensure that the command line parameters get processed.</li>
+
+    </ol>
+
+    <p>In the 2nd case we attempt to switch to the already running instance by calling the <var>SwitchToPrevInst</var> function. We will discuss this function later in the article (see <span class="figureref"><a href="#listing-11">Listing 11</a></span>). For now it suffices to know that the function activates the main window of the previous application instance and attempts to pass any command line parameters to it. <var>SwitchToPrevInst</var> returns true if this attempt succeeds and false if it fails.</p>
+
+    <p>That just about wraps up how to start a single instance of the application. Now we need find out how to pass any command line data to a previous instance.</p>
+
+    <h3 id="cmdline">Passing the command line to a previous instance</h3>
+
+    <p>When the program detects that another instance is running it must pass its command line parameters (if any) to that program before terminating itself. We will create a routine, <var>SendParamsToPrevInst</var>, to take care of this. This routine will send the parameters to the main window of the existing application instance by means of a <var>WM_COPYDATA</var> message.</p>
+
+    <h4>Passing data to another application with WM_COPYDATA</h4>
+
+    <p>This message is provided by Windows for the purpose of passing data across process boundaries (i.e. for sending data to other applications). Because the message sends data between process address spaces we have to be careful to adhere the rules governing its use. The rules are:</p>
+
+    <ol class="wide">
+
+        <li>We can't pass pointers, only actual data.</li>
+
+        <li>The sending application must allocate and free the memory required for the data.</li>
+
+        <li>The receiving application must not free the data.</li>
+
+        <li>If the receiving application needs to access the data after the message handler has returned it must copy the data to local storage while still within the handler. This is because the data's memory will be freed when the handler returns (rule 2).</li>
+
+        <li>We must use <var>SendMessage</var> and not <var>PostMessage</var> to send the message.</li>
+
+    </ol>
+
+    <p>The <var>WM_COPYDATA</var> message uses a structure of type <var>TCopyDataStruct</var> to store and describe the data to be sent. This structure has three fields:</p>
+
+    <ul>
+
+        <li><var>dwData: DWORD</var> &ndash; holds a user defined 32 bit value.</li>
+
+        <li><var>lpData: Pointer</var> &ndash; points to a user defined data block (used if more than 32 bits of data are to be sent).</li>
+
+        <li><var>cbData: DWORD</var> &ndash; is the size of the user defined data block in bytes (zero if the data block is not used).</li>
+
+    </ul>
+
+
+    <h4>SendParamsToPrevInst function</h4>
+
+    <p>As already noted, the <var>SendParamsToPrevInst</var> function is used when we have to pass command line parameters to a previous application instance. The function returns true if the receiving application processes the <var>WM_COPYDATA</var> message properly and false if the message is not handled, or if the receiving application reports an error. <span class="figureref">Listing 5</span> gives the routine's implementation.</p>
+
+    <div id="listing-5" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">SendParamsToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">CopyData</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCopyDataStruct</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">I</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">CharCount</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Data</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">PData</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">CharCount</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">CharCount</span><span class="sym">,</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">CharCount</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">Data</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">StrAlloc</span><span class="sym">(</span><span class="ident">CharCount</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">try</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="ident">PData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Data</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">      </span><span class="ident">StrPCopy</span><span class="sym">(</span><span class="ident">PData</span><span class="sym">,</span><span class="space"> </span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">      </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">PData</span><span class="sym">,</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="ident">PData</span><span class="sym">^</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">#0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="ident">CopyData</span><span class="sym">.</span><span class="ident">lpData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Data</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="ident">CopyData</span><span class="sym">.</span><span class="ident">cbData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CharCount</span><span class="space"> </span><span class="sym">*</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Char</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">    </span><span class="ident">CopyData</span><span class="sym">.</span><span class="ident">dwData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">cCopyDataWaterMark</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SendMessage</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">      </span><span class="ident">Wdw</span><span class="sym">,</span><span class="space"> </span><span class="ident">WM_COPYDATA</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="ident">LPARAM</span><span class="sym">(</span><span class="sym">@</span><span class="ident">CopyData</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">    </span><span class="ident">StrDispose</span><span class="sym">(</span><span class="ident">Data</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 5</div>
+    </div>
+
+    <p>The function first bundles the command line parameters into a single data structure. The data structure we have chosen is a #0 separated sequence of the program's parameter strings, terminated by a further #0 character. For example the three parameters:</p>
+
+    <p class="indent"><samp>'One'</samp>, <samp>'Two'</samp> and <samp>'Three'</samp></p>
+
+    <p>would be stored as</p>
+
+    <p class="indent"><samp>One#0Two#0Three#0#0</samp></p>
+
+    <p>Having allocated the required memory and stored the data we set <var>TCopyDataStruct.lpData</var> to point to it before recording the size of the data structure in <var>TCopyDataStruct.cbData</var>.</p>
+
+    <div class="callout callout-info">
+
+        <h4>Unicode strings</h4>
+
+        <p><var>SendParamsToPrevInst</var> works correctly with both ANSI and Unicode strings.</p>
+
+        <p>Note that the <var>CharCount</var> local variable counts <em>characters</em>, not <em>bytes</em>. This character count is what we need when we call <em>StrAlloc</em> to allocate storage for the parameter strings because it accepts the length of the required string in characters as its parameter.</p>
+
+        <p>However, the <var>cbData</var> field of <var>TCopyDataStruct</var> requires the size of the data in <em>bytes</em>, so we multiply <var>CharCount</var> by <var>SizeOf(Char)</var> to get the required size.</p>
+
+        <p class="alert alert-warning glyph">When Unicode strings are being used, references to the <samp>#0</samp> character above should be read as the <var>WideChar</var> zero character <samp>#00</samp>.</p>
+
+    </div>
+
+    <p>We use the <var>TCopyDataStruct.dwData</var> field to store a 32 bit <em>&quot;watermark&quot;</em> value that we use to validate the <var>WM_COPYDATA</var> message. While the use of such a watermark is not essential, it does provide a reality check on the data and indicates to the receiving application that the message and its data are legitimate. The watermark can be any 32 bit value &ndash; we use the value stored in the <var>cCopyDataWaterMark</var> constant (not defined in the listing).</p>
+
+    <p><var>SendMessage</var> is now used to send the message to the existing application's main window. The address of the <var>TCopyData</var> structure is passed as the message's <var>LParam</var>. We set the function result to <var>True</var> if the message returns 1 and <var>False</var> otherwise.</p>
+
+    <p>Finally, after <var>SendMessage</var> has returned, we free the memory used to store the command line parameters.</p>
+
+    <p>The receiving application needs to know how to extract the data from the <var>WM_COPYDATA</var> message. We discuss how to do this next.</p>
+
+
+    <h4>Handling WM_COPYDATA</h4>
+
+    <p>As well as knowing how to <em>send</em> data to other instances of itself, our application also needs to know how to handle the <var>WM_COPYDATA</var> messsage and to decode data <em>received</em> from another instance. We do this in the program's main form by writing a standard <em>Delphi</em> message handler, which is declared in the form's class declaration as per <span class="figureref">Listing 6</span>. <span class="figureref">Listing 7</span> shows the implementation of the message handler.</p>
+
+    <div id="listing-6" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WMCopyData</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWMCopyData</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">message</span><span class="space"> </span><span class="ident">WM_COPYDATA</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// ...</span></pre>
+        </div>
+        <div class="caption">Listing 6</div>
+    </div>
+
+    <div id="listing-7" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">WMCopyData</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWMCopyData</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">PData</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span><span class="space">  </span><span class="comment">// walks thru data</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Param</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="comment">// a parameter</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="comment">// check watermark is valid</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">CopyDataStruct</span><span class="sym">.</span><span class="ident">dwData</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="ident">cCopyDataWaterMark</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">raise</span><span class="space"> </span><span class="ident">Exception</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">      </span><span class="str">&apos;Invalid data structure passed in WM_COPYDATA&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="comment">// extract strings from data</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">PData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">CopyDataStruct</span><span class="sym">.</span><span class="ident">lpData</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">while</span><span class="space"> </span><span class="ident">PData</span><span class="sym">^</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="str">#0</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="ident">Param</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">PData</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="comment">// process the parameter:</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="comment">// (write this method to do required processing)</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="ident">ProcessParam</span><span class="sym">(</span><span class="ident">Param</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">PData</span><span class="sym">,</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">Param</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="comment">// set return value to indicate we handled message</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 7</div>
+    </div>
+
+    <p>This message handler processes the data referenced by the <var>TCopyDataStruct</var> data structure. The <var>WM_COPYDATA</var> message has a pointer to the record in its <var>LParam</var> field. Rather than accessing the <var>LParam</var> value directly (and type casting) we use <var>TWMCopyData</var> to &quot;crack&quot; the message record &ndash; its <var>CopyDataStruct</var> field provides easy access to the data structure.</p>
+
+    <p>We first check the watermark stored in the structure's <var>dwData</var> member, raising an exception<sup>&dagger;</sup> if it is not valid. Then we get a pointer to the #0 delimited list of parameters and walk the buffer, making a copy of each parameter before passing it to the <var>ProcessParam</var> method (which is just a placeholder for whatever processing is to be applied to each parameter). The loop ends when a terminating #0 character is found. Before returning we set the message result to <samp>1</samp> to indicate it has been handled successfully.</p>
+
+    <p class="alert alert-warning">&dagger; In production code you would want to wrap the code the <var>TForm1.WMCopyData</var> in a <span class="kwd">try &hellip; except</span> block to swallow any exceptions.</p>
+
+    <h3 id="activateprev">Activating the previous instance</h3>
+
+    <p>At the time a previous instance of an application is activated by our new instance there is no way of telling whether its main window is displayed normally, maximized, minimized or invisible. The window may be partially or fully hidden behind other windows. If it is obscured there will be no visual feedback to the user of the application they believe they started. There are various different design decisions that could be taken to handle these situations. We will opt to ensure the window it is made prominent when it is activated. If the window is shown normally or is maximised we simply bring it to the front of the z-order. If, however, the window is minimized we restore it and if it is hidden we show it.</p>
+
+    <p>When an application starts and finds there is a previous instance, the previous instance's main window is sent a custom message telling it to &quot;wake up&quot;. This message is defined in <span class="figureref">Listing 8</span>:</p>
+
+    <div id="listing-8" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">const</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">UM_ENSURERESTORED</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">WM_USER</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 8</div>
+    </div>
+
+    <p>We send this message in the <var>SwitchToPrevInst</var> routine mentioned earlier (see <span class="figureref"><a href="#listing-11">Listing 11</a></span>).</p>
+
+    <p>The receiving application must handle and act on this message. We do this in the application's main form, again using a <em>Delphi</em> message handler. The handler's declaration is shown in <span class="figureref">Listing 9</span> and it's implementation is in <span class="figureref">Listing 10</span>.</p>
+
+    <div id="listing-9" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">UMEnsureRestored</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">message</span><span class="space"> </span><span class="ident">UM_ENSURERESTORED</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// ...</span></pre>
+        </div>
+        <div class="caption">Listing 9</div>
+    </div>
+
+    <div id="listing-10" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">UMEnsureRestored</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsIconic</span><span class="sym">(</span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Restore</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">Visible</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">Visible</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">BringToFront</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">SetForegroundWindow</span><span class="sym">(</span><span class="ident">Self</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 10</div>
+    </div>
+
+    <p>In the message handler we check to see if the application is minimized and restore it if so. We then ensure that the main form is visible. Next we bring the main form to the front of the z-order before calling the <var>SetForegroundWindow</var> API function to bring our window to the fore.</p>
+
+    <div class="callout callout-info">
+
+        <h4>Using <var>Application.MainFormOnTaskbar</var></h4>
+
+        <p>If you have set <var>Application.MainFormOnTaskbar</var> to <var>True</var> in your project then change <code>IsIconic(Application.Handle)</code> to <code>IsIconic(Application.MainForm.Handle)</code> in <span class="figureref">Listing 10</span>.</p>
+
+        <p><span class="fa fa-thumbs-up fa-x-pad-right fa-pull-left"></span>Thanks to Ron Tadmor for pointing this out.</p>
+
+    </div>
+
+    <div class="callout callout-warning">
+
+        <h4>SetForegroundWindow Issues</h4>
+
+        <p>Microsoft's documentation of this function indicates that it may not always actually bring the Window to the fore &ndash; the circumstances when it may not do this are quite complex. Please check the function's <a href="https://docs.microsoft.com/en-gb/windows/win32/api/winuser/nf-winuser-setforegroundwindow">documentation on MSDN</a> for further details.</p>
+
+    </div>
+
+    <h3 id="finishing">Finishing touches</h3>
+
+    <p>It only remains to implement the <var>SwitchToPrevInst</var> function we referred to earlier in the article. This function has two main purposes:</p>
+
+    <ol>
+
+        <li>To ensure that any command line parameters are sent to the previous instance.</li>
+
+        <li>To activate the previous instance, ensuring its main window is prominently displayed.</li>
+
+    </ol>
+
+    <p>The handle of the main window of the previous application instance is passed to the function as a parameter. This handle must represent an actual window, so it can't be zero. Recall that we must return <var>True</var> if parameters are successfully sent to the previous instance and <var>False</var> on error. <span class="figureref">Listing 11</span> has the implementation of <var>SwitchToPrevInst</var>:</p>
+
+    <div id="listing-11" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">SwitchToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">Wdw</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SendParamsToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">SendMessage</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">,</span><span class="space"> </span><span class="ident">UM_ENSURERESTORED</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 11</div>
+    </div>
+
+    <p>The first thing to note is that this function returns <var>True</var> only if command line parameters were sent to the previous instance successfully or if there are no parameters to send. We use <var>SendParamsToPrevInst</var> (<span class="figureref"><a href="#listing-5">Listing 5</a></span>) to send any parameters to the previous instance. That routine also returns <var>True</var> on success so we use its return value as our result. If we have successfully transferred any command line parameters (or there are none) we must activate the previous instance. We do this by sending it a <var>UM_ENSURERESTORED</var> message. As we have seen in <span class="figureref"><a href="#listing-10">Listing 10</a></span> the previous instance must respond to this message by ensuring its main window is restored and active.</p>
+
+    <h3 id="puttingittogether">Putting it all together</h3>
+
+    <p>In this section we present the code of a skeleton <em>Delphi</em> project that draws together all the code discussed in this article. The code can be used as a template for a real application. The project comprises three modules:</p>
+
+    <ol class="wide">
+
+        <li>
+            <p><code>TemplateDemo.dpr</code> (<span class="figureref"><a href="#listing-12">Listing 12</a></span>)</p>
+            <p>A project file incorporating the required modifications to the Delphi-generated code.</p>
+        </li>
+
+        <li>
+            <p><code>FmTemplate.pas</code> (<span class="figureref"><a href="#listing-13">Listing
+                        13</a></span>)</p>
+            <p>A skeleton form unit containing the various message handlers and other necessary form code. The form itself contains no components.</p>
+        </li>
+
+        <li>
+            <p><code>UStartup.pas</code> (<span class="figureref"><a href="#listing-14">Listing 14</a></span>)</p>
+            <p>A unit containing the various functions used to manage and activate the single application instance.</p>
+        </li>
+
+    </ol>
+
+    <p>These modules are all included in the <a href="#demo">demo code</a> that accompanies this article.</p>
+
+    <div id="listing-12" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">program</span><span class="space"> </span><span class="ident">TemplateDemo</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">uses</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Forms</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Windows</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">FmTemplate</span><span class="space"> </span><span class="kwd">in</span><span class="space"> </span><span class="str">&apos;FmTemplate.pas&apos;</span><span class="space"> </span><span class="comment">{Form1}</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">UStartup</span><span class="space"> </span><span class="kwd">in</span><span class="space"> </span><span class="str">&apos;UStartup.pas&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="preproc">{$R *.res}</span></pre>
+            <pre class="line"><span class="linenum"> 10</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">function</span><span class="space"> </span><span class="ident">CanStart</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="ident">Wdw</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FindDuplicateMainWdw</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Wdw</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">SwitchToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CanStart</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Initialize</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">CreateForm</span><span class="sym">(</span><span class="ident">TForm1</span><span class="sym">,</span><span class="space"> </span><span class="ident">Form1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Run</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">Listing 12</div>
+    </div>
+
+    <div id="listing-13" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">unit</span><span class="space"> </span><span class="ident">FmTemplate</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">uses</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Windows</span><span class="sym">,</span><span class="space"> </span><span class="ident">Messages</span><span class="sym">,</span><span class="space"> </span><span class="ident">SysUtils</span><span class="sym">,</span><span class="space"> </span><span class="ident">Controls</span><span class="sym">,</span><span class="space"> </span><span class="ident">Forms</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">UStartup</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">TForm1</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TForm</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">ProcessParam</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Param</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">UMEnsureRestored</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">      </span><span class="kwd">message</span><span class="space"> </span><span class="ident">UM_ENSURERESTORED</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WMCopyData</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWMCopyData</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">      </span><span class="kwd">message</span><span class="space"> </span><span class="ident">WM_COPYDATA</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">CreateParams</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Params</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCreateParams</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">      </span><span class="kwd">override</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="kwd">public</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="ident">Form1</span><span class="sym">:</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 28</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="preproc">{$R *.dfm}</span></pre>
+            <pre class="line"><span class="linenum"> 30</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="comment">{ TForm1 }</span></pre>
+            <pre class="line"><span class="linenum"> 32</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">CreateParams</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Params</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCreateParams</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">  </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="ident">StrCopy</span><span class="sym">(</span><span class="ident">Params</span><span class="sym">.</span><span class="ident">WinClassName</span><span class="sym">,</span><span class="space"> </span><span class="ident">cWindowClassName</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 38</span></pre>
+            <pre class="line"><span class="linenum"> 39</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 40</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 41</span><span class="space">  </span><span class="ident">I</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 42</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 43</span><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 44</span><span class="space">    </span><span class="ident">ProcessParam</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 45</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 46</span></pre>
+            <pre class="line"><span class="linenum"> 47</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ProcessParam</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Param</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 48</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 49</span><span class="space">  </span><span class="comment">{ TODO : Code to process a parameter }</span></pre>
+            <pre class="line"><span class="linenum"> 50</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 51</span></pre>
+            <pre class="line"><span class="linenum"> 52</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">UMEnsureRestored</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 53</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 54</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsIconic</span><span class="sym">(</span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 55</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Restore</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 56</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">Visible</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 57</span><span class="space">    </span><span class="ident">Visible</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 58</span><span class="space">  </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">BringToFront</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 59</span><span class="space">  </span><span class="ident">SetForegroundWindow</span><span class="sym">(</span><span class="ident">Self</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 60</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 61</span></pre>
+            <pre class="line"><span class="linenum"> 62</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">WMCopyData</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWMCopyData</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 63</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 64</span><span class="space">  </span><span class="ident">PData</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 65</span><span class="space">  </span><span class="ident">Param</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 66</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 67</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">CopyDataStruct</span><span class="sym">.</span><span class="ident">dwData</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="ident">cCopyDataWaterMark</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 68</span><span class="space">    </span><span class="kwd">raise</span><span class="space"> </span><span class="ident">Exception</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 69</span><span class="space">      </span><span class="str">&apos;Invalid data structure passed in WM_COPYDATA&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 70</span><span class="space">    </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 71</span><span class="space">  </span><span class="ident">PData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">CopyDataStruct</span><span class="sym">.</span><span class="ident">lpData</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 72</span><span class="space">  </span><span class="kwd">while</span><span class="space"> </span><span class="ident">PData</span><span class="sym">^</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="str">#0</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 73</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 74</span><span class="space">    </span><span class="ident">Param</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">PData</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 75</span><span class="space">    </span><span class="ident">ProcessParam</span><span class="sym">(</span><span class="ident">Param</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 76</span><span class="space">    </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">PData</span><span class="sym">,</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">Param</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 77</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 78</span><span class="space">  </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 79</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 80</span></pre>
+            <pre class="line"><span class="linenum"> 81</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">Listing 13</div>
+    </div>
+
+    <div id="listing-14" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">unit</span><span class="space"> </span><span class="ident">UStartup</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">uses</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Windows</span><span class="sym">,</span><span class="space"> </span><span class="ident">Messages</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">const</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="comment">// Name of main window class</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">cWindowClassName</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="str">&apos;DelphiDabbler.SingleApp.Demo&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="comment">// Any 32 bit number here to perform check on copied data</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">cCopyDataWaterMark</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$DE1F1DAB</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="comment">// User window message handled by main form ensures that</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="comment">// app not minimized or hidden and is in foreground</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="ident">UM_ENSURERESTORED</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">WM_USER</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">function</span><span class="space"> </span><span class="ident">FindDuplicateMainWdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="kwd">function</span><span class="space"> </span><span class="ident">SwitchToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 21</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">uses</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="ident">SysUtils</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="kwd">function</span><span class="space"> </span><span class="ident">SendParamsToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="ident">CopyData</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCopyDataStruct</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="ident">I</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="ident">CharCount</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="ident">Data</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">  </span><span class="ident">PData</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">  </span><span class="ident">CharCount</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">    </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">CharCount</span><span class="sym">,</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">CharCount</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="space">  </span><span class="ident">Data</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">StrAlloc</span><span class="sym">(</span><span class="ident">CharCount</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 38</span><span class="space">  </span><span class="kwd">try</span></pre>
+            <pre class="line"><span class="linenum"> 39</span><span class="space">    </span><span class="ident">PData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Data</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 40</span><span class="space">    </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 41</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 42</span><span class="space">      </span><span class="ident">StrPCopy</span><span class="sym">(</span><span class="ident">PData</span><span class="sym">,</span><span class="space"> </span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 43</span><span class="space">      </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">PData</span><span class="sym">,</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 44</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 45</span><span class="space">    </span><span class="ident">PData</span><span class="sym">^</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">#0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 46</span><span class="space">    </span><span class="ident">CopyData</span><span class="sym">.</span><span class="ident">lpData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Data</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 47</span><span class="space">    </span><span class="ident">CopyData</span><span class="sym">.</span><span class="ident">cbData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CharCount</span><span class="space"> </span><span class="sym">*</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Char</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 48</span><span class="space">    </span><span class="ident">CopyData</span><span class="sym">.</span><span class="ident">dwData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">cCopyDataWaterMark</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 49</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SendMessage</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 50</span><span class="space">      </span><span class="ident">Wdw</span><span class="sym">,</span><span class="space"> </span><span class="ident">WM_COPYDATA</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="ident">LPARAM</span><span class="sym">(</span><span class="sym">@</span><span class="ident">CopyData</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 51</span><span class="space">    </span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 52</span><span class="space">  </span><span class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 53</span><span class="space">    </span><span class="ident">StrDispose</span><span class="sym">(</span><span class="ident">Data</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 54</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 55</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 56</span></pre>
+            <pre class="line"><span class="linenum"> 57</span><span class="kwd">function</span><span class="space"> </span><span class="ident">FindDuplicateMainWdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 58</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 59</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FindWindow</span><span class="sym">(</span><span class="ident">cWindowClassName</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 60</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 61</span></pre>
+            <pre class="line"><span class="linenum"> 62</span><span class="kwd">function</span><span class="space"> </span><span class="ident">SwitchToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 63</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 64</span><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">Wdw</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 65</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 66</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SendParamsToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 67</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 68</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 69</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 70</span><span class="space">    </span><span class="ident">SendMessage</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">,</span><span class="space"> </span><span class="ident">UM_ENSURERESTORED</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 71</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 72</span></pre>
+            <pre class="line"><span class="linenum"> 73</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">Listing 14</div>
+    </div>
+
+    <p>The above approach to the problem works and provides a template for use in any application. However the source code needs to be ammended for each application. This is crying out for a reusable, preferably object oriented, solution &ndash; but can we find one?</p>
+
+    <p>Well partly! In the next section we develop at an object oriented solution that, while still requiring some modification of the main form and project file, does at least move most of the code to an extensible class.</p>
+
+</section>
+
+<section id="oop">
+
+    <h2>An object oriented solution</h2>
+
+    <h3 id="overviewoop">Overview</h3>
+
+    <p>In this section we present an object oriented, extensible, solution to our problem. Most of the solution's code can be found in a unit named <code>USingleInst.pas</code>.</p>
+
+    <p>Our solution hinges around a singleton object, of base type <var>TSingleInst</var>, that determines whether or not an application is the only instance running. If there is already an instance of the application running when a second copy is started the object passes the second copy's command line to the original instance before terminating the second copy. The object also names the main form's window class and can supply a watermark to be used to test the integrity of <var>WM_COPYDATA</var> messages.
+    </p>
+
+    <p>Users are expected to override <var>TSingleInst</var> in order to provide a suitably strong window class name for the main form and, optionally, to provide a watermark. We must register the newly derived class so that a singleton of the correct type can be created. We will provide a routine, <var>RegisterSingleInstClass</var>, to perform the registration. Our singleton is always accessed via the <var>SingleInst</var> function, which creates the object the first time the function is called. It is apparent, therefore, that we must register our <var>TSingleInst</var> descendant before we access the singleton for the first time. The safest way to accomplish this is by placing our call to <var>RegisterSingleInstClass</var> in the initialization section of the unit where the derived class is implemented.</p>
+
+    <p>Minimal modifications must still be made to the application's project file and the main form. In each case we simply call one of the singletion object's methods.</p>
+
+    <p>To summarise then, the procedure for enabling single application instance support in a project using <code>USingleInst.pas</code> is as follows:</p>
+
+    <ul class="wide">
+
+        <li>Add <code>USingleInst.pas</code> to the project.</li>
+
+        <li>Create a new class derived from <var>TSingleInst</var> and override the methods that return the window class name and the watermark.</li>
+
+        <li>Register the new class as the one to be used when creating the <var>SingleInst</var> singleton object by adding a call to <var>RegisterSingleInstClass</var> in the initialization section of the derived class's unit.</li>
+
+        <li>Modify the main form and project sources to call relevant methods in the <var>SingleInst</var> object.</li>
+
+    </ul>
+
+    <p>In the rest of this section we will first review the <var>USingleInst</var> unit, then look at how to derive and register a <var>TSingleInst</var> descendant class. Finally we will describe the changes to be made to the project and main form source files.</p>
+
+    <h3 id="usingleinst">The USingleInst unit</h3>
+
+    <p>The full source of this unit is included in the <a href="#demo">demo project</a> that accompanies this article.</p>
+
+    <p>Let us begin with an examination of <span class="figureref">Listing 15</span>, where the interface part of the unit is presented.</p>
+
+    <div id="listing-15" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">unit</span><span class="space"> </span><span class="ident">USingleInst</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">uses</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Windows</span><span class="sym">,</span><span class="space"> </span><span class="ident">Controls</span><span class="sym">,</span><span class="space"> </span><span class="ident">Messages</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">TSingleInstParamHandler</span><span class="space"> </span><span class="sym">=</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">procedure</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Param</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="space"> </span><span class="kwd">of</span><span class="space"> </span><span class="kwd">object</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">TSingleInstClass</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="space"> </span><span class="kwd">of</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">TSingleInst</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TObject</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">fOnProcessParam</span><span class="sym">:</span><span class="space"> </span><span class="ident">TSingleInstParamHandler</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">fEnsureRestoreMsg</span><span class="sym">:</span><span class="space"> </span><span class="ident">UINT</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">WdwClassName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="kwd">virtual</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">WaterMark</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="kwd">virtual</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">FindDuplicateMainWdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span><span class="space"> </span><span class="kwd">virtual</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">SendParamsToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">      </span><span class="kwd">virtual</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">SwitchToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">EnsureRestore</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">      </span><span class="kwd">dynamic</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WMCopyData</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">dynamic</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="kwd">public</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">    </span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">CreateParams</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Params</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCreateParams</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">HandleMessages</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">      </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">CanStartApp</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnProcessParam</span><span class="sym">:</span><span class="space"> </span><span class="ident">TSingleInstParamHandler</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">      </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnProcessParam</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnProcessParam</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span></pre>
+            <pre class="line"><span class="linenum"> 38</span><span class="kwd">function</span><span class="space"> </span><span class="ident">SingleInst</span><span class="sym">:</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 39</span></pre>
+            <pre class="line"><span class="linenum"> 40</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">RegisterSingleInstClass</span><span class="sym">(</span><span class="ident">Cls</span><span class="sym">:</span><span class="space"> </span><span class="ident">TSingleInstClass</span><span class="sym">)</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 15</div>
+    </div>
+
+    <p><var>TSingleInstParamHandler</var> is the type of the <var>OnProcessParam</var> event discussed below. <var>TSingleInstClass</var> is the class type of <var>TSingleInst</var> and any derived classes.</p>
+
+    <p>Moving on to the <var>TSingleInst</var> class, we have two fields:</p>
+
+    <ol class="wide">
+
+        <li><var>fOnProcessParam</var> &ndash; stores the user defined handler for the <var>OnProcessParam</var> event. This event is triggered once for each parameter that was passed to the application via a <var>WM_COPYDATA</var> message.</li>
+
+        <li><var>fEnsureRestoreMsg</var> &ndash; stores the id of a custom message used to ask an application to restore and display its main window. The message id is provided by Windows and guaranteed to be unique. Unfortunately, because the message is not a constant we can't use a Delphi message method to handle it. Instead we have to resort to intercepting messages from the message loop (see later).</li>
+
+    </ol>
+
+    <p>The methods of <var>TSingleInst</var> will be discussed in detail as we review their implementation.</p>
+
+    <p>Following the <var>TSingleInst</var> declaration, we declare two functions, both of which we have already discussed in the <a href="#overviewoop">Overview</a>:</p>
+
+    <ol class="wide">
+
+        <li><var>SingleInst</var> &ndash; used to return an instance of the required <var>TSingleInst</var> (or descendant) singleton object.</li>
+
+        <li><var>RegisterSingleInstClass</var> &ndash; called to register the <var>TSingleInst</var> descendant class that is to be used to ceate the singleton.</li>
+
+    </ol>
+
+    <p>The source code for these functions, along with the declaration of two global variables required by the functions, is shown in <span class="figureref">Listing 16</span>.</p>
+
+    <div id="listing-16" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">uses</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">SysUtils</span><span class="sym">,</span><span class="space"> </span><span class="ident">Forms</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="comment">// Globals storing singleton and class of SingleInst</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">gSingleInst</span><span class="sym">:</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">gSingleInstClass</span><span class="sym">:</span><span class="space"> </span><span class="ident">TSingleInstClass</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">function</span><span class="space"> </span><span class="ident">SingleInst</span><span class="sym">:</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">gSingleInst</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">gSingleInstClass</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">      </span><span class="ident">gSingleInst</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">gSingleInstClass</span><span class="sym">.</span><span class="ident">Create</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">      </span><span class="ident">gSingleInst</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">gSingleInst</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">RegisterSingleInstClass</span><span class="sym">(</span><span class="ident">Cls</span><span class="sym">:</span><span class="space"> </span><span class="ident">TSingleInstClass</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="ident">gSingleInstClass</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Cls</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 16</div>
+    </div>
+
+    <p>The private global variables <var>gSingleInst</var> and <var>gSingleInstClass</var> store a reference to the singleton object and the type of the singleton object respectively.</p>
+
+    <div class="callout callout-info">
+
+        <h4>Class variables</h4>
+
+        <p>In later versions of Delphi, <var>gSingleInst</var> and <var>gSingleInstClass</var> could be made into class variables of type <var>TSingleInst</var> and the functions could become class methods.</p>
+
+    </div>
+
+    <p>As already noted, <var>SingleInst</var> creates the singleton object the first time the function is referenced. If a derived class has been registered then this class is used to create the singleton, otherwise the base class is used. <var>RegisterSingleInstClass</var> simply stores the class reference passed to it.</p>
+
+    <p>Moving on to the class definition, we first look at the constructor which simply registers the custom message with Windows, as <span class="figureref">Listing 17</span> reveals.</p>
+
+    <div id="listing-17" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">fEnsureRestoreMsg</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">RegisterWindowMessage</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="str">&apos;USINGLEINST_ENSURERESTORE&apos;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 17</div>
+    </div>
+
+    <p>There are various &quot;entry points&quot; into the class that must be called from either the main unit or the project file. <span class="figureref">Listing 18</span> has the details:</p>
+
+    <div id="listing-18" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">CanStartApp</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Wdw</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FindDuplicateMainWdw</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Wdw</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">SwitchToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">CreateParams</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Params</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCreateParams</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="ident">StrPLCopy</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">Params</span><span class="sym">.</span><span class="ident">WinClassName</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="ident">WdwClassName</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Params</span><span class="sym">.</span><span class="ident">WinClassName</span><span class="sym">)</span><span class="space"> </span><span class="kwd">div</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Char</span><span class="sym">)</span><span class="space"> </span><span class="sym">-</span><span class="space"> </span><span class="num">1</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">HandleMessages</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">Msg</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">WM_COPYDATA</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">    </span><span class="ident">WMCopyData</span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">  </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">Msg</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">fEnsureRestoreMsg</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">    </span><span class="ident">EnsureRestore</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">,</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">False</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 38</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 18</div>
+    </div>
+
+    <p>The first of these &quot;entry points&quot; is <var>CanStartApp</var> which is called from the project file and indicates whether the application should be started or not. It works in a very similar way to the <var><a href="#listing-4">CanStart</a></var> function we saw earlier.</p>
+
+    <p>The <var>CreateParams</var> method sets up the main form's window class name by updating the form's window creation parameters. The main form must override its inherited <var>TForm.CreateParams</var> method and call <var>SingleInst.CreateParams</var> from within that method.</p>
+
+    <p>The most complex of the &quot;entry point&quot; methods is the <var>HandleMessages</var> method. This intercepts <var>WM_COPYDATA</var> and the custom <var>fEnsureRestoreMsg</var> messages from the main form and handles the processing by delegating to <var>WMCopyData</var> and <var>EnsureRestore</var> respectively. This method returns true if it handles a message and false otherwise. The main form must override the <var>TForm.WndProc</var> method and call <var>SingleInst.HandleMessages</var> from there, calling its inherited <var>TForm.WndProc</var> method if <var>HandleMessages</var> returns false.</p>
+
+    <p>Let us now examine the protected helper methods. Firstly, <span class="figureref">Listing 19</span> shows two methods that <em>should</em> be overridden in descendant classes:</p>
+
+    <div id="listing-19" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">WdwClassName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;SingleInst.MainWdw&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">WaterMark</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 19</div>
+    </div>
+
+    <p><var>WdwClassName</var> simply returns the name of the main form's window class. This <em>should</em> be overridden to return some unique value to the application. Similarly, <var>Watermark</var> returns 0. Again, this method <em>should</em> be overridden to return some unusual value if watermarks are to be used.</p>
+
+    <p>Next up, in <span class="figureref">Listing 20</span>, are two methods that assist in handling messages intercepted in the main form:</p>
+
+    <div id="listing-20" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">EnsureRestore</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsIconic</span><span class="sym">(</span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Restore</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">Application</span><span class="sym">.</span><span class="ident">MainForm</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">and</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">MainForm</span><span class="sym">.</span><span class="ident">Visible</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">MainForm</span><span class="sym">.</span><span class="ident">Visible</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">BringToFront</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">SetForegroundWindow</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">WMCopyData</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="ident">PData</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="ident">Param</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">TWMCopyData</span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">)</span><span class="sym">.</span><span class="ident">CopyDataStruct</span><span class="sym">.</span><span class="ident">dwData</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">WaterMark</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="ident">PData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TWMCopyData</span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">)</span><span class="sym">.</span><span class="ident">CopyDataStruct</span><span class="sym">.</span><span class="ident">lpData</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">while</span><span class="space"> </span><span class="ident">PData</span><span class="sym">^</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="str">#0</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">      </span><span class="ident">Param</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">PData</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">      </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">fOnProcessParam</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">        </span><span class="ident">fOnProcessParam</span><span class="sym">(</span><span class="ident">Param</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">      </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">PData</span><span class="sym">,</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">Param</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">    </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">    </span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 20</div>
+    </div>
+
+    <p> Notice that these methods are based closely on the <var>UMEnsureRestored</var> and <var>WMCopyData</var> message handler methods that were discussed earlier. Note though that the methods are no longer message handlers &ndash; they are now dynamic methods. There are other changes to the methods that should be noted:</p>
+
+    <ol class="wide">
+
+        <li><var>EnsureRestore</var> is now passed a handle to the window to be brought to the foreground. (this will be the window handle of the main form).</li>
+
+        <li><var>WMCopyData</var> now triggers the <var>OnProcessParam</var> event rather than calling a hard-wired method to process parameters.</li>
+
+    </ol>
+
+    <p>Finally we examine the three remaining protected methods:</p>
+
+    <div id="listing-21" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">FindDuplicateMainWdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FindWindow</span><span class="sym">(</span><span class="ident">PChar</span><span class="sym">(</span><span class="ident">WdwClassName</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">SendParamsToPrevInst</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">CopyData</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCopyDataStruct</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">I</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">CharCount</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Data</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">PData</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="ident">CharCount</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">CharCount</span><span class="sym">,</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">CharCount</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="ident">Data</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">StrAlloc</span><span class="sym">(</span><span class="ident">CharCount</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="kwd">try</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="ident">PData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Data</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">      </span><span class="ident">StrPCopy</span><span class="sym">(</span><span class="ident">PData</span><span class="sym">,</span><span class="space"> </span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">      </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">PData</span><span class="sym">,</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="num">1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="ident">PData</span><span class="sym">^</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">#0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">    </span><span class="ident">CopyData</span><span class="sym">.</span><span class="ident">lpData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Data</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">    </span><span class="ident">CopyData</span><span class="sym">.</span><span class="ident">cbData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CharCount</span><span class="space"> </span><span class="sym">*</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Char</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">    </span><span class="ident">CopyData</span><span class="sym">.</span><span class="ident">dwData</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">WaterMark</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SendMessage</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">      </span><span class="ident">Wdw</span><span class="sym">,</span><span class="space"> </span><span class="ident">WM_COPYDATA</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="ident">LPARAM</span><span class="sym">(</span><span class="sym">@</span><span class="ident">CopyData</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">    </span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space">  </span><span class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">    </span><span class="ident">StrDispose</span><span class="sym">(</span><span class="ident">Data</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 38</span></pre>
+            <pre class="line"><span class="linenum"> 39</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TSingleInst</span><span class="sym">.</span><span class="ident">SwitchToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 40</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 41</span><span class="space">  </span><span class="ident">Assert</span><span class="sym">(</span><span class="ident">Wdw</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 42</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 43</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SendParamsToPrevInst</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 44</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 45</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">True</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 46</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 47</span><span class="space">    </span><span class="ident">SendMessage</span><span class="sym">(</span><span class="ident">Wdw</span><span class="sym">,</span><span class="space"> </span><span class="ident">fEnsureRestoreMsg</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 48</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 21</div>
+    </div>
+
+    <p>These methods are analogues of the routines of the same name in the <a href="#first-attempt">previous section</a>, with the following differences:</p>
+
+    <ul class="wide">
+
+        <li><var>FindDuplicateMainWdw</var> gets the the name of the required window class from the <var>WdwClassName</var> method rather than a constant.</li>
+
+        <li><var>SendParamsToPrevInst</var> gets its watermark from the <var>Watermark</var> method rather than a constant.</li>
+
+        <li><var>SwitchToPrevInst</var> sends the registered message identified by <var>fEnsureRestoreMsg</var> to the main form window rather the hard-wired <var>UM_ENSURERESTORED</var> message.</li>
+
+    </ul>
+
+
+    <h3 id="modprj">Modifications to the project file</h3>
+
+    <p>We must make a simple change to the project file so that it calls the <var>CanStartApp</var> method of the <var>SingleInst</var> singleton object to check whether the application can be started. First of all add <var>USingleInst</var> to the project then change the project file as shown in <span class="figureref">Listing 22</span>:</p>
+
+    <div id="listing-22" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="sym">..</span><span class="sym">.</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">SingleInst</span><span class="sym">.</span><span class="ident">CanStartApp</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Initialize</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">CreateForm</span><span class="sym">(</span><span class="ident">TForm1</span><span class="sym">,</span><span class="space"> </span><span class="ident">Form1</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">Application</span><span class="sym">.</span><span class="ident">Run</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">Listing 22</div>
+    </div>
+
+    <h3 id="modmain">Modifications to the main form</h3>
+
+    <p>Slightly more work needs to be done in the main form unit. First, add the following declarations to the form class's protected section:</p>
+
+    <div id="listing-23" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WndProc</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">CreateParams</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">      </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Params</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCreateParams</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 23</div>
+    </div>
+
+    <p>Now implement these methods to call into <var>SingleInst</var> as per <span class="figureref">Listing 24</span>:</p>
+
+    <div id="listing-24" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">CreateParams</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Params</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCreateParams</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">SingleInst</span><span class="sym">.</span><span class="ident">CreateParams</span><span class="sym">(</span><span class="ident">Params</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">WndProc</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TMessage</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">SingleInst</span><span class="sym">.</span><span class="ident">HandleMessages</span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 24</div>
+    </div>
+
+    <p><var>CreateParams</var> calls its ancestor method then calls <var>SingleInst.CreateParams</var>. This method sets the window class name.</p>
+
+    <p>The overridden <var>WndProc</var> method calls <var>SingleInst.HandleMessages</var> which checks if the message is one of those handled by <var>SingleInst</var>. The method returns true if the message was handled and false otherwise. If the message was not handled then the message is passed to the forms's inherited <var>WndProc</var> method.</p>
+
+    <p>We also need to handle the <var>TSingleInst.OnProcessParam</var> event so the application gets notified when parameters are passed to it via the <var>WM_COPYDATA</var> message. We define a new method, <var>HandleParam</var> to handle this event. This method is declared in the form's protected section as per <span class="figureref">Listing 25</span>:</p>
+
+    <div id="listing-25" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">HandleParam</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Param</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 25</div>
+    </div>
+
+    <p><var>HandleParam</var> is where we add whatever processing we wish to do with the parameters. For example, if we just wanted to display the parameters in a list box (say <var>ListBox1</var>), we could implement the method as follows:</p>
+
+    <div id="listing-26" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">HandleParam</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Param</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">ListBox1</span><span class="sym">.</span><span class="ident">Items</span><span class="sym">.</span><span class="ident">Add</span><span class="sym">(</span><span class="ident">Param</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 26</div>
+    </div>
+
+    <p>We assign the event handler in <var>FormCreate</var>, where we also process any parameters passed to the program when it first starts:</p>
+
+    <div id="listing-27" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">I</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">SingleInst</span><span class="sym">.</span><span class="ident">OnProcessParam</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">HandleParam</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">1</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">ParamCount</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">HandleParam</span><span class="sym">(</span><span class="ident">ParamStr</span><span class="sym">(</span><span class="ident">I</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 27</div>
+    </div>
+
+
+    <h3 id="override">Overriding TSingleInst</h3>
+
+    <p>We now look at an example of how to override <var>TSingleInst</var>. The base class was designed so that we only need to override the <var>WdwClassName</var> and <var>Watermark</var> methods to provide a unique windows class name and stronger watermark.</p>
+
+    <p>The whole unit (<code>UMySingleInst.pas</code>) is listed below. The only point of note is how the new class is registered so that it is used to create the <var>SingleInst</var> singleton object.</p>
+
+    <div id="listing-28" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">unit</span><span class="space"> </span><span class="ident">UMySingleInst</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">interface</span></pre>
+            <pre class="line"><span class="linenum">  4</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">uses</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Windows</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">USingleInst</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">TMySingleInst</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TSingleInst</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">WdwClassName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">WaterMark</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="kwd">implementation</span></pre>
+            <pre class="line"><span class="linenum"> 17</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="comment">{ TMySingleInst }</span></pre>
+            <pre class="line"><span class="linenum"> 19</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TMySingleInst</span><span class="sym">.</span><span class="ident">WaterMark</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="hex">$DE1F1DAB</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TMySingleInst</span><span class="sym">.</span><span class="ident">WdwClassName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;DelphiDabbler.SingleInst.1&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="kwd">initialization</span></pre>
+            <pre class="line"><span class="linenum"> 31</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="comment">// Make sure we use this class for the singleton</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="ident">RegisterSingleInstClass</span><span class="sym">(</span><span class="ident">TMySingleInst</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">Listing 28</div>
+    </div>
+
+    <p>And that completes the presentation of the object oriented solution.</p>
+
+</section>
+
+<section id="demo">
+
+    <h2>Demonstration code</h2>
+
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
+
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-13">article-13</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
+
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-13/README.md">README.md</a> file for details.</p>
+
+    <div class="callout callout-info">
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-13/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
+    </div>
+
+</section>
+
+<section id="conclusion">
+
+    <h2>Conclusion</h2>
+
+    <p>This article has demonstrated how to ensure that only a single instance of an application is run. We have also shown how to pass command line parameters to an already running instance, ensuring its window is displayed prominently.</p>
+
+    <p>We detected previous instances by searching for the application's main window class among the top level windows. Communication with a previous instance was by means of messages sent to the instance's main window. In particular, a user defined message was used to ensure the window was restored and visible and the <var>WM_COPYDATA</var> message was used to send the command line parameters across the process boundary.</p>
+
+    <p>Skeletal source code for an application that runs as a single instance was developed. A reusable class was then presented that can be used in developing such a program.</p>
+
+    <p>Demonstration code incorporating the source code developed in the article was made available.</p>
+
+</section>
+
+<section id="feedback">
+
+    <h2>Feedback</h2>
+
+    <p>I hope you enjoyed this article and found it useful.</p>
+
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+
+    <ol class="wide">
+
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>. You <strong>must</strong> mention that the issue relates to <code>article-13</code>.</li>
+
+        <li>For bugs in the demo code see the demo's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> for details of how to report them.</li>
+
+    </ol>
+
+</section>
