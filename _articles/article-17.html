@@ -4,10 +4,324 @@ title: "How to set a component's default event handler"
 summary: "When you double click many components at design time Delphi creates an empty event handler for the default event. Sometimes you need to specify a different default event than that used by Delphi. Here's how."
 meta-title: "How to set a Delphi Pascal component's default event handler"
 meta-desc: "An article about how to override the behaviour a Delphi Pascal component's default double-click event handler within the form designer."
-demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-17"
-pages: 1
-offsite: 1
 index: true
 redirect_from:
 - /articles/17
 ---
+<aside>
+    <div class="callout callout-warning para">
+        <p>Delphi 7 was used to create and test the examples in this article. I've not checked whether the code works on later versions.</p>
+        <p>There is some information about default event handlers in the Delphi 7 help file, but the example provided is incorrect. Whether this has been fixed by now I don't know.</p>
+        <p>If you can add any up to date information please let me know - see the <a href="#feedback">Feedback</a> section to find out how.</p>
+    </div>
+</aside>
+
+<section id="why">
+
+    <h2>Why this article?</h2>
+
+    <p>When you double click most Delphi components at design time the IDE automatically creates an empty event handler for the default event. Sometimes you need a different event to be used as the default. The purpose of this article is to explain how to do this.</p>
+
+    <p>Let's make this a little more concrete by considering these three components:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TCompA</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TComponent</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">fOnFoo</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">fOnBar</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">fOnClick</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">fOnChange</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">fOnChanged</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">fOnCreate</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">published</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnFoo</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnFoo</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnFoo</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnBar</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnBar</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnBar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnChange</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnChange</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnChange</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnChanged</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnChanged</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnChanged</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnClick</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnClick</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnClick</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnCreate</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnCreate</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnCreate</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="ident">TCompB</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TComponent</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="ident">fOnFoo</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="ident">fOnBar</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">    </span><span class="ident">fOnChange</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="kwd">published</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnFoo</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnFoo</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnFoo</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnBar</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnBar</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnBar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnChange</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnChange</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnChange</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="ident">TCompC</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TComponent</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">  </span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">    </span><span class="ident">fOnFoo</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">    </span><span class="ident">fOnBar</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space">  </span><span class="kwd">published</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnFoo</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnFoo</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnFoo</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">OnBar</span><span class="sym">:</span><span class="space"> </span><span class="ident">TNotifyEvent</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">fOnBar</span><span class="space"> </span><span class="kwd">write</span><span class="space"> </span><span class="ident">fOnBar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 1</div>
+    </div>
+
+    <p>Double clicking the components in the Delphi IDE creates the following event handlers:</p>
+
+    <ul>
+        <li><var>TCompA.OnCreate</var></li>
+        <li><var>TCompB.OnChange</var></li>
+        <li><var>TCompC.OnBar</var></li>
+    </ul>
+
+    <p>Suppose we want the <var>OnFoo</var> event to be created in all cases? We'll find out how to do this in the course of this article.</p>
+
+</section>
+
+<section id="background">
+
+    <h2>Some background</h2>
+
+    <p>Before we can solve our problem we need to examine how Delphi 7 decides which event to use as the default. (Things are a subtly different in Delphi 4 &ndash; as we'll see <a href="#delphi4">later</a>).</p>
+
+    <p>When a component is double clicked, Delphi calls the <var>Edit</var> method of the registered component editor. The default component editor is <var>TDefaultEditor</var> and it is this editor that is responsible for creating the event handler. Let's examine how <var>TDefaultEditor.Edit</var> decides on the the default event.</p>
+
+    <p>Through a round about process, the <var>Edit</var> method ultimately calls the <var>TDefaultEditor.EditProperty</var> method once for each of the component's properties. Rather than pass a reference to the property itself to <var>EditProperty</var>, it is a reference to the associated <em>property editor</em> that is actually passed. <var>EditProperty</var> checks the name of each event property and records the property editor of the preferred event. These events, in order of preference, are:</p>
+
+    <ul>
+        <li><var>OnCreate</var></li>
+        <li><var>OnChange</var></li>
+        <li><var>OnChanged</var></li>
+        <li><var>OnClick</var></li>
+        <li>the first event alphabetically</li>
+    </ul>
+
+    <p>This means that if <var>OnCreate</var> is present it is used as the default. If it is not present then <var>OnChange</var> is used, and so on. If none of the listed events is present then the event that is first alphabetically is used.</p>
+
+</section>
+
+<section id="override-default">
+
+    <h2>Overriding the default behaviour</h2>
+
+    <p>From the discussion above it is clear that if we are to specify the default event ourselves we need to change the way that <var>TDefaultEditor.EditProperty</var> works. Luckily for us this method is virtual, so we can subclass <var>TDefaultEditor</var> and override <var>EditProperty</var>. The new class can be declared very simply as follows:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TMyCompEditor</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TDefaultEditor</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">EditProperty</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">PropertyEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">IProperty</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">      </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Continue</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 2</div>
+    </div>
+
+    <p>The implementation is equally straightforward:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TMyCompEditor</span><span class="sym">.</span><span class="ident">EditProperty</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">PropertyEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">IProperty</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Continue</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="comment">// only call inherited method if required event name found</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CompareText</span><span class="sym">(</span><span class="ident">PropertyEditor</span><span class="sym">.</span><span class="ident">GetName</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;OnFoo&apos;</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 3</div>
+    </div>
+
+    <p>Let's look at how this works. Recall that, in the base class, <var>TDefaultEditor.EditProperty</var> was called once for each property in the component. The method chose the default event from all those it was passed. Now, if <var>TDefaultEditor.EditProperty</var> was only called once then the default event must be the one whose property editor was passed in that single call.</p>
+
+    <p>Our overridden method works by ensuring that the inherited method <strong>is</strong> only called once &ndash; for the event we want to be the default. In our descendant class, it is <var>TMyCompEditor.EditProperty</var> that is called for each property in the component. The method simply checks for a property editor whose property has the required name (<code>'OnFoo'</code>) and passes that property editor &ndash; and only that property editor &ndash; to the inherited method. And viol&aacute; &ndash; <var>OnFoo</var> is the default event!</p>
+
+</section>
+
+<section id="reusable-solution">
+
+    <h2>A reusable solution</h2>
+
+    <p>In the code we developed in the previous section we hard-wired the name of the default event.</p>
+
+    <p>Our next job is to generalize the solution to make the code easier to re-use. Since the classes are distinguished only by the name of the default event they select, we will develop a base class that has an abstract method that descendants override to return the name of the required event.</p>
+
+    <p>Here is the declaration of the base class:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TCompEditorBase</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TDefaultEditor</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DefaultEventName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="kwd">virtual</span><span class="sym">;</span><span class="space"> </span><span class="kwd">abstract</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">      </span><span class="comment">{ override to return name of default event }</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">EditProperty</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">PropertyEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">IProperty</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">      </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Continue</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">      </span><span class="comment">{ records property editor of default event }</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 4</div>
+    </div>
+
+    <p>The implementation should come as no surprise &ndash; we simply replace the hard-wired name in the earlier class with a call to the abstract method:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TCompEditorBase</span><span class="sym">.</span><span class="ident">EditProperty</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">PropertyEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">IProperty</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Continue</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CompareText</span><span class="sym">(</span><span class="ident">PropertyEditor</span><span class="sym">.</span><span class="ident">GetName</span><span class="sym">,</span><span class="space"> </span><span class="ident">DefaultEventName</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 5</div>
+    </div>
+
+    <p>We can now implement a component editor for a specific default event &ndash; our old friend <var>OnFoo</var> once more &ndash; simply by overriding the abstract <var>DefaultEventName</var> method as follows:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TCompEditor</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TCompEditorBase</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">protected</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">DefaultEventName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TCompEditor</span><span class="sym">.</span><span class="ident">DefaultEventName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;OnFoo&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 6</div>
+    </div>
+
+</section>
+
+<section id="tidying-up">
+
+    <h2>Tidying up</h2>
+
+    <p>To get these examples to compile we need to use the <var>Classes</var>, <var>SysUtils</var>, <var>DesignIntf</var> and <var>DesignEditors</var> units. Note that the last two units can only be used when integrating into the IDE &ndash; they can't be used in stand-alone applications.</p>
+
+    <p>We also need to register the component editor in our unit's <var>Register</var> procedure as follows:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="kwd">Register</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">RegisterComponentEditor</span><span class="sym">(</span><span class="ident">TCompA</span><span class="sym">,</span><span class="space"> </span><span class="ident">TCompEditor</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="comment">// etc ...</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 7</div>
+    </div>
+
+</section>
+
+<section id="delphi4">
+
+    <h2>Delphi 4 differences</h2>
+
+    <p>In Delphi 4 <var>TDefaultEditor.EditProperty</var> has a different signature. It is defined as: </p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">EditProperty</span><span class="sym">(</span><span class="ident">PropertyEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPropertyEditor</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Continue</span><span class="sym">,</span><span class="space"> </span><span class="ident">FreeEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            </div>
+                    <div class="caption">Listing 8</div>
+    </div>
+
+    <p>We can deal with this using conditional compilation. Assuming the <span class="pas-preproc">DELPHI6ANDUP</span> symbol is defined when we are using Delphi 6 and above, we can implement <var>TCompEditorBase.EditProperty</var> as follows:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TCompEditorBase</span><span class="sym">.</span><span class="ident">EditProperty</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="preproc">{$IFDEF DELPHI6ANDUP}</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">PropertyEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">IProperty</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Continue</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="preproc">{$ELSE}</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">PropertyEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPropertyEditor</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Continue</span><span class="sym">,</span><span class="space"> </span><span class="ident">FreeEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="preproc">{$ENDIF}</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CompareText</span><span class="sym">(</span><span class="ident">PropertyEditor</span><span class="sym">.</span><span class="ident">GetName</span><span class="sym">,</span><span class="space"> </span><span class="ident">DefaultEventName</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            </div>
+                    <div class="caption">Listing 9</div>
+    </div>
+
+    <p>Additionally, we need to replace the <var>DesignIntf</var> and <var>DesignEditors</var> units with <var>DsgnIntf</var>:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">uses</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">Classes</span><span class="sym">,</span><span class="space"> </span><span class="ident">SysUtils</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="preproc">{$IFDEF DELPHI6ANDUP}</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">DesignIntf</span><span class="sym">,</span><span class="space"> </span><span class="ident">DesignEditors</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="preproc">{$ELSE}</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">DsgnIntf</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="preproc">{$ENDIF}</span></pre>
+            </div>
+                    <div class="caption">Listing 10</div>
+    </div>
+
+</section>
+
+<section id="summary">
+
+    <h2>Summary</h2>
+
+    <p>In this article we have reviewed how to change the event handler that is opened in the IDE when a component is double clicked.</p>
+
+    <p>We first examined how Delphi decides which events to use for this purpose and then developed a sub class of <var>TDefaultEditor</var> that can explicitly specify the default event. We then went on to generalize the solution by developing an abstract base class for component editors that change the default event.</p>
+
+    <p>The main discussion closed with a look at how to register the component editor.</p>
+
+    <p>Finally we discussed the changes that need to be made to compile the code under Delphi 4.</p>
+
+</section>
+
+<section id="feedback">
+
+    <h2>Feedback</h2>
+
+    <p>
+        I hope you enjoyed this article and found it useful.
+    </p>
+
+    <p>
+        If you have any observations, comments, or have found any errors there are two places you can report them.
+    </p>
+
+    <ol class="wide">
+
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>. You <strong>must</strong> mention that the issue relates to <code>article-17</code>.</li>
+
+        <li>For bugs in the demo code see the demo's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> for details of how to report them.</li>
+
+    </ol>
+
+</section>
+
+<section id="demo">
+
+    <h2>Demo code</h2>
+
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
+
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-17">article-17</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
+
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-17/README.md">README.md</a> file for details.</p>
+
+    <div class="callout callout-info">
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-17/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+    </div>
+
+</section>
