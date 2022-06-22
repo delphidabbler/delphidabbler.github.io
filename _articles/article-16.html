@@ -4,10 +4,584 @@ title: "How to use the TListView OnCustomDrawXXX events"
 summary: "TListView's OnCustomDraw, OnCustomDrawItem and OnCustomDrawSubItems events are useful to customise the appearance on a list view control without having to handle all the painting yourself. This article shows how to use these events in a report style list view control."
 meta-title: "How to use the Delphi Pascal TListView OnCustomDrawXXX events"
 meta-desc: "An article about how to handle the Delphi Pascal TListView's OnCustomDraw, OnCustomDrawItem and OnCustomDrawSubItems events in a report style list view control."
-demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-16"
-pages: 1
-offsite: 1
 index: true
 redirect_from:
 - /articles/16
 ---
+<section id="contents">
+
+    <h2>
+        Contents
+    </h2>
+
+    <nav>
+        <div class="well">
+            <ul>
+                <li><a href="#why">Why this article?</a></li>
+                <li><a href="#ifsnbuts">Some &quot;ifs and buts&quot;</a>
+                    <ul>
+                        <li><a href="#expectations">Don't expect too much</a></li>
+                        <li><a href="#verdiffs">Delphi version differences</a></li>
+                        <li><a href="#bugs">Bugs in Delphi implementation</a></li>
+                    </ul>
+                </li>
+                <li><a href="#overview">Overview</a>
+                    <ul>
+                        <li><a href="#oncustomdraw">OnCustomDraw</a></li>
+                        <li><a href="#oncustomdrawitem">OnCustomDrawItem</a></li>
+                        <li><a href="#oncustomdrawsubitem">OnCustomDrawSubItem</a></li>
+                        <li><a href="#rules">Some rules</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#egs">Examples</a>
+                    <ul>
+                        <li><a href="#eg1">Displaying a background bitmap</a></li>
+                        <li><a href="#eg2">Drawing rows in alternating colors</a></li>
+                        <li><a href="#eg3">Drawing columns in different colours</a></li>
+                        <li><a href="#eg4">Using different fonts in different columns</a></li>
+                        <li><a href="#eg5">Display a shaded column</a></li>
+                    </ul>
+                </li>
+                <li><a href="#demo">Demo program</a></li>
+                <li><a href="#summary">Summary</a></li>
+                <li><a href="#feedback">Feedback</a></li>
+            </ul>
+        </div>
+    </nav>
+
+</section>
+
+<section id="why">
+
+    <h2>Why this article?</h2>
+
+    <p>The <var>OnCustomDrawXXX</var> event handlers of Delphi's <var>TListView</var> can be useful to make minor changes to the appearance of a list view control. They let developers avoid having to owner draw the control if they only want to make a few tweaks to its appearance. Using the event handlers means that Delphi (or Windows) continues to take responsibility for drawing list items and dealing with the highlight etc.</p>
+
+    <p>However, a quick Google search shows that the <var>OnCustomDrawXXX</var> events are not well documented out on the net. So, having experimented with the events using the list view's report style I decided to document my findings &ndash; hence this article.</p>
+
+</section>
+
+<section id="ifsnbuts">
+
+    <h2>Some &quot;ifs and buts&quot;</h2>
+
+    <p>Before launching into the article proper, there are a few observations that need to be made about the limitations of list view custom drawing and of Delphi's implementation of it via the <var>OnCustomDrawXXX</var> events.</p>
+
+
+    <h3 id='expectations'>Don't expect too much</h3>
+
+    <p>The custom drawing support facility is meant for minor customisations of the list view control. The facility was not designed for major customisations.</p>
+
+    <p>So don't expect too much from the <var>OnCustomDrawXXX</var> events &ndash; don't push them too far! If you want to perform a major customisation then you should owner-draw the control.</p>
+
+
+    <h3 id="verdiffs">Delphi version differences</h3>
+
+    <p>The code in this article has been tested with Delphi 4 and Delphi 7. There are subtle differences in behaviour between the two versions of the compiler that we need to take into account. These differences will be flagged up in the text. The code has not been tested with Delphi 5 or 6 so I am not clear when the behaviour changed.</p>
+
+    <div class="callout callout-warning">
+        <p>Yep, the code really is so old that I started the experimentation with Delphi 4 and haven't checked it since Delphi 7 was current. One day I'll get round to checking it on modern versions of Delphi.</p>
+        <p>If you've got any experience with later compilers, please let me know - see the <a href="#feedback">Feedback</a> section to find out how.</p>
+    </div>
+
+    <h3 id="bugs">Bugs in Delphi implementation</h3>
+
+    <p>There can be some problems with font rendering when using some of solutions presented in this article. Investigations indicate that the problem appears to be with Delphi's implementation of the code that triggers <var>OnCustomDrawXXX</var> events. The problems seem to relate to the list view's <var>Canvas</var> property. You can get round some of the problems by using the Windows GDI API directly rather than depending on the <var>Canvas</var> property.</p>
+
+    <p class="callout callout-warning">Once again, this observation refers to Delphi 4-7. Please <a href="#feedback">tell me</a> if you know if things have got any better.</p>
+
+</section>
+
+<section id="overview">
+
+    <h2>Overview</h2>
+
+    <p>Before diving into some code we'll briefly discuss what the different <var>OnCustomDrawXXX</var> events do.</p>
+
+
+    <h3 id="oncustomdraw">OnCustomDraw</h3>
+
+    <p><var>OnCustomDraw</var> allows drawing on the background of the list view control. We should handle this event if we want to draw or paint anything on the control's background.</p>
+
+    <p>In this article we'll look at using this event handler to:</p>
+
+    <ul>
+        <li>Draw a background bitmap.</li>
+        <li>Shade columns in the background of the control.</li>
+    </ul>
+
+    <p>The event could also be used to paint the background colour of the control, but if we're using just a plain colour it's easier just to set the <var>Color</var> property of the list view and let Delphi handle the painting.</p>
+
+
+    <h3 id="oncustomdrawitem">OnCustomDrawItem</h3>
+
+    <p>Handling <var>OnCustomDrawItem</var> allows you to influence how a list item is drawn without having to perform the actual drawing yourself. Changes are made to the list view's <var>Canvas</var> property before Delphi (or Windows) draws the list item. For example, the font or font attributes can be changed, as can the brush colour used to paint the background of the list item.</p>
+
+    <p>Whatever changes are made are applied to the whole list item including the <var>Caption</var> and any <var>SubItems</var>. To demonstrate this event handler an example is provided where alternate list items are displayed in different colours. It is not advisable to directly paint any part of the list item. You should configure the control's <var>Canvas</var> and leave the painting to Delphi / Windows. Use owner-drawing if you want to paint all or part of the list item yourself.</p>
+
+
+    <h3 id="oncustomdrawsubitem">OnCustomDrawSubItem</h3>
+
+    <p><var>OnCustomDrawSubItem</var> is triggered for each subitem of every list item. It allows sub items to be customised individually.</p>
+
+    <p>The event provides a <var>SubItem</var> parameter that identifies the column to be painted. Column zero is the list view's <var>Caption</var> column while columns &gt;= 1 represent any subitems. To access the string associated with the <var>SubItems</var> property use <code>SubItems[SubItem-1]</code>, providing <code>SubItem &gt;= 1</code>.</p>
+
+    <p>Once again, this event should be used to configure the canvas rather than to draw on it.</p>
+
+    <p class="callout callout-info"><var>OnCustomDrawSubItem</var> will only be called by Delphi if <var>OnCustomDrawItem</var> is also handled. So if you need <var>OnCustomDrawSubItem</var> without <var>OnCustomDrawItem</var> you must also create a do nothing <var>OnCustomDrawItem</var> event handler.</p>
+
+    <div class="callout callout-warning">
+
+        <h4>Delphi Version Differences</h4>
+
+        <p>In Delphi 4 <var>OnCustomDrawSubItem</var> is called for each of the columns starting at column 0, i.e. the column containing the list item's <var>Caption</var>. However, in Delphi 7 the event is only called for true sub items, i.e. from column 1.</p>
+
+        <p>Therefore in Delphi 4 <var>OnCustomDrawSubItem</var> can be used to customise all the columns while in Delphi 7 we must use <var>OnCustomDrawItem</var> to customise column 0 and <var>OnCustomDrawSubItem</var> to customise the other columns. Note that the Delphi 7 approach also works for Delphi 4.</p>
+
+        <p>Yet again, I'd <a href="#feedback">welcome information</a> about how later versions of Delphi work.</p>
+
+    </div>
+
+    <h3 id="rules">Some rules</h3>
+
+    <p>Putting the above together we get the following rules:</p>
+
+    <ol class="wide">
+
+        <li> To paint the list view's background, handle the <var>OnCustomDraw</var> event.</li>
+
+        <li>To configure the painting of a whole list item (a row in a report style list view). Handle the <var>OnCustomDrawItem</var> event.</li>
+
+        <li>
+
+            <p>To configure the painting of all the &quot;columns&quot; in a list item separately (i.e. the caption and all the visible sub items), first handle <var>OnCustomDrawItem</var> event to configure how column 0 (the <var>Caption</var>) is to be displayed and then handle <var>OnCustomDrawSubItem</var> to configure the other columns.</p>
+
+            <p> Here is some boilerplate code to use when handling both <var>OnCustomDrawItem</var> and <var>OnCustomDrawSubItem</var>:</p>
+
+            <div id="listing-1" class="frame para">
+                <div class="code-pascal">
+                    <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDrawItem</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+                    <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">Item</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span><span class="space"> </span><span class="ident">State</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomDrawState</span><span class="sym">;</span></pre>
+                    <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+                    <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+                    <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// Process column 0 (the Caption) here</span></pre>
+                    <pre class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                    <pre class="line"><span class="linenum">  7</span></pre>
+                    <pre class="line"><span class="linenum">  8</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDrawSubItem</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+                    <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">Item</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span><span class="space"> </span><span class="ident">SubItem</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">State</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomDrawState</span><span class="sym">;</span></pre>
+                    <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+                    <pre class="line"><span class="linenum"> 11</span><span class="kwd">begin</span></pre>
+                    <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="comment">// Ensure we ignore SubItem = 0 (in case called, e.g. in Delphi 4)</span></pre>
+                    <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">SubItem</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span><span class="space"> </span><span class="ident">Exit</span><span class="sym">;</span></pre>
+                    <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="comment">// Process column 1 and higher here</span></pre>
+                    <pre class="line"><span class="linenum"> 15</span><span class="kwd">end</span><span class="sym">;</span></pre>
+                </div>
+                <div class="caption">Listing 1</div>
+            </div>
+
+        </li>
+
+    </ol>
+
+</section>
+
+<section id="egs">
+
+    <h2>Examples</h2>
+
+    <p>Most of the rest of this article is spent in looking at some examples of what we can do by handling the <var>OnDrawItemXXX</var> events of list view controls <em>that have the report style</em>.</p>
+
+    <div class="callout callout-info para">
+        <h4><var>ListView_XXX</var> Routines</h4>
+        <p>Several of these examples use <var>ListView_XXX</var> routines. These routines are Delphi implementations of the C &quot;macros&quot; defined in Microsofts's Windows header files. They are provided in Delphi's <var>CommCtrl</var> unit. So make sure you add <var>CommCtrl</var> to your <span class="kwd">uses</span> clause otherwise some examples will not compile.</p>
+    </div>
+
+    <h3 id="eg1">Displaying a background bitmap</h3>
+
+    <p>To display the bitmap we need only handle the <var>OnCustomDraw</var> event. In this example we will tile a bitmap in the display. To tile the bitmap we have to calculate the list view's background area and offset the bitmap to allow for any scrolling and the size of any header. Much of the code of the event handler is devoted to calculating these offsets. The code is presented in <span class="figureref">Listing 2</span> below.</p>
+
+    <div id="listing-2" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDraw</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">ARect</span><span class="sym">:</span><span class="space"> </span><span class="ident">TRect</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">function</span><span class="space"> </span><span class="ident">GetHeaderHeight</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">Header</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span><span class="space">           </span><span class="comment">// header window handle</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">Pl</span><span class="sym">:</span><span class="space"> </span><span class="ident">TWindowPlacement</span><span class="sym">;</span><span class="space">   </span><span class="comment">// header window placement</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="comment">// Get header window</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="ident">Header</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SendMessage</span><span class="sym">(</span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="ident">LVM_GETHEADER</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="comment">// Get header window placement</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">FillChar</span><span class="sym">(</span><span class="ident">Pl</span><span class="sym">,</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Pl</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">Pl</span><span class="sym">.</span><span class="ident">length</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Pl</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">GetWindowPlacement</span><span class="sym">(</span><span class="ident">Header</span><span class="sym">,</span><span class="space"> </span><span class="sym">@</span><span class="ident">Pl</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="comment">// Calculate header window height</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">Result</span><span class="space">  </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Pl</span><span class="sym">.</span><span class="ident">rcNormalPosition</span><span class="sym">.</span><span class="ident">Bottom</span><span class="space"> </span><span class="sym">-</span><span class="space"> </span><span class="ident">Pl</span><span class="sym">.</span><span class="ident">rcNormalPosition</span><span class="sym">.</span><span class="ident">Top</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="ident">BmpXPos</span><span class="sym">,</span><span class="space"> </span><span class="ident">BmpYPos</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">  </span><span class="comment">// X and Y position for bitmap</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="ident">Bmp</span><span class="sym">:</span><span class="space"> </span><span class="ident">TBitmap</span><span class="sym">;</span><span class="space">               </span><span class="comment">// Reference to bitmap</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="ident">ItemRect</span><span class="sym">:</span><span class="space"> </span><span class="ident">TRect</span><span class="sym">;</span><span class="space">            </span><span class="comment">// List item bounds rectangle</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="ident">TopOffset</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">         </span><span class="comment">// Y pos where bmp drawing starts</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="comment">// Get top offset where bitmap drawing starts</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Items</span><span class="sym">.</span><span class="ident">Count</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">    </span><span class="ident">ListView_GetItemRect</span><span class="sym">(</span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="ident">ItemRect</span><span class="sym">,</span><span class="space"> </span><span class="ident">LVIR_BOUNDS</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">    </span><span class="ident">TopOffset</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ListView_GetTopIndex</span><span class="sym">(</span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">)</span><span class="space"> </span><span class="sym">*</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">      </span><span class="sym">(</span><span class="ident">ItemRect</span><span class="sym">.</span><span class="ident">Bottom</span><span class="space"> </span><span class="sym">-</span><span class="space"> </span><span class="ident">ItemRect</span><span class="sym">.</span><span class="ident">Top</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">    </span><span class="ident">TopOffset</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space">  </span><span class="ident">BmpYPos</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ARect</span><span class="sym">.</span><span class="ident">Top</span><span class="space"> </span><span class="sym">-</span><span class="space"> </span><span class="ident">TopOffset</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">GetHeaderHeight</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">  </span><span class="comment">// Draw the bitmap</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="comment">// get reference to bitmap</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="space">  </span><span class="ident">Bmp</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Image1</span><span class="sym">.</span><span class="ident">Picture</span><span class="sym">.</span><span class="ident">Bitmap</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 38</span><span class="space">  </span><span class="comment">// loop until bmp is past bottom of list view</span></pre>
+            <pre class="line"><span class="linenum"> 39</span><span class="space">  </span><span class="kwd">while</span><span class="space"> </span><span class="ident">BmpYPos</span><span class="space"> </span><span class="sym">&lt;</span><span class="space"> </span><span class="ident">ARect</span><span class="sym">.</span><span class="ident">Bottom</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 40</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 41</span><span class="space">    </span><span class="comment">// draw bitmaps across width of display</span></pre>
+            <pre class="line"><span class="linenum"> 42</span><span class="space">    </span><span class="ident">BmpXPos</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ARect</span><span class="sym">.</span><span class="ident">Left</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 43</span><span class="space">    </span><span class="kwd">while</span><span class="space"> </span><span class="ident">BmpXPos</span><span class="space"> </span><span class="sym">&lt;</span><span class="space"> </span><span class="ident">ARect</span><span class="sym">.</span><span class="ident">Right</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 44</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 45</span><span class="space">      </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Draw</span><span class="sym">(</span><span class="ident">BmpXPos</span><span class="sym">,</span><span class="space"> </span><span class="ident">BmpYPos</span><span class="sym">,</span><span class="space"> </span><span class="ident">Bmp</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 46</span><span class="space">      </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">BmpXPos</span><span class="sym">,</span><span class="space"> </span><span class="ident">Bmp</span><span class="sym">.</span><span class="ident">Width</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 47</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 48</span><span class="space">    </span><span class="comment">// move to next row</span></pre>
+            <pre class="line"><span class="linenum"> 49</span><span class="space">    </span><span class="ident">Inc</span><span class="sym">(</span><span class="ident">BmpYPos</span><span class="sym">,</span><span class="space"> </span><span class="ident">Bmp</span><span class="sym">.</span><span class="ident">Height</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 50</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 51</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 2</div>
+    </div>
+
+    <p>The event handler's <var>ARect</var> parameter provides the client area of the list view. Any header control is included in the client area, so the top of the display area for the list items begins at an offset equal to the height of the header control. We find the required height by calling the <var>GetHeaderHeight</var> subsidiary function. This routine gets the header window handle, retrieves its display rectangle and works out the height of the header from this. We also need to adjust the offset of the bitmap to allow for any scrolling in the list view. We get the index of the top item in the list and multiply this by the height of a single list item.</p>
+
+    <p>Having calculated the starting Y-offset for the image (and stored it in <var>BmpYPos</var>) we draw the bitmaps by using two nested loops. The outer loop displays the rows of bitamp, updating the Y-offset by the height of the bitmap. This loop terminates when the Y-offset is beyond the bottom of <var>ARect</var>. The inner loop handles tiling the bitmap across a row. We use <var>BmpXPos</var> to store the next X coordinate of the bitmap, beginning at <var>ARect.Left</var> and ending when <var>BmpXPos</var> goes beyond the right edge of <var>ARect</var>.</p>
+
+    <p>Delphi / Windows take care of displaying the list items after the background is drawn. By default list items are drawn with solid backgrounds, overwriting the newly drawn background, as can be seen in <span class="figureref">Figure 1</span> below:</p>
+
+    <div id="figure-1" class="frame">
+        <div>
+            <img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/16-1.gif" alt="Screen shot of a listview with a bitmap background &amp; solid list item background" title="Figure 1" width="401" height="154">
+        </div>
+        <div class="caption">Figure 1: Listview with bitmap background &amp; solid list item background</div>
+    </div>
+
+    <p>But what if we want the list items to appear transparently over the bitmap? We simply add the code shown in <span class="figureref">Listing 3</span> to the end of the <var>OnCustomDraw</var> event handler from <span class="figureref">Listing 2</span>:</p>
+
+    <div id="listing-3" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="space">  </span><span class="comment">// Ensure that the items are drawn transparently</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">SetBkMode</span><span class="sym">(</span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="ident">TRANSPARENT</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">ListView_SetTextBkColor</span><span class="sym">(</span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="ident">CLR_NONE</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">ListView_SetBKColor</span><span class="sym">(</span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="ident">CLR_NONE</span><span class="sym">)</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 3</div>
+    </div>
+
+    <p>This new code ensures list items are drawn with tranpsarent backgrounds. The effect is shown <span class="figureref">Figure 2</span>.</p>
+
+    <div id="figure-2" class="frame">
+        <div>
+            <img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/16-2.gif" alt="Screen shot of a listview with a bitmap background &amp; transparent list item background" title="Figure 2" width="401" height="154">
+        </div>
+        <div class="caption">Figure 2: Listview with bitmap background &amp; transparent list item background</div>
+    </div>
+
+    <h3 id="eg2">Drawing rows in alternating colors</h3>
+
+    <p>This example is much simpler than the preceding one. We will draw alternating list items in different colours, emulating green and white line printer paper. This is achieved by handing just the <var>OnCustomDrawItem</var> event as <span class="figureref">Listing 4</span> shows:</p>
+
+    <div id="listing-4" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDrawItem</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">Item</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span><span class="space"> </span><span class="ident">State</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomDrawState</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">const</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">cStripe</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$CCFFCC</span><span class="sym">;</span><span class="space">  </span><span class="comment">// colour of alternate list items</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Odd</span><span class="sym">(</span><span class="ident">Item</span><span class="sym">.</span><span class="ident">Index</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="comment">// odd list items have green background</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Brush</span><span class="sym">.</span><span class="ident">Color</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">cStripe</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="comment">// even list items have window colour background</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Brush</span><span class="sym">.</span><span class="ident">Color</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">clWindow</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 4</div>
+    </div>
+
+    <p>The code is quite simple. We check whether the list item's index is odd or even. If it is odd we ensure that the list item's background is green, otherwise we use the system's window colour for the background. The required background colour is specified by setting the colour of the list view canvas' brush. <span class="figureref">Figure 3</span> shows the resulting list view:</p>
+
+    <div id="figure-3" class="frame">
+        <div>
+            <img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/16-3.gif" alt="Screenshot of a listview with alternating coloured rows" title="Figure 3" width="349" height="135">
+        </div>
+        <div class="caption">Figure 3: Listview with alternating coloured rows</div>
+    </div>
+
+    <h3 id="eg3">Drawing columns in different colours</h3>
+
+    <p>Now we move on to demonstrate the <var>OnCustomDrawSubItem</var> event handler. Here we will display each list view column in a different colour. Again, we use a four column list view in report mode. <span class="figureref">Listing 5</span> has the code:</p>
+
+    <div id="listing-5" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">SetLVColumnColour</span><span class="sym">(</span><span class="ident">ColIdx</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="comment">// Sets the list view brush colour for the column</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">const</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="comment">// The colours for each list view column</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">cRainbow</span><span class="sym">:</span><span class="space"> </span><span class="kwd">array</span><span class="sym">[</span><span class="num">0</span><span class="sym">..</span><span class="num">3</span><span class="sym">]</span><span class="space"> </span><span class="kwd">of</span><span class="space"> </span><span class="ident">TColor</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="hex">$FFCCCC</span><span class="sym">,</span><span class="space"> </span><span class="hex">$CCFFCC</span><span class="sym">,</span><span class="space"> </span><span class="hex">$CCCCFF</span><span class="sym">,</span><span class="space"> </span><span class="hex">$CCFFFF</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Brush</span><span class="sym">.</span><span class="ident">Color</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">cRainBow</span><span class="sym">[</span><span class="ident">ColIdx</span><span class="sym">]</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDrawItem</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">Item</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span><span class="space"> </span><span class="ident">State</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomDrawState</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="comment">// Draw the &quot;Caption&quot; column</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="comment">// Set the colour for column 0</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="ident">SetLVColumnColour</span><span class="sym">(</span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDrawSubItem</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="ident">Item</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span><span class="space"> </span><span class="ident">SubItem</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">State</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomDrawState</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="comment">// Draw the sub item columns</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">  </span><span class="comment">// Check if SubItem is 0 and exit</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="comment">// (e.g. Delphi 4 calls this event with SubItem = 0, </span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="comment">// while Delphi 7 starts with SubItem = 1</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">SubItem</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span><span class="space"> </span><span class="ident">Exit</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">  </span><span class="comment">// We set the background colour to the colour required for</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">  </span><span class="comment">// the column per the SubItem parameter</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">  </span><span class="ident">SetLVColumnColour</span><span class="sym">(</span><span class="ident">SubItem</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 5</div>
+    </div>
+
+    <p>Firstly we declare a private method, <var>SetLVColumnColour</var>, to set the colour of a given column to some preset value.</p>
+
+    <p>We handle the <var>OnCustomDrawItem</var> event to set the colour for the <var>Caption</var> column, by calling <var>SetLVColumnColour</var> for column 0. This code sets the background for the whole list item, but we override this effect for each sub-item column in the <var>OnCustomDrawSubItem</var> event handler. Recall that this event handler is passed the index of the column to be painted in its <var>SubItem</var> parameter. We pass <var>SubItem</var> to <var>SetLVColumnColour</var> to set the background colour of the column. We have used the boilerplate code presented in <span class="figureref"><a href="#listing-1">Listing 1</a></span> to ensure the code works with both Delphi 4 and Delphi 7: we ignore column 0 in <var>OnCustomDrawSubItem</var> because it has been dealt with in <var>OnCustomDrawItem</var>.</p>
+
+    <p>The resulting list view is shown in <span class="figureref">Figure 4</span>:</p>
+
+    <div id="figure-4" class="frame">
+        <div>
+            <img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/16-4.gif" alt="Screenshot of a list view with different coloured columns" title="Figure 4" width="351" height="141">
+        </div>
+        <div class="caption">Figure 4: Listview with different column colours</div>
+    </div>
+
+    <h3 id="eg4">Using different fonts in different columns</h3>
+
+    <p>We can make each column use a different font or font style by handling the <var>OnCustomDrawItem</var> and the <var>OnCustomDrawSubItem</var> events. In this example we display the list item's <var>Caption</var> (&quot;Date&quot; column) in Comic Sans MS italic. We then present the remaining sub items in the standard list item's font, except that any negative values in the &quot;Amount&quot; column are to be displayed in red. <span class="figureref">Listing 6</span> shows the code:</p>
+
+    <div id="listing-6" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDrawItem</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">Item</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span><span class="space"> </span><span class="ident">State</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomDrawState</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="comment">// Set column 0 to use Comic Sans MS italic</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Font</span><span class="sym">.</span><span class="ident">Name</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Comic Sans MS&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Font</span><span class="sym">.</span><span class="ident">Style</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">[</span><span class="ident">fsItalic</span><span class="sym">]</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDrawSubItem</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">Item</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span><span class="space"> </span><span class="ident">SubItem</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">State</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomDrawState</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="comment">// Ensure SubItem 0 not updated here in Delphi 4</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">SubItem</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span><span class="space"> </span><span class="ident">Exit</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="sym">(</span><span class="ident">SubItem</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">3</span><span class="sym">)</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="sym">(</span><span class="ident">Pos</span><span class="sym">(</span><span class="str">&apos;(&apos;</span><span class="sym">,</span><span class="space"> </span><span class="ident">Item</span><span class="sym">.</span><span class="ident">SubItems</span><span class="sym">[</span><span class="num">2</span><span class="sym">]</span><span class="sym">)</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="comment">// Display negative values in &quot;Amount&quot; column in red</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Font</span><span class="sym">.</span><span class="ident">Color</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">clRed</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="comment">// Display all other sub item colums in black</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Font</span><span class="sym">.</span><span class="ident">Color</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">clBlack</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 6</div>
+    </div>
+
+    <p>Once again we modify the list view's <var>Canvas</var> property to get the desired result. We use the <var>OnCustomDrawItem</var> event handler to set the font required for column 0. The <var>OnCustomDrawSubItem</var> event handler then sets the font for sub items (columns 1 to 3). In column 3 we detect negative numbers &ndash; they begin with a '(' character &ndash; and set the font to red whenever we find one. The resulting list view displays as shown in <span class="figureref">Figure 5</span>:</p>
+
+    <div id="figure-5" class="frame">
+        <div>
+            <img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/16-5.gif" alt="Screenshot of a listview with differing font styles" title="Figure 5" width="336" height="126">
+        </div>
+        <div class="caption">Figure 5: Listview with different font styles</div>
+    </div>
+
+    <h3 id="eg5">Display a shaded column</h3>
+
+    <p>The Explorer in Windows XP displays the sorted column in pale grey. In this final example we mimic Explorer's behaviour by handling all three <var>OnCustomDrawXXX</var> events to display a list view with a specified column shaded in pale grey. For the purposes of this example we don't implement sorting, we just shade a column when its header is clicked.</p>
+
+    <p>In addition to the <var>OnCustomDrawXXX</var> event handlers we also need to handle clicks on the column headers in the list view's <var>OnColumnClick</var> event handler. <span class="figureref">Listing 7</span> shows the <var>OnColumnClick</var> event handler:</p>
+
+    <div id="listing-7" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1ColumnClick</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">Column</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListColumn</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="comment">// Handles column click: updates shaded column</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// Updates the index of the shaded column</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">fCurrentCol</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Column</span><span class="sym">.</span><span class="ident">Index</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="comment">// Redisplays list view with new column highlighted</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Invalidate</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 7</div>
+    </div>
+
+    <p>This code simply records the index of the clicked column in a private form field and then invalidates the list view to redisplay it with the newly selected column highlighted. The private field is also used by the <var>OnCustomDrawXXX</var> event handlers and is defined in the form class definition as show in <span class="figureref">Listing 8</span>:</p>
+
+    <div id="listing-8" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">private</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">fCurrentCol</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="comment">// currently selected column</span></pre>
+        </div>
+        <div class="caption">Listing 8</div>
+    </div>
+
+    <p>At first sight it would appear that we merely need to handle the <var>OnCustomDrawItem</var> and <var>OnCustomDrawSubItem</var> events to set the column shading, in a similar manner to <span class="figureref"><a href="#listing-5">Listing 5</a></span>. However a close examination of <span class="figureref"><a href="#figure-4">Figure 4</a></span> shows that the column shading does not extend down to the bottom of the list view &ndash; it ends at bottom of the last list item. There is also a margin between the header control and the first list item. We want the shading to occupy the whole column from the header control to the bottom of the list view control.</p>
+
+    <p>To overcome this problem we handle the <var>OnCustomDraw</var> event to draw the column shading from the top to bottom of list view's client area. <span class="figureref">Listing 9</span> defines the required <var>OnCustomDraw</var> event handler:</p>
+
+    <div id="listing-9" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDraw</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">ARect</span><span class="sym">:</span><span class="space"> </span><span class="ident">TRect</span><span class="sym">;</span><span class="space"> </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="comment">// Displays shading in any area not occupied by list items</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">ColLeft</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="comment">// left edge of selected column</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">ColBounds</span><span class="sym">:</span><span class="space"> </span><span class="ident">TRect</span><span class="sym">;</span><span class="space"> </span><span class="comment">// bounds of the selected column</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">I</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">       </span><span class="comment">// loops thru columns</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="comment">// Calculate left side of selected column</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">ColLeft</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ARect</span><span class="sym">.</span><span class="ident">Left</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">for</span><span class="space"> </span><span class="ident">I</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">to</span><span class="space"> </span><span class="ident">Pred</span><span class="sym">(</span><span class="ident">fCurrentCol</span><span class="sym">)</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">ColLeft</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ColLeft</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">ListView_GetColumnWidth</span><span class="sym">(</span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="ident">I</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="comment">// Calculate bounding rectangle of selected column</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">ColBounds</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Rect</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="ident">ColLeft</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">ARect</span><span class="sym">.</span><span class="ident">Top</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">ColLeft</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">ListView_GetColumnWidth</span><span class="sym">(</span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="ident">fCurrentCol</span><span class="sym">)</span><span class="sym">,</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="ident">ARect</span><span class="sym">.</span><span class="ident">Bottom</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="comment">// Shade the column</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="comment">// Delphi / Windows will overwrite this where there are list items but</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="comment">// this code ensures shading extends from top to bottom of the client</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="comment">// rectangle</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Brush</span><span class="sym">.</span><span class="ident">Color</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">cShade</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">FillRect</span><span class="sym">(</span><span class="ident">ColBounds</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 9</div>
+    </div>
+
+    <p>First we locate the position of the left hand edge of the selected column and store it in <var>ColLeft</var>. This is done by beginning at the left hand edge of the list view's display and adding the widths of all columns that precede the selected column, if any.</p>
+
+    <p>Next we calculate the bounds of the selected column. The bounding rectangle has top and bottom the same as those of the list view's display rectangle (per the <var>ARect</var> parameter). The left of the column is given by <var>ColLeft</var> and its width can be found by using the <var>ListView_GetColumnWidth</var> API call. Once we have the bounding rectangle of the selected column we fill it with the shading colour.</p>
+
+    <p>If we left it at that we would find that when Delphi / Windows draws the list items the shading under them would be overwritten. We overcome this by handling <var>OnCustomDrawItem</var> and <var>OnCustomDrawSubItem</var> to ensure that each column has the correct background colour. <span class="figureref">Listing 10</span> shows the code for the event handler, which by now should be very familiar with <var>OnCustomDrawItem</var> handling column 0 and <var>OnCustomDrawSubItem</var> handling columns &gt;=1.</p>
+
+    <div id="listing-10" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">SetLVColumnShading</span><span class="sym">(</span><span class="ident">ColIdx</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">fCurrentCol</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">ColIdx</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="comment">// given column is selected: shade it</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Brush</span><span class="sym">.</span><span class="ident">Color</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">cShade</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="comment">// given column not shaded: ensure correct background used</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Canvas</span><span class="sym">.</span><span class="ident">Brush</span><span class="sym">.</span><span class="ident">Color</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ColorToRGB</span><span class="sym">(</span><span class="ident">ListView1</span><span class="sym">.</span><span class="ident">Color</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDrawItem</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">Item</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span><span class="space"> </span><span class="ident">State</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomDrawState</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="comment">// Shade the first column (index 0) if this is selected</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="ident">SetLVColumnShading</span><span class="sym">(</span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">ListView1CustomDrawSubItem</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomListView</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="ident">Item</span><span class="sym">:</span><span class="space"> </span><span class="ident">TListItem</span><span class="sym">;</span><span class="space"> </span><span class="ident">SubItem</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">State</span><span class="sym">:</span><span class="space"> </span><span class="ident">TCustomDrawState</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">DefaultDraw</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="comment">// Shade a sub item column if selected</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">SubItem</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span><span class="space"> </span><span class="comment">// ensure not column 0 (Delphi 4)</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">    </span><span class="ident">SetLVColumnShading</span><span class="sym">(</span><span class="ident">SubItem</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 10</div>
+    </div>
+
+    <p>Similar to <span class="figureref"><a href="#listing-5">Listing 5</a></span>, we use a helper method &ndash; this time <var>SetLVColumnShading</var> &ndash; to set the required colours. This method is passed a column index and checks to see if the column is the selected one. If so it sets the background colour to the shading colour, otherwise it sets the background colour to the list view's <var>Color</var> property. The event handlers should be self-explanatory by now and won't be discussed further.</p>
+
+    <p><span class="figureref">Figure 6</span> has a picture of the resulting display after clicking the &quot;Item&quot; column header:</p>
+
+    <div id="figure-6" class="frame">
+        <div>
+            <img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/16-6.gif" alt="Screenshot of a listview with a shaded column" title="Figure 6" width="343" height="149">
+        </div>
+        <div class="caption">Figure 6: Listview with a shaded column</div>
+    </div>
+
+</section>
+
+<section id="demo">
+
+    <h2>Demo program</h2>
+
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
+
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-16">article-16</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
+
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-16/README.md">README.md</a> file for details.</p>
+
+    <div class="callout callout-info">
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-16/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+    </div>
+
+</section>
+
+<section id="summary">
+
+    <h2>Summary</h2>
+
+    <p>This article has summarised the purpose of the three list view <var>OnCustomDrawXXX</var> event handlers and has gone on to present several examples of using the event handlers with a report style list view.</p>
+
+    <p>The flaws in the Delphi implementation of the <var>OnCustomDrawXXX</var> event handlers were pointed out. The article also noted that the events are only intended for lightweight customisations of the list view. Owner drawing should continue to be used for major customisations.</p>
+
+    <p>A demo program that demonstrates the examples has also been made available.</p>
+
+</section>
+
+<section id="feedback">
+
+    <h2>Feedback</h2>
+
+    <p>I hope you enjoyed this article and found it useful.</p>
+
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+
+    <ol class="wide">
+
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>. You <strong>must</strong> mention that the issue relates to <code>article-16</code>.</li>
+
+        <li>For bugs in the demo code see the demo's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> for details of how to report them.</li>
+
+    </ol>
+
+</section>
