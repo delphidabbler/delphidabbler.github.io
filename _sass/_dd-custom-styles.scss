@@ -714,6 +714,11 @@ div.sw-meta {
       }
     }
   }
+  > caption {
+    var, .var, .kwd {
+      color: $table-caption-color;
+    }
+  }
   // Add bottom border to tbody
   > tbody:last-child {
     > tr:last-child {
@@ -724,6 +729,7 @@ div.sw-meta {
     }
   }
 }
+
 
 
 // Styling for source code example frames (mainly used in articles)
