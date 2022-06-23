@@ -4,10 +4,1526 @@ title: "How to get operating system version information"
 summary: "We often need to detect the version and various other characteristics of the operating system from our applications. Here's how to do this from Delphi."
 meta-title: "Use Delphi Pascal to get operating system version information | How to"
 meta-desc: "A legacy article explaining how to use Delphi Pascal with the Windows API to get (version) information about the Windows operating system. Covers Win 95 to XP only."
-demo-url: "https://github.com/delphidabbler/article-demos/tree/master/article-23"
-pages: 6
-offsite: 1
 index: true
 redirect_from:
 - /articles/23
 ---
+<aside>
+    <div class="callout callout-warning">
+
+        <h2>Legacy Code</h2>
+
+        <p>This article was written back when Windows XP was the latest Windows version. Since then Microsoft have dramatically changed the way version information is accessed. And that's an understatement!</p>
+
+        <p>The article also assumes that you will be writing a 32 bit program. Where it discusses 64 bit OSs it does so with the assumption that you may run your 32 bit application on a 64 bit version of Windows.</p>
+
+        <p>While the techniques in this article will still return results, those results may not be accurate for Windows 10 and later.</p>
+
+        <p>One final point. The code was written before Unicode support was added to Delphi. Some changes to the code will be required to compile on Unicode versions of Delphi.</p>
+
+    </div>
+</aside>
+
+<section id="contents">
+
+    <h2>
+        Contents
+    </h2>
+
+    <nav>
+
+        <div class="well">
+            <ul>
+                <li><a href="#intro">Introduction</a></li>
+                <li><a href="#winapi">Common Windows API OS Information</a></li>
+                <li><a href="#rtl">Delphi RTL Support</a></li>
+                <li><a href="#tosinfo">OS Version Information Class: Version 1</a>
+                    <ul>
+                        <li><a href="#tosinfo-platform">Finding the OS Platform</a></li>
+                        <li><a href="#tosinfo-product">OS Product</a></li>
+                        <li><a href="#tosinfo-build">Build Number</a></li>
+                        <li><a href="#tosinfo-svcpack">Service Pack</a></li>
+                    </ul>
+                </li>
+                <li><a href="#winapiex">Extended Windows API OS Information</a>
+                    <ul>
+                        <li><a href="#winapiex-tosversioninfoex">TOSVersionInfoEx</a></li>
+                        <li><a href="#winapiex-populate">Populating TOSVersionInfoEx</a></li>
+                    </ul>
+                </li>
+                <li><a href="#rtlex">Extending Delphi's RTL Support</a></li>
+                <li><a href="#tosinfo2">OS Version Information Class: Version 2</a>
+                    <ul>
+                        <li><a href="#tosinfo2-svcpack">Service Pack Versions</a></li>
+                        <li><a href="#tosinfo2-prodtype">Product Type</a></li>
+                        <li><a href="#tosinfo2-server">Checking for Server OSs</a></li>
+                        <li><a href="#tosinfo2-edition">Finding the OS Edition</a></li>
+                    </ul>
+                </li>
+                <li><a href="#registry">Getting Information About NT 4 from the Registry</a>
+                    <ul>
+                        <li><a href="#registry-prodtype">Product Type</a></li>
+                        <li><a href="#registry-svcpack">Service Pack 6a</a></li>
+                    </ul>
+                </li>
+                <li><a href="#tosinfo3">OS Version Information Class: Version 3</a>
+                    <ul>
+                        <li><a href="#tosinfo3-regaccess">Registry Access Methods</a></li>
+                        <li><a href="#tosinfo3-public">Updated Public Methods</a></li>
+                    </ul>
+                </li>
+                <li><a href="#xp">More XP Related OS Information</a>
+                    <ul>
+                        <li><a href="#xp-tablet-media">XP Media Center and Tablet Editions</a></li>
+                        <li><a href="#xp-64bit">64 Bit Versions of XP</a></li>
+                    </ul>
+                </li>
+                <li><a href="#tosinfo4">OS Version Information Class: Version 4</a>
+                    <ul>
+                        <li><a href="#tosinfo4-tablet-media">Supporting XP Media Center and Tablet Editions</a></li>
+                        <li><a href="#tosinfo4-wow64">Detecting 64 bit Windows</a></li>
+                    </ul>
+                </li>
+                <li><a href="#demo">Demo code</a></li>
+                <li><a href="#feedback">Feedback</a></li>
+                </li>
+            </ul>
+        </div>
+
+    </nav>
+
+</section>
+
+<section id="intro">
+
+    <h2>Introduction</h2>
+
+    <p>There are times when you need to know information about the version of Windows your program is running on. For example:</p>
+
+    <ul>
+        <li>when reporting bugs;</li>
+        <li>when wishing to take different actions on different operating systems.</li>
+    </ul>
+
+
+    <p>The Windows API provides some version information that is common to all 32 bit Windows operating systems. Delphi's run time library (RTL) makes access to this information very straightforward. We will begin our exploration by seeing how to get the information from the Windows API. Next we will look at Delphi's RTL support and begin the development of a static class that uses this information to provide easy access to OS information.</p>
+
+    <p>Having reviewed the basic information we will then examine additional information provided by the operating system on later Windows NT OSs. We will use this information to enhance Delphi's RTL support for NT and to extend our static class.</p>
+
+    <p>Since the additional information we get from Windows is only available on later NT OSs, we will see how to get similar information for early NT OSs by accessing the registry. We will enhance our static class to be able to utilise the information from the registry.</p>
+
+    <p>The last enhancement of our static class will be made when we look at how to detect further information about Windows XP. In particular we will find out how to detect Windows Media Center and Tablet editions and how to learn if a program is running on 64 bit Windows.</p>
+
+    <p>Our exploration begins by discussing the basic information about the OS that is available on all Windows systems.</p>
+
+</section>
+
+<section id="winapi">
+
+    <h2>Common Windows API OS Information</h2>
+
+    <p> Windows provides the <var>GetVersionEx</var> API function that fills a structure with information describing the version of the underlying operating system. This function works for all 32 bit versions of Windows. In Delphi the structure is defined in the <var>Windows</var> unit as <var>TOSVersionInfo</var> &ndash; see <span class="figureref">Listing 1</span> below.</p>
+
+    <div id="listing-1" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">_OSVERSIONINFOA</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">record</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">dwOSVersionInfoSize</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">dwMajorVersion</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">dwMinorVersion</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">dwBuildNumber</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">dwPlatformId</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">szCSDVersion</span><span class="sym">:</span><span class="space"> </span><span class="kwd">array</span><span class="sym">[</span><span class="num">0</span><span class="sym">..</span><span class="num">127</span><span class="sym">]</span><span class="space"> </span><span class="kwd">of</span><span class="space"> </span><span class="ident">AnsiChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">_OSVERSIONINFO</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">_OSVERSIONINFOA</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">TOSVersionInfoA</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">_OSVERSIONINFOA</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="ident">TOSVersionInfo</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">TOSVersionInfoA</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 1</div>
+    </div>
+
+    <p>The structure's fields are explained in <span class="figureref">Table 1</span>:</p>
+
+    <div class="frame table-responsive" id="table-1">
+        <table class="table" summary="Table describing fields of TOSVersionInfo">
+            <caption>Fields of <var>TOSVersionInfo</var></caption>
+            <thead>
+                <tr>
+                    <th scope="col">Field</th>
+                    <th class="last" scope="col">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><var>dwOSVersionInfoSize</var></td>
+                    <td>Size of the structure in bytes.</td>
+                </tr>
+                <tr>
+                    <td><var>dwMajorVersion</var></td>
+                    <td>
+                        <p>Major version of the operating system. Possible values are:</p>
+                        <dl class="narrow light">
+                            <dt>4</dt>
+                            <dd>Windows NT 4.0, Windows Me, Windows 98 or Windows 95.</dd>
+                            <dt>5</dt>
+                            <dd>Windows Server 2003, Windows XP or Windows 2000.</dd>
+                        </dl>
+                    </td>
+                </tr>
+                <tr>
+                    <td><var>dwMinorVersion</var></td>
+                    <td>
+                        <p>Minor version of the operating system. Possible values are:</p>
+                        <dl class="narrow light">
+                            <dt>0</dt>
+                            <dd>Windows 2000, Windows NT 4.0 or Windows 95.</dd>
+                            <dt>1</dt>
+                            <dd>Windows XP.</dd>
+                            <dt>2</dt>
+                            <dd>Windows Server 2003.</dd>
+                            <dt>10</dt>
+                            <dd>Windows 98.</dd>
+                            <dt>90</dt>
+                            <dd>Windows Me.</dd>
+                        </dl>
+                    </td>
+                </tr>
+                <tr>
+                    <td><var>dwBuildNumber</var></td>
+                    <td>Build number of the operating system. On Windows 9x, the low order word contains the build number and the high order word contains the major and minor version numbers.</td>
+                </tr>
+                <tr>
+                    <td><var>dwPlatformId</var></td>
+                    <td>
+                        <p>Operating system platform. This member can take one of the following values:</p>
+                        <dl class="narrow light">
+                            <dt><var>VER_PLATFORM_WIN32_NT</var></dt>
+                            <dd>Windows NT OSs, i.e. Windows Server 2003, Windows XP, Windows 2000 or Windows NT.</dd>
+                            <dt><var>VER_PLATFORM_WIN32_WINDOWS</var></dt>
+                            <dd>Windows 9x OSs, i.e. Windows Me, Windows 98 or Windows 95.</dd>
+                            <dt><var>VER_PLATFORM_WIN32s</var></dt>
+                            <dd>Win32s on Windows 3.1. (This will not occur on Delphi since Delphi applications will not run on Win32s).</dd>
+                        </dl>
+                    </td>
+                </tr>
+                <tr>
+                    <td><var>szCSDVersion</var></td>
+                    <td>
+                        <p>Buffer containing a null terminated string identifying any installed service pack. On Windows NT OSs this string is the actual service pack name while on Windows 9x it is a single letter code that is interpreted as follows:</p>
+                        <dl class="narrow light">
+                            <dt>B or C</dt>
+                            <dd>Represents Windows 95 OSR2.</dd>
+                            <dt>A</dt>
+                            <dd>Represents Windows 98 SE (Second Edition).</dd>
+                        </dl>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">Table 1</div>
+    </div>
+
+    <p><span class="figureref">Listing 2</span> shows how to use <var>GetVersionEx</var> to fill a <var>TOSVersionInfo</var> structure with operating system information:</p>
+
+    <div id="listing-2" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">OSVI</span><span class="sym">:</span><span class="space"> </span><span class="ident">TOSVersionInfo</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">FillChar</span><span class="sym">(</span><span class="ident">OSVI</span><span class="sym">,</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">OSVI</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">OSVI</span><span class="sym">.</span><span class="ident">dwOSVersionInfoSize</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">OSVI</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">GetVersionEx</span><span class="sym">(</span><span class="ident">OSVI</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">raise</span><span class="space"> </span><span class="ident">Exception</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="str">&apos;Error calling GetVersionEx&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 2</div>
+    </div>
+
+    <p>Here we zero the <var>TOSVersionInfo</var> structure then set the <var>dwOSVersionInfoSize</var> field to the size of the structure &ndash; a common Windows API idiom. We then call <var>GetVersionEx</var>, raising an exception if the function returns false. If the function returns true then the information stored in the structure is valid.</p>
+
+    <p>We would normally go on to use the fields of <var>TOSVersionInfo</var> in our program. However, Delphi steps in to make this process easier, as can be seen below.</p>
+
+</section>
+
+<section id="rtl">
+
+    <h2>Delphi RTL Support</h2>
+
+    <p>Delphi's <var>SysUtils</var> unit provides some global variables that make accessing basic operating system version information very straightforward, saving the need to call <var>GetVersionEx</var> ourselves. The variables provide the same information as the <var>TOSVersionInfo</var> structure, as can be seen in <span class="figureref">Table 2</span>.</p>
+
+    <div class="frame table-responsive" id="table-2">
+        <table class="table" summary="Table describing the Delphi RTL's Win32XXX variables">
+            <caption>Delphi's <var>Win32XXX</var> Global Variables</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Variable</th>
+                    <th scope="col">Field</th>
+                    <th class="last" scope="col">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><var>Win32Platform</var></td>
+                    <td><var>dwPlatformId</var></td>
+                    <td>Operating system platform. Can take one of the <var>VER_PLATFORM_*</var> values noted in <span class="figureref"><a href="#table-1">Table 1</a></span>.</td>
+                </tr>
+                <tr>
+                    <td><var>Win32MajorVersion</var></td>
+                    <td><var>dwMajorVersion</var></td>
+                    <td>Major version of the operating system.</td>
+                </tr>
+                <tr>
+                    <td><var>Win32MinorVersion</var></td>
+                    <td><var>dwMinorVersion</var></td>
+                    <td>Minor version of the operating system.</td>
+                </tr>
+                <tr>
+                    <td><var>Win32BuildNumber</var></td>
+                    <td><var>dwBuildNumber</var></td>
+                    <td>Build number of the operating system. On Windows 9x systems the high order word is zeroed.</td>
+                </tr>
+                <tr>
+                    <td><var>Win32CSDVersion</var></td>
+                    <td><var>szCSDVersion</var></td>
+                    <td>Buffer containing a null terminated string identifying any installed service pack. For more information see <span class="figureref"><a href="#table-1">Table 1</a></span>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">Table 2</div>
+    </div>
+
+    <p>Delphi initializes the global variables in the <var>SysUtils</var> unit's initialization section. It does this by calling the <var>InitPlatformId</var> procedure which is shown in <span class="figureref">Listing 3</span> below:</p>
+
+    <div id="listing-3" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">InitPlatformId</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">OSVersionInfo</span><span class="sym">:</span><span class="space"> </span><span class="ident">TOSVersionInfo</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">OSVersionInfo</span><span class="sym">.</span><span class="ident">dwOSVersionInfoSize</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">OSVersionInfo</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">GetVersionEx</span><span class="sym">(</span><span class="ident">OSVersionInfo</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">with</span><span class="space"> </span><span class="ident">OSVersionInfo</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">      </span><span class="ident">Win32Platform</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">dwPlatformId</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">      </span><span class="ident">Win32MajorVersion</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">dwMajorVersion</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">      </span><span class="ident">Win32MinorVersion</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">dwMinorVersion</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">      </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Win32Platform</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">VER_PLATFORM_WIN32_WINDOWS</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">        </span><span class="ident">Win32BuildNumber</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">dwBuildNumber</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="hex">$FFFF</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">        </span><span class="ident">Win32BuildNumber</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">dwBuildNumber</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">      </span><span class="ident">Win32CSDVersion</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">szCSDVersion</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 3</div>
+    </div>
+
+    <p>Setting up <var>TOSVersionInfo</var> and calling <var>GetVersionEx</var> should be familiar from our previous discussion. Once Delphi has the version information, the global variables are simply assigned the value of the associated <var>TOSVersionInfo</var> field. The only exception to this is with <var>Win32BuildNumber</var> which, as noted in <span class="figureref"><a href="#table-2">Table 2</a></span>, has its high word zeroed in Windows 9x systems.</p>
+
+    <div class="callout callout-info">
+
+        <h4>Platform</h4>
+
+        <p><span class="figureref">Listing 3</span> detects the platform by testing <var>Win32Platform</var>. We will learn more about detecting the platform below.</p>
+
+    </div>
+
+</section>
+
+<section id="tosinfo">
+
+    <h2>OS Version Information Class: Version 1</h2>
+
+    <p>Having learned about the basic Windows and Delphi support for getting OS version information we are now ready to create a new static class, <var>TOSInfo</var>, that exposes OS version information in a user friendly way. We will use only the information provided by Delphi's global variables in this class's methods.</p>
+
+    <p>We begin by starting a new unit, <code>UOSInfo.pas</code>, and declaring a new, empty, class in the unit's interface section:</p>
+
+    <div id="listing-4" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TOSInfo</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TObject</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">public</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 4</div>
+    </div>
+
+    <p>In the following subsections we will add methods to the class.</p>
+
+
+    <h3 id="tosinfo-platform">Finding the OS Platform</h3>
+
+    <p>The most basic distinction between Windows operating systems is that between <em>platforms</em>. We can find the platform by examining Delphi's <var>Win32Platform</var> global variable. The value of the variable will be one of the integer constants described in the <var>dwPlatformId</var> entry in <span class="figureref"><a href="#table-1">Table 1</a></span>. These constants are defined in Delphi's <var>Windows</var> unit.</p>
+
+    <p>Our class will have two methods to test the platform &ndash; one to detect Windows 95 (<var>IsWin9x)</var> and one to test for the NT platform (<var>IsWinNT)</var>. Since Delphi programs will not run on Win32s we will not provide a method to detect that platform.</p>
+
+    <div class="callout callout-info">
+
+        <h4>Testing platforms</h4>
+
+        <p>Users should not assume that when <var>IsWin9x</var> returns false we must have an NT platform &ndash; to be sure the <var>IsWinNT</var> method should be tested instead and vice versa.</p>
+
+    </div>
+
+    <p>We can add the appropriate declarations to <var>TOSInfo</var>'s interface section and implement the methods as in <span class="figureref">Listing 5</span>:</p>
+
+    <div id="listing-5" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">IsWin9x</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">(</span><span class="ident">Win32Platform</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">VER_PLATFORM_WIN32_WINDOWS</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">IsWinNT</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">(</span><span class="ident">Win32Platform</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">VER_PLATFORM_WIN32_NT</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 5</div>
+    </div>
+
+    <h3 id="tosinfo-product">OS Product</h3>
+
+    <p>Now we have code that can check the platform we can move on to detecting which operating system product our applications are running on. There are various combinations of major and minor version numbers that, along with the platform, determine the product. These are summarised in <span class="figureref">Table 3</span>.</p>
+
+    <div class="frame table-responsive" id="table-3">
+        <table class="table" summary="Table mapping OS version numbers to Windows versions">
+            <caption>
+                Mapping of OS version numbers to Windows products
+            </caption>
+            <col style="width:15%;" />
+            <col style="width:15%;" />
+            <col style="width:35%;" />
+            <col style="width:35%;" />
+            <thead>
+                <tr>
+                    <th class="text-center">Major<br />Version</th>
+                    <th class="text-center">Minor<br />Version</th>
+                    <th>Windows 9x<br />Platform</th>
+                    <th>Windows NT<br />Platform</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">4</td>
+                    <td class="text-center">0</td>
+                    <td>Windows 95</td>
+                    <td>Windows NT 4</td>
+                </tr>
+                <tr>
+                    <td class="text-center">4</td>
+                    <td class="text-center">10</td>
+                    <td>Windows 98</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td class="text-center">4</td>
+                    <td class="text-center">90</td>
+                    <td>Windows Me</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td class="text-center">5</td>
+                    <td class="text-center">0</td>
+                    <td>-</td>
+                    <td>Windows 2000</td>
+                </tr>
+                <tr>
+                    <td class="text-center">5</td>
+                    <td class="text-center">1</td>
+                    <td>-</td>
+                    <td>Windows XP</td>
+                </tr>
+                <tr>
+                    <td class="text-center">5</td>
+                    <td class="text-center">2</td>
+                    <td>-</td>
+                    <td>Windows Server 2003</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">Table 3</div>
+    </div>
+
+    <p>We will design our new method, <var>Product</var>, to return an enumerated value that indicates the underlying operating system. We define this enumeration in the interface section of <code>UOSInfo.pas</code> as follows:</p>
+
+    <div id="listing-6" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TOSProduct</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">osUnknown</span><span class="sym">,</span><span class="space">          </span><span class="comment">// Unknown OS</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">osWin95</span><span class="sym">,</span><span class="space">            </span><span class="comment">// Windows 95</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">osWin98</span><span class="sym">,</span><span class="space">            </span><span class="comment">// Windows 98</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">osWinMe</span><span class="sym">,</span><span class="space">            </span><span class="comment">// Windows Me</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">osWinNT4</span><span class="sym">,</span><span class="space">           </span><span class="comment">// Windows NT 4.0</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">osWin2000</span><span class="sym">,</span><span class="space">          </span><span class="comment">// Windows 2000</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">osWinXP</span><span class="sym">,</span><span class="space">            </span><span class="comment">// Windows XP</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="ident">osWinServer2003</span><span class="space">     </span><span class="comment">// Windows Server 2003</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 6</div>
+    </div>
+
+    <p>Now we can add our <var>Product</var> method to <var>TOSInfo</var>. The method's implementation is shown in <span class="figureref">Listing 7</span>:</p>
+
+    <div id="listing-7" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">Product</span><span class="sym">:</span><span class="space"> </span><span class="ident">TOSProduct</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">osUnknown</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWin9x</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Win32MajorVersion</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">      </span><span class="num">4</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">      </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">        </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Win32MinorVersion</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">          </span><span class="num">0</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">osWin95</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">          </span><span class="num">10</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">osWin98</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">          </span><span class="num">90</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">osWinMe</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">        </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWinNT</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Win32MajorVersion</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">      </span><span class="num">4</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">      </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">        </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Win32MinorVersion</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">          </span><span class="num">0</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">osWinNT4</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">        </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">      </span><span class="num">5</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">      </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">        </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Win32MinorVersion</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">          </span><span class="num">0</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">osWin2000</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">          </span><span class="num">1</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">osWinXP</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">          </span><span class="num">2</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">osWinServer2003</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">        </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 7</div>
+    </div>
+
+    <p>This method is quite simple. It first sets an &quot;unknown&quot; return value in case the method fails to find the OS. We then take different branches according to the platform. Within each branch we test for valid combinations of major and minor versions, per <span class="figureref"><a href="#table-3">Table 3</a></span>, and return the value representing the OS.</p>
+
+    <h3 id="tosinfo-build">Build Number</h3>
+
+    <p>Once we know which product we're dealing with we may also want to know its build number. We will therefore add a <var>BuildNumber</var> method to our class. Its implementation is provided in <span class="figureref">Listing 8</span>. It simply returns the value of Delphi's <var>Win32BuildNumber</var> variable. (Remember, Delphi took care of masking out the most significant word when on the Windows 9x platform, so we don't need to do that here).</p>
+
+    <div id="listing-8" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">BuildNumber</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Win32BuildNumber</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 8</div>
+    </div>
+
+    <h3 id="tosinfo-svcpack">Service Pack</h3>
+
+    <p>The final method we will implement here is <var>ServicePack</var>. Earlier, in <span class="figureref"><a href="#table-1">Table 1</a></span>, it was noted that Windows provides the full name of NT platform service packs but only supplies a code letter on the Windows 9x platform. <span class="figureref">Listing 9</span> shows how we use Delphi's <var>Win32CSDVersion</var> variable to help us implement the method.</p>
+
+    <div id="listing-9" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">ServicePack</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWin9x</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Win32CSDVersion</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">      </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Product</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">        </span><span class="ident">osWin95</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">          </span><span class="kwd">if</span><span class="space"> </span><span class="ident">UpCase</span><span class="sym">(</span><span class="ident">Win32CSDVersion</span><span class="sym">[</span><span class="num">1</span><span class="sym">]</span><span class="sym">)</span><span class="space"> </span><span class="kwd">in</span><span class="space"> </span><span class="sym">[</span><span class="str">&apos;B&apos;</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;C&apos;</span><span class="sym">]</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">            </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;OSR2&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">        </span><span class="ident">osWin98</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">          </span><span class="kwd">if</span><span class="space"> </span><span class="ident">UpCase</span><span class="sym">(</span><span class="ident">Win32CSDVersion</span><span class="sym">[</span><span class="num">1</span><span class="sym">]</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="str">&apos;A&apos;</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">            </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;SE&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWinNT</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Win32CSDVersion</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 9</div>
+    </div>
+
+    <p>This method begins by assuming there is no service pack installed, so it sets the default result to the empty string. We then detect the platform. For Windows 9x we look for the characters 'A', 'B' or 'C' in <var>Win32CSDVersion</var> and return the required service pack name if they are found. For the NT platform we simply return the value of <var>Win32CSDVersion</var> since this will either be the empty string or will contain the service pack name in full.</p>
+
+    <div class="callout callout-warning">
+
+        <h4>NT 4 Complications</h4>
+
+        <p>This is not quite the whole story &ndash; this method won't detect Windows NT 4 Service Pack 6a. We'll address this problem <a href="#registry-svcpack">later in the article</a>.</p>
+
+    </div>
+
+    <p>We have now got all the information we can by using the Windows API that is common to all versions of Windows. It's time to move on to investigate further information that is specific to certain Windows platforms and OS versions.</p>
+
+</section>
+
+<section id="winapiex">
+
+    <h2>Extended Windows API OS Information</h2>
+
+    <p>So far we can detect the name of an OS product, but for the NT platform that's not enough. Think for a moment about Windows XP &ndash; there are both the Home and Professional editions. For Windows 2000 it's similarly complicated &ndash; we have both server (e.g. Advanced Server) and workstation (Professional) editions.</p>
+
+
+    <h3 id="winapiex-tosversioninfoex">TOSVersionInfoEx</h3>
+
+    <p>So, how do we get to this information? We make a start by examining the information provided by an extension of <var>TOSVersionInfo</var> named, unsurprisingly, <var>TOSVersionInfoEx</var>. <span class="figureref">Listing 10</span> shows a Pascal declaration of the structure. Note that Delphi does not declare it, so we need to include the definition in the interface section of <code>UOSInfo.pas</code>.</p>
+
+    <div id="listing-10" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TOSVersionInfoEx</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">packed</span><span class="space"> </span><span class="kwd">record</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">dwOSVersionInfoSize</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">dwMajorVersion</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">dwMinorVersion</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">dwBuildNumber</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">dwPlatformId</span><span class="sym">:</span><span class="space"> </span><span class="ident">DWORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">szCSDVersion</span><span class="sym">:</span><span class="space"> </span><span class="kwd">array</span><span class="sym">[</span><span class="num">0</span><span class="sym">..</span><span class="num">127</span><span class="sym">]</span><span class="space"> </span><span class="kwd">of</span><span class="space"> </span><span class="ident">AnsiChar</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">wServicePackMajor</span><span class="sym">:</span><span class="space"> </span><span class="ident">WORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="ident">wServicePackMinor</span><span class="sym">:</span><span class="space"> </span><span class="ident">WORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="ident">wSuiteMask</span><span class="sym">:</span><span class="space"> </span><span class="ident">WORD</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">wProductType</span><span class="sym">:</span><span class="space"> </span><span class="ident">Byte</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">wReserved</span><span class="sym">:</span><span class="space"> </span><span class="ident">Byte</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 10</div>
+    </div>
+
+    <p>We can see that the first six fields of <var>TOSVersionInfoEx</var> are the same as <var>TOSVersionInfo</var> (explained in <span class="figureref"><a href="#table-1">Table 1</a></span>). The new structure simply adds fields to the end of the old structure. <span class="figureref">Table 4</span> explains the purpose of the new fields:</p>
+
+    <div class="frame table-responsive" id="table-4">
+        <table class="table" summary="Table describing additional fields of TOSVersionInfoEx">
+            <caption>
+                Additional fields of <var>TOSVersionInfoEx</var>
+            </caption>
+            <thead>
+                <tr>
+                    <th scope="col">Field</th>
+                    <th scope="col">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><var>wServicePackMajor</var></td>
+                    <td>Major version number of the latest Service Pack installed on the system. If no Service Pack has been installed, the value is zero.</td>
+                </tr>
+                <tr>
+                    <td><var>wServicePackMinor</var></td>
+                    <td>Minor version number of the latest Service Pack installed on the system.</td>
+                </tr>
+                <tr>
+                    <td><var>wSuiteMask</var></td>
+                    <td>
+                        <p>Bit mask that identifies the product suites available on the system. This member can be a combination of the numerous <var>VER_SUITE_*</var> values defined by Microsoft. The values we will use here are:</p>
+                        <dl class="narrow light">
+                            <dt><var>VER_SUITE_ENTERPRISE</var></dt>
+                            <dd>Windows Server 2003 Enterprise Edition, Windows 2000 Advanced Server or Windows NT 4.0 Enterprise Edition.</dd>
+                            <dt><var>VER_SUITE_DATACENTER</var></dt>
+                            <dd>Windows Server 2003 Datacenter Edition or Windows 2000 Datacenter Server.</dd>
+                            <dt><var>VER_SUITE_PERSONAL</var></dt>
+                            <dd>Windows XP Home Edition.</dd>
+                            <dt><var>VER_SUITE_BLADE</var></dt>
+                            <dd>Windows Server 2003 Web Edition.</dd>
+                        </dl>
+                        <alert>
+                            <p class="callout callout-info">There are other values that I'm not describing here, but you can find them declared in <span class="figureref"><a href="#listing-11">Listing 11</a></span>.</p>
+                        </alert>
+                    </td>
+                </tr>
+                <tr>
+                    <td><var>wProductType</var></td>
+                    <td>
+                        <p>Additional information about the operating system product. This member can take one of the following values:</p>
+                        <dl class="narrow light">
+                            <dt><var>VER_NT_WORKSTATION</var></dt>
+                            <dd>The system is a workstation edition. It is running Windows XP Professional, Windows XP Home, Windows 2000 Professional or Windows NT 4.0 Workstation.</dd>
+                            <dt><var>VER_NT_DOMAIN_CONTROLLER</var></dt>
+                            <dd>The system is a domain controller.</dd>
+                            <dt><var>VER_NT_SERVER</var></dt>
+                            <dd>The system is a server.</dd>
+                        </dl>
+                    </td>
+                </tr>
+                <tr>
+                    <td><var>wReserved</var></td>
+                    <td>Reserved for future use.</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">Table 4</div>
+    </div>
+
+    <p>Delphi defines neither the <var>VER_NT_*</var> nor <var>VER_SUITE_*</var> constants discussed in <span class="figureref">Table 4</span>, so we must add the definitions to our <var>UOSInfo</var> unit's interface section. <span class="figureref">Listing 11</span> shows the required definitions. Note that the listing declares all documented <var>VER_SUITE_*</var> flags, not just those described in <span class="figureref">Table 4</span>.</p>
+
+    <div id="listing-11" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">const</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="comment">// NT Product types: used by dwProductType field</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">VER_NT_WORKSTATION</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$0000001</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">VER_NT_DOMAIN_CONTROLLER</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$0000002</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">VER_NT_SERVER</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$0000003</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="comment">// NT product suite mask values: used by wSuiteMask field</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">VER_SUITE_SMALLBUSINESS</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000001</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">VER_SUITE_ENTERPRISE</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000002</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">VER_SUITE_BACKOFFICE</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000004</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">VER_SUITE_COMMUNICATIONS</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000008</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">VER_SUITE_TERMINAL</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000010</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="ident">VER_SUITE_SMALLBUSINESS_RESTRICTED</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000020</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">VER_SUITE_EMBEDDEDNT</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000040</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="ident">VER_SUITE_DATACENTER</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000080</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="ident">VER_SUITE_SINGLEUSERTS</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000100</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="ident">VER_SUITE_PERSONAL</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000200</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="ident">VER_SUITE_SERVERAPPLIANCE</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$00000400</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="ident">VER_SUITE_BLADE</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">VER_SUITE_SERVERAPPLIANCE</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 11</div>
+    </div>
+
+    <p>So, we've got a new structure that gives us extra information to play with, but how to we get the information from Windows?</p>
+
+
+    <h3 id="winapiex-populate">Populating TOSVersionInfoEx</h3>
+
+    <As><var>TOSVersionInfoEx</var> is only supported on some NT platforms (those after NT 4 Service Pack 5) and not at all on the Windows 9x platform. As a result we have to check that we can use it. Here's an apparent paradox: how do we check what OS we are using before calling the code that checks the OS?</p>
+
+        <p>The answer is quite simple, if a little convoluted. We call <var>GetVersionEx()</var> passing it a <var>TOSVersionInfoEx</var> instead of a <var>TOSVersionInfo</var> structure. If that call fails we have to pass <var>GetVersionEx()</var> a <var>TOSVersionInfo</var> structure instead. In actual fact we pass <var>TOSVersionInfoEx</var> again with the <var>dwOSVersionInfoSize</var> field set to the size of a <var>TOSVersionInfo</var> structure. This works because the first fields of <var>TOSVersionInfoEx</var> are the same as <var>TOSVersionInfo</var>.</p>
+
+        <p><span class="figureref">Listing 12</span> shows how this is done. On OSs that do not support <var>TOSVersionInfoEx</var>, only the first six fields will be completed. The <var>IsExtended</var> variable is true if the whole of the structure is populated and false if not.</p>
+
+        <div id="listing-12" class="frame">
+            <div class="code-pascal">
+                <pre class="line"><span class="linenum">  1</span><span class="kwd">var</span></pre>
+                <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">POSV</span><span class="sym">:</span><span class="space"> </span><span class="ident">POSVersionInfo</span><span class="sym">;</span><span class="space"> </span><span class="comment">// pointer to OS version info structure</span></pre>
+                <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">IsExtended</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span><span class="space">  </span><span class="comment">// flags whether extended structure used</span></pre>
+                <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// ...</span></pre>
+                <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="comment">// Clear the structure</span></pre>
+                <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">FillChar</span><span class="sym">(</span><span class="ident">OSV</span><span class="sym">,</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">OSV</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="comment">// Get pointer to structure of non-extended type</span></pre>
+                <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="comment">// (GetVersionEx requires non-extended structure: we need</span></pre>
+                <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="comment">// this pointer to get it to accept our extended structure!!)</span></pre>
+                <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="preproc">{$TYPEDADDRESS OFF}</span></pre>
+                <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">POSVI</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">@</span><span class="ident">OSV</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="preproc">{$TYPEDADDRESS ON}</span></pre>
+                <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="comment">// We first try to get extended information</span></pre>
+                <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="ident">OSV</span><span class="sym">.</span><span class="ident">dwOSVersionInfoSize</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">TOSVersionInfoEx</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="ident">IsExtended</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetVersionEx</span><span class="sym">(</span><span class="ident">POSV</span><span class="sym">^</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">IsExtended</span><span class="space"> </span><span class="kwd">then</span></pre>
+                <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">begin</span></pre>
+                <pre class="line"><span class="linenum"> 19</span><span class="space">    </span><span class="comment">// We failed to get extended info: try with old structure</span></pre>
+                <pre class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="ident">OSV</span><span class="sym">.</span><span class="ident">dwOSVersionInfoSize</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">TOSVersionInfo</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">GetVersionEx</span><span class="sym">(</span><span class="ident">POSV</span><span class="sym">^</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+                <pre class="line"><span class="linenum"> 22</span><span class="space">      </span><span class="comment">// We failed again: shouldn&apos;t happen so raise exception</span></pre>
+                <pre class="line"><span class="linenum"> 23</span><span class="space">      </span><span class="kwd">raise</span><span class="space"> </span><span class="ident">Exception</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="str">&apos;Can&apos;&apos;t get OS info&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 24</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+                <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="comment">// ...</span></pre>
+                <pre class="line"><span class="linenum"> 26</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            </div>
+            <div class="caption">Listing 12</div>
+        </div>
+
+        <p>Let us examine the code in detail. We first zero the <var>TOSVersionInfoEx</var> record then set its <var>dwOSVersionInfoSize</var> field to the size of the extended structure. Then we call the <var>GetVersionEx()</var> API function. If this function fails we reset the <var>dwOSVersionInfoSize</var> field to the size of a <var>TOSVersionInfo</var> structure and try again. This call should succeed. If it fails we raise an exception.</p>
+
+        <p>Now the <var>Windows</var> unit defines <var>GetVersionEx()</var> to accept a <var>TOSVersionInfo</var> parameter rather than one of type <var>TOSVersionInfoEx</var>. Because of Delphi's strong typing we have to be a little underhand to get <var>GetVersionEx()</var> to accept our <var>TOSVersionInfoEx</var> parameter. This is accomplished by taking the address of the <var>TOSVersionInfoEx</var> record and casting it to a pointer to a <var>TOSVersionInfo</var> structure. Then we de-reference the pointer when passing to <var>GetVersionEx()</var>. Dirty but it works!</p>
+
+        <p>In the above code the <var>IsExtended</var> variable enables us to remember whether the structure contains extended information or not. Another method of checking is to read the structure size stored in the <var>dwOSVersionInfoSize</var> field &ndash; it will be <var>SizeOf(TOSVersionInfoEx)</var> if we have extended information and <var>SizeOf(TOSVersionInfo)</var> if not.</p>
+
+        <p>We now have some additional information at our disposal with which to describe later NT platform operating systems. Rather than using this directly, we will follow Delphi's example and provide some global variables to store the extended OS version information. Later we will adapt our <var>TOSInfo</var> class to use these new global variables.</p>
+
+</section>
+
+<section id="rtlex">
+
+    <h2>Extending Delphi's RTL Support</h2>
+
+    <p>Recall that Delphi's <var>Win32XXX</var> global variables are set to the values of the fields of <var>TOSVersionInfo</var> when the program starts up. So it makes sense to provide more global variables that get their values from the additional fields of <var>TOSVersionInfoEx</var>. We will also provide a Boolean variable that records whether the extended information is available. The new variables are described in <span class="figureref">Table 5</span>.</p>
+
+    <div class="frame table-responsive" id="table-5">
+        <table class="table" summary="Table describing new Win32XXX variables">
+            <caption>
+                Additional <var>Win32XXX</var> global variables
+            </caption>
+            <thead>
+                <tr>
+                    <th scope="col">Variable</th>
+                    <th scope="col">Field</th>
+                    <th scope="col">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><var>Win32ServicePackMajor</var></td>
+                    <td><var>wServicePackMajor</var></td>
+                    <td>Major version of any installed service pack or 0 if no such pack. Default value 0.</td>
+                </tr>
+                <tr>
+                    <td><var>Win32ServicePackMinor</var></td>
+                    <td><var>wServicePackMinor</var></td>
+                    <td>Minor version of any installed service pack. Default value 0.</td>
+                </tr>
+                <tr>
+                    <td><var>Win32SuiteMask</var></td>
+                    <td><var>wSuiteMask</var></td>
+                    <td>Bit flags that identify the product suites available on the system. Valid bit flags are defined by the <var>VER_SUITE_XXX</var> constants declared in <span class="figureref"><a href="#listing-11">Listing 11</a></span>. Default value 0.</td>
+                </tr>
+                <tr>
+                    <td><var>Win32ProductType</var></td>
+                    <td><var>wProductType</var></td>
+                    <td>Additional information about the operating system. Possible values are given by the <var>VER_NT_XXX</var> constants declared in <span class="figureref"><a href="#listing-11">Listing 11</a></span>. Default value 0.</td>
+                </tr>
+                <tr>
+                    <td><var>Win32HaveExInfo</var></td>
+                    <td>&ndash; N/a &ndash;</td>
+                    <td>Flag true if we have extended operation system version information and false if not. When this flag is false the variables above have no meaning and are zeroed.</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">Table 5</div>
+    </div>
+
+    <p>We will declare the new global variables in the interface section of <var>UOSInfo</var> as shown in <span class="figureref">Listing 13</span>.</p>
+
+    <div id="listing-13" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">Win32HaveExInfo</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">False</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Win32ServicePackMajor</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Win32ServicePackMinor</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Win32SuiteMask</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Win32ProductType</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 13</div>
+    </div>
+
+    <p>All that remains to do is to try to get the extended information at start up and to store the required values in the global variables. Using the <var>SysUtils</var> <var>InitPlatformId</var> procedure as an example we will add a routine named <var>InitPlatfornIdEx</var> to <var>UOSInfo</var>'s implementation section and call it in the initialization section. <span class="figureref">Listing 14</span> gives the required code.</p>
+
+    <div id="listing-14" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">InitPlatformIdEx</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">OSVI</span><span class="sym">:</span><span class="space"> </span><span class="ident">TOSVersionInfoEx</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">POSVI</span><span class="sym">:</span><span class="space"> </span><span class="ident">POSVersionInfo</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">FillChar</span><span class="sym">(</span><span class="ident">OSVI</span><span class="sym">,</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">OSVI</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="preproc">{$TYPEDADDRESS OFF}</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">POSVI</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="sym">@</span><span class="ident">OSVI</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="preproc">{$TYPEDADDRESS ON}</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">OSVI</span><span class="sym">.</span><span class="ident">dwOSVersionInfoSize</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">TOSVersionInfoEx</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="ident">Win32HaveExInfo</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetVersionEx</span><span class="sym">(</span><span class="ident">POSVI</span><span class="sym">^</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Win32HaveExInfo</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">Win32ServicePackMajor</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">OSVI</span><span class="sym">.</span><span class="ident">wServicePackMajor</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="ident">Win32ServicePackMinor</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">OSVI</span><span class="sym">.</span><span class="ident">wServicePackMinor</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">Win32SuiteMask</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">OSVI</span><span class="sym">.</span><span class="ident">wSuiteMask</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">Win32ProductType</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">OSVI</span><span class="sym">.</span><span class="ident">wProductType</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 22</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">initialization</span></pre>
+            <pre class="line"><span class="linenum"> 24</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="ident">InitPlatformIdEx</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="kwd">end</span><span class="sym">.</span></pre>
+        </div>
+        <div class="caption">Listing 14</div>
+    </div>
+
+    <p>This routine works in a similar same way to that presented in <span class="figureref"><a href="#listing-12">Listing 12</a></span>. The main difference is that we don't try to call <var>GetVersionEx</var> with <var>TOSVersionInfo</var> if the call with <var>TOSVersionInfoEx</var> fails. This is not necessary since Delphi has already recorded the information that <var>TOSVersionInfo</var> provides. We simply use <var>Win32HaveExInfo</var> to record whether <var>GetVersionEx</var> succeeds and set the remaining global variables if so.</p>
+
+</section>
+
+<section id="tosinfo2">
+
+    <h2>OS Version Information Class: Version 2</h2>
+
+    <p>Now that we've explored how to get the additional OS information from the Windows API we are ready to extend our OS version information class accordingly.</p>
+
+    <h3 id="tosinfo2-svcpack">Service Pack Versions</h3>
+
+    <p>We will begin by adding two new parameterless class methods &ndash; <var>Win32ServicePackMajor</var> and <var>Win32ServicePackMinor</var> &ndash; and implementing them as shown in <span class="figureref">Listing 15</span>. The methods return the major and minor service pack versions for supported Windows NT operating systems or 0 if the OS is not supported or has no service pack applied. As can be seen in the listing, the methods simply return the value of the corresponding global variable that we defined in the previous section.</p>
+
+    <div id="listing-15" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">ServicePackMajor</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Win32ServicePackMajor</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">ServicePackMinor</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Win32ServicePackMinor</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 15</div>
+    </div>
+
+    <p class="callout callout-warning">These methods do not work for NT4 service pack 5 and earlier &ndash; the <var>ServicePack</var> method should be checked in these cases.</p>
+
+    <h3 id="tosinfo2-prodtype">Product Type</h3>
+
+    <p>Now we turn our attention to the information stored in the <var>Win32ProductType</var> variable. We have the following possibilities:</p>
+
+    <ul>
+
+        <li>The variable is not valid, either because we have an NT platform OS that doesn't support the extended OS info, or because we have a non-NT platform.</li>
+
+        <li>We have a supported NT platform in which case the variable informs us whether we have a workstation, server or domain controller system.</li>
+
+    </ul>
+
+    <p>We will define a class method to distinguish these possibilities. The method will return an enumerated value of type <var>TOSProductType</var> that we will define in our unit's interface section as:</p>
+
+    <div id="listing-16" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TOSProductType</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">ptNA</span><span class="sym">,</span><span class="space">                 </span><span class="comment">// not applicable: not a Windows NT platform</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">ptUnknown</span><span class="sym">,</span><span class="space">            </span><span class="comment">// unknown NT product type</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">ptNTWorkstation</span><span class="sym">,</span><span class="space">      </span><span class="comment">// NT workstation</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">ptNTServer</span><span class="sym">,</span><span class="space">           </span><span class="comment">// NT server</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">ptNTDomainController</span><span class="space">  </span><span class="comment">// NT domain controller</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 16</div>
+    </div>
+
+    <p><span class="figureref">Listing 17</span> shows the implementation of the new method, which should have its prototype added to the class declaration.</p>
+
+    <div id="listing-17" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">ProductType</span><span class="sym">:</span><span class="space"> </span><span class="ident">TOSProductType</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWinNT</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Win32ProductType</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">      </span><span class="ident">VER_NT_WORKSTATION</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNTWorkstation</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">      </span><span class="ident">VER_NT_SERVER</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNTServer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">      </span><span class="ident">VER_NT_DOMAIN_CONTROLLER</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNTDomainController</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">      </span><span class="kwd">else</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptUnknown</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNA</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 17</div>
+    </div>
+
+    <p>We first check to see if we have an NT platform OS and return <var>ptNA</var> if not. If we have an NT platform OS then we check the value of the <var>Win32ProductType</var> global against its possible values and return the associated value from <var>TOSProductType</var> if a match is found. Where the value is unrecognised we return <var>ptUnknown</var>. You may have noticed that we don't use <var>Win32HaveExInfo</var> to check whether extended OS information is supported. This is because <var>Win32ProductType</var> is set to zero in this event, causing all the <span class="kwd">case</span> clauses to fail and <var>ptUnknown</var> to be returned.</p>
+
+
+    <h3 id="tosinfo2-server">Checking for Server OSs</h3>
+
+    <p>We may also find it useful to be able to quickly check whether the operating system is a server system. To do this we add a new class method named <var>IsServer</var> to <var>TOSInfo</var>. <span class="figureref">Listing 18</span> defines the method.</p>
+
+    <div id="listing-18" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">IsServer</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ProductType</span><span class="space"> </span><span class="kwd">in</span><span class="space"> </span><span class="sym">[</span><span class="ident">ptNTServer</span><span class="sym">,</span><span class="space"> </span><span class="ident">ptNTDomainController</span><span class="sym">]</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 18</div>
+    </div>
+
+    <p>The method is defined in terms of the <var>ProductType</var> method &ndash; it simply checks if <var>ProductType</var> returns a value that represents an NT server OS.</p>
+
+    <div class="callout callout-warning">
+
+        <h4>Warning</h4>
+
+        <p><var>IsServer</var> will always return false if we have an NT4 server that has service pack 5 or lower. The solution of this problem will be discussed <a href="#listing-25">later in the article</a>.</p>
+
+    </div>
+
+
+    <h3 id="tosinfo2-edition">Finding the OS Edition</h3>
+
+    <p>As we have already noted, each NT operating system version is sub-divided into various &quot;editions&quot;. We will now extend <var>TOSInfo</var> to be able to detect and describe these editions. We do this by defining a new class method &ndash; <var>Edition</var> &ndash; that returns a string that describes the edition. The method will return the empty string if the edition is not known or if we are not using the NT platform. <span class="figureref">Listing 19</span> shows the method's implementation.</p>
+
+    <div id="listing-19" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">Edition</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWinNT</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Win32HaveExInfo</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">      </span><span class="comment">// Test for edition on Windows NT 4 SP6 and later</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">      </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsServer</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">      </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">        </span><span class="comment">// Server type</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">        </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Product</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">          </span><span class="ident">osWinNT4</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">          </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">            </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CheckSuite</span><span class="sym">(</span><span class="ident">VER_SUITE_ENTERPRISE</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Server 4.0, Enterprise Edition&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">            </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Server 4.0&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">          </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">          </span><span class="ident">osWin2000</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">          </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">            </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CheckSuite</span><span class="sym">(</span><span class="ident">VER_SUITE_DATACENTER</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Datacenter Server&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">            </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CheckSuite</span><span class="sym">(</span><span class="ident">VER_SUITE_ENTERPRISE</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Advanced Server&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">            </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Standard Edition&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">          </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">          </span><span class="ident">osWinServer2003</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">          </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">            </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CheckSuite</span><span class="sym">(</span><span class="ident">VER_SUITE_DATACENTER</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;DataCenter Edition&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">            </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CheckSuite</span><span class="sym">(</span><span class="ident">VER_SUITE_ENTERPRISE</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Enterprise Edition&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">            </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CheckSuite</span><span class="sym">(</span><span class="ident">VER_SUITE_BLADE</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Web Edition&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="space">            </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 38</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Standard Edition&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 39</span><span class="space">          </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 40</span><span class="space">        </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 41</span><span class="space">      </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 42</span><span class="space">      </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 43</span><span class="space">      </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 44</span><span class="space">        </span><span class="comment">// Workstation type</span></pre>
+            <pre class="line"><span class="linenum"> 45</span><span class="space">        </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Product</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum"> 46</span><span class="space">          </span><span class="ident">osWinNT4</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 47</span><span class="space">            </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Workstation 4.0&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 48</span><span class="space">          </span><span class="ident">osWin2000</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 49</span><span class="space">            </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Professional&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 50</span><span class="space">          </span><span class="ident">osWinXP</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 51</span><span class="space">          </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 52</span><span class="space">            </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CheckSuite</span><span class="sym">(</span><span class="ident">VER_SUITE_PERSONAL</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 53</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Home Edition&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 54</span><span class="space">            </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 55</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Professional&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 56</span><span class="space">          </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 57</span><span class="space">        </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 58</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 59</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 60</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 61</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 19</div>
+    </div>
+
+    <p>We first set the result to the empty string in case we fail to find any information about the edition. We then check that we have an NT operating system &ndash; we are done if not. Next we check that we have extended OS information available by examining <var>Win32HaveExInfo</var>. Again we have nothing more to do if this variable is false.</p>
+
+    <p>The rest of the method depends on whether we have a server OS or a workstation version. We proceed similarly in either case. First we determine the OS product. For some workstations this is all the information we need to determine the edition (for example the only Windows 2000 workstation is the Professional Edition). In other cases we then need to check the operating system suite bitmask (stored in <var>Win32SuiteMask</var>) to see which <var>VER_SUITE_*</var> constants it contains. This bitmask gives us the appropriate edition.</p>
+
+    <p class="callout callout-warning">Once again, this method will not work for NT4 service pack 5 and earlier. An empty string will be returned by <var>Edition</var> in this case. We will fix this problem <a href="#listing-26">later in the article</a> where we will modify the method to work when <var>Win32HaveExInfo</var> is false.</p>
+
+    <p>To help keep <var>Edition</var>'s code tidy we define a private helper method &ndash; <var>CheckSuite</var> &ndash; to examine the <var>Win32SuiteMask</var> bitmask. We pass <var>CheckSuite</var> the required bit flag and it returns true if <var>Win32SuiteMask</var> contains the flag. <var>CheckSuite</var> is defined in <span class="figureref">Listing 20</span>.</p>
+
+    <div id="listing-20" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">CheckSuite</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Suite</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Win32SuiteMask</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="ident">Suite</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 20</div>
+    </div>
+
+    <p>This completes our discussion of extended OS information available from Windows. In the next section we will look at getting more information about early NT 4 operating systems from the registry.</p>
+
+</section>
+
+<section id="registry">
+
+    <h2>Getting Information About NT 4 from the Registry</h2>
+
+    <p>It has been noted above that the extended operation system information provided by the Windows API is not available in versions of NT 4 prior to Service Pack 6. In this section we will look at how to overcome this problem by reading the required information from the registry.</p>
+
+    <p>There are two pieces of relevant information we can get from the registry:</p>
+
+    <ul>
+        <li>The NT product type.</li>
+        <li>Whether NT 4 Service Pack 6 or 6a is installed.</li>
+    </ul>
+
+    <h3 id="registry-prodtype">Product Type</h3>
+
+    <p>Let us first look at how to get the product type. Windows stores information about the edition of the NT4 OS in the registry under this key:</p>
+
+    <p class="indent"><code>HKLM\SYSTEM\CurrentControlSet\Control\ProductOptions</code></p>
+
+    <p>The key's <var>ProductName</var> value stores a code that indicates the product type. Values and their interpretation are shown in <span class="figureref">Table 6</span>.</p>
+
+    <div class="frame table-responsive" id="table-6">
+        <table class="table" summary="Table describing registry entries for NT4 OS information">
+            <caption>
+                NT4 Registry Entries
+            </caption>
+            <thead>
+                <tr>
+                    <th scope="col">Code</th>
+                    <th scope="col">Edition</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>WINNT</code></td>
+                    <td>Workstation</td>
+                </tr>
+                <tr>
+                    <td><code>LANMANNT</code></td>
+                    <td>Server</td>
+                </tr>
+                <tr>
+                    <td><code>SERVERNT</code></td>
+                    <td>Advanced Server</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">Table 6</div>
+    </div>
+
+    <h3 id="registry-svcpack">Service Pack 6a</h3>
+
+    <p>We detect whether NT Service Pack 6a is installed by checking that <var>Win32CSDVersion</var> contains the string 'Service Pack 6' and then checking for the existence of the registry key:</p>
+
+    <p class="indent"><code>HKLM\SOFTWARE\Microsoft\Windows&nbsp;NT\CurrentVersion\Hotfix\Q246009</code></p>
+
+    <p>If the key exists we have Service Pack 6a. Arcane, isn't it?</p>
+
+    <h2 id="tosinfo3">OS Version Information Class: Version 3</h2>
+
+    <p>Having seen what information we can find from the registry, and how to get it, we can update our operating system information class to work correctly with earlier versions of Windows NT 4.</p>
+
+    <p>First we will define a couple of new private static methods to get the required information from the registry and then we will update various public methods.</p>
+
+    <h3 id="tosinfo3-regaccess">Registry Access Methods</h3>
+
+    <p>We will create two new private methods that access the registry: <var>GetNT4ProductType</var> to read the product type and <var>IsNT4SP6a</var> to check for NT 4 Service Pack 6a.</p>
+
+    <p><var>GetNT4ProductType</var> will read the product type from the registry and return the equivalent <var>TOSProductType</var> code. Before doing this we will need to define a new <var>TOSProductType</var> value &ndash; <var>ptNTAdvancedServer</var> to represent NT 4 Advanced Server. <span class="figureref">Listing 21</span> shows the revised declaration of <var>TOSProductType</var>.</p>
+
+    <div id="listing-21" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TOSProductType</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">    </span><span class="ident">ptNA</span><span class="sym">,</span><span class="space">                 </span><span class="comment">// not applicable: not a Windows NT platform</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">ptUnknown</span><span class="sym">,</span><span class="space">            </span><span class="comment">// unknown NT product type</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">ptNTWorkstation</span><span class="sym">,</span><span class="space">      </span><span class="comment">// NT workstation</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">ptNTServer</span><span class="sym">,</span><span class="space">           </span><span class="comment">// NT server</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">ptNTDomainController</span><span class="sym">,</span><span class="space"> </span><span class="comment">// NT domain controller</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">ptNTAdvancedServer</span><span class="space">    </span><span class="comment">// NT advanced server</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 21</div>
+    </div>
+
+    <p>Having extended <var>TOSProductType</var> we can now implement <var>GetNT4ProductType</var> as per <span class="figureref">Listing 22</span>.</p>
+
+    <div id="listing-22" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">GetNT4ProductType</span><span class="sym">:</span><span class="space"> </span><span class="ident">TOSProductType</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Reg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TRegistry</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">ProductType</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptUnknown</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">Reg</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TRegistry</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">try</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">Reg</span><span class="sym">.</span><span class="ident">RootKey</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">HKEY_LOCAL_MACHINE</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Reg</span><span class="sym">.</span><span class="ident">OpenKeyReadOnly</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">      </span><span class="str">&apos;SYSTEM\CurrentControlSet\Control\ProductOptions&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="ident">ProductType</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Reg</span><span class="sym">.</span><span class="ident">ReadString</span><span class="sym">(</span><span class="str">&apos;ProductType&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">      </span><span class="kwd">if</span><span class="space"> </span><span class="ident">SameText</span><span class="sym">(</span><span class="ident">ProductType</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;WINNT&apos;</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNTWorkstation</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">      </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">SameText</span><span class="sym">(</span><span class="ident">ProductType</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;LANMANNT&apos;</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNTServer</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">      </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">SameText</span><span class="sym">(</span><span class="ident">ProductType</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;SERVERNT&apos;</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNTAdvancedServer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">      </span><span class="ident">Reg</span><span class="sym">.</span><span class="ident">CloseKey</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">    </span><span class="ident">Reg</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 22</div>
+    </div>
+
+    <p>We first set a default result of <var>ptUnknown</var> in case we can't read an expected value from the registry. Then we create a <var>TRegistry</var> object via which we access the registry. Next we open the key described in the previous section and read the <var>ProductType</var> value. Finally the product type code is mapped onto an equivalent <var>TOSProductType</var> value. Remember that <span class="figureref"><a href="#table-6">Table 6</a></span> lists the possible values of the <var>ProductType</var> registry entry.</p>
+
+    <p>Now we can look at the definition of <var>IsNT4SP6a</var>. See <span class="figureref">Listing 23</span>.</p>
+
+    <div id="listing-23" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">IsNT4SP6a</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Reg</span><span class="sym">:</span><span class="space"> </span><span class="ident">TRegistry</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="sym">(</span><span class="ident">Product</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">osWinNT4</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">and</span><span class="space"> </span><span class="ident">SameText</span><span class="sym">(</span><span class="ident">Win32CSDVersion</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;Service Pack 6&apos;</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="comment">// System is reporting NT4 SP6</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="comment">// we have SP 6a if particular registry key exists</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="ident">Reg</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TRegistry</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">try</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">      </span><span class="ident">Reg</span><span class="sym">.</span><span class="ident">RootKey</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">HKEY_LOCAL_MACHINE</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Reg</span><span class="sym">.</span><span class="ident">KeyExists</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">        </span><span class="str">&apos;SOFTWARE\Microsoft\Windows NT\CurrentVersion\Hotfix\Q246009&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">      </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">finally</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">      </span><span class="ident">Reg</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="comment">// System not reporting NT4 SP6, so not SP6a!</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">False</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 23</div>
+    </div>
+
+    <p>First we check whether we have Windows NT 4 and that Service Pack 6 is being reported by Delphi's <var>Win32CSDVersion</var> global variable. Then we create a <var>TRegistry</var> object and use it to check for the presence of the registry key that indicates Service Pack 6a is present. We return true if the key is present and false otherwise.</p>
+
+    <p>Now we have the registry access methods we need it's time to move on to modify some of <var>TOSInfo's</var> public methods to make use of the registry information.</p>
+
+    <h3 id="tosinfo3-public">Updated Public Methods</h3>
+
+    <p>We need to update four public methods to take account of the new information we have about NT 4. They are:</p>
+
+    <ul>
+
+        <li><var>ProductType</var> &ndash; to get the NT 4 product types from the registry.</li>
+
+        <li><var>IsServer</var> &ndash; to take account of the new <var>ptNTAdvancedServer</var> product type.</li>
+
+        <li><var>Edition</var> &ndash; to describe the NT 4 editions that we learn about from the registry.</li>
+
+        <li><var>ServicePack</var> &ndash; to include detection of NT 4 service pack 6a.</li>
+
+    </ul>
+
+    <p>We begin with <var>ProductType</var>. <span class="figureref">Listing 24</span> shows the revised method in full.</p>
+
+    <div id="listing-24" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">ProductType</span><span class="sym">:</span><span class="space"> </span><span class="ident">TOSProductType</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWinNT</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Win32HaveExInfo</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">      </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Win32ProductType</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">        </span><span class="ident">VER_NT_WORKSTATION</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNTWorkstation</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">        </span><span class="ident">VER_NT_SERVER</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNTServer</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">        </span><span class="ident">VER_NT_DOMAIN_CONTROLLER</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNTDomainController</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">        </span><span class="kwd">else</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptUnknown</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetNT4ProductType</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ptNA</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 24</div>
+    </div>
+
+    <p>We now check if <var>Win32HaveExInfo</var> is true and proceed as before if so. When extended version information is not present we know we must look in the registry for the product type, which we do by calling the new <var>GetNT4ProductType</var> private method.</p>
+
+    <p>Next up is <var>IsServer</var>. As <span class="figureref">Listing 25</span> shows, all we need to do is add <var>ptNTAdvancedServer</var> to the list of server product types that are tested.</p>
+
+    <div id="listing-25" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">IsServer</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">ProductType</span><span class="space"> </span><span class="kwd">in</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="sym">[</span><span class="ident">ptNTServer</span><span class="sym">,</span><span class="space"> </span><span class="ident">ptNTDomainController</span><span class="sym">,</span><span class="space"> </span><span class="ident">ptNTAdvancedServer</span><span class="sym">]</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 25</div>
+    </div>
+
+    <p>The changes we must make to the <var>Edition</var> method are show in <span class="figureref">Listing 26</span>. For the sake of brevity the listing shows only the required changes and the surrounding context.</p>
+
+    <div id="listing-26" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">Edition</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWinNT</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Win32HaveExInfo</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">      </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">      </span><span class="comment">// No extended info: use regsitry</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="kwd">case</span><span class="space"> </span><span class="ident">GetNT4ProductType</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">        </span><span class="ident">ptNTWorkstation</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;WorkStation&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">        </span><span class="ident">ptNTServer</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Server&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">        </span><span class="ident">ptNTAdvancedServer</span><span class="sym">:</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Advanced Server&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">      </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">        </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Result</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">Format</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">          </span><span class="str">&apos; %d.%d&apos;</span><span class="sym">,</span><span class="space"> </span><span class="sym">[</span><span class="ident">Win32MajorVersion</span><span class="sym">,</span><span class="space"> </span><span class="ident">Win32MinorVersion</span><span class="sym">]</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">        </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 26</div>
+    </div>
+
+    <p>Taking our lead from <span class="figureref"><a href="#listing-24">Listing 24</a></span>, we add an <span class="kwd">else</span> clause that executes when <var>Win32HaveExInfo</var> returns false on an NT platform OS. The code in the <span class="kwd">else</span> clause gets the product type from the registry by calling <var>GetNT4ProductType</var> and then returns a description of the returned product type. We then append the major and minor versions of the OS to the description.</p>
+
+    <p>The last method to be modified is <var>ServicePack</var>. <span class="figureref">Listing 27</span> shows the changes. Only the code relating to the NT platform is changed, so the existing Windows 9x code is omitted from the listing.</p>
+
+    <div id="listing-27" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">ServicePack</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWin9x</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWinNT</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsNT4SP6a</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Service Pack 6a&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Win32CSDVersion</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 27</div>
+    </div>
+
+    <p>All that needs to be done after testing for the Windows NT platform is to call <var>IsNT4SP6a</var> to check for NT 4's service pack 6a. If SP6a is found, we return 'Service Pack 6a', otherwise the value of the <var>Win32CSDVersion</var> variable is returned as before.</p>
+
+    <p>We have now completed our review of NT 4 version information that can be read from the registry. In the next section we will find out more about different versions of Windows XP.</p>
+
+</section>
+
+<section id="xp">
+
+    <h2>More XP Related OS Information</h2>
+
+    <p>We now turn our attention to providing a little more information about Windows XP editions. XP comes in several flavours, some of which we have already dealt with and others that we haven't examined yet. In particular we will see how to detect:</p>
+
+    <ul>
+        <li>XP Media Centre Edition</li>
+        <li>XP Tablet Edition</li>
+        <li>64 bit versions of XP</li>
+    </ul>
+
+    <h3 id="xp-tablet-media">XP Media Center and Tablet Editions</h3>
+
+    <p>Surprisingly, we find out about these systems using the <var>GetSystemMetrics()</var> API call by passing the <var>SM_MEDIACENTER</var> or <var>SM_TABLETPC</var> flags to the function. A non-zero return from <var>GetSystemMetrics()</var> indicates the specified edition is present.</p>
+
+    <h3 id="xp-64bit">64 Bit Versions of XP</h3>
+
+    <p>With the advent of 64 bit versions of Windows we may need to detect if our application is running on such an operating system.</p>
+
+    <p>Any application compiled with current versions of Delphi (up to Delphi 2006 at the time of writing) is 32 bit. 64 bit Windows runs 32 bit applications in the WOW64 subsystem. So, we need a way to find out if our application is running in this subsystem. Windows XP provides a function to 32 bit applications named <var>IsWow64Process</var> that provides this information.</p>
+
+    <p><var>IsWow64Process</var> is not available to OSs earlier than Windows XP. Consequently we must link to this function dynamically. Static linking would cause our application to fail on all OSs but XP.</p>
+
+</section>
+
+<section id="tosinfo4">
+
+    <h2>OS Version Information Class: Version 4</h2>
+
+    <p>Having explored how we can detect XP Media Center and Tablet editions and find if we are running on 64 bit Windows, we can now update our <var>TOSInfo</var> static class to take account of these XP specific issues.</p>
+
+    <h3 id="tosinfo4-tablet-media">Supporting XP Media Center and Tablet Editions</h3>
+
+    <p>We will add two new public static methods to <var>TOSInfo</var> that detect XP Media Center and Tablet editions &ndash; <var>IsMediaCenter</var> and <var>IsTablet</var>. We will also modify the <var>Edition</var> method to detect these editions.</p>
+
+    <p><span class="figureref">Listing 28</span> shows the implementation of the new <var>IsMediaCenter</var> and <var>IsTablet</var> methods. They simply call <var>GetSystemMetrics</var> with the appropriate flag.</p>
+
+    <div id="listing-28" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">IsMediaCenter</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetSystemMetrics</span><span class="sym">(</span><span class="ident">SM_MEDIACENTER</span><span class="sym">)</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">IsTablet</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetSystemMetrics</span><span class="sym">(</span><span class="ident">SM_TABLETPC</span><span class="sym">)</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 28</div>
+    </div>
+
+    <p>Unfortunately Delphi does not define <var>SM_MEDIACENTER</var> and <var>SM_TABLETPC</var>, so we will need to define these in our code. We may as well make these publicly available, so add the constants to the interface section of <code>UOSInfo.pas</code> as shown in <span class="figureref">Listing 29</span>.</p>
+
+    <div id="listing-29" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">const</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">SM_MEDIACENTER</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">87</span><span class="sym">;</span><span class="space">  </span><span class="comment">// Detects XP Media Center Edition</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">SM_TABLETPC</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">86</span><span class="sym">;</span><span class="space">     </span><span class="comment">// Detects XP Tablet Edition</span></pre>
+        </div>
+        <div class="caption">Listing 29</div>
+    </div>
+
+    <p>Armed with the two new <var>IsMediaCenter</var> and <var>IsTablet</var> methods we can now modify <var>TOSInfo.Edition</var> to detect XP Media Center and Tablet editions. <span class="figureref">Listing 30</span> shows the changes that need to be made to the method.</p>
+
+    <div id="listing-30" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">Edition</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsWinNT</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Win32HaveExInfo</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">      </span><span class="comment">// Test for edition on Windows NT 4 SP6 and later</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">      </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsServer</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">      </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">        </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">      </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">        </span><span class="comment">// Workstation type</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">        </span><span class="kwd">case</span><span class="space"> </span><span class="ident">Product</span><span class="space"> </span><span class="kwd">of</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">          </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">          </span><span class="ident">osWinXP</span><span class="sym">:</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">          </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">            </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsMediaCenter</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Media Center Edition&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">            </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">IsTablet</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Tablet PC Edition&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">            </span><span class="kwd">else</span><span class="space"> </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CheckSuite</span><span class="sym">(</span><span class="ident">VER_SUITE_PERSONAL</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Home Edition&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="space">            </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 27</span><span class="space">              </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;Professional&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 28</span><span class="space">          </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 29</span><span class="space">        </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span><span class="space">    </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 32</span><span class="space">    </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 33</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 34</span><span class="space">      </span><span class="comment">// ...</span></pre>
+            <pre class="line"><span class="linenum"> 35</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 36</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 30</div>
+    </div>
+
+    <p>Here we simply update the Windows XP workstation section of the code to test for Media Center and Tablet editions. If we find neither we check for XP Home and Professional as before.</p>
+
+    <h3 id="tosinfo4-wow64">Detecting 64 Bit Windows</h3>
+
+    <p>Our approach will be to create a new method of our <var>TOSInfo</var> static class &ndash; <var>IsWOW64</var> &ndash; that is a wrapper round the <var>IsWow64Process</var> API function we discussed above. The new method, shown in <span class="figureref">Listing 31</span>, returns true when running on 64 bit windows and false otherwise.</p>
+
+    <div id="listing-31" class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">class</span><span class="space"> </span><span class="kwd">function</span><span class="space"> </span><span class="ident">TOSInfo</span><span class="sym">.</span><span class="ident">IsWOW64</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">type</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">TIsWow64Process</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">function</span><span class="sym">(</span><span class="space"> </span><span class="comment">// Type of IsWow64Process API fn</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">Handle</span><span class="sym">:</span><span class="space"> </span><span class="ident">THandle</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Res</span><span class="sym">:</span><span class="space"> </span><span class="ident">BOOL</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">BOOL</span><span class="sym">;</span><span class="space"> </span><span class="kwd">stdcall</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">IsWow64Result</span><span class="sym">:</span><span class="space"> </span><span class="ident">BOOL</span><span class="sym">;</span><span class="space">              </span><span class="comment">// result from IsWow64Process</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">IsWow64Process</span><span class="sym">:</span><span class="space"> </span><span class="ident">TIsWow64Process</span><span class="sym">;</span><span class="space">  </span><span class="comment">// IsWow64Process fn reference</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="comment">// Try to load required function from kernel32</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="ident">IsWow64Process</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">GetProcAddress</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">GetModuleHandle</span><span class="sym">(</span><span class="str">&apos;kernel32&apos;</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;IsWow64Process&apos;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">IsWow64Process</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="comment">// Function is implemented: call it</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">IsWow64Process</span><span class="sym">(</span><span class="ident">GetCurrentProcess</span><span class="sym">,</span><span class="space"> </span><span class="ident">IsWow64Result</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">      </span><span class="kwd">raise</span><span class="space"> </span><span class="ident">Exception</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="str">&apos;Bad process handle&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="comment">// Return result of function</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">IsWow64Result</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">end</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 24</span><span class="space">    </span><span class="comment">// Function not implemented: can&apos;t be running on Wow64</span></pre>
+            <pre class="line"><span class="linenum"> 25</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">False</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 26</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 31</div>
+    </div>
+
+    <p><var>TIsWow64Process</var> prototypes the <var>IsWow64Process</var> API function. The return value of this function indicates whether the it succeeded or failed &ndash; it does not indicate whether the WOW64 subsystem is present. In fact the function's <var>Res</var> parameter is used for this purpose &ndash; it is set true if running on WOW64 and false otherwise.</p>
+
+    <p>Our method tries to load <var>IsWow64Process</var> from <code>kernel32.dll</code> and stores a pointer to the function in the <var>IsWow64Process</var> local variable. If we succeed in loading the function we call it, passing the current process handle and storing the function's output value in <var>IsWow64Result</var>. In the unlikely event that the function fails (i.e. returns false) we raise an exception. Otherwise the value of <var>IsWow64Result</var> is returned.</p>
+
+    <p>Should we fail to load <var>IsWow64Process</var> we know that we are running on an OS prior to Windows XP that does not have a 64 bit support. Therefore we return false.</p>
+
+    <p>Our examination of how to get operating system version information is now complete.</p>
+
+</section>
+
+<section id="demo">
+
+    <h2>Demo code</h2>
+
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
+
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-23">article-23</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
+
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-23/README.md">README.md</a> file for details.</p>
+
+    <div class="callout callout-info">
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-23/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
+    </div>
+
+    <div class="callout callout-info">
+
+        <h4>System Information Unit</h4>
+
+        <p>You may also wish to look at my <a href="/software/sysinfo">System Information Unit</a> that contains similar code to that presented in this article.</p>
+
+    </div>
+
+</section>
+
+<section id="feedback">
+
+    <h2>Feedback</h2>
+
+    <p>I hope you enjoyed this article and found it useful.</p>
+
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+
+    <ol class="wide">
+
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a>. You <strong>must</strong> mention that the issue relates to <code>article-23</code>.</li>
+
+        <li>For bugs in the demo code see the demo's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> for details of how to report them.</li>
+
+    </ol>
+
+</section>
