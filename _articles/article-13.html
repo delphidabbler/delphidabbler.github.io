@@ -10,14 +10,10 @@ redirect_from:
 ---
 <section id="contents">
 
-    <h2>
-        Contents
-    </h2>
+    <h2>Contents</h2>
 
     <nav>
-
         <div class="well">
-
             <ul>
                 <li><a href="#abstract">Abstract</a></li>
                 <li><a href="#overview">Overview</a></li>
@@ -45,9 +41,7 @@ redirect_from:
                 <li><a href="#conclusion">Conclusion</a></li>
                 <li><a href="#feedback">Feedback</a></li>
             </ul>
-
         </div>
-
     </nav>
 
 </section>
@@ -200,15 +194,10 @@ end</pre>
     <p>The <var>WM_COPYDATA</var> message uses a structure of type <var>TCopyDataStruct</var> to store and describe the data to be sent. This structure has three fields:</p>
 
     <ul>
-
         <li><var>dwData: DWORD</var> &ndash; holds a user defined 32 bit value.</li>
-
         <li><var>lpData: Pointer</var> &ndash; points to a user defined data block (used if more than 32 bits of data are to be sent).</li>
-
         <li><var>cbData: DWORD</var> &ndash; is the size of the user defined data block in bytes (zero if the data block is not used).</li>
-
     </ul>
-
 
     <h4>SendParamsToPrevInst function</h4>
 
@@ -282,7 +271,6 @@ end</pre>
     <p>Finally, after <var>SendMessage</var> has returned, we free the memory used to store the command line parameters.</p>
 
     <p>The receiving application needs to know how to extract the data from the <var>WM_COPYDATA</var> message. We discuss how to do this next.</p>
-
 
     <h4>Handling WM_COPYDATA</h4>
 
@@ -442,8 +430,7 @@ end</pre>
         </li>
 
         <li>
-            <p><code>FmTemplate.pas</code> (<span class="figureref"><a href="#listing-13">Listing
-                        13</a></span>)</p>
+            <p><code>FmTemplate.pas</code> (<span class="figureref"><a href="#listing-13">Listing 13</a></span>)</p>
             <p>A skeleton form unit containing the various message handlers and other necessary form code. The form itself contains no components.</p>
         </li>
 
@@ -942,14 +929,11 @@ end</pre>
         <div class="caption">Listing 20</div>
     </div>
 
-    <p> Notice that these methods are based closely on the <var>UMEnsureRestored</var> and <var>WMCopyData</var> message handler methods that were discussed earlier. Note though that the methods are no longer message handlers &ndash; they are now dynamic methods. There are other changes to the methods that should be noted:</p>
+    <p>Notice that these methods are based closely on the <var>UMEnsureRestored</var> and <var>WMCopyData</var> message handler methods that were discussed earlier. Note though that the methods are no longer message handlers &ndash; they are now dynamic methods. There are other changes to the methods that should be noted:</p>
 
     <ol class="wide">
-
         <li><var>EnsureRestore</var> is now passed a handle to the window to be brought to the foreground. (this will be the window handle of the main form).</li>
-
         <li><var>WMCopyData</var> now triggers the <var>OnProcessParam</var> event rather than calling a hard-wired method to process parameters.</li>
-
     </ol>
 
     <p>Finally we examine the three remaining protected methods:</p>
@@ -1011,15 +995,10 @@ end</pre>
     <p>These methods are analogues of the routines of the same name in the <a href="#first-attempt">previous section</a>, with the following differences:</p>
 
     <ul class="wide">
-
         <li><var>FindDuplicateMainWdw</var> gets the the name of the required window class from the <var>WdwClassName</var> method rather than a constant.</li>
-
         <li><var>SendParamsToPrevInst</var> gets its watermark from the <var>Watermark</var> method rather than a constant.</li>
-
         <li><var>SwitchToPrevInst</var> sends the registered message identified by <var>fEnsureRestoreMsg</var> to the main form window rather the hard-wired <var>UM_ENSURERESTORED</var> message.</li>
-
     </ul>
-
 
     <h3 id="modprj">Modifications to the project file</h3>
 
@@ -1115,7 +1094,6 @@ end</pre>
         <div class="caption">Listing 27</div>
     </div>
 
-
     <h3 id="override">Overriding TSingleInst</h3>
 
     <p>We now look at an example of how to override <var>TSingleInst</var>. The base class was designed so that we only need to override the <var>WdwClassName</var> and <var>Watermark</var> methods to provide a unique windows class name and stronger watermark.</p>
@@ -1203,18 +1181,18 @@ end</pre>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #13&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #13&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

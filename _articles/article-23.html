@@ -31,7 +31,6 @@ redirect_from:
     </h2>
 
     <nav>
-
         <div class="well">
             <ul>
                 <li><a href="#intro">Introduction</a></li>
@@ -89,7 +88,6 @@ redirect_from:
                 </li>
             </ul>
         </div>
-
     </nav>
 
 </section>
@@ -104,7 +102,6 @@ redirect_from:
         <li>when reporting bugs;</li>
         <li>when wishing to take different actions on different operating systems.</li>
     </ul>
-
 
     <p>The Windows API provides some version information that is common to all 32 bit Windows operating systems. Delphi's run time library (RTL) makes access to this information very straightforward. We will begin our exploration by seeing how to get the information from the Windows API. Next we will look at Delphi's RTL support and begin the development of a static class that uses this information to provide easy access to OS information.</p>
 
@@ -355,7 +352,6 @@ redirect_from:
 
     <p>In the following subsections we will add methods to the class.</p>
 
-
     <h3 id="tosinfo-platform">Finding the OS Platform</h3>
 
     <p>The most basic distinction between Windows operating systems is that between <em>platforms</em>. We can find the platform by examining Delphi's <var>Win32Platform</var> global variable. The value of the variable will be one of the integer constants described in the <var>dwPlatformId</var> entry in <span class="figureref"><a href="#table-1">Table 1</a></span>. These constants are defined in Delphi's <var>Windows</var> unit.</p>
@@ -579,7 +575,6 @@ redirect_from:
 
     <p>So far we can detect the name of an OS product, but for the NT platform that's not enough. Think for a moment about Windows XP &ndash; there are both the Home and Professional editions. For Windows 2000 it's similarly complicated &ndash; we have both server (e.g. Advanced Server) and workstation (Professional) editions.</p>
 
-
     <h3 id="winapiex-tosversioninfoex">TOSVersionInfoEx</h3>
 
     <p>So, how do we get to this information? We make a start by examining the information provided by an extension of <var>TOSVersionInfo</var> named, unsurprisingly, <var>TOSVersionInfoEx</var>. <span class="figureref">Listing 10</span> shows a Pascal declaration of the structure. Note that Delphi does not declare it, so we need to include the definition in the interface section of <code>UOSInfo.pas</code>.</p>
@@ -696,7 +691,6 @@ redirect_from:
     </div>
 
     <p>So, we've got a new structure that gives us extra information to play with, but how to we get the information from Windows?</p>
-
 
     <h3 id="winapiex-populate">Populating TOSVersionInfoEx</h3>
 
@@ -929,7 +923,6 @@ redirect_from:
 
     <p>We first check to see if we have an NT platform OS and return <var>ptNA</var> if not. If we have an NT platform OS then we check the value of the <var>Win32ProductType</var> global against its possible values and return the associated value from <var>TOSProductType</var> if a match is found. Where the value is unrecognised we return <var>ptUnknown</var>. You may have noticed that we don't use <var>Win32HaveExInfo</var> to check whether extended OS information is supported. This is because <var>Win32ProductType</var> is set to zero in this event, causing all the <span class="kwd">case</span> clauses to fail and <var>ptUnknown</var> to be returned.</p>
 
-
     <h3 id="tosinfo2-server">Checking for Server OSs</h3>
 
     <p>We may also find it useful to be able to quickly check whether the operating system is a server system. To do this we add a new class method named <var>IsServer</var> to <var>TOSInfo</var>. <span class="figureref">Listing 18</span> defines the method.</p>
@@ -953,7 +946,6 @@ redirect_from:
         <p><var>IsServer</var> will always return false if we have an NT4 server that has service pack 5 or lower. The solution of this problem will be discussed <a href="#listing-25">later in the article</a>.</p>
 
     </div>
-
 
     <h3 id="tosinfo2-edition">Finding the OS Edition</h3>
 
@@ -1209,15 +1201,10 @@ redirect_from:
     <p>We need to update four public methods to take account of the new information we have about NT 4. They are:</p>
 
     <ul>
-
         <li><var>ProductType</var> &ndash; to get the NT 4 product types from the registry.</li>
-
         <li><var>IsServer</var> &ndash; to take account of the new <var>ptNTAdvancedServer</var> product type.</li>
-
         <li><var>Edition</var> &ndash; to describe the NT 4 editions that we learn about from the registry.</li>
-
         <li><var>ServicePack</var> &ndash; to include detection of NT 4 service pack 6a.</li>
-
     </ul>
 
     <p>We begin with <var>ProductType</var>. <span class="figureref">Listing 24</span> shows the revised method in full.</p>
@@ -1512,18 +1499,18 @@ redirect_from:
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #23&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #23&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

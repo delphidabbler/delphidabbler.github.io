@@ -9,77 +9,43 @@ redirect_from:
 - /articles/25
 ---
 <section id="contents">
-    <h2>
-        Contents
-    </h2>
+
+    <h2>Contents</h2>
 
     <nav>
         <div class="well">
             <ul>
-                <li>
-                    <a href="#intro">Introduction</a>
-                </li>
-                <li>
-                    <a href="#dragdrop">When TWebBrowser Accepts Drag-Drop</a>
-                </li>
-                <li>
-                    <a href="#overview">Overview of Solution</a>
-                </li>
+                <li><a href="#intro">Introduction</a></li>
+                <li><a href="#dragdrop">When TWebBrowser Accepts Drag-Drop</a></li>
+                <li><a href="#overview">Overview of Solution</a></li>
                 <li>
                     <a href="#generic">Generic Implementation of Solution</a>
                     <ul>
-                        <li>
-                            <a href="#container">Creating the Web Browser Container</a>
-                        </li>
-                        <li>
-                            <a href="#idroptarget">Implementing IDropTarget</a>
-                        </li>
-                        <li>
-                            <a href="#boilerplate">Some Boilerplate Code for the Main Form</a>
-                        </li>
+                        <li><a href="#container">Creating the Web Browser Container</a></li>
+                        <li><a href="#idroptarget">Implementing IDropTarget</a></li>
+                        <li><a href="#boilerplate">Some Boilerplate Code for the Main Form</a></li>
                     </ul>
                 </li>
                 <li>
                     <a href="#casestudies">Case Studies</a>
                     <ul>
+                        <li><a href="#casestudy1">Case Study 1: Inhibiting Drag and Drop</a></li>
                         <li>
-                            <a href="#casestudy1">Case Study 1: Inhibiting Drag and Drop</a>
-                        </li>
-                        <li>
-                            <a href="#casestudy2">Case Study 2: Accepting Files and Text Dropped on the Browser
-                                Control</a>
+                            <a href="#casestudy2">Case Study 2: Accepting Files and Text Dropped on the Browser Control</a>
                             <ul>
-                                <li>
-                                    <a href="#cs2-idroptarget">Implementation of IDropTarget</a>
-                                </li>
-                                <li>
-                                    <a href="#cs2-mainform">The Main Form</a>
-                                </li>
-                                <li>
-                                    <a href="#cs2-html">HTML of Displayed Page</a>
-                                </li>
-                                <li>
-                                    <a href="#cs2-exercise">Exercising the Code</a>
-                                </li>
+                                <li><a href="#cs2-idroptarget">Implementation of IDropTarget</a></li>
+                                <li><a href="#cs2-mainform">The Main Form</a></li>
+                                <li><a href="#cs2-html">HTML of Displayed Page</a></li>
+                                <li><a href="#cs2-exercise">Exercising the Code</a></li>
                             </ul>
                         </li>
                     </ul>
                 </li>
-                <li>
-                    <a href="#demo">Demo Code</a>
-                </li>
-                <li>
-                    <a href="#gofurther">Going Further</a>
-                </li>
-                <li>
-                    <a href="#summary">Summary</a>
-                </li>
-                <li>
-                    <a href="#references">References</a>
-                </li>
-                <li>
-                    <a href="#feedback">Feedback</a>
-                </li>
+                <li><a href="#demo">Demo Code</a></li>
+                <li><a href="#gofurther">Going Further</a></li>
+                <li><a href="#summary">Summary</a></li>
+                <li><a href="#references">References</a></li>
+                <li><a href="#feedback">Feedback</a></li>
             </ul>
         </div>
     </nav>
@@ -88,55 +54,25 @@ redirect_from:
 
 <section id="intro">
 
-    <h2>
-        Introduction
-    </h2>
+    <h2>Introduction</h2>
 
-    <p>
-        While programming an application that uses a <var>TWebBrowser</var> component to display part of its interface I
-        noticed that, although the application didn't use drag and drop, the <var>TWebBrowser</var> was indicating it
-        would accept file drops. What is more, <var>TWebBrowser</var> would load and display text and HTML files,
-        ruining my carefully designed output. Not only that but the control would also display a dialogue box offering
-        to download some types of files.
-    </p>
+    <p>While programming an application that uses a <var>TWebBrowser</var> component to display part of its interface I noticed that, although the application didn't use drag and drop, the <var>TWebBrowser</var> was indicating it would accept file drops. What is more, <var>TWebBrowser</var> would load and display text and HTML files, ruining my carefully designed output. Not only that but the control would also display a dialogue box offering to download some types of files.</p>
 
-    <p>
-        Obviously this kind of behaviour is not desirable, so I began to search for a means of inhibiting this default
-        behaviour. My first goal was to find the circumstances under which <var>TWebBrowser</var> accepts drag-drop.
-        Next was simply to stop <var>TWebBrowser</var> accepting file drops. Later, in another application I needed to
-        go further and accept certain types of file drops, but wanted to control how this was handled. I then moved on
-        to considering if I could handle text dragged from other applications and dropped on the browser control.
-    </p>
+    <p>Obviously this kind of behaviour is not desirable, so I began to search for a means of inhibiting this default behaviour. My first goal was to find the circumstances under which <var>TWebBrowser</var> accepts drag-drop. Next was simply to stop <var>TWebBrowser</var> accepting file drops. Later, in another application I needed to go further and accept certain types of file drops, but wanted to control how this was handled. I then moved on to considering if I could handle text dragged from other applications and dropped on the browser control.</p>
 
-    <p>
-        The remainder of this article presents my findings in the hope they will be useful to others who have been
-        experiencing similar problems.
-    </p>
+    <p>The remainder of this article presents my findings in the hope they will be useful to others who have been experiencing similar problems.</p>
 
 </section>
 
 <section id="dragdrop">
 
-    <h2>
-        When <var>TWebBrowser</var> Accepts Drag-Drop
-    </h2>
+    <h2>When <var>TWebBrowser</var> Accepts Drag-Drop</h2>
 
-    <p>
-        Any application that contains a <var>TWebBrowser</var> will not normally accept dragged files unless you
-        intervene. However, if the application initialises OLE by calling <var>OleInitialize</var> then
-        <var>TWebBrowser</var> <strong>will</strong> accept and try to display or download files dragged onto it!
-    </p>
+    <p>Any application that contains a <var>TWebBrowser</var> will not normally accept dragged files unless you intervene. However, if the application initialises OLE by calling <var>OleInitialize</var> then <var>TWebBrowser</var> <strong>will</strong> accept and try to display or download files dragged onto it!</p>
 
-    <p>
-        Try it. Create a new GUI application and drop a <var>TWebBrowser</var> control on it then build and run the
-        application. Try dragging a file from Explorer over the browser control. The &quot;no entry&quot; cursor will be
-        displayed indicating that the file can't be dropped.
-    </p>
+    <p>Try it. Create a new GUI application and drop a <var>TWebBrowser</var> control on it then build and run the application. Try dragging a file from Explorer over the browser control. The &quot;no entry&quot; cursor will be displayed indicating that the file can't be dropped.</p>
 
-    <p>
-        Now add <var>OnCreate</var> and <var>OnDestroy</var> event handlers to the main form as shown in <span
-            class="figureref">Listing 1</span>.
-    </p>
+    <p>Now add <var>OnCreate</var> and <var>OnDestroy</var> event handlers to the main form as shown in <span class="figureref">Listing 1</span>.</p>
 
     <div id="listing-1" class="frame">
         <div class="code-pascal">
@@ -162,145 +98,71 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 1
-        </div>
+        <div class="caption">Listing 1</div>
     </div>
 
-    <p>
-        Run the modified application and again drag a file from Explorer over the browser control. This time you will
-        see a &quot;shortcut&quot; cursor. Drop the file and <var>TWebBrowser</var> will either display it or try to
-        download it, depending on the file type. HTML and text files will be displayed as if you had navigated to them.
-    </p>
+    <p>Run the modified application and again drag a file from Explorer over the browser control. This time you will see a &quot;shortcut&quot; cursor. Drop the file and <var>TWebBrowser</var> will either display it or try to download it, depending on the file type. HTML and text files will be displayed as if you had navigated to them.</p>
 
-    <p>
-        This little experiment illustrates the cirumstances when we need to take control of the web browser's handling
-        of drag and drop. They are:
-    </p>
+    <p>This little experiment illustrates the cirumstances when we need to take control of the web browser's handling of drag and drop. They are:</p>
 
     <ul class="wide">
-        <li>
-            Our application needs to initialise OLE.
-        </li>
-        <li>
-            We either don't want, or want to take control of, <var>TWebBrowser</var>'s drag-drop handling.
-        </li>
+        <li>Our application needs to initialise OLE.</li>
+        <li>We either don't want, or want to take control of, <var>TWebBrowser</var>'s drag-drop handling.</li>
     </ul>
 
-    <p>
-        If these circumstances apply to you, then read on. We'll start by looking at how to take charge of the browser
-        control's drag and drop.
-    </p>
+    <p>If these circumstances apply to you, then read on. We'll start by looking at how to take charge of the browser control's drag and drop.</p>
 
 </section>
 
 <section id="overview">
 
-    <h2>
-        Overview of Solution
-    </h2>
+    <h2>Overview of Solution</h2>
 
-    <p>
-        In <a href="./article-24">article #24</a> we investigated how to handle OLE drag and drop by implementing the
-        <var>IDropTarget</var> interface. <var>TWebBrowser</var> uses this method of accepting dragged objects. This
-        means that we need to implement <var>IDropTarget</var> and find a way to get the browser control to use our
-        implementation instead of its own.
-    </p>
+    <p>In <a href="./article-24">article #24</a> we investigated how to handle OLE drag and drop by implementing the <var>IDropTarget</var> interface. <var>TWebBrowser</var> uses this method of accepting dragged objects. This means that we need to implement <var>IDropTarget</var> and find a way to get the browser control to use our implementation instead of its own.</p>
 
-    <p>
-        So how do we supply our own drag drop handler to <var>TWebBrowser</var>? The answer will come as no surprise if
-        you have read some of my earlier <var>TWebBrowser</var> articles. We must implement the
-        <var>IDocHostUIHandler</var> interface and use its <var>GetDropTarget</var> method to hook up our custom
-        <var>IDropTarget</var> implementation with <var>TWebBrowser</var>.
-    </p>
+    <p>So how do we supply our own drag drop handler to <var>TWebBrowser</var>? The answer will come as no surprise if you have read some of my earlier <var>TWebBrowser</var> articles. We must implement the <var>IDocHostUIHandler</var> interface and use its <var>GetDropTarget</var> method to hook up our custom <var>IDropTarget</var> implementation with <var>TWebBrowser</var>.</p>
 
-    <p>
-        Once we have implemented <var>IDocHostUIHandler</var> we must tell the browser control about it. Whenever
-        <var>TWebBrowser</var> is instantiated it tries to find a <var>IDocHostUIHandler</var> implementation in its
-        host (or container). This is done by querying the host's <var>IOleClientSite</var> interface. This also means we
-        need to implement <var>IOleClientSite</var> in the same object as <var>IDocHostUIHandler</var>.
-    </p>
+    <p>Once we have implemented <var>IDocHostUIHandler</var> we must tell the browser control about it. Whenever <var>TWebBrowser</var> is instantiated it tries to find a <var>IDocHostUIHandler</var> implementation in its host (or container). This is done by querying the host's <var>IOleClientSite</var> interface. This also means we need to implement <var>IOleClientSite</var> in the same object as <var>IDocHostUIHandler</var>.</p>
 
     <div class="callout callout-info">
-        <h4>
-            Further reading
-        </h4>
-        <p>
-            For detailed information about creating a container for <var>TWebBrowser</var> and implementing
-            <var>IOleClientSite</var> and <var>IDocHostUIHandler</var> please see &quot;<a href="article-18">How to
-                customise the TWebBrowser user interface</a>&quot;.
-        </p>
+
+        <h4>Further reading</h4>
+
+        <p>For detailed information about creating a container for <var>TWebBrowser</var> and implementing <var>IOleClientSite</var> and <var>IDocHostUIHandler</var> please see &quot;<a href="article-18">How to customise the TWebBrowser user interface</a>&quot;.</p>
+
     </div>
 
-    <p>
-        So, to summarise we will:
-    </p>
+    <p>So, to summarise we will:</p>
 
     <ol>
-        <li>
-            Create a container for the web browser control that implements <var>IDocHostUIHandler</var> and
-            <var>IOleClientSite</var> and associate this container with the web browser control.
-        </li>
-        <li>
-            Create an implementation of <var>IDropTarget</var> that handles drag and drop as we would like.
-        </li>
-        <li>
-            Use the <var>IDocHostUIHandler.GetDropTarget</var> method to notify the browser control about our
-            <var>IDropTarget</var> implementation.
-        </li>
+        <li>Create a container for the web browser control that implements <var>IDocHostUIHandler</var> and <var>IOleClientSite</var> and associate this container with the web browser control. </li>
+        <li>Create an implementation of <var>IDropTarget</var> that handles drag and drop as we would like.</li>
+        <li>Use the <var>IDocHostUIHandler.GetDropTarget</var> method to notify the browser control about our <var>IDropTarget</var> implementation.</li>
     </ol>
 
 </section>
 
 <section id="generic">
 
-    <h2>
-        Generic Implementation of Solution
-    </h2>
+    <h2>Generic Implementation of Solution</h2>
 
+    <h3 id="container">Creating the Web Browser Container</h3>
 
-    <h3 id="container">
-        Creating the Web Browser Container
-    </h3>
-
-    <p>
-        Luckily, in &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot; we developed
-        a reusable, generic browser container class &ndash; <a
-            href="./article-18#tnulwbcontainer">TNulWBContainer</a></var> &ndash; that provided minimal implementations
-        of <var><a href="./article-18#idochostuihandler">IDocHostUIHandler</a></var> and <var><a
-                href="./article-18#ioleclientsite">IOleClientSite</a></var>. A do-nothing implementation of
-        <var>IDocHostUIHandler</var> was provided that leaves the browser control's behaviour unchanged. This class also
-        takes care of associating our object with the browser control as its container. We can use this class as a base
-        class for our container class and just add the functionality we need.
-    </p>
+    <p>Luckily, in &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot; we developed a reusable, generic browser container class &ndash; <a href="./article-18#tnulwbcontainer">TNulWBContainer</a></var> &ndash; that provided minimal implementations of <var><a href="./article-18#idochostuihandler">IDocHostUIHandler</a></var> and <var><a href="./article-18#ioleclientsite">IOleClientSite</a></var>. A do-nothing implementation of <var>IDocHostUIHandler</var> was provided that leaves the browser control's behaviour unchanged. This class also takes care of associating our object with the browser control as its container. We can use this class as a base class for our container class and just add the functionality we need.</p>
 
     <div class="callout callout-info">
-        <h4>
-            Where's the Source?
-        </h4>
-        <p>
-            Source for <var>TNulWBContainer</var> and <var>IDocHostUIHandler</var> is not listed in this article.
-            However the code is provided in this article's <a href="#demo">demo code</a> , in the
-            <var>UNulContainer</var> and <var>IntfDocHostUIHandler</var> units.
-        </p>
+
+        <h4>Where's the Source?</h4>
+
+        <p>Source for <var>TNulWBContainer</var> and <var>IDocHostUIHandler</var> is not listed in this article. However the code is provided in this article's <a href="#demo">demo code</a> , in the <var>UNulContainer</var> and <var>IntfDocHostUIHandler</var> units.</p>
+
     </div>
 
-    <p>
-        We will reuse the above code here and define a sub class named <var>TWBDragDropContainer</var> that overrides
-        the default implementation of <var>IDocHostUIHandler.GetDropTarget</var> to ensure the browser control hooks
-        into our <var>IDropTarget</var> implementation.
-    </p>
+    <p>We will reuse the above code here and define a sub class named <var>TWBDragDropContainer</var> that overrides the default implementation of <var>IDocHostUIHandler.GetDropTarget</var> to ensure the browser control hooks into our <var>IDropTarget</var> implementation.</p>
 
-    <p>
-        We will make the new class as general as possible by providing a <var>DropTarget</var> property that can be set
-        to any object that implements <var>IDropTarget</var>. This way the class' user can change the drag drop
-        behaviour of the browser control simply by assigning a different object to the <var>DropTarget</var> property.
-    </p>
+    <p>We will make the new class as general as possible by providing a <var>DropTarget</var> property that can be set to any object that implements <var>IDropTarget</var>. This way the class' user can change the drag drop behaviour of the browser control simply by assigning a different object to the <var>DropTarget</var> property.</p>
 
-    <p>
-        <span class="figureref">Listing 2</span> shows the whole of the <code>UWBDragDropContainer</code> unit that
-        contains our implementation of <var>TWBDragDropContainer</var>.
-    </p>
+    <p><span class="figureref">Listing 2</span> shows the whole of the <code>UWBDragDropContainer</code> unit that contains our implementation of <var>TWBDragDropContainer</var>.</p>
 
     <div id="listing-2" class="frame">
         <div class="code-pascal">
@@ -378,45 +240,20 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 43</span><span class="kwd">end</span><span class="sym">.</span></pre>
         </div>
-        <div class="caption">
-            Listing 2
-        </div>
+        <div class="caption">Listing 2</div>
     </div>
 
-    <p>
-        Our new class includes a reimplementation of the inherited <var>GetDropTarget</var> method and defines the new
-        <var>DropTarget</var> property.
-    </p>
+    <p>Our new class includes a reimplementation of the inherited <var>GetDropTarget</var> method and defines the new <var>DropTarget</var> property.</p>
 
-    <p>
-        <var>GetDropTarget</var> checks to see if a drop target handler is assigned to the <var>DropTarget</var>
-        property. If so we return a reference to our drop target object via the method's <var>ppDropTarget</var>
-        parameter and return <var>S_OK</var>. Conversely if <var>DropTarget</var> is unassigned then we just call the
-        inherited <var>GetDropTarget</var> method to get the default behaviour. Doing all the hard work in the base
-        class has made this class very easy to implement.
-    </p>
+    <p><var>GetDropTarget</var> checks to see if a drop target handler is assigned to the <var>DropTarget</var> property. If so we return a reference to our drop target object via the method's <var>ppDropTarget</var> parameter and return <var>S_OK</var>. Conversely if <var>DropTarget</var> is unassigned then we just call the inherited <var>GetDropTarget</var> method to get the default behaviour. Doing all the hard work in the base class has made this class very easy to implement.</p>
 
+    <h3 id="idroptarget">Implementing IDropTarget</h3>
 
-    <h3 id="idroptarget">
-        Implementing IDropTarget
-    </h3>
+    <p><a href="./article-24">Article #24</a>, &quot;How to receive data dragged from other applications&quot;, discussed how to implement <var>IDropTarget</var>. Implementation depends on what type of data the application will accept, so we won't discuss that further in this section. We will come back to look a couple of specific examples later.</p>
 
-    <p>
-        <a href="./article-24">Article #24</a>, &quot;How to receive data dragged from other applications&quot;,
-        discussed how to implement <var>IDropTarget</var>. Implementation depends on what type of data the application
-        will accept, so we won't discuss that further in this section. We will come back to look a couple of specific
-        examples later.
-    </p>
+    <h3 id="boilerplate">Some Boilerplate Code for the Main Form</h3>
 
-
-    <h3 id="boilerplate">
-        Some Boilerplate Code for the Main Form
-    </h3>
-
-    <p>
-        To use our web browser container object we need to create it in the main form and set its <var>DropTarget</var>
-        property. <span class="figureref">Listing 3</span> shows the code that needs to be added to the main form.
-    </p>
+    <p>To use our web browser container object we need to create it in the main form and set its <var>DropTarget</var> property. <span class="figureref">Listing 3</span> shows the code that needs to be added to the main form.</p>
 
     <div id="listing-3" class="frame">
         <div class="code-pascal">
@@ -500,56 +337,26 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 50</span><span class="kwd">end</span><span class="sym">.</span></pre>
         </div>
-        <div class="caption">
-            Listing 3
-        </div>
+        <div class="caption">Listing 3</div>
     </div>
 
-    <p>
-        In the form's <var>OnCreate</var> event handler we create an instance of <var>TWBDragDropContainer</var> and
-        assign its <var>DropTarget</var> property with our drop target object (<a href="#casestudies">see below</a> for
-        examples of such an object). Next we navigate to <code>about:blank</code> just to ensure the browser control has
-        created a document object<sup>&dagger;</sup>. The drop target object won't be noticed by the browser until this
-        has been done. Of course you could load any document here, instead of loading <code>about:blank</code>. We also
-        intialise OLE as before.
-    </p>
+    <p>In the form's <var>OnCreate</var> event handler we create an instance of <var>TWBDragDropContainer</var> and assign its <var>DropTarget</var> property with our drop target object (<a href="#casestudies">see below</a> for examples of such an object). Next we navigate to <code>about:blank</code> just to ensure the browser control has created a document object<sup>&dagger;</sup>. The drop target object won't be noticed by the browser until this has been done. Of course you could load any document here, instead of loading <code>about:blank</code>. We also intialise OLE as before.</p>
 
-    <p class="callout callout-warning">&dagger; When navigating to <code>about:blank</code> it would be better practice
-        to wait for the document to finish loading before continuing.
-    </p>
+    <p class="callout callout-warning">&dagger; When navigating to <code>about:blank</code> it would be better practice to wait for the document to finish loading before continuing.</p>
 
-    <p>
-        In <var>FormDestroy</var> we simply clear the container object's <var>DropTarget</var> property before freeing
-        the container itself. It is probably not necessary to set <var>DropTarget</var> to <span class="kwd">nil</span>,
-        but it is neater, and may be safer, to explicitly release it. Then we unintialise OLE and free our container
-        object.
-    </p>
+    <p>In <var>FormDestroy</var> we simply clear the container object's <var>DropTarget</var> property before freeing the container itself. It is probably not necessary to set <var>DropTarget</var> to <span class="kwd">nil</span>, but it is neater, and may be safer, to explicitly release it. Then we unintialise OLE and free our container object.</p>
 
-    <p>
-        That takes care of the implementation of <var>IDocHostUIHandler</var> and how to notify the browser control of
-        it's implementation. We can now move on to look at exactly how we implement the drop target. This is done by
-        means of a couple of case studies.
-    </p>
+    <p>That takes care of the implementation of <var>IDocHostUIHandler</var> and how to notify the browser control of it's implementation. We can now move on to look at exactly how we implement the drop target. This is done by means of a couple of case studies.</p>
 
 </section>
 
 <section id="casestudies">
 
-    <h2>
-        Case studies
-    </h2>
+    <h2>Case studies</h2>
 
+    <h3 id="casestudy1">Case Study 1: Inhibiting Drag and Drop</h3>
 
-    <h3 id="casestudy1">
-        Case Study 1: Inhibiting Drag and Drop
-    </h3>
-
-    <p>
-        I mentioned in the introduction that one of my goals was to stop web browser controls accepting drag and drop.
-        This case study will show how to do that by creating a &quot;do nothing&quot; implementation of
-        <var>IDropTarget</var> named <var>TNulDropTarget</var> in the unit <var>UNulDropTarget</var>. See <span
-            class="figureref">Listing 4</span>.
-    </p>
+    <p>I mentioned in the introduction that one of my goals was to stop web browser controls accepting drag and drop. This case study will show how to do that by creating a &quot;do nothing&quot; implementation of <var>IDropTarget</var> named <var>TNulDropTarget</var> in the unit <var>UNulDropTarget</var>. See <span class="figureref">Listing 4</span>.</p>
 
     <div id="listing-4" class="frame">
         <div class="code-pascal">
@@ -638,21 +445,12 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 52</span><span class="kwd">end</span><span class="sym">.</span></pre>
         </div>
-        <div class="caption">
-            Listing 4
-        </div>
+        <div class="caption">Listing 4</div>
     </div>
 
-    <p>
-        All we do is set the cursor effect to <var>DROPEFFECT_NONE</var> in all relevant methods and return
-        <var>S_OK</var> from each method.
-    </p>
+    <p>All we do is set the cursor effect to <var>DROPEFFECT_NONE</var> in all relevant methods and return <var>S_OK</var> from each method.</p>
 
-    <p>
-        We now need to make two minor modifications to the <a href="#listing-3">boilerplate</a> code that was presented
-        earlier: we must use <var>UNulDropTarget</var> and alter the <var>FormCreate</var> method to create a
-        <var>TNulDropTarget</var> object. <span class="figureref">Listing 5</span> shows the changes.
-    </p>
+    <p>We now need to make two minor modifications to the <a href="#listing-3">boilerplate</a> code that was presented earlier: we must use <var>UNulDropTarget</var> and alter the <var>FormCreate</var> method to create a <var>TNulDropTarget</var> object. <span class="figureref">Listing 5</span> shows the changes.</p>
 
     <div id="listing-5" class="frame">
         <div class="code-pascal">
@@ -672,60 +470,30 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 5
-        </div>
+        <div class="caption">Listing 5</div>
     </div>
 
-    <p>
-        If you run this code you will not be able to drop any dragged object on the web browser control. You can prove
-        this works by commenting out the line in <var>FormCreate</var> where <var>fWBContainer.DropTarget</var> is
-        assigned. The browser's default drag-drop will be enabled once more.
-    </p>
+    <p>If you run this code you will not be able to drop any dragged object on the web browser control. You can prove this works by commenting out the line in <var>FormCreate</var> where <var>fWBContainer.DropTarget</var> is assigned. The browser's default drag-drop will be enabled once more.</p>
 
-    <h3 id="casestudy2">
-        Case Study 2: Accepting Files and Text Dropped on the Browser Control
-    </h3>
+    <h3 id="casestudy2">Case Study 2: Accepting Files and Text Dropped on the Browser Control</h3>
 
-    <p>
-        This case study will be more complex. We will start with a browser control containing an HTML document that
-        displays some instructions along with a placeholder box where data extracted from dragged and dropped objects
-        can be displayed. We will accept two kinds of data objects:
-    </p>
+    <p>This case study will be more complex. We will start with a browser control containing an HTML document that displays some instructions along with a placeholder box where data extracted from dragged and dropped objects can be displayed. We will accept two kinds of data objects:</p>
 
     <ol class="wide">
-        <li>
-            Text dragged and dropped from other applications. This text will be displayed as pre-formatted text.
-        </li>
-        <li>
-            Files dragged and dropped from Explorer. The names of the files will be listed.
-        </li>
+        <li>Text dragged and dropped from other applications. This text will be displayed as pre-formatted text.</li>
+        <li>Files dragged and dropped from Explorer. The names of the files will be listed.</li>
     </ol>
 
+    <h4 id="cs2-idroptarget">Implementation of <var>IDropTarget</var></h4>
 
-    <h4 id="cs2-idroptarget">
-        Implementation of <var>IDropTarget</var>
-    </h4>
-
-    <p>
-        Let us begin by looking at how to implement <var>IDropTarget</var>. This code is more complicated than we've
-        seen before for two reasons:
-    </p>
+    <p>Let us begin by looking at how to implement <var>IDropTarget</var>. This code is more complicated than we've seen before for two reasons:</p>
 
     <ol class="wide">
-        <li>
-            We actually have to handle some dropped data &ndash; in fact we handle two different kinds of data.
-        </li>
-        <li>
-            We have to communicate with the main form to enable the form to display the data. We could reduce this
-            complexity by implementing <var>IDropTarget</var> in the main form, but I prefer to separate the code out.
-        </li>
+        <li> We actually have to handle some dropped data &ndash; in fact we handle two different kinds of data.</li>
+        <li>We have to communicate with the main form to enable the form to display the data. We could reduce this complexity by implementing <var>IDropTarget</var> in the main form, but I prefer to separate the code out.</li>
     </ol>
 
-    <p>
-        <span class="figureref">Listing 6</span> shows the declaration of <var>TCustomDropTarget</var>, our class that
-        implements <var>IDropTarget</var>.
-    </p>
+    <p><span class="figureref">Listing 6</span> shows the declaration of <var>TCustomDropTarget</var>, our class that implements <var>IDropTarget</var>.</p>
 
     <div id="listing-6" class="frame">
         <div class="code-pascal">
@@ -793,16 +561,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 33</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 6
-        </div>
+        <div class="caption">Listing 6</div>
     </div>
 
-    <p>
-        For now, ignore the <var>IDropHandler</var> interface and the private methods of <var>TCustomDropTarget</var>
-        &ndash; they will be explained later. We will start by looking at how the <var>IDropTarget</var> methods are
-        implemented. <span class="figureref">Listing 7</span> shows the methods.
-    </p>
+    <p>For now, ignore the <var>IDropHandler</var> interface and the private methods of <var>TCustomDropTarget</var> &ndash; they will be explained later. We will start by looking at how the <var>IDropTarget</var> methods are implemented. <span class="figureref">Listing 7</span> shows the methods.</p>
 
     <div id="listing-7" class="frame">
         <div class="code-pascal">
@@ -878,53 +640,26 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 39</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 7
-        </div>
+        <div class="caption">Listing 7</div>
     </div>
 
     <div class="callout callout-info">
-        <h4 class="caption">
-            About <var>IDropTarget</var> &amp; <var>IDataObject</var>
-        </h4>
-        <p>
-            If you are not comfortable working with these interfaces please see &quot;<a href="./article-24">How to
-                receive data dragged from other applications</a>&quot; which explains how to implement
-            <var>IDropTarget</var> and use the methods of <var>IDataObject</var>. I won't spend much time explaining
-            this here.
-        </p>
+
+        <h4 class="caption">About <var>IDropTarget</var> &amp; <var>IDataObject</var></h4>
+
+        <p>If you are not comfortable working with these interfaces please see &quot;<a href="./article-24">How to receive data dragged from other applications</a>&quot; which explains how to implement <var>IDropTarget</var> and use the methods of <var>IDataObject</var>. I won't spend much time explaining this here.</p>
+
     </div>
 
-    <p>
-        In <var>DragEnter</var> we check if we can handle the dragged data by calling the <var>CanDrop</var> method and
-        recording its result for later use. If we can handle the data we intend to instruct Windows to display the copy
-        cursor by setting <var>dwEffect</var> to <var>DROPEFFECT_COPY</var>. However before we can do this we must check
-        that the caller supports copying by checking that <var>dwEffect</var> includes <var>DROPEFFECT_COPY</var>.
-        Should we not be able to handle the data, or the caller doesn't support copying, we inhibit the drop by setting
-        <var>dwEffect</var> to <var>DROPEFFECT_NONE</var>.
-    </p>
+    <p>In <var>DragEnter</var> we check if we can handle the dragged data by calling the <var>CanDrop</var> method and recording its result for later use. If we can handle the data we intend to instruct Windows to display the copy cursor by setting <var>dwEffect</var> to <var>DROPEFFECT_COPY</var>. However before we can do this we must check that the caller supports copying by checking that <var>dwEffect</var> includes <var>DROPEFFECT_COPY</var>. Should we not be able to handle the data, or the caller doesn't support copying, we inhibit the drop by setting <var>dwEffect</var> to <var>DROPEFFECT_NONE</var>.</p>
 
-    <p>
-        In <var>DragOver</var> we test <var>fCanDrop</var> and again check that the caller supports copying before
-        setting <var>dwEfect</var>.
-    </p>
+    <p>In <var>DragOver</var> we test <var>fCanDrop</var> and again check that the caller supports copying before setting <var>dwEfect</var>.</p>
 
-    <p>
-        We need do nothing in <var>DragLeave</var>, so we simply return <var>S_OK</var>.
-    </p>
+    <p>We need do nothing in <var>DragLeave</var>, so we simply return <var>S_OK</var>.</p>
 
-    <p>
-        Finally, in <var>Drop</var> we re-check the data object and <var>dwEffect</var> to see if we should accept the
-        drop and again set <var>dwEffect</var> accordingly. If we are accepting the drop we call <var>DisplayData</var>
-        to interpret the data object and to display it.
-    </p>
+    <p>Finally, in <var>Drop</var> we re-check the data object and <var>dwEffect</var> to see if we should accept the drop and again set <var>dwEffect</var> accordingly. If we are accepting the drop we call <var>DisplayData</var> to interpret the data object and to display it.</p>
 
-    <p>
-        So, how do we tell if we accept the dragged data object? It's simple. We accept data objects that store text
-        (with format type <var>CF_TEXT</var>) or those that can list files dropped on the application (with format type
-        <var>CF_HDROP</var>). The <var>CanDrop</var> method checks for these formats, as <span class="figureref">Listing
-            8</span> shows:
-    </p>
+    <p>So, how do we tell if we accept the dragged data object? It's simple. We accept data objects that store text (with format type <var>CF_TEXT</var>) or those that can list files dropped on the application (with format type <var>CF_HDROP</var>). The <var>CanDrop</var> method checks for these formats, as <span class="figureref">Listing 8</span> shows:</p>
 
     <div id="listing-8" class="frame">
         <div class="code-pascal">
@@ -938,16 +673,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 8
-        </div>
+        <div class="caption">Listing 8</div>
     </div>
 
-    <p>
-        <var>CanDrop</var> uses <var>MakeFormatEtc</var> to populate the <var>TFormatEtc</var> structure required by the
-        data object's <var>QueryGetData</var> method. <var>MakeFormatEtc</var>, which was explained in <a
-            href="./article-24#listing-17">article #24</a>, is shown in <span class="figureref">Listing 9</span>.
-    </p>
+    <p><var>CanDrop</var> uses <var>MakeFormatEtc</var> to populate the <var>TFormatEtc</var> structure required by the data object's <var>QueryGetData</var> method. <var>MakeFormatEtc</var>, which was explained in <a href="./article-24#listing-17">article #24</a>, is shown in <span class="figureref">Listing 9</span>.</p>
 
     <div id="listing-9" class="frame">
         <div class="code-pascal">
@@ -969,15 +698,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 9
-        </div>
+        <div class="caption">Listing 9</div>
     </div>
 
-    <p>
-        Let us move on to examine how we extract the information to be displayed from the data object. <span
-            class="figureref">Listing 10</span> presents all the relevant methods.
-    </p>
+    <p>Let us move on to examine how we extract the information to be displayed from the data object. <span class="figureref">Listing 10</span> presents all the relevant methods.</p>
 
     <div id="listing-10" class="frame">
         <div class="code-pascal">
@@ -1162,49 +886,24 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 96</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 10
-        </div>
+        <div class="caption">Listing 10</div>
     </div>
 
-    <p>
-        Recall that <var>DisplayData</var> is called when a data object is dropped. All it does is test the format of
-        the dropped data and call <var>DisplayFileList</var> if files were dropped or <var>DisplayText</var> if text was
-        dropped. No other data format should have been passed to <var>DisplayData</var>, so we raise an exception if
-        that is the case.
-    </p>
+    <p>Recall that <var>DisplayData</var> is called when a data object is dropped. All it does is test the format of the dropped data and call <var>DisplayFileList</var> if files were dropped or <var>DisplayText</var> if text was dropped. No other data format should have been passed to <var>DisplayData</var>, so we raise an exception if that is the case.</p>
 
-    <p>
-        <var>DisplayFileList</var> simply creates a string list to receive the names of the dropped files and calls
-        <var>GetFileListFromObj</var> to extract the file list from the data object. Similarly, <var>DisplayText</var>
-        calls <var>GetTextFromObj</var> to extract the dropped text from the data object.
-    </p>
+    <p><var>DisplayFileList</var> simply creates a string list to receive the names of the dropped files and calls <var>GetFileListFromObj</var> to extract the file list from the data object. Similarly, <var>DisplayText</var> calls <var>GetTextFromObj</var> to extract the dropped text from the data object.</p>
 
     <div class="callout callout-info">
-        <h4>
-            <var>GetTextFromObj</var> &amp; <var>GetFileListFromObj</var>
-        </h4>
-        <p>
-            Similar methods are explained in detail in article #24. See &quot;<a href="./article-24#getdata-eg1">Example
-                1: Text stored in global memory</a>&quot; and &quot;
-            <a href="./article-24#getdata-eg2">Example 2: File list stored in global memory</a>&quot; for details.
-        </p>
+
+        <h4><var>GetTextFromObj</var> &amp; <var>GetFileListFromObj</var></h4>
+
+        <p>Similar methods are explained in detail in article #24. See &quot;<a href="./article-24#getdata-eg1">Example 1: Text stored in global memory</a>&quot; and &quot; <a href="./article-24#getdata-eg2">Example 2: File list stored in global memory</a>&quot; for details.</p>
+
     </div>
 
-    <p>
-        You will have noticed that both <var>DisplayFileList</var> and <var>DisplayText</var> only get data from the
-        data object if the <var>fDropHandler</var> field is set. They also call methods on <var>fDropHandler</var> when
-        it is set. So what is <var>fDropHandler</var>?
-    </p>
+    <p>You will have noticed that both <var>DisplayFileList</var> and <var>DisplayText</var> only get data from the data object if the <var>fDropHandler</var> field is set. They also call methods on <var>fDropHandler</var> when it is set. So what is <var>fDropHandler</var>?</p>
 
-    <p>
-        Put simply <var>fDropHandler</var> is the means by which we communicate with the main form.
-        <var>fDropHandler</var> is an instance of an object that supports <var>IDropHandler</var>, the interface we
-        declared in <span class="figureref"><a href="#listing-6">Listing 6</a></span>. A reference to such an object is
-        passed to <var>TCustomDropTarget</var>'s constructor and recorded in <var>fDropHandler</var>. The relevant
-        methods of <var>IDropHandler</var> are called by <var>DisplayFileList</var> and <var>DisplayText</var>. <span
-            class="figureref">Listing 11</span> shows the constructor, which needs no further explanation.
-    </p>
+    <p>Put simply <var>fDropHandler</var> is the means by which we communicate with the main form. <var>fDropHandler</var> is an instance of an object that supports <var>IDropHandler</var>, the interface we declared in <span class="figureref"><a href="#listing-6">Listing 6</a></span>. A reference to such an object is passed to <var>TCustomDropTarget</var>'s constructor and recorded in <var>fDropHandler</var>. The relevant methods of <var>IDropHandler</var> are called by <var>DisplayFileList</var> and <var>DisplayText</var>. <span class="figureref">Listing 11</span> shows the constructor, which needs no further explanation.</p>
 
     <div id="listing-11" class="frame">
         <div class="code-pascal">
@@ -1218,30 +917,16 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 11
-        </div>
+        <div class="caption">Listing 11</div>
     </div>
 
-    <p>
-        And where is <var>IDropHandler</var> implemented? It could be any object that knows how to display the data, so
-        where better than the main form?
-    </p>
+    <p>And where is <var>IDropHandler</var> implemented? It could be any object that knows how to display the data, so where better than the main form?</p>
 
-    <h4 id="cs2-mainform">
-        The Main Form
-    </h4>
+    <h4 id="cs2-mainform">The Main Form</h4>
 
-    <p>
-        The main form contains a web browser control to display the HTML page. From what we've said above, the form must
-        also implement <var>IDropHandler</var>.
-    </p>
+    <p>The main form contains a web browser control to display the HTML page. From what we've said above, the form must also implement <var>IDropHandler</var>.</p>
 
-    <p>
-        Using a blank form, drop a <var>TWebBrowser</var> control on it, aligned to fill all the form's client area.
-        Create <var>onCreate</var>, <var>OnDestroy</var> and <var>OnShow</var> event handlers and change the form's
-        interface section to look like <span class="figureref">Listing 12</span>:
-    </p>
+    <p>Using a blank form, drop a <var>TWebBrowser</var> control on it, aligned to fill all the form's client area. Create <var>onCreate</var>, <var>OnDestroy</var> and <var>OnShow</var> event handlers and change the form's interface section to look like <span class="figureref">Listing 12</span>:</p>
 
     <div id="listing-12" class="frame">
         <div class="code-pascal">
@@ -1277,15 +962,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 12
-        </div>
+        <div class="caption">Listing 12</div>
     </div>
 
-    <p>
-        Now implement <var>FormCreate</var>, <var>FormDestroy</var> and <var>FormShow</var> as shown in <span
-            class="figureref">Listing 13</span>.
-    </p>
+    <p>Now implement <var>FormCreate</var>, <var>FormDestroy</var> and <var>FormShow</var> as shown in <span class="figureref">Listing 13</span>.</p>
 
     <div id="listing-13" class="frame">
         <div class="code-pascal">
@@ -1331,29 +1011,14 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 13
-        </div>
+        <div class="caption">Listing 13</div>
     </div>
 
-    <p>
-        In <var>FormCreate</var> we once again initialise OLE. We then create a web browser container object and use it
-        to assign the drop target, now implemented by <var>TCustomDropTarget</var>. A reference to this form is passed
-        to <var>TCustomDropTarget</var>'s constructor, because our form implements <var>IDropHandler</var>. Instead of
-        navigating to <code>about:blank</code> we navigate to an HTML page named <code>Page.html</code> in the same
-        directory as the executable program. We will discuss this file later.
-    </p>
+    <p>In <var>FormCreate</var> we once again initialise OLE. We then create a web browser container object and use it to assign the drop target, now implemented by <var>TCustomDropTarget</var>. A reference to this form is passed to <var>TCustomDropTarget</var>'s constructor, because our form implements <var>IDropHandler</var>. Instead of navigating to <code>about:blank</code> we navigate to an HTML page named <code>Page.html</code> in the same directory as the executable program. We will discuss this file later.</p>
 
-    <p>
-        <var>FormDestroy</var> simply tidies up, while <var>FormShow</var> pauses until the HTML document has fully
-        loaded.
-    </p>
+    <p><var>FormDestroy</var> simply tidies up, while <var>FormShow</var> pauses until the HTML document has fully loaded.</p>
 
-    <p>
-        We still have to implement the methods of <var>IDropHandler</var>, so let us do that now. <span
-            class="figureref">Listing 14</span> shows our implementation, along with that of the helper method,
-        <var>SetBoxInnerHTML</var> that is used update the display.
-    </p>
+    <p>We still have to implement the methods of <var>IDropHandler</var>, so let us do that now. <span class="figureref">Listing 14</span> shows our implementation, along with that of the helper method, <var>SetBoxInnerHTML</var> that is used update the display.</p>
 
     <div id="listing-14" class="frame">
         <div class="code-pascal">
@@ -1415,32 +1080,14 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 32</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 14
-        </div>
+        <div class="caption">Listing 14</div>
     </div>
 
-    <p>
-        <var>SetBoxInnerHTML</var> examines the displayed HTML document to find an element with an id of
-        &quot;box&quot;. If such an element exists its inner
-        HTML is set to the code passed to method as a parameter. This causes the required HTML to be displayed in the
-        document. The HTML document presented <a href="#listing-16">below</a> contains a <span
-            class="kwd">&lt;div&gt;</span> with the required id.
-    </p>
+    <p><var>SetBoxInnerHTML</var> examines the displayed HTML document to find an element with an id of &quot;box&quot;. If such an element exists its inner HTML is set to the code passed to method as a parameter. This causes the required HTML to be displayed in the document. The HTML document presented <a href="#listing-16">below</a> contains a <span class="kwd">&lt;div&gt;</span> with the required id.</p>
 
-    <p>
-        <var>HandleFiles</var> accepts a string list containing the names of the dropped files. It creates a HTML
-        unordered list of file names. <var>HandleText</var> simply encloses the text passed to it in <span
-            class="kwd">&lt;pre&gt;</span> tags.
-    </p>
+    <p><var>HandleFiles</var> accepts a string list containing the names of the dropped files. It creates a HTML unordered list of file names. <var>HandleText</var> simply encloses the text passed to it in <span class="kwd">&lt;pre&gt;</span> tags.</p>
 
-    <p>
-        Both <var>HandleFiles</var> and <var>HandleText</var> make use of a helper function named
-        <var>MakeSafeHTMLText</var> that ensures the text contains only valid HTML characters.
-        <var>MakeSafeHTMLText</var>, which was taken from the <a
-            href="https://github.com/delphidabbler/code-snippets/tree/master/csdb">DelphiDabbler Code Snippets
-            Database</a>, appears in <span class="figureref">Listing 15</span> below.
-    </p>
+    <p>Both <var>HandleFiles</var> and <var>HandleText</var> make use of a helper function named <var>MakeSafeHTMLText</var> that ensures the text contains only valid HTML characters. <var>MakeSafeHTMLText</var>, which was taken from the <a href="https://github.com/delphidabbler/code-snippets/tree/master/csdb">DelphiDabbler Code Snippets Database</a>, appears in <span class="figureref">Listing 15</span> below.</p>
 
     <div id="listing-15" class="frame">
         <div class="code-pascal">
@@ -1487,20 +1134,12 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 22</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 15
-        </div>
+        <div class="caption">Listing 15</div>
     </div>
 
+    <h4 id="cs2-html">HTML of Displayed Page</h4>
 
-    <h4 id="cs2-html">
-        HTML of Displayed Page
-    </h4>
-
-    <p>
-        All that remains now is to show the content of <code>Page.html</code>, the HTML page displayed in the web
-        browser control, which we do in <span class="figureref">Listing 16</span>.
-    </p>
+    <p>All that remains now is to show the content of <code>Page.html</code>, the HTML page displayed in the web browser control, which we do in <span class="figureref">Listing 16</span>.</p>
 
     <div id="listing-16" class="frame">
         <div class="code-pascal">
@@ -1550,159 +1189,90 @@ redirect_from:
             <pre class="line"><span class="linenum"> 33</span>  <span class="kwd">&lt;/body&gt;</span></pre>
             <pre class="line"><span class="linenum"> 34</span><span class="kwd">&lt/html&gt;</span></pre>
         </div>
-        <div class="caption">
-            Listing 16
-        </div>
+        <div class="caption">Listing 16</div>
     </div>
 
-    <p>
-        The main thing to note is the <span class="kwd">&lt;div&gt;</span> with id of &quot;box&quot; which is where the
-        dropped text or file list is displayed. We style the <span class="kwd">&lt;div&gt;</span> with a silver border
-        and pale yellow background, and give it a fixed height and width so that scroll bars will appear for any
-        oversized content.
-    </p>
+    <p>The main thing to note is the <span class="kwd">&lt;div&gt;</span> with id of &quot;box&quot; which is where the dropped text or file list is displayed. We style the <span class="kwd">&lt;div&gt;</span> with a silver border and pale yellow background, and give it a fixed height and width so that scroll bars will appear for any oversized content.</p>
 
-    <h4 id="cs2-exercise">
-        Exercising the Code
-    </h4>
+    <h4 id="cs2-exercise">Exercising the Code</h4>
 
-    <p>
-        Run this code and experiment by dragging single and multiple files from Explorer and by selecting and dragging
-        text from a text editor or word processor that supports text drag and drop.
-    </p>
+    <p>Run this code and experiment by dragging single and multiple files from Explorer and by selecting and dragging text from a text editor or word processor that supports text drag and drop.</p>
 
-    <p>
-        This completes our investigation of how to handle drag and drop in the <var>TWebBrowser</var> control.
-    </p>
+    <p>This completes our investigation of how to handle drag and drop in the <var>TWebBrowser</var> control.</p>
 
 </section>
 
 <section id="demo">
 
-    <h2>
-        Demo Code
-    </h2>
+    <h2>Demo Code</h2>
 
-    <p>
-        A demo program to accompany this article can be found in the
-        <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git
-        repository on GitHub.
-    </p>
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
 
-    <p>
-        You can view the code in the
-        <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-25">article-25</a></code>
-        sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing
-        page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
-    </p>
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-25">article-25</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
 
-    <p>
-        The demo includes the complete source code of four demo programs. See the demo's <a
-            href="https://github.com/delphidabbler/article-demos/blob/master/article-25/README.md">README.md</a> file
-        for details.
-    </p>
+    <p>The demo includes the complete source code of four demo programs. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-25/README.md">README.md</a> file for details.</p>
 
     <div class="callout callout-info">
-        <p>
-            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is
-            merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its
-            current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY
-            OF ANY KIND, either express or implied.
-        </p>
-        <p>
-            The demo is open source. See the demo's <a
-                href="https://github.com/delphidabbler/article-demos/blob/master/article-25/LICENSE.md">LICENSE.md</a>
-            file for licensing details.
-        </p>
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-25/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
     </div>
 
 </section>
 
 <section id="gofurther">
 
-    <h2>
-        Going Further
-    </h2>
+    <h2>Going Further</h2>
 
-    <p>
-        My GUI for the <a href="/software/pashi">PasHi Pascal Highlighter</a>, <em>PasHiGUI</em>, program uses a
-        <var>TWebBrowser</var> control and overrides drag and drop
-        using similar methods to those described here. If you are interested in seeing how this works please feel free
-        to download and examine the program's
-        source code.
-    </p>
+    <p>My GUI for the <a href="/software/pashi">PasHi Pascal Highlighter</a>, <em>PasHiGUI</em>, program uses a <var>TWebBrowser</var> control and overrides drag and drop using similar methods to those described here. If you are interested in seeing how this works please feel free to download and examine the program's source code.</p>
 
 </section>
 
 <section id="summary">
 
-    <h2>
-        Summary
-    </h2>
+    <h2>Summary</h2>
 
-    <p>
-        In this article we discovered that the default drag and drop behaviour of a <var>TWebBrowser</var> control
-        varies depending on whether OLE has been initialised.
-    </p>
+    <p>In this article we discovered that the default drag and drop behaviour of a <var>TWebBrowser</var> control varies depending on whether OLE has been initialised.</p>
 
-    <p>
-        We examined general techniques that can be used to override the web browser control's drag drop handling by
-        implementing the <var>IDropTarget</var>, <var>IDocHostUIHandler</var> and <var>IOleSlientSite</var> interfaces.
-    </p>
+    <p>We examined general techniques that can be used to override the web browser control's drag drop handling by implementing the <var>IDropTarget</var>, <var>IDocHostUIHandler</var> and <var>IOleSlientSite</var> interfaces.</p>
 
-    <p>
-        Next we looked at how to inhibit <var>TWebBrowser</var> from handling drag and drop at all.
-    </p>
+    <p>Next we looked at how to inhibit <var>TWebBrowser</var> from handling drag and drop at all.</p>
 
-    <p>
-        Finally we moved on to learn how to customise the control's handling of drag and drop in applications that need
-        to support drag and drop but do not want the control's default behaviour.
-    </p>
+    <p>Finally we moved on to learn how to customise the control's handling of drag and drop in applications that need to support drag and drop but do not want the control's default behaviour.</p>
 
 </section>
 
 <section id="references">
 
-    <h2>
-        References
-    </h2>
+    <h2>References</h2>
 
-    <p>
-        The Windows API help file supplied with Delphi provided documentation for <var>IDropTarget</var>.
-    </p>
+    <p>The Windows API help file supplied with Delphi provided documentation for <var>IDropTarget</var>.</p>
 
-    <p>
-        Two of my earlier articles provide much of the background information relied on in this article. They are:
-    </p>
+    <p>Two of my earlier articles provide much of the background information relied on in this article. They are:</p>
 
     <ul class="wide">
-        <li>
-            &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot; provides detailed
-            information on hosting and modifying
-            the behaviour of <var>TWebBrowser</var> controls.
-        </li>
-        <li>
-            &quot;<a href="./article-24">How to receive data dragged from other applications</a>&quot; explains how to
-            handle OLE drag and drop.
-        </li>
+        <li>&quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot; provides detailed information on hosting and modifying the behaviour of <var>TWebBrowser</var> controls.</li>
+        <li>&quot;<a href="./article-24">How to receive data dragged from other applications</a>&quot; explains how to handle OLE drag and drop.</li>
     </ul>
 
 </section>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

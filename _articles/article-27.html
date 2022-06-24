@@ -9,16 +9,13 @@ redirect_from:
 - /articles/27
 ---
 <section id="contents">
-    <h2>
-        Contents
-    </h2>
+
+    <h2>Contents</h2>
 
     <nav>
         <div class="well">
             <ul>
-                <li>
-                    <a href="#intro">Introduction</a>
-                </li>
+                <li><a href="#intro">Introduction</a></li>
                 <li>
                     <a href="#valid">Find valid Delphi installations</a>
                     <ul>
@@ -26,218 +23,164 @@ redirect_from:
                         <li><a href="#validate-list">Validate the list</a></li>
                     </ul>
                 </li>
-                <li>
-                    <a href="#find-compilers">Find the command line compilers</a>
-                </li>
-                <li>
-                    <a href="#demo">Demo Code</a>
-                </li>
-		<li><a href="#feedback">Feedback</a></li>
+                <li><a href="#find-compilers">Find the command line compilers</a></li>
+                <li><a href="#demo">Demo Code</a></li>
+                <li><a href="#feedback">Feedback</a></li>
             </ul>
         </div>
     </nav>
 </section>
 
 <section id="intro">
+
     <h2>Introduction</h2>
 
-    <p>If you're wanting to execute Delphi or, more likely, its command line compiler from another application, you need
-        a
-        way of finding which Delphi versions are installed. You also need to know where the desired executables have
-        been
-        installed.</p>
+    <p>If you're wanting to execute Delphi or, more likely, its command line compiler from another application, you need a way of finding which Delphi versions are installed. You also need to know where the desired executables have been installed.</p>
 
-    <p>The information we need to detect Delphi installations and to execute the compiler is recorded in the registry.
-    </p>
+    <p>The information we need to detect Delphi installations and to execute the compiler is recorded in the registry.</p>
 
-    <p>We will take this in two stages. First we will enumerate all installed versions of Delphi and then we will find
-        the
-        full path to an available command line compiler.</p>
+    <p>We will take this in two stages. First we will enumerate all installed versions of Delphi and then we will find the full path to an available command line compiler.</p>
 
     <div class="alert alert-info">
-        <p>Actually executing the compiler from within your program, in a meaningful way, is beyond the
-            scope of this article. If you want another article about how to do that, just ask (<a
-                href="#feedback">see Feedback below)</a>.</p>
-        <p>In the meantime, you can see some code that does this in my <a
-                href="https://github.com/delphidabbler/codesnip/tree/master/Src" target="_blank"><em>CodeSnip</em>
-                program source</a>. Look for units named <code>Compilers.xxx.pas</code></p>
+
+        <p>Actually executing the compiler from within your program, in a meaningful way, is beyond the scope of this article. If you want another article about how to do that, just ask (<a href="#feedback">see Feedback below)</a>.</p>
+
+        <p>In the meantime, you can see some code that does this in my <a href="https://github.com/delphidabbler/codesnip/tree/master/Src" target="_blank"><em>CodeSnip</em> program source</a>. Look for units named <code>Compilers.xxx.pas</code></p>
+
     </div>
 
-    <p class="callout callout-warning"><strong class="text-warning">Note for users of older Delphi compilers:</strong>
-        The example code in this article was written and tested in Delphi 11 Alexandria. The code uses features of the
-        later Delphi compilers and will not compile on older version without change. In the main you may need to move
-        all variable declarations out of the body of the code into a <strong>var</strong> section at the top of each
-        routine. The code also uses <strong>for .. in</strong> loops quite extensively.</p>
+    <p class="callout callout-warning"><strong class="text-warning">Note for users of older Delphi compilers:</strong> The example code in this article was written and tested in Delphi 11 Alexandria. The code uses features of the later Delphi compilers and will not compile on older version without change. In the main you may need to move all variable declarations out of the body of the code into a <strong>var</strong> section at the top of each routine. The code also uses <strong>for .. in</strong> loops quite extensively.</p>
 
 </section>
 
 <section id="valid">
+
     <h2>Find valid Delphi installations</h2>
 
     <h3 id="enum-reg">Enumerate registry keys</h3>
 
-    <p>First things first. Lets see where Delphi install information is stored in the registry. That depends on whether
-        Delphi / RAD Studio was installed just for the current user or for all users of the machine.</p>
+    <p>First things first. Lets see where Delphi install information is stored in the registry. That depends on whether Delphi / RAD Studio was installed just for the current user or for all users of the machine.</p>
 
-    <p>When installed for all users the information we want is under the <code>HKEY_LOCAL_MACHINE</code> root key, but
-        if installation was for only the current user we need to look in <code>HKEY_CURRENT_USER</code>.</p>
+    <p>When installed for all users the information we want is under the <code>HKEY_LOCAL_MACHINE</code> root key, but if installation was for only the current user we need to look in <code>HKEY_CURRENT_USER</code>.</p>
 
-    <p>The path to the required data differs for each version of Delphi, but is the same for each root key. The format
-        of the path has changed over the years as Delphi has evolved. The following table gives the registry paths for
-        each version from Delphi 2 to Delphi 11 Alexandria:</p>
+    <p>The path to the required data differs for each version of Delphi, but is the same for each root key. The format of the path has changed over the years as Delphi has evolved. The following table gives the registry paths for each version from Delphi 2 to Delphi 11 Alexandria:</p>
 
     <div class="frame table-responsive" id="table-1">
         <table class="table" summary="table of master help file names in various versions of Delphi">
-
             <thead>
-
                 <tr>
                     <th scope="column">Delphi version</th>
                     <th scope="column">Registry path</th>
                 </tr>
-
             </thead>
-
             <tbody>
-
                 <tr>
                     <td>2</td>
                     <td><code>\SOFTWARE\Borland\Delphi\2.0</code></td>
                 </tr>
-
                 <tr>
                     <td>3</td>
                     <td><code>\SOFTWARE\Borland\Delphi\3.0</code></td>
                 </tr>
-
                 <tr>
                     <td>4</td>
                     <td><code>\SOFTWARE\Borland\Delphi\4.0</code></td>
                 </tr>
-
                 <tr>
                     <td>5</td>
                     <td><code>\SOFTWARE\Borland\Delphi\5.0</code></td>
                 </tr>
-
                 <tr>
                     <td>6</td>
                     <td><code>\SOFTWARE\Borland\Delphi\6.0</code></td>
                 </tr>
-
                 <tr>
                     <td>7</td>
                     <td><code>\SOFTWARE\Borland\Delphi\7.0</code></td>
                 </tr>
-
                 <tr>
                     <td>2005</td>
                     <td><code>\SOFTWARE\Borland\BDS\3.0</code></td>
                 </tr>
-
                 <tr>
                     <td>2006</td>
                     <td><code>\SOFTWARE\Borland\BDS\4.0</code></td>
                 </tr>
-
                 <tr>
                     <td>2007</td>
                     <td><code>\SOFTWARE\Borland\BDS\5.0</code></td>
                 </tr>
-
                 <tr>
                     <td>2009</td>
                     <td><code>\SOFTWARE\CodeGear\BDS\6.0</code></td>
                 </tr>
-
                 <tr>
                     <td>2010</td>
                     <td><code>\SOFTWARE\CodeGear\BDS\7.0</code></td>
                 </tr>
-
                 <tr>
                     <td>XE</td>
                     <td><code>\Software\Embarcadero\BDS\8.0</code></td>
                 </tr>
-
                 <tr>
                     <td>XE2</td>
                     <td><code>\Software\Embarcadero\BDS\9.0</code></td>
                 </tr>
-
                 <tr>
                     <td>XE3</td>
                     <td><code>\Software\Embarcadero\BDS\10.0</code></td>
                 </tr>
-
                 <tr>
                     <td>XE4</td>
                     <td><code>\Software\Embarcadero\BDS\11.0</code></td>
                 </tr>
-
                 <tr>
                     <td>XE5</td>
                     <td><code>\Software\Embarcadero\BDS\12.0</code></td>
                 </tr>
-
                 <tr>
                     <td>XE6</td>
                     <td><code>\Software\Embarcadero\BDS\14.0</code></td>
                 </tr>
-
                 <tr>
                     <td>XE7</td>
                     <td><code>\Software\Embarcadero\BDS\15.0</code></td>
                 </tr>
-
                 <tr>
                     <td>XE8</td>
                     <td><code>\Software\Embarcadero\BDS\16.0</code></td>
                 </tr>
-
                 <tr>
                     <td>10 Seattle</td>
                     <td><code>\Software\Embarcadero\BDS\17.0</code></td>
                 </tr>
-
                 <tr>
                     <td>10.1 Berlin</td>
                     <td><code>\Software\Embarcadero\BDS\18.0</code></td>
                 </tr>
-
                 <tr>
                     <td>10.2 Tokyo</td>
                     <td><code>\Software\Embarcadero\BDS\19.0</code></td>
                 </tr>
-
                 <tr>
                     <td>10.3 Rio</td>
                     <td><code>\Software\Embarcadero\BDS\20.0</code></td>
                 </tr>
-
                 <tr>
                     <td>10.4 Sydney</td>
                     <td><code>\Software\Embarcadero\BDS\21.0</code></td>
                 </tr>
-
                 <tr>
                     <td>11 Alexandria</td>
                     <td><code>\Software\Embarcadero\BDS\22.0</code></td>
                 </tr>
-
             </tbody>
-
         </table>
     </div>
 
-    <p>This tabulation suggests a way of enumerating the installed versions of Delphi. We could use an array of
-        records, with each record storing the Delphi version and registry path. We would then enumerate that array,
-        checking whether each registry path exists and recording the indices of those that do exist. In code this
-        would look something like this:</p>
+    <p>This tabulation suggests a way of enumerating the installed versions of Delphi. We could use an array of records, with each record storing the Delphi version and registry path. We would then enumerate that array, checking whether each registry path exists and recording the indices of those that do exist. In code this would look something like this:</p>
 
-    <!-- Highlighted Pascal code generated by DelphiDabbler PasHi -->
     <div class="frame" id="listing-1">
-        <!-- Highlighted Pascal code generated by DelphiDabbler PasHi -->
         <div class="code-pascal">
             <pre class="line"><span class="linenum">  1</span><span class="kwd">uses</span></pre>
             <pre
@@ -376,49 +319,31 @@ redirect_from:
         <div class="caption">Listing 1</div>
     </div>
 
-    <p>
-        Here's how this works.
-    </p>
+    <p>Here's how this works.</p>
 
     <ul>
-        <li><var>TDelphiInfo</var> and <var>AllDelphis</var> together form the table of records mentioned above that
-            stores
-            the required registry information for each compiler.</li>
-        <li><var>FindInstallations</var> checks the registry for every compiler in <var>AllDelphis</var> and returns an
-            array of <var>TDelphiInfo</var> records for each compiler where its installation subkey is found in the
-            registry. <var>FindInstallations</var> uses the <var>IsRegistered</var> helper routine to actually check the
-            registry.</li>
-        <li><var>IsRegistered</var> checks for the given subkey in both the <var>HKEY_LOCAL_MACHINE</var> and
-            <var>HKEY_CURRENT_USER</var> root keys. This is because Delphi can be installed for all users of a computer
-            or
-            for a specified user. In the former case the installation information is stored under
-            <var>HKEY_LOCAL_MACHINE</var> and in the later case the information is stored under
-            <var>HKEY_CURRENT_USER</var>.
-        </li>
-        <li><var>IsRegistered</var> calls <var>IsRegisteredInRootKey</var> to check whether the given subkey is found in
-            each root key.</li>
+        <li><var>TDelphiInfo</var> and <var>AllDelphis</var> together form the table of records mentioned above that stores the required registry information for each compiler.</li>
+
+        <li><var>FindInstallations</var> checks the registry for every compiler in <var>AllDelphis</var> and returns an array of <var>TDelphiInfo</var> records for each compiler where its installation subkey is found in the registry. <var>FindInstallations</var> uses the <var>IsRegistered</var> helper routine to actually check the registry.</li>
+
+        <li><var>IsRegistered</var> checks for the given subkey in both the <var>HKEY_LOCAL_MACHINE</var> and <var>HKEY_CURRENT_USER</var> root keys. This is because Delphi can be installed for all users of a computer or for a specified user. In the former case the installation information is stored under <var>HKEY_LOCAL_MACHINE</var> and in the later case the information is stored under <var>HKEY_CURRENT_USER</var>.</li>
+
+        <li><var>IsRegistered</var> calls <var>IsRegisteredInRootKey</var> to check whether the given subkey is found in each root key.</li>
     </ul>
 
     <h3 id="validate-list">Validate the list</h3>
 
-    <p>The above code seems to provide us with a list of all installations of Delphi. While that list is correct in
-        theory, there's a fly in the ointment.</p>
+    <p>The above code seems to provide us with a list of all installations of Delphi. While that list is correct in theory, there's a fly in the ointment.</p>
 
-    <p>Windows uninstallers are infamous for not cleaning up properly, and its entirely possible that an uninstaller
-        would fail to delete the registry entries for a long gone Delphi installation. In this case our code would
-        find the registry key and would report that version as being installed.</p>
+    <p>Windows uninstallers are infamous for not cleaning up properly, and its entirely possible that an uninstaller would fail to delete the registry entries for a long gone Delphi installation. In this case our code would find the registry key and would report that version as being installed.</p>
 
     <p>So what's the solution?</p>
 
-    <p>Within the registry subkey there is a value named <code>RootDir</code> that is present for all versions of Delphi
-        to date. This value stores the full path of the directory where a given version of Delphi is installed. So, for
-        our first test, we can make sure that the <code>RootDir</code> value exists and that the directory it points to
-        also exists.</p>
+    <p>Within the registry subkey there is a value named <code>RootDir</code> that is present for all versions of Delphi to date. This value stores the full path of the directory where a given version of Delphi is installed. So, for our first test, we can make sure that the <code>RootDir</code> value exists and that the directory it points to also exists.</p>
 
     <p>The following code reads the installation directory from the registry:</p>
 
     <div class="frame" id="listing-2">
-        <!-- Highlighted Pascal code generated by DelphiDabbler PasHi -->
         <div class="code-pascal">
             <pre class="line"><span class="linenum">  1</span><span class="kwd">uses</span></pre>
             <pre
@@ -476,25 +401,18 @@ redirect_from:
     </div>
 
     <aside>
-        <p class="callout callout-warning">Note that this code should ideally be called only once you know that the
-            installation information is in the registry.</p>
+        <p class="callout callout-warning">Note that this code should ideally be called only once you know that the installation information is in the registry.</p>
     </aside>
 
-    <p>Here, <var>GetInstallDir</var> attempts to read the <code>RootDir</code> value from the given subkey. Since we
-        didn't record which root key the subkey belongs to earlier, we need to find it again. The
-        <var>GetRegRootKey</var> helper routine does this.</p>
+    <p>Here, <var>GetInstallDir</var> attempts to read the <code>RootDir</code> value from the given subkey. Since we didn't record which root key the subkey belongs to earlier, we need to find it again. The <var>GetRegRootKey</var> helper routine does this.</p>
 
     <aside>
-        <p class="callout callout-info">I know, I know! Searching for the root key again is not the most efficient code
-            - it would have been better to record it earlier and re-use it. But in my defence, I don't want to clutter
-            the earlier examples with code we wouldn't need until later. If this was production code I'd wrap it all up
-            in a class anyway, and would store the root key in a field. But it's not and I haven't!</p>
+        <p class="callout callout-info">I know, I know! Searching for the root key again is not the most efficient code - it would have been better to record it earlier and re-use it. But in my defence, I don't want to clutter the earlier examples with code we wouldn't need until later. If this was production code I'd wrap it all up in a class anyway, and would store the root key in a field. But it's not and I haven't!</p>
     </aside>
 
     <p>Next we check if the installation directory exists with the following routine.</p>
 
     <div class="frame" id="listing-3">
-        <!-- Highlighted Pascal code generated by DelphiDabbler PasHi -->
         <div class="code-pascal">
             <pre
                 class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">InstallDirExists</span><span class="sym">(</span><span class="ident">SubKey</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
@@ -513,14 +431,11 @@ redirect_from:
         <div class="caption">Listing 3</div>
     </div>
 
-    <p><var>InstallDirExists</var> simply calls <var>GetInstallDir</var>, checks that a value has been returned from
-        that call, then checks if the directory exists.</p>
+    <p><var>InstallDirExists</var> simply calls <var>GetInstallDir</var>, checks that a value has been returned from that call, then checks if the directory exists.</p>
 
-    <p>We can now write a new version of <var>FindInstallations</var>, <var>FindInstallations2</var>, that checks that
-        the installation directory exists:</p>
+    <p>We can now write a new version of <var>FindInstallations</var>, <var>FindInstallations2</var>, that checks that the installation directory exists:</p>
 
     <div class="frame" id="listing-4">
-        <!-- Highlighted Pascal code generated by DelphiDabbler PasHi -->
         <div class="code-pascal">
             <pre
                 class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">FindInstallations2</span><span class="sym">:</span><span class="space"> </span><span class="ident">TArray</span><span class="sym">&lt;</span><span class="ident">TDelphiInfo</span><span class="sym">&gt;</span><span class="sym">;</span></pre>
@@ -553,24 +468,17 @@ redirect_from:
         <div class="caption">Listing 4</div>
     </div>
 
-    <p><var>FindInstallations2</var> varies from <var>FindInstallations</var> in the if statement on line 7 where we add
-        a call to <var>InstallDirExists</var>.</p>
+    <p><var>FindInstallations2</var> varies from <var>FindInstallations</var> in the if statement on line 7 where we add a call to <var>InstallDirExists</var>.</p>
 
-    <p>We can go a little further and check for the presence of a known file within the Delphi installation. For example
-        we can check if <code>DCC32.exe</code> exists. This file is present in all full versions of Delphi to date, so
-        it's a good choice. <code>DCC32.exe</code> is always located in the <code>Bin</code> sub-directory of the
-        installation directory.</p>
+    <p>We can go a little further and check for the presence of a known file within the Delphi installation. For example we can check if <code>DCC32.exe</code> exists. This file is present in all full versions of Delphi to date, so it's a good choice. <code>DCC32.exe</code> is always located in the <code>Bin</code> sub-directory of the installation directory.</p>
 
     <aside>
-        <p class="callout callout-warning">I'm not sure if <code>DCC32.exe</code> is present in (some) community
-            editions of Delphi. If anyone knows the answer to this, please let me know (<a
-                href="#feedback">see Feedback below</a>).</p>
+        <p class="callout callout-warning">I'm not sure if <code>DCC32.exe</code> is present in (some) community editions of Delphi. If anyone knows the answer to this, please let me know (<a href="#feedback">see Feedback below</a>).</p>
     </aside>
 
     <p>Here's a function to detect if <code>DCC32.exe</code> exists for a given registry subkey:</p>
 
     <div class="frame" id="listing-5">
-        <!-- Highlighted Pascal code generated by DelphiDabbler PasHi -->
         <div class="code-pascal">
             <pre
                 class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">DCC32Exists</span><span class="sym">(</span><span class="ident">SubKey</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
@@ -591,11 +499,9 @@ redirect_from:
         <div class="caption">Listing 5</div>
     </div>
 
-    <p>We can now extend <var>FindInstallations</var> one last time to check for the presence of <code>DCC32.exe</code>:
-    </p>
+    <p>We can now extend <var>FindInstallations</var> one last time to check for the presence of <code>DCC32.exe</code>:</p>
 
     <div class="frame" id="listing-6">
-        <!-- Highlighted Pascal code generated by DelphiDabbler PasHi -->
         <div class="code-pascal">
             <pre
                 class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">FindInstallations3</span><span class="sym">:</span><span class="space"> </span><span class="ident">TArray</span><span class="sym">&lt;</span><span class="ident">TDelphiInfo</span><span class="sym">&gt;</span><span class="sym">;</span></pre>
@@ -628,18 +534,13 @@ redirect_from:
         <div class="caption">Listing 6</div>
     </div>
 
-    <p>Again, the only difference from <var>FindInstallations</var> is in line 7 with its call to
-        <var>DCC32Exists</var>.</p>
+    <p>Again, the only difference from <var>FindInstallations</var> is in line 7 with its call to <var>DCC32Exists</var>.</p>
 
-    <p>Let us end this section with a little VCL program that displays the names of all the Delphi installations
-        available to the current user of a PC.</p>
+    <p>Let us end this section with a little VCL program that displays the names of all the Delphi installations available to the current user of a PC.</p>
 
-    <p>Create a new VCL application and drop a <var>TListBox</var> on the form. Add all the functions above to the
-        implementation section of the form unit. Now add an <var>OnCreate</var> event handler to the form and code it as
-        follows:</p>
+    <p>Create a new VCL application and drop a <var>TListBox</var> on the form. Add all the functions above to the implementation section of the form unit. Now add an <var>OnCreate</var> event handler to the form and code it as follows:</p>
 
     <div class="frame" id="listing-7">
-        <!-- Highlighted Pascal code generated by DelphiDabbler PasHi -->
         <div class="code-pascal">
             <pre
                 class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormCreate</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
@@ -656,8 +557,7 @@ redirect_from:
 
     <p class="callout callout-info">The code assumes that the default form and list box names were left unchanged.</p>
 
-    <p>This code gets a <var>TDelphiInfo</var> record for each installed version of Delphi and adds its name to the list
-        box. Here's what I got:</p>
+    <p>This code gets a <var>TDelphiInfo</var> record for each installed version of Delphi and adds its name to the list box. Here's what I got:</p>
 
     <div class="frame" id="image-1">
         <div>
@@ -671,24 +571,16 @@ redirect_from:
 </section>
 
 <section id="find-compilers">
+
     <h2>Find the command line compilers</h2>
 
-    <p>This is the easiest step by far, and the solution has already been hinted at above where we tested for a valid
-        install by looking for <code>DCC32.exe</code>, the 32 bit command line compiler. That code found the full path
-        we were
-        looking for.</p>
+    <p>This is the easiest step by far, and the solution has already been hinted at above where we tested for a valid install by looking for <code>DCC32.exe</code>, the 32 bit command line compiler. That code found the full path we were looking for.</p>
 
-    <p>What about the 64 bit compiler? We simply use the same technique as used above to check for the presence of
-        <code>DCC64.exe</code>. Not all versions of Delphi have a 64 bit compiler, but we can use this code to find out
-        which versions do support it.
-    </p>
+    <p>What about the 64 bit compiler? We simply use the same technique as used above to check for the presence of <code>DCC64.exe</code>. Not all versions of Delphi have a 64 bit compiler, but we can use this code to find out which versions do support it.</p>
 
-    <p>The following code displays the locations of the 32bit and 64bit compilers (where available). This code uses the
-        same project as before, with a main form containing a list box. We change the <var>OnCreate</var> event handler
-    </p>
+    <p>The following code displays the locations of the 32bit and 64bit compilers (where available). This code uses the same project as before, with a main form containing a list box. We change the <var>OnCreate</var> event handler</p>
 
     <div class="frame" id="listing-8">
-        <!-- Highlighted Pascal code generated by DelphiDabbler PasHi -->
         <div class="code-pascal">
             <pre
                 class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TryGetFilePath</span><span class="sym">(</span><span class="ident">BaseName</span><span class="sym">,</span><span class="space"> </span><span class="ident">SubKey</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span><span class="space"> </span><span class="kwd">out</span><span class="space"> </span><span class="ident">Path</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
@@ -756,17 +648,9 @@ redirect_from:
         <div class="caption">Listing 8</div>
     </div>
 
-    <p>Firstly, we have yet another helper routine, <var>TryGetFilePath</var>, that tries to get the full path of given
-        file in a specified Delphi installation. <var>BaseName</var> is the name of the required file, without any path
-        informaton; <var>SubKey</var> is the registry sub key that provides information about the Delphi installation
-        and <var>Path</var> receives the fully specified path to the required file. <var>TryGetFilePath</var> returns
-        <var>True</var> if the file exists and <var>False</var> if not. Where the file doesn't exists <var>Path</var> is
-        set to <code>''</code>.</p>
+    <p>Firstly, we have yet another helper routine, <var>TryGetFilePath</var>, that tries to get the full path of given file in a specified Delphi installation. <var>BaseName</var> is the name of the required file, without any path informaton; <var>SubKey</var> is the registry sub key that provides information about the Delphi installation and <var>Path</var> receives the fully specified path to the required file. <var>TryGetFilePath</var> returns <var>True</var> if the file exists and <var>False</var> if not. Where the file doesn't exists <var>Path</var> is set to <code>''</code>.</p>
 
-    <p>In the <var>TForm1.FormCreate</var> event handler we first get a list of all installed versions of Delphi. The
-        name of each version is added to the list box. We then check to see if <code>DCC32.exe</code> and
-        <code>DCC64.exe</code> are included in the installation, using the local procedure <var>AddDCCInfo</var>. This
-        procedure checks if the required programs exist and writes the full path to the executable file if so.</p>
+    <p>In the <var>TForm1.FormCreate</var> event handler we first get a list of all installed versions of Delphi. The name of each version is added to the list box. We then check to see if <code>DCC32.exe</code> and <code>DCC64.exe</code> are included in the installation, using the local procedure <var>AddDCCInfo</var>. This procedure checks if the required programs exist and writes the full path to the executable file if so.</p>
 
     <p>Here are the results of running the code on my system:</p>
 
@@ -781,50 +665,42 @@ redirect_from:
 
     <p>You now have all the information you need to be able to find various Delphi executable programs.</p>
 
-    <p class="callout callout-info">You could use a similar technique to find other compilers, like the C++ compiler
-        providing you know the executable file name. I don't!</p>
+    <p class="callout callout-info">You could use a similar technique to find other compilers, like the C++ compiler providing you know the executable file name. I don't!</p>
 
 </section>
 
 <section id="demo">
 
-	<h2>
-		Demo Code
-	</h2>
+    <h2>Demo Code</h2>
 
-	<p>
-		A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.
-	</p>
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
 
-	<p>
-		You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-27">article-27</a></code> sub-directory. Alternatively download a zip file containing all the available demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
-	</p>
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-27">article-27</a></code> sub-directory. Alternatively download a zip file containing all the available demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
 
     <div class="callout callout-info">
-        <p>
-            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
-        </p>
-        <p>
-            The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-27/LICENSE.md">LICENSE.md</a> file for licensing details.
-        </p>
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-27/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
     </div>
 
 </section>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #27&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #27&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

@@ -10,114 +10,65 @@ redirect_from:
 ---
 <section id="contents">
 
-    <h2>
-        Contents
-    </h2>
+    <h2>Contents</h2>
 
     <nav>
         <div class="well">
             <ul>
-                <li>
-                    <a href="#intro">Introduction</a>
-                </li>
-                <li>
-                    <a href="#overview">Overview of a solution</a>
-                </li>
+                <li><a href="#intro">Introduction</a></li>
+                <li><a href="#overview">Overview of a solution</a></li>
                 <li>
                     <a href="#tnulwbcontainer">Developing a reusable base class</a>
                     <ul>
-                        <li>
-                            <a href="#getting-started">Getting started</a>
-                        </li>
-                        <li>
-                            <a href="#non-ref-count-obj">Implementing a non reference counted object</a>
-                        </li>
-                        <li>
-                            <a href="#ioleclientsite">Implementing IOleClientSite</a>
-                        </li>
-                        <li>
-                            <a href="#idochostuihandler">Implementing IDocHostUIHandler</a>
-                        </li>
+                        <li><a href="#getting-started">Getting started</a></li>
+                        <li><a href="#non-ref-count-obj">Implementing a non reference counted object</a></li>
+                        <li><a href="#ioleclientsite">Implementing IOleClientSite</a></li>
+                        <li><a href="#idochostuihandler">Implementing IDocHostUIHandler</a></li>
                     </ul>
                 </li>
-                <li>
-                    <a href="#twbcontainer">Developing the customization class</a>
-                </li>
+                <li><a href="#twbcontainer">Developing the customization class</a></li>
                 <li>
                     <a href="#sample-app">Exercising the code - a sample application</a>
                     <ul>
-                        <li>
-                            <a href="#stage1">Stage 1</a>
-                        </li>
-                        <li>
-                            <a href="#stage2">Stage 2</a>
-                        </li>
+                        <li><a href="#stage1">Stage 1</a></li>
+                        <li><a href="#stage2">Stage 2</a></li>
                     </ul>
                 </li>
-                <li>
-                    <a href="#demo-code">Demo Code</a>
-                </li>
-                <li>
-                    <a href="#summary">Summary</a>
-                </li>
-                <li>
-                    <a href="#references">References</a>
-                </li>
-                <li>
-                    <a href="#feedback">Feedback</a>
-                </li>
+                <li><a href="#demo-code">Demo Code</a></li>
+                <li><a href="#summary">Summary</a></li>
+                <li><a href="#references">References</a></li>
+                <li><a href="#feedback">Feedback</a></li>
             </ul>
         </div>
     </nav>
+
 </section>
 
 <section id="intro">
 
-    <h2>
-        Introduction
-    </h2>
+    <h2>Introduction</h2>
 
-    <p>
-        Among the most popular questions posed in the <var>TWebBrowser</var> newsgroups and discussed on many Delphi tips sites are:
-    </p>
+    <p>Among the most popular questions posed in the <var>TWebBrowser</var> newsgroups and discussed on many Delphi tips sites are:</p>
 
     <ol class="wide">
-        <li>
-            How do you get a <var>TWebBrowser</var> control to display the popup menu assigned to its <var>PopupMenu</var> property instead of the standard IE popup menu?
-        </li>
+        <li>How do you get a <var>TWebBrowser</var> control to display the popup menu assigned to its <var>PopupMenu</var> property instead of the standard IE popup menu? </li>
 
-        <li>
-            How do you stop <var>TWebBrowser</var> displaying 3D borders when a document is loaded.
-        </li>
+        <li>How do you stop <var>TWebBrowser</var> displaying 3D borders when a document is loaded.</li>
 
-        <li>
-            How do you prevent <var>TWebBrowser</var> from displaying scrollbars?
-        </li>
+        <li>How do you prevent <var>TWebBrowser</var> from displaying scrollbars?</li>
     </ol>
 
-    <p>
-        We're going to answer these in this article, along with three other related questions that arose when I was developing the <em><a href="/software/codesnip">CodeSnip Database Viewer</a> application</em>:
-    </p>
+    <p>We're going to answer these in this article, along with three other related questions that arose when I was developing the <em><a href="/software/codesnip">CodeSnip Database Viewer</a> application</em>:</p>
 
     <ol class="wide" start="4">
-        <li>
-            How can you make the browser control take on the look and feel of the hosting form, given that each user may have a different display configuration that is not known at design time? I needed to do this to add some HTML content to a couple of dialogue boxes and make the HTML appear to be part of the dialogue box.
-        </li>
-        <li>
-            Users can normally select text in a browser control &ndash; something you don't want in a dialogue box. So how do you stop that?
-        </li>
-        <li>
-            How do you ensure that the browser control uses themes when rendering widgets such as buttons when, and only when, your application is using themes?
-        </li>
+        <li>How can you make the browser control take on the look and feel of the hosting form, given that each user may have a different display configuration that is not known at design time? I needed to do this to add some HTML content to a couple of dialogue boxes and make the HTML appear to be part of the dialogue box.</li>
+        <li>Users can normally select text in a browser control &ndash; something you don't want in a dialogue box. So how do you stop that?</li>
+        <li>How do you ensure that the browser control uses themes when rendering widgets such as buttons when, and only when, your application is using themes?</li>
     </ol>
 
-    <p>
-        The answer to the <span class="text-smallcaps">question 1</span> is to create an object that implements the <var>IDocHostUIHandler</var> interface and use that object to control the behaviour of the popup menu.
-    </p>
+    <p>The answer to the <span class="text-smallcaps">question 1</span> is to create an object that implements the <var>IDocHostUIHandler</var> interface and use that object to control the behaviour of the popup menu.</p>
 
-    <p>
-        A common solution to the <span class="text-smallcaps">questions 2 &amp; 3</span> is to set one of the DOM object properties to some suitable value. For example, if <var>WB</var> has type <var>TWebBrowser</var>, we must wait until a document has loaded and then do:
-    </p>
+    <p>A common solution to the <span class="text-smallcaps">questions 2 &amp; 3</span> is to set one of the DOM object properties to some suitable value. For example, if <var>WB</var> has type <var>TWebBrowser</var>, we must wait until a document has loaded and then do:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -132,147 +83,80 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  6</span><span class="ident">WB</span><span class="sym">.</span><span class="ident">OleObject</span><span class="sym">.</span><span class="ident">document</span><span class="sym">.</span><span class="ident">body</span><span class="sym">.</span><span class="ident">style</span><span class="sym">.</span><span class="ident">borderstyle</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;none&apos;</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 1
-        </div>
+        <div class="caption">Listing 1</div>
     </div>
 
-    <p>
-        Now, what is less well known is that we can also set the border style and the scroll bar visibility by implementing <var>IDocHostUIHandler</var>.
-    </p>
+    <p>Now, what is less well known is that we can also set the border style and the scroll bar visibility by implementing <var>IDocHostUIHandler</var>.</p>
 
-    <p>
-        <var>IDocHostUIHandler</var> also lets us provide a default Cascading Style Sheet (CSS) to the browser object. This provides an answer to <span class="text-smallcaps">question 4</span>: we can dynamically create a style sheet that knows about a form's colour and fonts and tell the browser to use it.
-    </p>
+    <p><var>IDocHostUIHandler</var> also lets us provide a default Cascading Style Sheet (CSS) to the browser object. This provides an answer to <span class="text-smallcaps">question 4</span>: we can dynamically create a style sheet that knows about a form's colour and fonts and tell the browser to use it.</p>
 
-    <p>
-        And as for the last two questions? You guessed it: <var>IDocHostUIHandler</var> can help here too!
-    </p>
+    <p>And as for the last two questions? You guessed it: <var>IDocHostUIHandler</var> can help here too!</p>
 
-    <p>
-        Unsurprisingly then, this article is all about how to create an object that implements <var>IDocHostUIHandler</var> and how to use it to customize the browser control. Along the way we will also have to find out how to get <var>TWebBrowser</var> to interact with the object.
-    </p>
+    <p>Unsurprisingly then, this article is all about how to create an object that implements <var>IDocHostUIHandler</var> and how to use it to customize the browser control. Along the way we will also have to find out how to get <var>TWebBrowser</var> to interact with the object.</p>
 
 </section>
 
 <section id="overview">
 
-    <h2>
-        Overview of a solution
-    </h2>
+    <h2>Overview of a solution</h2>
 
-    <p>
-        Let us assess what are trying to do. We will work towards creating an object that can customize the <var>TWebBrowser</var> control's appearance and take control of its context menu. In the interests of ease of use and reusability we will expose properties to enable users to easily configure these attributes of the browser control.
-    </p>
+    <p>Let us assess what are trying to do. We will work towards creating an object that can customize the <var>TWebBrowser</var> control's appearance and take control of its context menu. In the interests of ease of use and reusability we will expose properties to enable users to easily configure these attributes of the browser control.</p>
 
-    <p>
-        So how do we go about customizing the <var>TWebBrowser</var>? According to the Microsoft&reg; Developer Network Library documentation (my emphasis):
-    </p>
+    <p>So how do we go about customizing the <var>TWebBrowser</var>? According to the Microsoft&reg; Developer Network Library documentation (my emphasis):</p>
 
     <blockquote>
-        <p>
-            &quot;The mechanism for WebBrowser Control customization is designed to be automated when a <strong>container</strong> provides support for ActiveX controls. Whenever the WebBrowser Control is instantiated, it attempts to find <strong>IDocHostUIHandler</strong>, IDocHostUIHandler2 and IDocHostShowUI implementations from the <strong>host</strong>, if they are available. The WebBrowser Control does this by a QueryInterface call on the host's <strong>IOleClientSite</strong> interface.
-        </p>
-        <p>
-            &quot;This architecture works automatically for an application that implements an IOleClientSite interface and that passes an IOleClientSite pointer to the WebBrowser Control through the browser's <strong>IOleObject::SetClientSite</strong> method.&quot;
-        </p>
+        <p>&quot;The mechanism for WebBrowser Control customization is designed to be automated when a <strong>container</strong> provides support for ActiveX controls. Whenever the WebBrowser Control is instantiated, it attempts to find <strong>IDocHostUIHandler</strong>, IDocHostUIHandler2 and IDocHostShowUI implementations from the <strong>host</strong>, if they are available. The WebBrowser Control does this by a QueryInterface call on the host's <strong>IOleClientSite</strong> interface.</p>
+        <p>&quot;This architecture works automatically for an application that implements an IOleClientSite interface and that passes an IOleClientSite pointer to the WebBrowser Control through the browser's <strong>IOleObject::SetClientSite</strong> method.&quot;</p>
     </blockquote>
 
-    <p>
-        This tells us the following:
-    </p>
+    <p>This tells us the following:</p>
 
     <ul class="wide">
-        <li>
-            We need to create a &quot;container&quot; object to host our <var>TWebBrowser</var> control.
-        </li>
-        <li>
-            This container must implement the <var>IOleClientSite</var> interface to enable the browser control to query it when looking for our <var>IDocHostUIHandler</var> interface.
-        </li>
-        <li>
-            We need to notify the <var>TWebBrowser</var> that we are hosting it by passing a reference to our container's <var>IOleClientSite</var> interface to the browser control via its <var>IOleObject.SetClientSite</var> method.
-        </li>
-        <li>
-            The container object must also implement <var>IDocHostUIHandler</var>. This implementation will be used to provide the required customization of the browser control. (We will not concern ourselves with <var>IDocHostUIHandler2</var> or <var>IDocHostShowUI</var> here).
-        </li>
+        <li>We need to create a &quot;container&quot; object to host our <var>TWebBrowser</var> control.</li>
+        <li>This container must implement the <var>IOleClientSite</var> interface to enable the browser control to query it when looking for our <var>IDocHostUIHandler</var> interface.</li>
+        <li>We need to notify the <var>TWebBrowser</var> that we are hosting it by passing a reference to our container's <var>IOleClientSite</var> interface to the browser control via its <var>IOleObject.SetClientSite</var> method.</li>
+        <li>The container object must also implement <var>IDocHostUIHandler</var>. This implementation will be used to provide the required customization of the browser control. (We will not concern ourselves with <var>IDocHostUIHandler2</var> or <var>IDocHostShowUI</var> here).</li>
     </ul>
 
-    <h3>
-        A few design decisions
-    </h3>
+    <h3>A few design decisions</h3>
 
-    <p>
-        We have establised that we need to develop a container control that supports <var>IOleClientSite</var>, <var>IDocHostUIHandler</var> and, by implication, <var>IUnknown</var>. The object will also expose properties that can be used calling code to control various aspects of the browser's customization..
-    </p>
+    <p>We have establised that we need to develop a container control that supports <var>IOleClientSite</var>, <var>IDocHostUIHandler</var> and, by implication, <var>IUnknown</var>. The object will also expose properties that can be used calling code to control various aspects of the browser's customization.</p>
 
-    <p>
-        Client code will instantiate the container object and manipulate its properties in the usual way. The web browser control will also access the container, but will do so automatically via its supported interfaces. This means we will be mixing two different methods of access &ndash; by interface and by object reference. Whenever this is done on an object that supports reference counted interfaces there is a danger of the object being prematurely freed when an interface reference goes out of scope. Consequently we will manage the object's lifetime ourselves, i.e. it will not be reference counted.
-    </p>
+    <p>Client code will instantiate the container object and manipulate its properties in the usual way. The web browser control will also access the container, but will do so automatically via its supported interfaces. This means we will be mixing two different methods of access &ndash; by interface and by object reference. Whenever this is done on an object that supports reference counted interfaces there is a danger of the object being prematurely freed when an interface reference goes out of scope. Consequently we will manage the object's lifetime ourselves, i.e. it will not be reference counted.</p>
 
-    <p>
-        In the interests of reusability we will develop two classes:
-    </p>
+    <p>In the interests of reusability we will develop two classes:</p>
 
     <ul class="wide">
-        <li>
-            <var>TNulWBContainer</var> [sic] &ndash; a do-nothing container object that hosts the web browser control and implements all the required interfaces in way that has no visible effect on the web browser control. This provides a base class for classes that seek to customize <var>TWebBrowser</var> in different ways.
-        </li>
-
-        <li>
-            <var>TWBContainer</var> &ndash; a descendant of <var>TNulWBContainer</var> that adds all the customization we noted in the <a href="#intro">introduction</a>.
-        </li>
+        <li><var>TNulWBContainer</var> [sic] &ndash; a do-nothing container object that hosts the web browser control and implements all the required interfaces in way that has no visible effect on the web browser control. This provides a base class for classes that seek to customize <var>TWebBrowser</var> in different ways.</li>
+        <li><var>TWBContainer</var> &ndash; a descendant of <var>TNulWBContainer</var> that adds all the customization we noted in the <a href="#intro">introduction</a>.</li>
     </ul>
 
     <div class="callout callout-info">
-        <h4>
-            Reusing the code
-        </h4>
-        <p>
-            See &quot;<a href="./article-22">How to call Delphi code from scripts running in a TWebBrowser</a>&quot; for an example of how we reuse <var>TNulWBContainer</var>.
-        </p>
+        <h4>Reusing the code</h4>
+        <p>See &quot;<a href="./article-22">How to call Delphi code from scripts running in a TWebBrowser</a>&quot; for an example of how we reuse <var>TNulWBContainer</var>.</p>
     </div>
 
-    <p>
-        In the following two sections we will develop the code for these classes.
-    </p>
+    <p>In the following two sections we will develop the code for these classes.</p>
 
 </section>
 
 <section id="tnulwbcontainer">
 
-    <h2>
-        Developing a reusable base class
-    </h2>
+    <h2>Developing a reusable base class</h2>
 
-    <p>
-        Recall that this class, <var>TNulWBContainer</var>, will have all the features of a suitable container that hosts <var>TWebBrowser</var>. It will:
-    </p>
+    <p>Recall that this class, <var>TNulWBContainer</var>, will have all the features of a suitable container that hosts <var>TWebBrowser</var>. It will:</p>
 
     <ul>
-        <li>
-            Implement <var>IOleClientSite</var>.
-        </li>
-        <li>
-            Implement <var>IDocHostUIHandler</var> in a neutral way.
-        </li>
-        <li>
-            Implement <var>IUnknown</var> without reference counting.
-        </li>
-        <li>
-            Register the container with the web browser control.
-        </li>
-        <li>
-            Expose the hosted web browser control as a property.
-        </li>
+        <li>Implement <var>IOleClientSite</var>.</li>
+        <li>Implement <var>IDocHostUIHandler</var> in a neutral way.</li>
+        <li>Implement <var>IUnknown</var> without reference counting.</li>
+        <li>Register the container with the web browser control.</li>
+        <li>Expose the hosted web browser control as a property.</li>
     </ul>
 
-    <h3 id="getting-started">
-        Getting Started
-    </h3>
+    <h3 id="getting-started">Getting Started</h3>
 
-    <p>
-        We will begin with the basics &ndash; getting hold of the hosted browser control and registering the container as its host. Declare a new class as per <span class="figureref">Listing 2</span>:
-    </p>
+    <p>We will begin with the basics &ndash; getting hold of the hosted browser control and registering the container as its host. Declare a new class as per <span class="figureref">Listing 2</span>:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -302,19 +186,13 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 2
-        </div>
+        <div class="caption">Listing 2</div>
     </div>
 
-    <p>
-        This is quite straightforward. We define the new type and list the interfaces we are to support. The private <var>SetBrowserOleClientSite</var> method is used to register / un-register the container with the hosted browser control. We then declare a constructor that takes a reference to the browser control and make it available via a property. A destructor is also declared.
-    </p>
+    <p>This is quite straightforward. We define the new type and list the interfaces we are to support. The private <var>SetBrowserOleClientSite</var> method is used to register / un-register the container with the hosted browser control. We then declare a constructor that takes a reference to the browser control and make it available via a property. A destructor is also declared.</p>
 
-    <p>
-        <span class="figureref">Listing 3</span> shows how the constructor is
-        implemented.
-    </p>
+    <p><span class="figureref">Listing 3</span> shows how the constructor is
+        implemented.</p>
 
     <div class="frame" id="tnulwbcontainer.create">
         <div class="code-pascal">
@@ -332,18 +210,12 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  7</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 3
-        </div>
+        <div class="caption">Listing 3</div>
     </div>
 
-    <p>
-        Here we simply check that the browser control passed to the constructor is not nil and record a reference to it in a field. Our container object then registers itself as the web browser's host by calling <var>SetBrowserOleClientSite</var> and passing a reference to its own <var>IOleClientSite</var> interface.
-    </p>
+    <p>Here we simply check that the browser control passed to the constructor is not nil and record a reference to it in a field. Our container object then registers itself as the web browser's host by calling <var>SetBrowserOleClientSite</var> and passing a reference to its own <var>IOleClientSite</var> interface.</p>
 
-    <p>
-        The destructor simply un-registers the container from the browser by passing <var>nil</var> to <var>SetBrowserOleClientSite</var>, as <span class="figureref">Listing 4</span> shows.
-    </p>
+    <p>The destructor simply un-registers the container from the browser by passing <var>nil</var> to <var>SetBrowserOleClientSite</var>, as <span class="figureref">Listing 4</span> shows.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -357,9 +229,7 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 4
-        </div>
+        <div class="caption">Listing 4</div>
     </div>
 
     <p>
@@ -405,25 +275,15 @@ redirect_from:
     </p>
 
     <div class="callout callout-info">
-        <h4>
-            <var>IOleObject</var>
-        </h4>
-        <p>
-            To learn about <var>IOleObject</var> see the Windows SDK help file that ships with Delphi.
-        </p>
+        <h4><var>IOleObject</var></h4>
+        <p>To learn about <var>IOleObject</var> see the Windows SDK help file that ships with Delphi.</p>
     </div>
 
-    <h3 id="non-ref-count-obj">
-        Implementing a non reference counted object
-    </h3>
+    <h3 id="non-ref-count-obj">Implementing a non reference counted object</h3>
 
-    <p>
-        We will now move on to implement the required interfaces, starting with <var>IUnknown</var>. As already noted, the interface will be implemented so that the object is not reference counted.
-    </p>
+    <p>We will now move on to implement the required interfaces, starting with <var>IUnknown</var>. As already noted, the interface will be implemented so that the object is not reference counted.</p>
 
-    <p>
-        <var>IUnknown</var> is defined in the <var>System</var> unit. We begin by adding its methods to a protected section of <var>TNulWBContainer</var>'s declaration. <span class="figureref">Listing 6</span> shows the changes needed.
-    </p>
+    <p><var>IUnknown</var> is defined in the <var>System</var> unit. We begin by adding its methods to a protected section of <var>TNulWBContainer</var>'s declaration. <span class="figureref">Listing 6</span> shows the changes needed.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -455,14 +315,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 6
-        </div>
+        <div class="caption">Listing 6</div>
     </div>
 
-    <p>
-        We implement these methods as shown in <span class="figureref">Listing 7</span>.
-    </p>
+    <p>We implement these methods as shown in <span class="figureref">Listing 7</span>.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -498,43 +354,25 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 18</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 7
-        </div>
+        <div class="caption">Listing 7</div>
     </div>
 
-    <p>
-        <span class="figureref">Listing 7</span> is quite straightforward. We copy the <var>QueryInterface</var> code from Delphi's implementation of <var>TInterfacedObject</var> except that we substitute <var>S_OK</var> for the 0 returned by <var>TInterfacedObject</var>'s code.
-    </p>
+    <p><span class="figureref">Listing 7</span> is quite straightforward. We copy the <var>QueryInterface</var> code from Delphi's implementation of <var>TInterfacedObject</var> except that we substitute <var>S_OK</var> for the 0 returned by <var>TInterfacedObject</var>'s code.</p>
 
-    <p>
-        To ensure the object is not reference counted, <var>_AddRef</var> and <var>_Release</var> each return -1. Furthermore, unlike in <var>TInterfacedObject</var>, our version of <var>_Release</var> never frees the object. This leaves us to manage the object's lifetime ourselves.
-    </p>
+    <p>To ensure the object is not reference counted, <var>_AddRef</var> and <var>_Release</var> each return -1. Furthermore, unlike in <var>TInterfacedObject</var>, our version of <var>_Release</var> never frees the object. This leaves us to manage the object's lifetime ourselves.</p>
 
-    <h3 id="ioleclientsite">
-        Implementing IOleClientSite
-    </h3>
+    <h3 id="ioleclientsite">Implementing IOleClientSite</h3>
 
-    <p>
-        Next we move on to look at how our object will implement <var>IOleClientSite</var>.
-    </p>
+    <p>Next we move on to look at how our object will implement <var>IOleClientSite</var>.</p>
 
     <div class="callout callout-info">
-        <h4>
-            <var>IOleClientSite</var>
-        </h4>
-        <p>
-            <var>IOleClientSite</var> is declared in the <var>ActiveX</var> unit. The Delphi Windows SDK help provides a full description of the interface.
-        </p>
+        <h4><var>IOleClientSite</var></h4>
+        <p><var>IOleClientSite</var> is declared in the <var>ActiveX</var> unit. The Delphi Windows SDK help provides a full description of the interface.</p>
     </div>
 
-    <p>
-        Remember that, in our constructor, we register our object's <var>IOleClientSite</var> interface with the browser control. We know that browser control calls our <var>QueryInterface</var> method via the registered <var>IOleClientSite</var> interface to try to gain access to our <var>IDocHostUIHandler</var> implementation. Because the browser object doesn't require any other functionality of <var>IOleClientSite</var> we can get away with providing a minimal, &quot;do nothing&quot; implementation. Therefore we will just stub out the methods.
-    </p>
+    <p>Remember that, in our constructor, we register our object's <var>IOleClientSite</var> interface with the browser control. We know that browser control calls our <var>QueryInterface</var> method via the registered <var>IOleClientSite</var> interface to try to gain access to our <var>IDocHostUIHandler</var> implementation. Because the browser object doesn't require any other functionality of <var>IOleClientSite</var> we can get away with providing a minimal, &quot;do nothing&quot; implementation. Therefore we will just stub out the methods.</p>
 
-    <p>
-        Once again we begin by adding the interface's methods to the protected section of our class declaration. <span class="figureref">Listing 8</span> shows the required additions:
-    </p>
+    <p>Once again we begin by adding the interface's methods to the protected section of our class declaration. <span class="figureref">Listing 8</span> shows the required additions:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -582,14 +420,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 8
-        </div>
+        <div class="caption">Listing 8</div>
     </div>
 
-    <p>
-        Our minimal implementation is shown in <span class="figureref">Listing 9</span>. The comments in the code should outline the purpose of each method and explain what is being done. We won't discuss this further here.
-    </p>
+    <p>Our minimal implementation is shown in <span class="figureref">Listing 9</span>. The comments in the code should outline the purpose of each method and explain what is being done. We won't discuss this further here.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -683,23 +517,14 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 51</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 9
-        </div>
+        <div class="caption">Listing 9</div>
     </div>
 
-    <p>
-        Our class can now act as a client site, or host, for the web browser control. It remains to implement the document host handler, <var>IDocHostUIHandler</var>.
-    </p>
+    <p>Our class can now act as a client site, or host, for the web browser control. It remains to implement the document host handler, <var>IDocHostUIHandler</var>.</p>
 
+    <h3 id="idochostuihandler">Implementing IDocHostUIHandler</h3>
 
-    <h3 id="idochostuihandler">
-        Implementing IDocHostUIHandler
-    </h3>
-
-    <p>
-        At the time this code was being developed (with Delphi 7), no declaration of <var>IDocHostUIHandler</var> was available in the RTL. Therefore the interface is declared in <span class="figureref">Listing 10</span>. The comments in the code give brief explanations of each method.
-    </p>
+    <p>At the time this code was being developed (with Delphi 7), no declaration of <var>IDocHostUIHandler</var> was available in the RTL. Therefore the interface is declared in <span class="figureref">Listing 10</span>. The comments in the code give brief explanations of each method.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -849,22 +674,14 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 74</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 10
-        </div>
+        <div class="caption">Listing 10</div>
     </div>
 
-    <p>
-        The various interfaces and structures referenced in this definition are defined in the <var>ActiveX</var> and <var>Windows</var> units. The exception is (or was?) <var>TDocHostUIInfo</var> which is defined <a href="#tdochostuiinfo">later in the article</a>.
-    </p>
+    <p>The various interfaces and structures referenced in this definition are defined in the <var>ActiveX</var> and <var>Windows</var> units. The exception is (or was?) <var>TDocHostUIInfo</var> which is defined <a href="#tdochostuiinfo">later in the article</a>.</p>
 
-    <p>
-        Now we have defined the interface we can create the &quot;do nothing&quot; implementation in our class. To begin with, add all the methods of <var>IDocHostUIHandler</var> to the protected section of <var>TNulWBContainer</var>'s declaration. I have not shown the new declaration here since it will simply repeat the methods shown in <span class="figureref">Listing 10</span>.
-    </p>
+    <p>Now we have defined the interface we can create the &quot;do nothing&quot; implementation in our class. To begin with, add all the methods of <var>IDocHostUIHandler</var> to the protected section of <var>TNulWBContainer</var>'s declaration. I have not shown the new declaration here since it will simply repeat the methods shown in <span class="figureref">Listing 10</span>.</p>
 
-    <p>
-        <span class="figureref">Listing 11</span> shows how we stub out the methods in such a way as to leave the browser object unchanged. An exploration of the <a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa753260(v=vs.85)">MSDN documentation for the interface</a>, along with some experimentation, showed me the way. The comments in the listing should explain.
-    </p>
+    <p><span class="figureref">Listing 11</span> shows how we stub out the methods in such a way as to leave the browser object unchanged. An exploration of the <a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa753260(v=vs.85)">MSDN documentation for the interface</a>, along with some experimentation, showed me the way. The comments in the listing should explain.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1092,64 +909,36 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">126</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 11
-        </div>
+        <div class="caption">Listing 11</div>
     </div>
 
-    <p>
-        That completes the implementation of the &quot;do nothing&quot; base class. If we were to create an instance of this object it would successfully host a <var>TWebBrowser</var> control, but would have no visible effect upon it.
-    </p>
+    <p>That completes the implementation of the &quot;do nothing&quot; base class. If we were to create an instance of this object it would successfully host a <var>TWebBrowser</var> control, but would have no visible effect upon it.</p>
 
 </section>
 
 <section id="twbcontainer">
 
-    <h2>
-        Developing the customization class
-    </h2>
+    <h2>Developing the customization class</h2>
 
-    <p>
-        As we decided above, <var>TWBContainer</var> will derive from <var>TNulWBContainer</var> and add all the required browser customization. Let us review what we want this customization to achieve:
-    </p>
+    <p>As we decided above, <var>TWBContainer</var> will derive from <var>TNulWBContainer</var> and add all the required browser customization. Let us review what we want this customization to achieve:</p>
 
     <ol>
-        <li>
-            Display either the browser's built in pop-up menu or the menu assigned to the <var>TWebBrowser.PopupMenu</var> property.
-        </li>
-        <li>
-            Display or hide 3D borders.
-        </li>
-        <li>
-            Display or hide scroll bars.
-        </li>
-        <li>
-            Customize document appearance at run time, via a custom cascading style sheet.
-        </li>
-        <li>
-            Allow or inhibit users from selecting text in the browser control.
-        </li>
-        <li>
-            The browser control will display themed controls (such as buttons) only when the host application is using themes.
-        </li>
+        <li>Display either the browser's built in pop-up menu or the menu assigned to the <var>TWebBrowser.PopupMenu</var> property.</li>
+        <li>Display or hide 3D borders.</li>
+        <li>Display or hide scroll bars.</li>
+        <li>Customize document appearance at run time, via a custom cascading style sheet.</li>
+        <li>Allow or inhibit users from selecting text in the browser control.</li>
+        <li>The browser control will display themed controls (such as buttons) only when the host application is using themes.</li>
     </ol>
 
-    <p>
-        We will define properties to configure the customization. We will then need to re-implement just two methods of <var>IDocHostUIHandler</var> to achieve the desired results:
-    </p>
+    <p>We will define properties to configure the customization. We will then need to re-implement just two methods of <var>IDocHostUIHandler</var> to achieve the desired results:</p>
 
     <ol>
-        <li>
-            <var>ShowContextMenu</var> to control the display of the popup menu;
-        </li>
-        <li>
-            <var>GetHostInfo</var> to enable the browser control's appearance to be customized.
-        </li>
+        <li><var>ShowContextMenu</var> to control the display of the popup menu;</li>
+        <li><var>GetHostInfo</var> to enable the browser control's appearance to be customized.</li>
     </ol>
 
-    <p>
-        <span class="figureref">Listing 12</span> shows the declaration of <var>TWBContainer</var>.
-    </p>
+    <p><span class="figureref">Listing 12</span> shows the declaration of <var>TWBContainer</var>.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1209,36 +998,20 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 12
-        </div>
+        <div class="caption">Listing 12</div>
     </div>
 
-    <p>
-        Notice that we expose a property for each of the aspects of the browser control that we will customize, with the exception of theme support which we handle automatically. The properties are:
-    </p>
+    <p>Notice that we expose a property for each of the aspects of the browser control that we will customize, with the exception of theme support which we handle automatically. The properties are:</p>
 
     <ul class="wide">
-        <li>
-            <var>UseCustomCtxMenu</var> &ndash; the browser control displays its default context menu when the property is false and uses the menu assigned to <var>TWebBrowser.PopupMenu</var> when true. If <var>UseContextMenu</var> is true but <var>PopupMenu</var> is not assigned then no popup menu is displayed.
-        </li>
-        <li>
-            <var>Show3DBorder</var> &ndash; the web browser displays a 3D border when the property is true and no border when false.
-        </li>
-        <li>
-            <var>ShowScrollBars</var> &ndash; <var>TWebBrowser</var> displays scroll bars only if the property is true.
-        </li>
-        <li>
-            <var>AllowTextSelection</var> &ndash; permits text selection in the browser control when true and inhibits it when false.
-        </li>
-        <li>
-            <var>CSS</var> &ndash; provides the default cascading style sheet. This string property must contain valid CSS or be set to the empty string. We use this property to customize the document appearance.
-        </li>
+        <li><var>UseCustomCtxMenu</var> &ndash; the browser control displays its default context menu when the property is false and uses the menu assigned to <var>TWebBrowser.PopupMenu</var> when true. If <var>UseContextMenu</var> is true but <var>PopupMenu</var> is not assigned then no popup menu is displayed.</li>
+        <li><var>Show3DBorder</var> &ndash; the web browser displays a 3D border when the property is true and no border when false.</li>
+        <li><var>ShowScrollBars</var> &ndash; <var>TWebBrowser</var> displays scroll bars only if the property is true.</li>
+        <li><var>AllowTextSelection</var> &ndash; permits text selection in the browser control when true and inhibits it when false.</li>
+        <li><var>CSS</var> &ndash; provides the default cascading style sheet. This string property must contain valid CSS or be set to the empty string. We use this property to customize the document appearance.</li>
     </ul>
 
-    <p>
-        The class constructor simply sets the default property values. These are chosen to leave the browser control in its default state. <span class="figureref">Listing 13</span> shows the constructor.
-    </p>
+    <p>The class constructor simply sets the default property values. These are chosen to leave the browser control in its default state. <span class="figureref">Listing 13</span> shows the constructor.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1260,14 +1033,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 13
-        </div>
+        <div class="caption">Listing 13</div>
     </div>
 
-    <p>
-        Now we come on to the meat of the code. First let's look at how we re-implement <var>ShowContextMenu</var>. This is easier to write than to describe. See <span class="figureref">Listing 14</span> below.
-    </p>
+    <p>Now we come on to the meat of the code. First let's look at how we re-implement <var>ShowContextMenu</var>. This is easier to write than to describe. See <span class="figureref">Listing 14</span> below.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1307,22 +1076,14 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 18</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 14
-        </div>
+        <div class="caption">Listing 14</div>
     </div>
 
-    <p>
-        We first check the <var>fUseCustomCtxMenu</var> field to see what to do. If it is false we simply return <var>S_FALSE</var> to tell the web browser we have not handled the context menu. This causes the browser to display its default pop-up menu.
-    </p>
+    <p>We first check the <var>fUseCustomCtxMenu</var> field to see what to do. If it is false we simply return <var>S_FALSE</var> to tell the web browser we have not handled the context menu. This causes the browser to display its default pop-up menu.</p>
 
-    <p>
-        When <var>fUseCustomCtxMenu</var> is true we return <var>S_OK</var> to show we are handling the context menu ourselves. This prevents the default pop-up menu from being displayed. If the browser control's <var>PopupMenu</var> property is set we display the menu by calling its <var>Popup</var> method. The <var>ppt</var> parameter supplies the co-ordinates where the mouse was right clicked. We use this to position the top left corner of the pop-up menu.
-    </p>
+    <p>When <var>fUseCustomCtxMenu</var> is true we return <var>S_OK</var> to show we are handling the context menu ourselves. This prevents the default pop-up menu from being displayed. If the browser control's <var>PopupMenu</var> property is set we display the menu by calling its <var>Popup</var> method. The <var>ppt</var> parameter supplies the co-ordinates where the mouse was right clicked. We use this to position the top left corner of the pop-up menu.</p>
 
-    <p>
-        <var>GetHostInfo</var> is more complex because it determines the display of the border, scroll bars, text selection, theme support and the default style sheet. We instruct the browser control about how to handle these items by filling in a <var>TDocHostUIInfo</var> structure, a pointer to which is passed as a parameter to the method. <span class="figureref">Listing 15</span> defines this structure and comments describe its fields. <span class="figureref">Listing 16</span> presents <var>GetHostInfo</var> itself.
-    </p>
+    <p><var>GetHostInfo</var> is more complex because it determines the display of the border, scroll bars, text selection, theme support and the default style sheet. We instruct the browser control about how to handle these items by filling in a <var>TDocHostUIInfo</var> structure, a pointer to which is passed as a parameter to the method. <span class="figureref">Listing 15</span> defines this structure and comments describe its fields. <span class="figureref">Listing 16</span> presents <var>GetHostInfo</var> itself.</p>
 
     <div id="tdochostuiinfo" class="frame">
         <div class="code-pascal">
@@ -1344,9 +1105,7 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 15
-        </div>
+        <div class="caption">Listing 15</div>
     </div>
 
     <div class="frame"">
@@ -1435,50 +1194,28 @@ redirect_from:
             class="line"><span class="linenum"> 45</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span><span class="space">  </span></pre>
         <pre class="line"><span class="linenum"> 46</span><span class="kwd">end</span><span class="sym">;</span></pre>
     </div>
-    <div class="caption">
-        Listing 16
-    </div>
+    <div class="caption">Listing 16</div>
     </div>
 
-    <p>
-        For our purposes we only need to use the <var>cbSize</var>, <var>dwFlags</var> and <var>pchHostCss</var> fields of <var>TDocHostUIInfo</var>. We set the remaining fields to zero. <var>cbSize</var> is set to the size of the structure &ndash; a common Windows idiom.
-    </p>
+    <p>For our purposes we only need to use the <var>cbSize</var>, <var>dwFlags</var> and <var>pchHostCss</var> fields of <var>TDocHostUIInfo</var>. We set the remaining fields to zero. <var>cbSize</var> is set to the size of the structure &ndash; a common Windows idiom.</p>
 
-    <p>
-        Next we decide which flags to store in <var>dwFlags</var> to customize the control's user interface capabilities. Which flags we specify depends on the state of the <var>ShowScrollBars</var>, <var>Show3DBorder</var> and <var>AllowTextSelection</var> properties and whether themes are enabled. The flags we use are:
-    </p>
+    <p>Next we decide which flags to store in <var>dwFlags</var> to customize the control's user interface capabilities. Which flags we specify depends on the state of the <var>ShowScrollBars</var>, <var>Show3DBorder</var> and <var>AllowTextSelection</var> properties and whether themes are enabled. The flags we use are:</p>
 
     <ul class="wide">
-        <li>
-            <var>DOCHOSTUIFLAG_SCROLL_NO</var> prevents the vertical scroll bar from being displayed.
-        </li>
-        <li>
-            <var>DOCHOSTUIFLAG_NO3DBORDER</var> inhibits the display of 3D borders.
-        </li>
-        <li>
-            Slightly less obviously, <var>DOCHOSTUIFLAG_DIALOG</var> prevents text selection &ndash; the name comes from the main use of this flag to prevent text selection in dialogue boxes.
-        </li>
-        <li>
-            More complex is the way we ensure that the application's themes are echoed by the web browser control. We use the <var>Themes</var> unit's <var>ThemeServices</var> object to check if themes are enabled. If so we use the <var>DOCHOSTUIFLAG_THEME</var> flag to request that the browser also uses themes. If themes are not enabled, but available, we switch off the browser's theme support by using <var>DOCHOSTUIFLAG_NOTHEME</var>. If themes are not available at all (e.g. in Windows 2000) we do nothing.
-        </li>
+        <li><var>DOCHOSTUIFLAG_SCROLL_NO</var> prevents the vertical scroll bar from being displayed.</li>
+        <li><var>DOCHOSTUIFLAG_NO3DBORDER</var> inhibits the display of 3D borders.</li>
+        <li>Slightly less obviously, <var>DOCHOSTUIFLAG_DIALOG</var> prevents text selection &ndash; the name comes from the main use of this flag to prevent text selection in dialogue boxes.</li>
+        <li>More complex is the way we ensure that the application's themes are echoed by the web browser control. We use the <var>Themes</var> unit's <var>ThemeServices</var> object to check if themes are enabled. If so we use the <var>DOCHOSTUIFLAG_THEME</var> flag to request that the browser also uses themes. If themes are not enabled, but available, we switch off the browser's theme support by using <var>DOCHOSTUIFLAG_NOTHEME</var>. If themes are not available at all (e.g. in Windows 2000) we do nothing.</li>
     </ul>
 
     <div class="callout callout-info">
-        <h4>
-            Other flags
-        </h4>
-        <p>
-            There are numerous other <var>DOCHOSTUIFLAG_</var> flags that can be assigned to <var>dwFlags</var>. The full set is defined in this article's <a href="#demo-code">demo code</a>.
-        </p>
+        <h4>Other flags</h4>
+        <p>There are numerous other <var>DOCHOSTUIFLAG_</var> flags that can be assigned to <var>dwFlags</var>. The full set is defined in this article's <a href="#demo-code">demo code</a>.</p>
     </div>
 
-    <p>
-        Lastly, we store the default style sheet (per the <var>CSS</var> property) as Unicode text in the <var>pchHostCss</var> field. We have to allocate storage for this Unicode string &ndash; and we <strong>must</strong> use the task allocator to do this. Note that we are not responsible for freeing this memory &ndash; <var>TWebBrowser</var> does this.
-    </p>
+    <p>Lastly, we store the default style sheet (per the <var>CSS</var> property) as Unicode text in the <var>pchHostCss</var> field. We have to allocate storage for this Unicode string &ndash; and we <strong>must</strong> use the task allocator to do this. Note that we are not responsible for freeing this memory &ndash; <var>TWebBrowser</var> does this.</p>
 
-    <p>
-        We use the <var>TaskAllocWideString</var> helper function (taken from the DelphiDabbler <a href="https://github.com/delphidabbler/code-snippets/tree/master/csdb">Code Snippets Database</a>) to allocate the storage and ensure the string is in Unicode format. The routine is shown in <span class="figureref">Listing 17</span>. Note that this code works on both Unicode and non-Unicode Delphis.
-    </p>
+    <p>We use the <var>TaskAllocWideString</var> helper function (taken from the DelphiDabbler <a href="https://github.com/delphidabbler/code-snippets/tree/master/csdb">Code Snippets Database</a>) to allocate the storage and ensure the string is in Unicode format. The routine is shown in <span class="figureref">Listing 17</span>. Note that this code works on both Unicode and non-Unicode Delphis.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1505,76 +1242,46 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 12</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 17
-        </div>
+        <div class="caption">Listing 17</div>
     </div>
 
-
-    <p>
-        And that completes the browser customization code. If you need to specify different customizations define a new class that descends from <var>TNulWBContainer</var> and provide the required functionality by re-implementing the appropriate <var>IDocHostUIHandler</var> methods.
-    </p>
+    <p>And that completes the browser customization code. If you need to specify different customizations define a new class that descends from <var>TNulWBContainer</var> and provide the required functionality by re-implementing the appropriate <var>IDocHostUIHandler</var> methods.</p>
 
     <div class="callout callout-info">
-        <h4>
-            Other examples
-        </h4>
-        <p>
-            Article #22: &quot;<a href="./article-22">How to call Delphi code from scripts running in a TWebBrowser</a>&quot; demonstrates another class that descends from <var>TNulWBContainer</var>, this time re-implementing the <var>GetExternal</var> method.
-        </p>
+        <h4>Other examples</h4>
+        <p>Article #22: &quot;<a href="./article-22">How to call Delphi code from scripts running in a TWebBrowser</a>&quot; demonstrates another class that descends from <var>TNulWBContainer</var>, this time re-implementing the <var>GetExternal</var> method.</p>
     </div>
 
-    <p>
-        To use our customization class create an instance of <var>TWBContainer</var>, passing a reference to the browser control that is to be customized, set the required properties of <var>TWBContainer</var> then load the required document.
-    </p>
+    <p>To use our customization class create an instance of <var>TWBContainer</var>, passing a reference to the browser control that is to be customized, set the required properties of <var>TWBContainer</var> then load the required document.</p>
 
     <div class="callout callout-warning">
-        <h4>
-            Note for legacy OSs
-        </h4>
-        <p>
-            You should always set the properties of <var>TWBContainer</var> before loading any document into the browser control. The reason for this is that on operating systems earlier than Windows XP SP2 the control only reads the default CSS when the first document is loaded. Changing the <var>CSS</var> property after loading the first document will have no effect.
-        </p>
+        <h4>Note for legacy OSs</h4>
+        <p>You should always set the properties of <var>TWBContainer</var> before loading any document into the browser control. The reason for this is that on operating systems earlier than Windows XP SP2 the control only reads the default CSS when the first document is loaded. Changing the <var>CSS</var> property after loading the first document will have no effect.</p>
     </div>
 
 </section>
 
 <section id="sample-app">
 
-    <h2>
-        Exercising the code &ndash; a sample application
-    </h2>
+    <h2>Exercising the code &ndash; a sample application</h2>
 
-    <p>
-        One of the problems that motivated this exploration was my need to use a <var>TWebBrowser</var> to display some HTML in a dialogue box. The HTML needed to look and behave as if it was part of the dialogue box, which could be using themes. The dialogue box would also need to display a custom pop-up menu.
-    </p>
+    <p>One of the problems that motivated this exploration was my need to use a <var>TWebBrowser</var> to display some HTML in a dialogue box. The HTML needed to look and behave as if it was part of the dialogue box, which could be using themes. The dialogue box would also need to display a custom pop-up menu.</p>
 
-    <p>
-        This sample application will emulate such a dialogue box. It will use our custom <var>TWBContainer</var> to take control over the appearance of a <var>TWebBrowser</var> control. This will not be production code &ndash; for example we load the HTML from a file and we wouldn't do that in released code &ndash; but it should suffice to demonstrate that the customization class works.
-    </p>
+    <p>This sample application will emulate such a dialogue box. It will use our custom <var>TWBContainer</var> to take control over the appearance of a <var>TWebBrowser</var> control. This will not be production code &ndash; for example we load the HTML from a file and we wouldn't do that in released code &ndash; but it should suffice to demonstrate that the customization class works.</p>
 
-    <p>
-        The application will be developed in two stages. Stage one will be the bare application with no <var>TWebBrowser</var> customization code. We will run the program to check what it looks like in its natural state before we intervene. In stage two we'll apply the classes we've developed here and see the difference.
-    </p>
+    <p>The application will be developed in two stages. Stage one will be the bare application with no <var>TWebBrowser</var> customization code. We will run the program to check what it looks like in its natural state before we intervene. In stage two we'll apply the classes we've developed here and see the difference.</p>
 
+    <h3 id="stage1">Stage 1</h3>
 
-    <h3 id="stage1">
-        Stage 1
-    </h3>
-
-    <p>
-        Open a new Delphi project and select the main form, then:
-    </p>
+    <p>Open a new Delphi project and select the main form, then:</p>
 
     <ul class="wide">
-        <li>
-            Give the form a <var>BorderStyle</var> of <var>bsDialog</var>.
-        </li>
+
+        <li>Give the form a <var>BorderStyle</var> of <var>bsDialog</var>.</li>
 
         <li>
-            <p>
-                Place a <var>TButton</var> centred at the bottom of the form, set its <var>Caption</var> to 'Close' and create an <var>OnClick</var> event handler for it containing just the code shown in <span class="figureref">Listing 18</span>:
-            </p>
+            <p>Place a <var>TButton</var> centred at the bottom of the form, set its <var>Caption</var> to 'Close' and create an <var>OnClick</var> event handler for it containing just the code shown in <span class="figureref">Listing 18</span>:</p>
+
             <div class="frame">
                 <div class="code-pascal">
                     <pre
@@ -1585,33 +1292,21 @@ redirect_from:
                     <pre
                         class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
                 </div>
-                <div class="caption">
-                    Listing 18
-                </div>
+                <div class="caption">Listing 18</div>
             </div>
         </li>
 
-        <li>
-            Add a <var>TPopupMenu</var> and give it a single menu item with <var>Caption</var> set to 'Show the CSS'.
-        </li>
+        <li>Add a <var>TPopupMenu</var> and give it a single menu item with <var>Caption</var> set to 'Show the CSS'.</li>
+
+        <li>Drop a <var>TWebBrowser</var> control, set its <var>Align</var> property to <var>alTop</var> and size it to take up most of the form. Leave room for the 'Close' button below it. Set the <var>TWebBrowser</var>'s' <var>PopupMenu</var> property to <var>PopupMenu1</var>.</li>
 
         <li>
-            Drop a <var>TWebBrowser</var> control, set its <var>Align</var> property to <var>alTop</var> and size it to take up most of the form. Leave room for the 'Close' button below it. Set the <var>TWebBrowser</var>'s' <var>PopupMenu</var> property to <var>PopupMenu1</var>.
-        </li>
-
-        <li>
-            <p>
-                Add the <var>XPMan</var> unit (Delphi 7 and later) to the form's <var>uses</var> clause to ensure the application displays themes if available.
-            </p>
-            <p class="callout callout-info">
-                <strong>Note:</strong> This step may not be necessary with later Delphis that can enable themes by default in the project resource file.
-            </p>
+            <p>Add the <var>XPMan</var> unit (Delphi 7 and later) to the form's <var>uses</var> clause to ensure the application displays themes if available.</p>
+            <p class="callout callout-info"><strong>Note:</strong> This step may not be necessary with later Delphis that can enable themes by default in the project resource file.</p>
         </li>
     </ul>
 
-    <p>
-        Now, double-click the form to open a new <var>OnCreate</var> event handler and enter the code shown in <span class="figureref">Listing 19</span>. This loads the HTML file into the browser:
-    </p>
+    <p>Now, double-click the form to open a new <var>OnCreate</var> event handler and enter the code shown in <span class="figureref">Listing 19</span>. This loads the HTML file into the browser:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1630,14 +1325,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  7</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 19
-        </div>
+        <div class="caption">Listing 19</div>
     </div>
 
-    <p>
-        Finally create the HTML file, <code>DlgContent.html</code>, that is loaded in <var>FormCreate</var> above. This file will provide the content of our dialogue box. <span class="figureref">Listing 20</span> shows the HTML.
-    </p>
+    <p>Finally create the HTML file, <code>DlgContent.html</code>, that is loaded in <var>FormCreate</var> above. This file will provide the content of our dialogue box. <span class="figureref">Listing 20</span> shows the HTML.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1692,30 +1383,18 @@ redirect_from:
             <pre class="line"><span class="linenum"> 35</span>  <span class="kwd">&lt;/body&gt;</span></pre>
             <pre class="line"><span class="linenum"> 36</span><span class="kwd">&lt;/html&gt;</span></pre>
         </div>
-        <div class="caption">
-            Listing 20
-        </div>
+        <div class="caption">Listing 20</div>
     </div>
 
-    <p>
-        This HTML defines a document which has:
-    </p>
+    <p>This HTML defines a document which has:</p>
 
     <ul>
-        <li>
-            Some plain text including a paragraph styled using a CSS class named <var>.ruled</var> that is not defined in the document.
-        </li>
-        <li>
-            A button that, when clicked, runs some JavaScript that opens a new window and displays this article in it.
-        </li>
-        <li>
-            Some clickable text that opens a new browser window and navigates to the <span class="ddab">DelphiDabbler.com</span> home page.
-        </li>
+        <li>Some plain text including a paragraph styled using a CSS class named <var>.ruled</var> that is not defined in the document.</li>
+        <li>A button that, when clicked, runs some JavaScript that opens a new window and displays this article in it.</li>
+        <li>Some clickable text that opens a new browser window and navigates to the <span class="ddab">DelphiDabbler.com</span> home page.</li>
     </ul>
 
-    <p>
-        If you compile and run this application then right click in the browser control you should see something like this:
-    </p>
+    <p>If you compile and run this application then right click in the browser control you should see something like this:</p>
 
     <div class="frame">
         <div>
@@ -1724,49 +1403,26 @@ redirect_from:
                 alt="TWebBrowser showing normal UI and context menu on Windows XP"
                 title="TWebBrowser showing normal UI and context menu on Windows XP" />
         </div>
-        <div class="caption">
-            Image 1: TWebBrowser showing normal UI
-        </div>
+        <div class="caption">Image 1: TWebBrowser showing normal UI</div>
     </div>
 
-    <p>
-        Doesn't look much like a dialogue box does it? There are numerous problems:
-    </p>
+    <p>Doesn't look much like a dialogue box does it? There are numerous problems:</p>
 
     <ol>
-        <li>
-            The browser control is displaying its default border and scroll bar.
-        </li>
-        <li>
-            The HTML is being displayed in the default style.
-        </li>
-        <li>
-            The form's 'Close' button is themed while the 'View article' button displayed by the browser control is not.
-        </li>
-        <li>
-            Despite setting the <var>PopupMenu</var> property, the standard browser's context menu is still displayed.
-        </li>
-        <li>
-            Although it can't be seen here, you could select the text in the HTML document.
-        </li>
+        <li>The browser control is displaying its default border and scroll bar.</li>
+        <li>The HTML is being displayed in the default style.</li>
+        <li>The form's 'Close' button is themed while the 'View article' button displayed by the browser control is not.</li>
+        <li>Despite setting the <var>PopupMenu</var> property, the standard browser's context menu is still displayed.</li>
+        <li>Although it can't be seen here, you could select the text in the HTML document.</li>
     </ol>
 
-    <p>
-        Let us now adapt the program to correct all these problems.
-    </p>
+    <p>Let us now adapt the program to correct all these problems.</p>
 
+    <h3 id="stage2">Stage 2</h3>
 
-    <h3 id="stage2">
-        Stage 2
-    </h3>
+    <p>We will now utilize the classes we have developed in this article. To begin with add the units containing <var>IDocHOstUIHandler</var>, <var>TNulWBContainer</var> and <var>TWBContainer</var> to the project and refer to them in the main form's uses clause. Also add the <var>ActiveX</var> and <var>SysUtils</var> units to the uses clause.</p>
 
-    <p>
-        We will now utilize the classes we have developed in this article. To begin with add the units containing <var>IDocHOstUIHandler</var>, <var>TNulWBContainer</var> and <var>TWBContainer</var> to the project and refer to them in the main form's uses clause. Also add the <var>ActiveX</var> and <var>SysUtils</var> units to the uses clause.
-    </p>
-
-    <p>
-        It's now time to set up and use the container object. Switch to the form unit we developed in <a href="#stage1">Stage 1</a> and add a field named <var>fWBContainer</var> of type <var>TWBContainer</var> to the form's class declaration. Now rewrite the form's <var>OnCreate</var> event handler as shown in <span class="figureref">Listing 21</span>.
-    </p>
+    <p>It's now time to set up and use the container object. Switch to the form unit we developed in <a href="#stage1">Stage 1</a> and add a field named <var>fWBContainer</var> of type <var>TWBContainer</var> to the form's class declaration. Now rewrite the form's <var>OnCreate</var> event handler as shown in <span class="figureref">Listing 21</span>.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1860,24 +1516,17 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 46</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 21
-        </div>
+        <div class="caption">Listing 21</div>
     </div>
 
-    <p>
-        Key points to note in this method are:
-    </p>
+    <p>Key points to note in this method are:</p>
 
     <ul class="wide">
-        <li>
-            First we provide a template for a cascading style sheet that we will use to make the HTML take on the appearance of the dialogue box. This template includes some format strings as placeholders for colour and font information that will be filled in at run time.
-        </li>
+        <li>First we provide a template for a cascading style sheet that we will use to make the HTML take on the appearance of the dialogue box. This template includes some format strings as placeholders for colour and font information that will be filled in at run time.</li>
 
         <li>
-            <p>
-                Next we fill in the required values in the CSS template and store the resulting code in <var>FmtCSS</var>. We get the colours and font from various properties of the form and from suitable system colours. Note that we use the <var>ColorToHTML</var> helper function (taken from the <a href="https://github.com/delphidabbler/code-snippets/tree/master/csdb">Code Snippets Database</a>) to format colour information correctly:
-            </p>
+            <p>Next we fill in the required values in the CSS template and store the resulting code in <var>FmtCSS</var>. We get the colours and font from various properties of the form and from suitable system colours. Note that we use the <var>ColorToHTML</var> helper function (taken from the <a href="https://github.com/delphidabbler/code-snippets/tree/master/csdb">Code Snippets Database</a>) to format colour information correctly:</p>
+
             <div class="frame">
                 <div class="code-pascal">
                     <pre
@@ -1899,24 +1548,16 @@ redirect_from:
                     <pre
                         class="line"><span class="linenum"> 10</span><span class="kwd">end</span><span class="sym">;</span></pre>
                 </div>
-                <div class="caption">
-                    Listing 22
-                </div>
+                <div class="caption">Listing 22</div>
             </div>
         </li>
 
-        <li>
-            Next we create the container object, passing the hosted <var>TWebBrowser</var> as a parameter, then set the properties as required.
-        </li>
+        <li>Next we create the container object, passing the hosted <var>TWebBrowser</var> as a parameter, then set the properties as required.</li>
 
-        <li>
-            Finally we revert to the original code and load the document, except that we use the container object's <var>HostedBrowser</var> property to access the browser control rather than accessing it directly.
-        </li>
+        <li>Finally we revert to the original code and load the document, except that we use the container object's <var>HostedBrowser</var> property to access the browser control rather than accessing it directly.</li>
     </ul>
 
-    <p>
-        A couple more things remain to be done. The first is to handle the form's <var>OnDestroy</var> event to free the container object, as shown in <span class="figureref">Listing 23</span>.
-    </p>
+    <p>A couple more things remain to be done. The first is to handle the form's <var>OnDestroy</var> event to free the container object, as shown in <span class="figureref">Listing 23</span>.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1928,14 +1569,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 23
-        </div>
+        <div class="caption">Listing 23</div>
     </div>
 
-    <p>
-        Finally we need to handle the <var>OnClick</var> event of our single context menu item. All we do here is display the default CSS in a message box, as <span class="figureref">Listing 24</span> illustrates.
-    </p>
+    <p>Finally we need to handle the <var>OnClick</var> event of our single context menu item. All we do here is display the default CSS in a message box, as <span class="figureref">Listing 24</span> illustrates.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -1947,14 +1584,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 24
-        </div>
+        <div class="caption">Listing 24</div>
     </div>
 
-    <p>
-        The moment of truth arrives. Let's run the revised application and see if it all works. Here's what we see on Windows XP with themes enabled:
-    </p>
+    <p>The moment of truth arrives. Let's run the revised application and see if it all works. Here's what we see on Windows XP with themes enabled:</p>
 
     <div class="frame">
         <div>
@@ -1963,39 +1596,21 @@ redirect_from:
                 alt="User-styled, themed, TWebBrowser showing custom context menu on Windows XP"
                 title="User-styled, themed, TWebBrowser showing custom context menu on Windows XP" />
         </div>
-        <div class="caption">
-            Image 2: User-styled, themed, TWebBrowser showing custom context menu
-        </div>
+        <div class="caption">Image 2: User-styled, themed, TWebBrowser showing custom context menu</div>
     </div>
 
-    <p>
-        Notice that:
-    </p>
+    <p>Notice that:</p>
 
     <ul>
-        <li>
-            The borders and scroll bar have gone.
-        </li>
-        <li>
-            The HTML is displayed in the correct dialogue box font and colours.
-        </li>
-        <li>
-            The 'View article' button is correctly themed.
-        </li>
-        <li>
-            The paragraph with the <var>.ruled</var> CSS class now has a bottom border in the same colour as an inactive caption.
-        </li>
-        <li>
-            Right clicking displays the single menu item of the <var>TPopupMenu</var> we assigned to the browser control's <var>PopupMenu</var> property.
-        </li>
-        <li>
-            Take it on trust that you can't select text either!
-        </li>
+        <li>The borders and scroll bar have gone.</li>
+        <li>The HTML is displayed in the correct dialogue box font and colours.</li>
+        <li>The 'View article' button is correctly themed.</li>
+        <li>The paragraph with the <var>.ruled</var> CSS class now has a bottom border in the same colour as an inactive caption.</li>
+        <li>Right clicking displays the single menu item of the <var>TPopupMenu</var> we assigned to the browser control's <var>PopupMenu</var> property.</li>
+        <li>Take it on trust that you can't select text either!</li>
     </ul>
 
-    <p>
-        Just to show that the browser control correctly adopts the current dialogue box style, here is the same application running unchanged in on Windows XP using its classic style with the <em>Spruce</em> colour scheme:
-    </p>
+    <p>Just to show that the browser control correctly adopts the current dialogue box style, here is the same application running unchanged in on Windows XP using its classic style with the <em>Spruce</em> colour scheme:</p>
 
     <div class="frame">
         <div>
@@ -2004,111 +1619,73 @@ redirect_from:
                 alt="User-styled, un-themed, TWebBrowser showing custom context menu on Windows XP using the Classic style"
                 title="User-styled, un-themed, TWebBrowser showing custom context menu on Windows XP using the Classic style" />
         </div>
-        <div class="caption">
-            Image 2: User-styled, un-themed, TWebBrowser showing custom context menu
-        </div>
+        <div class="caption">Image 2: User-styled, un-themed, TWebBrowser showing custom context menu</div>
     </div>
 
-    <p>
-        All the code has now been completed. The source code can be downloaded in the next section  .
-    </p>
+    <p>All the code has now been completed. The source code can be downloaded in the next section .</p>
 
 </section>
 
 <section id="demo-code">
 
-    <h2>
-        Demo Code
-    </h2>
+    <h2>Demo Code</h2>
 
-    <p>
-        A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.
-    </p>
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
 
-    <p>
-        You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-18">article-18</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
-    </p>
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-18">article-18</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
 
-    <p>
-        See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-18/README.md">README.md</a> file for details.
-    </p>
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-18/README.md">README.md</a> file for details.</p>
 
     <div class="callout callout-info">
-        <p>
-            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
-        </p>
-        <p>
-            The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-18/LICENSE.md">LICENSE.md</a> file for licensing details.
-        </p>
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-18/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
     </div>
 
 </section>
 
 <section id="summary">
 
-    <h2>
-        Summary
-    </h2>
+    <h2>Summary</h2>
 
-    <p>
-        In this article we have investigated how to customize the appearance of a <var>TWebBrowser</var> control.
-    </p>
+    <p>In this article we have investigated how to customize the appearance of a <var>TWebBrowser</var> control.</p>
 
-    <p>
-        We noted that we can control the appearance and behaviour of <var>TWebBrowser</var> by developing a container object that implements the <var>IDocHostUIHandler</var> interface. In order for the browser control to find the <var>IDocHostUIHandler</var> implementation we also needed to implement <var>IOleClientSite</var>.
-    </p>
+    <p>We noted that we can control the appearance and behaviour of <var>TWebBrowser</var> by developing a container object that implements the <var>IDocHostUIHandler</var> interface. In order for the browser control to find the <var>IDocHostUIHandler</var> implementation we also needed to implement <var>IOleClientSite</var>.</p>
 
-    <p>
-        We first created a reusable, &quot;do nothing&quot; container class that provided a minimal implementation of the required interfaces. Then we derived a custom class from the &quot;do nothing&quot; container that provided the required customization. We also exposed properties to enable users to manipulate the browser's appearance and behaviour. Finally we developed a sample application to exercise the customizable container.
-    </p>
+    <p>We first created a reusable, &quot;do nothing&quot; container class that provided a minimal implementation of the required interfaces. Then we derived a custom class from the &quot;do nothing&quot; container that provided the required customization. We also exposed properties to enable users to manipulate the browser's appearance and behaviour. Finally we developed a sample application to exercise the customizable container.</p>
 
-    <p>
-        A downloadable demo program was made available that includes all the code discussed in the article.
-    </p>
+    <p>A downloadable demo program was made available that includes all the code discussed in the article.</p>
 
 </section>
 
 <section id="references">
 
-    <h2>
-        References
-    </h2>
+    <h2>References</h2>
 
-    <p>
-        Several references from MSDN were used in researching this article. They are:
-    </p>
+    <p>Several references from MSDN were used in researching this article. They are:</p>
 
     <ul>
-        <li>
-            <a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa741313(v=vs.85)">About the Browser</a>
-        </li>
-        <li>
-            <a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa770041(v=vs.85)">WebBrowser Customization</a>
-        </li>
-        <li>
-            <a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa753260(v=vs.85)">IDocHostUIHandler Interface</a>
-        </li>
-        <li>
-            <a href="https://docs.microsoft.com/en-gb/windows/win32/api/oleidl/nn-oleidl-ioleclientsite">IOleClientSite Interface</a>
-        </li>
+        <li><a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa741313(v=vs.85)">About the Browser</a></li>
+        <li><a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa770041(v=vs.85)">WebBrowser Customization</a></li>
+        <li><a href="https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/aa753260(v=vs.85)">IDocHostUIHandler Interface</a></li>
+        <li><a href="https://docs.microsoft.com/en-gb/windows/win32/api/oleidl/nn-oleidl-ioleclientsite">IOleClientSite Interface</a></li>
     </ul>
 
 </section>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #18&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #18&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

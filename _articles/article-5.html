@@ -8,395 +8,332 @@ index: true
 redirect_from:
 - /articles/5
 ---
-<h2>
-    Why do it?
-</h2>
+<section id="intro">
 
-<p>
-    In Java there are various predefined stream classes that provide filters for other stream classes. The filter
-    classes essentially &quot;wrap&quot; the streams they operate on and can often be applied to further filters. This
-    article demonstrates how we can do this in Delphi in a way that is extendable &ndash; i.e. we can wrap filters
-    around other filters.
-</p>
+    <h2>Why do it?</h2>
 
+    <p>In Java there are various predefined stream classes that provide filters for other stream classes. The filter classes essentially &quot;wrap&quot; the streams they operate on and can often be applied to further filters. This article demonstrates how we can do this in Delphi in a way that is extendable &ndash; i.e. we can wrap filters around other filters.</p>
 
-<h2>
-    How it's done
-</h2>
+</section>
 
-<p>
-    First of all, let's look at why we want to do this. Well, say you want to write some data primitives as text to a
-    stream and for the text to be formatted to fit on a page, word wrapping properly. Then, if we can wrap a filter that
-    formats the primitives around another that formats the text and this filter is wrapped round a file stream object,
-    then all we have to do is access the methods of the first class and the rest of the process happens automatically.
-</p>
+<section id="method">
 
-<p>
-    The approach I've taken is to define a class, <var>TStreamWrapper</var>, that provides a base class for any filters
-    that we want to define. Any <var>TStreamWrapper</var> performs it's i/o using another <var>TStream</var> object
-    &ndash; the wrapped object. The key point is that <var>TStreamWrapper</var> is itself derived from
-    <var>TStream</var>, so that it can also wrap other <var>TSteamWrapper</var> objects &ndash; giving the extensibility
-    we need. <var>TSteamWrapper</var> can also cause a wrapped stream to be freed when it is itself freed &ndash;
-    allowing the wrapped streams to be created &quot;on the fly&quot; when the <var>TSteamWrapper</var> constructor is
-    called.
-</p>
+    <h2>How it's done</h2>
 
-<p>
-    There is no additional functionality built in to <var>TSteamWrapper</var> &ndash; this is to be provided by derived
-    classes. A small example class is demonstrated here.
-</p>
+    <p>First of all, let's look at why we want to do this. Well, say you want to write some data primitives as text to a stream and for the text to be formatted to fit on a page, word wrapping properly. Then, if we can wrap a filter that formats the primitives around another that formats the text and this filter is wrapped round a file stream object, then all we have to do is access the methods of the first class and the rest of the process happens automatically.</p>
 
-<p>
-    First we look at <var>TSteamWrapper</var>. Here's the class declaration:
-</p>
+    <p>The approach I've taken is to define a class, <var>TStreamWrapper</var>, that provides a base class for any filters that we want to define. Any <var>TStreamWrapper</var> performs it's i/o using another <var>TStream</var> object &ndash; the wrapped object. The key point is that <var>TStreamWrapper</var> is itself derived from <var>TStream</var>, so that it can also wrap other <var>TSteamWrapper</var> objects &ndash; giving the extensibility we need. <var>TSteamWrapper</var> can also cause a wrapped stream to be freed when it is itself freed &ndash; allowing the wrapped streams to be created &quot;on the fly&quot; when the <var>TSteamWrapper</var> constructor is called.</p>
 
-<div class="frame">
-    <div class="code-pascal">
-        <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
-        <pre
+    <p>There is no additional functionality built in to <var>TSteamWrapper</var> &ndash; this is to be provided by derived classes. A small example class is demonstrated here.</p>
+
+    <p>First we look at <var>TSteamWrapper</var>. Here's the class declaration:</p>
+
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
             class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TStreamWrapper</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TStream</span><span class="sym">)</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">private</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">FBaseStream</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  5</span><span class="space">      </span><span class="comment">{The wrapped stream}</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  6</span><span class="space">    </span><span class="ident">FCloseStream</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  7</span><span class="space">      </span><span class="comment">{Free wrapped stream on destruction?}</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">protected</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  9</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">SetSize</span><span class="sym">(</span><span class="ident">NewSize</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 10</span><span class="space">      </span><span class="comment">{Sets the size of the stream to the given value</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 11</span><span class="comment">      if the operation is supported by the underlying stream}</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">property</span><span class="space"> </span><span class="ident">BaseStream</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span class="space"> </span><span class="kwd">read</span><span class="space"> </span><span class="ident">FBaseStream</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="comment">{Gives access to the underlying stream to descended </span></pre>
-        <pre class="line"><span class="linenum"> 14</span><span class="comment">      classes}</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 14</span><span class="comment">      classes}</span></pre>
+            <pre
             class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">public</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">Create</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Stream</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 17</span><span class="space">      </span><span class="kwd">const</span><span class="space"> </span><span class="ident">CloseStream</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">False</span><span class="sym">)</span><span class="sym">;</span><span class="space"> </span><span class="kwd">virtual</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 18</span><span class="space">      </span><span class="comment">{If CloseStream is true the given underlying stream is </span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 19</span><span class="comment">      freed when this object is freed}</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="kwd">destructor</span><span class="space"> </span><span class="ident">Destroy</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="comment">// Implementation of abstract methods of TStream</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Read</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">;</span><span class="space"> </span><span class="ident">Count</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 23</span><span class="space">      </span><span class="kwd">override</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 24</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Write</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">;</span><span class="space"> </span><span class="ident">Count</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 25</span><span class="space">      </span><span class="kwd">override</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 26</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Seek</span><span class="sym">(</span><span class="ident">Offset</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span><span class="space"> </span><span class="ident">Origin</span><span class="sym">:</span><span class="space"> </span><span class="ident">Word</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 27</span><span class="space">      </span><span class="kwd">override</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 1</div>
     </div>
-    <div class="caption">
-        Listing 1
-    </div>
-</div>
 
-<p>
-    and the implementation is:
-</p>
+    <p>and the implementation is:</p>
 
-<div class="frame">
-    <div class="code-pascal">
-        <pre
+    <div class="frame">
+        <div class="code-pascal">
+            <pre
             class="line"><span class="linenum">  1</span><span class="kwd">constructor</span><span class="space"> </span><span class="ident">TStreamWrapper</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Stream</span><span class="sym">:</span><span class="space"> </span><span class="ident">TStream</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">const</span><span class="space"> </span><span class="ident">CloseStream</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">inherited</span><span class="space"> </span><span class="ident">Create</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// Record wrapped stream and if we free it on destruction</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">FBaseStream</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Stream</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">FCloseStream</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">CloseStream</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum">  8</span><span class="kwd">end</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum">  9</span></pre>
-        <pre
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span></pre>
+            <pre
             class="line"><span class="linenum"> 10</span><span class="kwd">destructor</span><span class="space"> </span><span class="ident">TStreamWrapper</span><span class="sym">.</span><span class="ident">Destroy</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 11</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="comment">// Close wrapped stream if required</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">FCloseStream</span><span class="space"> </span><span class="kwd">then</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">FBaseStream</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">inherited</span><span class="space"> </span><span class="ident">Destroy</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 16</span><span class="kwd">end</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 17</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 16</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span></pre>
+            <pre
             class="line"><span class="linenum"> 18</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TStreamWrapper</span><span class="sym">.</span><span class="ident">Read</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="ident">Count</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 20</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 20</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="comment">// Simply call underlying stream&apos;s Read method</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FBaseStream</span><span class="sym">.</span><span class="ident">Read</span><span class="sym">(</span><span class="ident">Buffer</span><span class="sym">,</span><span class="space"> </span><span class="ident">Count</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 24</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 24</span></pre>
+            <pre
             class="line"><span class="linenum"> 25</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TStreamWrapper</span><span class="sym">.</span><span class="ident">Seek</span><span class="sym">(</span><span class="ident">Offset</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 26</span><span class="space">  </span><span class="ident">Origin</span><span class="sym">:</span><span class="space"> </span><span class="ident">Word</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 27</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 27</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="comment">// Simply call the same method in the wrapped stream</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FBaseStream</span><span class="sym">.</span><span class="ident">Seek</span><span class="sym">(</span><span class="ident">Offset</span><span class="sym">,</span><span class="space"> </span><span class="ident">Origin</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 30</span><span class="kwd">end</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 31</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 30</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 31</span></pre>
+            <pre
             class="line"><span class="linenum"> 32</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TStreamWrapper</span><span class="sym">.</span><span class="ident">SetSize</span><span class="sym">(</span><span class="ident">NewSize</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 33</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 33</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum"> 34</span><span class="space">  </span><span class="comment">// Set the size property of the wrapped stream</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 35</span><span class="space">  </span><span class="ident">FBaseStream</span><span class="sym">.</span><span class="ident">Size</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">NewSize</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 36</span><span class="kwd">end</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 37</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 36</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 37</span></pre>
+            <pre
             class="line"><span class="linenum"> 38</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TStreamWrapper</span><span class="sym">.</span><span class="ident">Write</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 39</span><span class="space">  </span><span class="ident">Count</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 40</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 40</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum"> 41</span><span class="space">  </span><span class="comment">// Simply call the same method in the wrapped stream</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 42</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FBaseStream</span><span class="sym">.</span><span class="ident">Write</span><span class="sym">(</span><span class="ident">Buffer</span><span class="sym">,</span><span class="space"> </span><span class="ident">Count</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 43</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 43</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 2</div>
     </div>
-    <div class="caption">
-        Listing 2
-    </div>
-</div>
 
-<p>
-    We can now derive a small filter class &ndash; <var>TStrStream</var>. As it stands it's not particularly useful, but
-    does demonstrate the techniques. The class reads and writes strings (which are preceded by their lengths) from and
-    to any stream. The declaration is:
-</p>
+    <p>We can now derive a small filter class &ndash; <var>TStrStream</var>. As it stands it's not particularly useful, but does demonstrate the techniques. The class reads and writes strings (which are preceded by their lengths) from and to any stream. The declaration is:</p>
 
-<div class="frame">
-    <div class="code-pascal">
-        <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
-        <pre
+    <div class="frame">
+        <div class="code-pascal">
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">type</span></pre>
+            <pre
             class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">TStrStream</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="kwd">class</span><span class="sym">(</span><span class="ident">TStreamWrapper</span><span class="sym">)</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">public</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  4</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WriteString</span><span class="sym">(</span><span class="ident">AString</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">ReadString</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 3</div>
     </div>
-    <div class="caption">
-        Listing 3
-    </div>
-</div>
 
-<p>
-    The class is implemented as follows:
-</p>
+    <p>The class is implemented as follows:</p>
 
-<div class="frame">
-    <div class="code-pascal">
-        <pre
+    <div class="frame">
+        <div class="code-pascal">
+            <pre
             class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">TStrStream</span><span class="sym">.</span><span class="ident">ReadString</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
-        <pre
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre
             class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">StrLen</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">    </span><span class="comment">// the length of the string</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">PBuf</span><span class="sym">:</span><span class="space"> </span><span class="ident">PChar</span><span class="sym">;</span><span class="space">        </span><span class="comment">// buffer to hold the string that is read</span></pre>
-        <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum">  6</span><span class="space">  </span><span class="comment">// Get length of string (as 32 bit integer)</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">ReadBuffer</span><span class="sym">(</span><span class="ident">StrLen</span><span class="sym">,</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  8</span><span class="space">  </span><span class="comment">// Now get string</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  9</span><span class="space">  </span><span class="comment">// allocate enough memory to hold string</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">GetMem</span><span class="sym">(</span><span class="ident">PBuf</span><span class="sym">,</span><span class="space"> </span><span class="ident">StrLen</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">try</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="comment">// read chars into buffer and set resulting string</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 13</span><span class="space">    </span><span class="ident">ReadBuffer</span><span class="sym">(</span><span class="ident">PBuf</span><span class="sym">^</span><span class="sym">,</span><span class="space"> </span><span class="ident">StrLen</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">SetString</span><span class="sym">(</span><span class="ident">Result</span><span class="sym">,</span><span class="space"> </span><span class="ident">PBuf</span><span class="sym">,</span><span class="space"> </span><span class="ident">StrLen</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">finally</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="comment">// deallocate buffer</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 17</span><span class="space">    </span><span class="ident">FreeMem</span><span class="sym">(</span><span class="ident">PBuf</span><span class="sym">,</span><span class="space"> </span><span class="ident">StrLen</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 20</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 20</span></pre>
+            <pre
             class="line"><span class="linenum"> 21</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TStrStream</span><span class="sym">.</span><span class="ident">WriteString</span><span class="sym">(</span><span class="ident">AString</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 22</span><span class="kwd">var</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 22</span><span class="kwd">var</span></pre>
+            <pre
             class="line"><span class="linenum"> 23</span><span class="space">  </span><span class="ident">Len</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">     </span><span class="comment">// length of string</span></pre>
-        <pre class="line"><span class="linenum"> 24</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 24</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum"> 25</span><span class="space">  </span><span class="comment">// Write out length of string as 32 bit integer</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 26</span><span class="space">  </span><span class="ident">Len</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Length</span><span class="sym">(</span><span class="ident">AString</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 27</span><span class="space">  </span><span class="ident">WriteBuffer</span><span class="sym">(</span><span class="ident">Len</span><span class="sym">,</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Integer</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="comment">// Now write out the string&apos;s characters</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 29</span><span class="space">  </span><span class="ident">WriteBuffer</span><span class="sym">(</span><span class="ident">PChar</span><span class="sym">(</span><span class="ident">AString</span><span class="sym">)</span><span class="sym">^</span><span class="sym">,</span><span class="space"> </span><span class="ident">Len</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 30</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 30</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 4</div>
     </div>
-    <div class="caption">
-        Listing 4
-    </div>
-</div>
 
-<p>
-    The following code should demonstrate how to write a string to a file and read it back in again. Here we use a file
-    stream that is created on the fly and automatically closed when we are done. Of course you could use any stream type
-    and handle its lifetime yourself.
-</p>
+    <p>The following code should demonstrate how to write a string to a file and read it back in again. Here we use a file stream that is created on the fly and automatically closed when we are done. Of course you could use any stream type and handle its lifetime yourself.</p>
 
-<div class="frame">
-    <div class="code-pascal">
-        <pre
+    <div class="frame">
+        <div class="code-pascal">
+            <pre
             class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">WriteText</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Txt</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
-        <pre
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre
             class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">TS</span><span class="sym">:</span><span class="space"> </span><span class="ident">TTextStream</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum">  5</span><span class="space">  </span><span class="comment">// This opens stream on a file stream that will </span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  6</span><span class="space">  </span><span class="comment">// be closed when this stream closes</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">TS</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TTextStream</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">TFileStream</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="str">&apos;test.dat&apos;</span><span class="sym">,</span><span class="space"> </span><span class="ident">fmCreate</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">True</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">TS</span><span class="sym">.</span><span class="ident">WriteString</span><span class="sym">(</span><span class="ident">Txt</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="ident">TS</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span><span class="space">  </span><span class="comment">// this also closes wrapped file stream</span></pre>
-        <pre class="line"><span class="linenum"> 11</span><span class="kwd">end</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 12</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 11</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span></pre>
+            <pre
             class="line"><span class="linenum"> 13</span><span class="kwd">function</span><span class="space"> </span><span class="ident">ReadText</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 14</span><span class="kwd">var</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 14</span><span class="kwd">var</span></pre>
+            <pre
             class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="ident">TS</span><span class="sym">:</span><span class="space"> </span><span class="ident">TTextStream</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 16</span><span class="kwd">begin</span></pre>
-        <pre
+            <pre class="line"><span class="linenum"> 16</span><span class="kwd">begin</span></pre>
+            <pre
             class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="ident">TS</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TTextStream</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 18</span><span class="space">    </span><span class="ident">TFileStream</span><span class="sym">.</span><span class="ident">Create</span><span class="sym">(</span><span class="str">&apos;test.dat&apos;</span><span class="sym">,</span><span class="space"> </span><span class="ident">fmCreate</span><span class="sym">)</span><span class="sym">,</span><span class="space"> </span><span class="ident">True</span><span class="sym">)</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">TS</span><span class="sym">.</span><span class="ident">ReadString</span><span class="sym">;</span></pre>
-        <pre
+            <pre
             class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="ident">TS</span><span class="sym">.</span><span class="ident">Free</span><span class="sym">;</span></pre>
-        <pre class="line"><span class="linenum"> 21</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="kwd">end</span><span class="sym">;</span></pre>
+        </div>
+        <div class="caption">Listing 5</div>
     </div>
-    <div class="caption">
-        Listing 5
+
+    <p>The filter in this example provides additional methods to those in <var>TSteamWrapper</var>. We can also provide filters that override the <var>Read</var> and <var>Write</var> methods to alter the way that files are written.</p>
+
+</section>
+
+<section id="demo">
+
+    <h2>Demo Code</h2>
+
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
+
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-05">article-05</a></code> sub-directory. Alternatively download a zip file containing all the available demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
+
+    <p>The demo project is a Delphi 4 project that writes out some user provided strings to a file using the <var>TStrStream</var> class, and reads them back in again.</p>
+
+    <div class="callout callout-info">
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-05/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
     </div>
-</div>
 
-<p>
-    The filter in this example provides additional methods to those in <var>TSteamWrapper</var>. We can also provide
-    filters that override the
-    <var>Read</var> and <var>Write</var> methods to alter the way that files are written.
-</p>
+</section>
 
-<h2>
-    Demo Code
-</h2>
+<section id="example">
 
-<p>
-    A demo program to accompany this article can be found in the
-    <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository
-    on GitHub.
-</p>
+    <h2>Real Life Example</h2>
 
-<p>
-    You can view the code in the
-    <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-05">article-05</a></code>
-    sub-directory. Alternatively download a zip file containing all the available demos by going to the repository's
-    landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
-</p>
+    <p>My <a href="/software/streams">Stream Extension Classes</a> provide an example of the techniques described here.</p>
 
-<p>
-    The demo project is a Delphi 4 project that writes out some user provided strings to a file using the
-    <var>TStrStream</var> class, and reads them back in again.
-</p>
-
-<div class="callout callout-info">
-    <p>
-        <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is
-        merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its
-        current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF
-        ANY KIND, either express or implied.
-    </p>
-    <p>
-        The demo is open source. See the demo's <a
-            href="https://github.com/delphidabbler/article-demos/blob/master/article-05/LICENSE.md">LICENSE.md</a> file
-        for licensing details.
-    </p>
-</div>
-
-
-<h2>
-    Real Life Example
-</h2>
-
-<p>
-    My <a href="/software/streams">Stream Extension Classes</a> provide an example of the techniques described here.
-</p>
+</section>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #5&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #5&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>
