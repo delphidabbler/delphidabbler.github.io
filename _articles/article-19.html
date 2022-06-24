@@ -93,35 +93,16 @@ redirect_from:
 
     <div class="frame" id="listing-1">
         <div class="code-pascal">
-            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
-                </span><span class="ident">TForm1</span><span class="sym">.</span><span
-                    class="ident">Timer1Timer</span><span class="sym">(</span><span class="ident">Sender</span><span
-                    class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span
-                    class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 2</span><span class="kwd">begin</span></pre>
-            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span
-                    class="sym">(</span><span class="ident">ActiveControl</span><span class="sym">)</span><span
-                    class="space"> </span><span class="kwd">then</span></pre>
-            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
-                    class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span
-                    class="space"> </span><span class="sym">:=</span><span class="space"> </span><span
-                    class="str">&apos;ActiveControl = &apos;</span></pre>
-            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span class="sym">+</span><span
-                    class="space"> </span><span class="ident">ActiveControl</span><span class="sym">.</span><span
-                    class="ident">Name</span></pre>
-            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span class="kwd">else</span>
-            </pre>
-            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
-                    class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span
-                    class="space"> </span><span class="sym">:=</span><span class="space"> </span><span
-                    class="str">&apos;ActiveControl = nil&apos;</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 8</span><span class="kwd">end</span><span class="sym">;</span>
-            </pre>
-        </div>
-        <div class="caption">
-            Listing 1
-        </div>
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">Timer1Timer</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">ActiveControl</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">    </span><span class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;ActiveControl = &apos;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">      </span><span class="sym">+</span><span class="space"> </span><span class="ident">ActiveControl</span><span class="sym">.</span><span class="ident">Name</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;ActiveControl = nil&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            </div>
+                    <div class="caption">Listing 1</div>
     </div>
 
     <p>
@@ -139,65 +120,25 @@ redirect_from:
 
     <div class="frame" id="listing-2">
         <div class="code-pascal">
-            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
-                </span><span class="ident">TForm1</span><span class="sym">.</span><span
-                    class="ident">Button1Click</span><span class="sym">(</span><span class="ident">Sender</span><span
-                    class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span
-                    class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 2</span><span class="kwd">begin</span></pre>
-            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="ident">OpenDialog1</span><span
-                    class="sym">.</span><span class="ident">Execute</span><span class="space"> </span><span
-                    class="kwd">then</span></pre>
-            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span class="kwd">begin</span>
-            </pre>
-            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
-                    class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span
-                    class="space"> </span><span class="sym">:=</span><span class="space"> </span><span
-                    class="str">&apos;&apos;</span><span class="sym">;</span><span class="space"> </span><span
-                    class="comment">// fixes SB redraw problem</span></pre>
-            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="ident">FileExists</span><span
-                    class="sym">(</span><span class="ident">OpenDialog1</span><span class="sym">.</span><span
-                    class="ident">FileName</span><span class="sym">)</span><span class="space"> </span><span
-                    class="kwd">then</span></pre>
-            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span class="kwd">begin</span>
-            </pre>
-            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
-                    class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span
-                    class="sym">(</span><span class="str">&apos;file://&apos;</span><span class="space"> </span><span
-                    class="sym">+</span><span class="space"> </span><span class="ident">OpenDialog1</span><span
-                    class="sym">.</span><span class="ident">FileName</span><span class="sym">)</span><span
-                    class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
-                    class="ident">Memo1</span><span class="sym">.</span><span class="ident">Lines</span><span
-                    class="sym">.</span><span class="ident">LoadFromFile</span><span class="sym">(</span><span
-                    class="ident">OpenDialog1</span><span class="sym">.</span><span class="ident">FileName</span><span
-                    class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span class="kwd">end</span>
-            </pre>
-            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span class="kwd">else</span>
-            </pre>
-            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span class="kwd">begin</span>
-            </pre>
-            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span
-                    class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span
-                    class="sym">(</span><span class="str">&apos;about:blank&apos;</span><span class="sym">)</span><span
-                    class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
-                    class="ident">Memo1</span><span class="sym">.</span><span class="ident">Text</span><span
-                    class="space"> </span><span class="sym">:=</span><span class="space"> </span><span
-                    class="str">&apos;about:blank&apos;</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
-                    class="kwd">end</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span
-                    class="kwd">end</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 17</span><span class="kwd">end</span><span class="sym">;</span>
-            </pre>
-        </div>
-        <div class="caption">
-            Listing 2
-        </div>
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">Button1Click</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">OpenDialog1</span><span class="sym">.</span><span class="ident">Execute</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;&apos;</span><span class="sym">;</span><span class="space"> </span><span class="comment">// fixes SB redraw problem</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="ident">FileExists</span><span class="sym">(</span><span class="ident">OpenDialog1</span><span class="sym">.</span><span class="ident">FileName</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">      </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span class="sym">(</span><span class="str">&apos;file://&apos;</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">OpenDialog1</span><span class="sym">.</span><span class="ident">FileName</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">      </span><span class="ident">Memo1</span><span class="sym">.</span><span class="ident">Lines</span><span class="sym">.</span><span class="ident">LoadFromFile</span><span class="sym">(</span><span class="ident">OpenDialog1</span><span class="sym">.</span><span class="ident">FileName</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">end</span><span class="space">        </span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span class="sym">(</span><span class="str">&apos;about:blank&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="ident">Memo1</span><span class="sym">.</span><span class="ident">Text</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;about:blank&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            </div>
+                    <div class="caption">Listing 2</div>
     </div>
 
     <p>
@@ -227,20 +168,11 @@ redirect_from:
 
     <div class="frame" id="listing-3">
         <div class="code-pascal">
-            <pre class="line"><span class="linenum"> 1</span><span class="comment">// !!! Wrong !!!</span></pre>
-            <pre class="line"><span class="linenum"> 2</span><span class="kwd">procedure</span><span class="space">
-                </span><span class="ident">TForm1</span><span class="sym">.</span><span
-                    class="ident">WebBrowser1Click</span><span class="sym">(</span><span
-                    class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span
-                    class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 3</span><span class="kwd">begin</span></pre>
-            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
-                    class="ident">ActiveControl</span><span class="space"> </span><span class="sym">:=</span><span
-                    class="space"> </span><span class="ident">Sender</span><span class="space"> </span><span
-                    class="kwd">as</span><span class="space"> </span><span class="ident">TWebBrowser</span><span
-                    class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 5</span><span class="kwd">end</span><span class="sym">;</span>
-            </pre>
+            <pre class="line"><span class="linenum">  1</span><span class="comment">// !!! Wrong !!!</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">WebBrowser1Click</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">ActiveControl</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Sender</span><span class="space"> </span><span class="kwd">as</span><span class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
         <div class="caption">
             Listing 3
@@ -283,18 +215,10 @@ redirect_from:
 
     <div class="frame" id="listing-4">
         <div class="code-pascal">
-            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
-                </span><span class="ident">TForm1</span><span class="sym">.</span><span
-                    class="ident">FormShow</span><span class="sym">(</span><span class="ident">Sender</span><span
-                    class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span
-                    class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 2</span><span class="kwd">begin</span></pre>
-            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
-                    class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span
-                    class="sym">(</span><span class="str">&apos;about:blank&apos;</span><span class="sym">)</span><span
-                    class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 4</span><span class="kwd">end</span><span class="sym">;</span>
-            </pre>
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">FormShow</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span class="sym">(</span><span class="str">&apos;about:blank&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
         <div class="caption">
             Listing 4
@@ -308,91 +232,31 @@ redirect_from:
 
     <div class="frame" id="listing-5">
         <div class="code-pascal">
-            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
-                </span><span class="ident">TForm1</span><span class="sym">.</span><span
-                    class="ident">WebBrowser1CommandStateChange</span><span class="sym">(</span><span
-                    class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span
-                    class="ident">TObject</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 2</span><span class="space"> </span><span
-                    class="ident">Command</span><span class="sym">:</span><span class="space"> </span><span
-                    class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span
-                    class="ident">Enable</span><span class="sym">:</span><span class="space"> </span><span
-                    class="ident">WordBool</span><span class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 3</span><span class="kwd">var</span></pre>
-            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
-                    class="ident">Doc</span><span class="sym">:</span><span class="space"> </span><span
-                    class="ident">IHTMLDocument2</span><span class="sym">;</span><span class="space"> </span><span
-                    class="comment">// document object</span></pre>
-            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
-                    class="ident">Sel</span><span class="sym">:</span><span class="space"> </span><span
-                    class="ident">IHTMLSelectionObject</span><span class="sym">;</span><span class="space"> </span><span
-                    class="comment">// current selection</span></pre>
-            <pre class="line"><span class="linenum"> 6</span><span class="kwd">begin</span></pre>
-            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span class="comment">// Check
-                    we have a valid web browser triggering this event</span></pre>
-            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space">
-                </span><span class="ident">Assigned</span><span class="sym">(</span><span
-                    class="ident">Sender</span><span class="sym">)</span><span class="space"> </span><span
-                    class="kwd">or</span><span class="space"> </span><span class="kwd">not</span><span class="space">
-                </span><span class="sym">(</span><span class="ident">Sender</span><span class="space"> </span><span
-                    class="kwd">is</span><span class="space"> </span><span class="ident">TWebBrowser</span><span
-                    class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
-            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
-                    class="ident">Exit</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span class="comment">// Check
-                    we have required command</span></pre>
-            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="ident">TOleEnum</span><span
-                    class="sym">(</span><span class="ident">Command</span><span class="sym">)</span><span class="space">
-                </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span
-                    class="ident">CSC_UPDATECOMMANDS</span><span class="space"> </span><span class="kwd">then</span>
-            </pre>
-            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
-                    class="ident">Exit</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 13</span><span class="space"> </span><span class="comment">// Get
-                    ref to document object and check not nil</span></pre>
-            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
-                    class="ident">Doc</span><span class="space"> </span><span class="sym">:=</span><span class="space">
-                </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span
-                    class="ident">Document</span><span class="space"> </span><span class="kwd">as</span><span
-                    class="space"> </span><span class="ident">IHTMLDocument2</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space">
-                </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">Doc</span><span
-                    class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
-            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span
-                    class="ident">Exit</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span><span class="comment">// Get
-                    ref to current selection</span></pre>
-            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
-                    class="ident">Sel</span><span class="space"> </span><span class="sym">:=</span><span class="space">
-                </span><span class="ident">Doc</span><span class="sym">.</span><span class="ident">selection</span><span
-                    class="space"> </span><span class="kwd">as</span><span class="space"> </span><span
-                    class="ident">IHTMLSelectionObject</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 19</span><span class="space"> </span><span class="comment">// If
-                    selection is of correct type then we have a mouse click</span></pre>
-            <pre class="line"><span class="linenum"> 20</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span
-                    class="sym">(</span><span class="ident">Sel</span><span class="sym">)</span><span class="space">
-                </span><span class="kwd">and</span><span class="space"> </span><span class="sym">(</span><span
-                    class="ident">Sel</span><span class="sym">.</span><span class="ident">type_</span><span
-                    class="space"> </span><span class="sym">=</span><span class="space"> </span><span
-                    class="str">&apos;Text&apos;</span><span class="sym">)</span><span class="space"> </span><span
-                    class="kwd">then</span></pre>
-            <pre class="line"><span class="linenum"> 21</span><span class="space"> </span><span class="comment">// Make
-                    the web browser the form&apos;s active control</span></pre>
-            <pre class="line"><span class="linenum"> 22</span><span class="space"> </span><span
-                    class="ident">ActiveControl</span><span class="space"> </span><span class="sym">:=</span><span
-                    class="space"> </span><span class="ident">Sender</span><span class="space"> </span><span
-                    class="kwd">as</span><span class="space"> </span><span class="ident">TWebBrowser</span><span
-                    class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span>
-            </pre>
-        </div>
-        <div class="caption">
-            Listing 5
-        </div>
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TForm1</span><span class="sym">.</span><span class="ident">WebBrowser1CommandStateChange</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">Command</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space"> </span><span class="ident">Enable</span><span class="sym">:</span><span class="space"> </span><span class="ident">WordBool</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">Doc</span><span class="sym">:</span><span class="space"> </span><span class="ident">IHTMLDocument2</span><span class="sym">;</span><span class="space">       </span><span class="comment">// document object</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="ident">Sel</span><span class="sym">:</span><span class="space"> </span><span class="ident">IHTMLSelectionObject</span><span class="sym">;</span><span class="space"> </span><span class="comment">// current selection</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="comment">// Check we have a valid web browser triggering this event</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">)</span><span class="space"> </span><span class="kwd">or</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="sym">(</span><span class="ident">Sender</span><span class="space"> </span><span class="kwd">is</span><span class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">Exit</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="comment">// Check we have required command</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">TOleEnum</span><span class="sym">(</span><span class="ident">Command</span><span class="sym">)</span><span class="space"> </span><span class="sym">&lt;&gt;</span><span class="space"> </span><span class="ident">CSC_UPDATECOMMANDS</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">Exit</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="comment">// Get ref to document object and check not nil</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">  </span><span class="ident">Doc</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Document</span><span class="space"> </span><span class="kwd">as</span><span class="space"> </span><span class="ident">IHTMLDocument2</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="kwd">not</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">Doc</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">Exit</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="space">  </span><span class="comment">// Get ref to current selection</span></pre>
+            <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="ident">Sel</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Doc</span><span class="sym">.</span><span class="ident">selection</span><span class="space"> </span><span class="kwd">as</span><span class="space"> </span><span class="ident">IHTMLSelectionObject</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 19</span><span class="space">  </span><span class="comment">// If selection is of correct type then we have a mouse click</span></pre>
+            <pre class="line"><span class="linenum"> 20</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">Sel</span><span class="sym">)</span><span class="space"> </span><span class="kwd">and</span><span class="space"> </span><span class="sym">(</span><span class="ident">Sel</span><span class="sym">.</span><span class="ident">type_</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="str">&apos;Text&apos;</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="comment">// Make the web browser the form&apos;s active control</span></pre>
+            <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="ident">ActiveControl</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Sender</span><span class="space"> </span><span class="kwd">as</span><span class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            </div>
+                    <div class="caption">Listing 5</div>
     </div>
 
     <p>
@@ -494,74 +358,25 @@ redirect_from:
 
     <div class="frame" id="listing-6">
         <div class="code-pascal">
-            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
-                </span><span class="ident">TDemoForm</span><span class="sym">.</span><span
-                    class="ident">Timer1Timer</span><span class="sym">(</span><span class="ident">Sender</span><span
-                    class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span
-                    class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 2</span><span class="kwd">var</span></pre>
-            <pre class="line"><span class="linenum"> 3</span><span class="space"> </span><span
-                    class="ident">NextWin</span><span class="sym">:</span><span class="space"> </span><span
-                    class="ident">HWND</span><span class="sym">;</span><span class="space"> </span><span
-                    class="comment">// handle of various child windows</span></pre>
-            <pre class="line"><span class="linenum"> 4</span><span class="kwd">begin</span></pre>
-            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
-                    class="kwd">while</span><span class="space"> </span><span class="ident">IEServerWindow</span><span
-                    class="space"> </span><span class="sym">=</span><span class="space"> </span><span
-                    class="num">0</span><span class="space"> </span><span class="kwd">do</span></pre>
-            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span class="kwd">begin</span>
-            </pre>
-            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
-                    class="ident">NextWin</span><span class="space"> </span><span class="sym">:=</span><span
-                    class="space"> </span><span class="ident">FindWindowEx</span><span class="sym">(</span><span
-                    class="ident">DemoForm</span><span class="sym">.</span><span class="ident">Handle</span><span
-                    class="sym">,</span><span class="space"> </span><span class="num">0</span><span
-                    class="sym">,</span><span class="space"> </span><span class="str">&apos;Shell
-                    Embedding&apos;</span><span class="sym">,</span><span class="space"> </span><span
-                    class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 8</span><span class="space"> </span><span
-                    class="ident">NextWin</span><span class="space"> </span><span class="sym">:=</span><span
-                    class="space"> </span><span class="ident">FindWindowEx</span><span class="sym">(</span><span
-                    class="ident">NextWin</span><span class="sym">,</span><span class="space"> </span><span
-                    class="num">0</span><span class="sym">,</span><span class="space"> </span><span
-                    class="str">&apos;Shell DocObject View&apos;</span><span class="sym">,</span><span class="space">
-                </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 9</span><span class="space"> </span><span
-                    class="ident">IEServerWindow</span><span class="space"> </span><span class="sym">:=</span><span
-                    class="space"> </span><span class="ident">FindWindowEx</span><span class="sym">(</span></pre>
-            <pre class="line"><span class="linenum"> 10</span><span class="space"> </span><span
-                    class="ident">NextWin</span><span class="sym">,</span><span class="space"> </span><span
-                    class="num">0</span><span class="sym">,</span><span class="space"> </span><span
-                    class="str">&apos;Internet Explorer_Server&apos;</span><span class="sym">,</span><span
-                    class="space"> </span><span class="kwd">nil</span></pre>
-            <pre class="line"><span class="linenum"> 11</span><span class="space"> </span><span
-                    class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 12</span><span class="space"> </span><span
-                    class="kwd">end</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 13</span></pre>
-            <pre class="line"><span class="linenum"> 14</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span
-                    class="sym">(</span><span class="ident">ActiveControl</span><span class="sym">)</span><span
-                    class="space"> </span><span class="kwd">then</span></pre>
-            <pre class="line"><span class="linenum"> 15</span><span class="space"> </span><span
-                    class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span
-                    class="space"> </span><span class="sym">:=</span><span class="space"> </span><span
-                    class="str">&apos;ActiveControl = &apos;</span></pre>
-            <pre class="line"><span class="linenum"> 16</span><span class="space"> </span><span
-                    class="sym">+</span><span class="space"> </span><span class="ident">ActiveControl</span><span
-                    class="sym">.</span><span class="ident">Name</span></pre>
-            <pre class="line"><span class="linenum"> 17</span><span class="space"> </span><span class="kwd">else</span>
-            </pre>
-            <pre class="line"><span class="linenum"> 18</span><span class="space"> </span><span
-                    class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span
-                    class="space"> </span><span class="sym">:=</span><span class="space"> </span><span
-                    class="str">&apos;ActiveControl = nil&apos;</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span>
-            </pre>
-        </div>
-        <div class="caption">
-            Listing 6
-        </div>
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TDemoForm</span><span class="sym">.</span><span class="ident">Timer1Timer</span><span class="sym">(</span><span class="ident">Sender</span><span class="sym">:</span><span class="space"> </span><span class="ident">TObject</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="kwd">var</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">NextWin</span><span class="sym">:</span><span class="space"> </span><span class="ident">HWND</span><span class="sym">;</span><span class="space"> </span><span class="comment">// handle of various child windows</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="kwd">while</span><span class="space"> </span><span class="ident">IEServerWindow</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">do</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">NextWin</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FindWindowEx</span><span class="sym">(</span><span class="ident">DemoForm</span><span class="sym">.</span><span class="ident">Handle</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;Shell Embedding&apos;</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">NextWin</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FindWindowEx</span><span class="sym">(</span><span class="ident">NextWin</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;Shell DocObject View&apos;</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="space">    </span><span class="ident">IEServerWindow</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">FindWindowEx</span><span class="sym">(</span></pre>
+            <pre class="line"><span class="linenum"> 10</span><span class="space">      </span><span class="ident">NextWin</span><span class="sym">,</span><span class="space"> </span><span class="num">0</span><span class="sym">,</span><span class="space"> </span><span class="str">&apos;Internet Explorer_Server&apos;</span><span class="sym">,</span><span class="space"> </span><span class="kwd">nil</span></pre>
+            <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">Assigned</span><span class="sym">(</span><span class="ident">ActiveControl</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum"> 14</span><span class="space">    </span><span class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;ActiveControl = &apos;</span><span class="space"> </span><span class="sym">+</span><span class="space"> </span><span class="ident">ActiveControl</span><span class="sym">.</span><span class="ident">Name</span></pre>
+            <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">else</span></pre>
+            <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;ActiveControl = nil&apos;</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum"> 17</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            </div>
+                    <div class="caption">Listing 6</div>
     </div>
 
     <p>
@@ -576,47 +391,17 @@ redirect_from:
 
     <div class="frame" id="listing-7">
         <div class="code-pascal">
-            <pre class="line"><span class="linenum"> 1</span><span class="kwd">procedure</span><span class="space">
-                </span><span class="ident">TDemoForm</span><span class="sym">.</span><span
-                    class="ident">ApplicationEvents1Message</span><span class="sym">(</span><span
-                    class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span
-                    class="sym">:</span><span class="space"> </span><span class="ident">tagMSG</span><span
-                    class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 2</span><span class="space"> </span><span
-                    class="kwd">var</span><span class="space"> </span><span class="ident">Handled</span><span
-                    class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span
-                    class="sym">)</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 3</span><span class="kwd">begin</span></pre>
-            <pre class="line"><span class="linenum"> 4</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="sym">(</span><span
-                    class="ident">Msg</span><span class="sym">.</span><span class="ident">hwnd</span><span
-                    class="space"> </span><span class="sym">=</span><span class="space"> </span><span
-                    class="ident">IEServerWindow</span><span class="sym">)</span><span class="space"> </span><span
-                    class="kwd">then</span></pre>
-            <pre class="line"><span class="linenum"> 5</span><span class="space"> </span><span
-                    class="kwd">if</span><span class="space"> </span><span class="sym">(</span><span
-                    class="ident">Msg</span><span class="sym">.</span><span class="kwd">message</span><span
-                    class="space"> </span><span class="sym">=</span><span class="space"> </span><span
-                    class="ident">WM_LBUTTONDOWN</span><span class="sym">)</span><span class="space"> </span><span
-                    class="kwd">or</span><span class="space"> </span><span class="sym">(</span><span
-                    class="ident">Msg</span><span class="sym">.</span><span class="kwd">message</span><span
-                    class="space"> </span><span class="sym">=</span><span class="space"> </span><span
-                    class="ident">WM_RBUTTONDOWN</span><span class="sym">)</span></pre>
-            <pre class="line"><span class="linenum"> 6</span><span class="space"> </span><span
-                    class="kwd">or</span><span class="space"> </span><span class="sym">(</span><span
-                    class="ident">Msg</span><span class="sym">.</span><span class="kwd">message</span><span
-                    class="space"> </span><span class="sym">=</span><span class="space"> </span><span
-                    class="ident">WM_MBUTTONDOWN</span><span class="sym">)</span><span class="space"> </span><span
-                    class="kwd">then</span></pre>
-            <pre class="line"><span class="linenum"> 7</span><span class="space"> </span><span
-                    class="ident">ActiveControl</span><span class="space"> </span><span class="sym">:=</span><span
-                    class="space"> </span><span class="ident">WebBrowser1</span><span class="sym">;</span></pre>
-            <pre class="line"><span class="linenum"> 8</span><span class="kwd">end</span><span class="sym">;</span>
-            </pre>
-        </div>
-        <div class="caption">
-            Listing 7
-        </div>
+            <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">TDemoForm</span><span class="sym">.</span><span class="ident">ApplicationEvents1Message</span><span class="sym">(</span><span class="kwd">var</span><span class="space"> </span><span class="ident">Msg</span><span class="sym">:</span><span class="space"> </span><span class="ident">tagMSG</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Handled</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  3</span><span class="kwd">begin</span></pre>
+            <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">.</span><span class="ident">hwnd</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">IEServerWindow</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  5</span><span class="space">    </span><span class="kwd">if</span><span class="space"> </span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">.</span><span class="kwd">message</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">WM_LBUTTONDOWN</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  6</span><span class="space">      </span><span class="kwd">or</span><span class="space"> </span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">.</span><span class="kwd">message</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">WM_RBUTTONDOWN</span><span class="sym">)</span></pre>
+            <pre class="line"><span class="linenum">  7</span><span class="space">      </span><span class="kwd">or</span><span class="space"> </span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">.</span><span class="kwd">message</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">WM_MBUTTONDOWN</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
+            <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">ActiveControl</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">WebBrowser1</span><span class="sym">;</span></pre>
+            <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
+            </div>
+                    <div class="caption">Listing 7</div>
     </div>
 
     <div class="callout callout-info">
