@@ -10,35 +10,19 @@ redirect_from:
 ---
 <sction id="contents">
 
-    <h2>
-        Contents
-    </h2>
+    <h2>Contents</h2>
 
     <nav>
 
         <div class="well">
             <ul>
-                <li>
-                    <a href="#intro">Introduction</a>
-                </li>
-                <li>
-                    <a href="#overview">Overview</a>
-                </li>
-                <li>
-                    <a href="#footerrec">Payload footer record</a>
-                </li>
-                <li>
-                    <a href="#payload-class">Payload management class</a>
-                </li>
-                <li>
-                    <a href="#random-access">Random payload access</a>
-                </li>
-                <li>
-                    <a href="#demo">Demo code</a>
-                </li>
-                <li>
-                    <a href="#feedback">Feedback</a>
-                </li>
+                <li><a href="#intro">Introduction</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#footerrec">Payload footer record</a></li>
+                <li><a href="#payload-class">Payload management class</a></li>
+                <li><a href="#random-access">Random payload access</a></li>
+                <li><a href="#demo">Demo code</a></li>
+                <li><a href="#feedback">Feedback</a></li>
             </ul>
         </div>
 
@@ -48,97 +32,63 @@ redirect_from:
 
 <section id="intro">
 
-    <h2>
-        Introduction
-    </h2>
+    <h2>Introduction</h2>
 
-    <p>
-        In <a href="./article-2">article #2</a> we discussed how it is often useful to distribute data that is embedded in a program's executable file. That article solved the problem by writing the data to resource files and linking them into the program at compile time. This article solves the same problem in a different way &ndash; by appending the data to the executable file. This has the advantage that the data doesn't need to be linked in at compile time and can be added or updated dynamically. Data can be attached to an already compiled file. The only disadvantage of this method is that it's slightly harder to read the data at run time than it is when using resources.
-    </p>
+    <p>In <a href="./article-2">article #2</a> we discussed how it is often useful to distribute data that is embedded in a program's executable file. That article solved the problem by writing the data to resource files and linking them into the program at compile time. This article solves the same problem in a different way &ndash; by appending the data to the executable file. This has the advantage that the data doesn't need to be linked in at compile time and can be added or updated dynamically. Data can be attached to an already compiled file. The only disadvantage of this method is that it's slightly harder to read the data at run time than it is when using resources.</p>
 
-    <p>
-        A typical use for this technique would be in creating install programs. We have the actual installer as a program stub and append the files to be installed to the end of the stub. The installer stub would contain code to extract the files.
-    </p>
+    <p>A typical use for this technique would be in creating install programs. We have the actual installer as a program stub and append the files to be installed to the end of the stub. The installer stub would contain code to extract the files.</p>
 
-    <div class="callout callout-info">
-        <h4>
-            Credits
-        </h4>
-        <p>
-            The concepts used in this article are based on, and extended from, those presented by <em>Daniel Polistchuck</em> in an article on the old Borland Community Forum.
-        </p>
-        <p class="alert alert-info glyph">
-            Unfortunately the link I had to Daniels' article is no longer working and has been removed.
-        </p>
-    </div>
+    <aside>
+        <div class="callout callout-info">
+
+            <h4>Credits</h4>
+
+            <p>The concepts used in this article are based on, and extended from, those presented by <em>Daniel Polistchuck</em> in an article on the old Borland Community Forum.</p>
+
+            <p class="alert alert-info glyph">
+                Unfortunately the link I had to Daniels' article is no longer working and has been removed.
+            </p>
+
+        </div>
+    </aside>
 
 </section>
 
 <section id="overview">
 
-    <h2>
-        Overview
-    </h2>
+    <h2>Overview</h2>
 
-    <p>
-        The Windows PE file format permits additional data to be appended to the executable file. This data is ignored by the Windows program loader, so we can use the data for our own purposes without affecting the program code. For the purposes of this article let's call this data the <em>payload</em>.
-    </p>
+    <p>The Windows PE file format permits additional data to be appended to the executable file. This data is ignored by the Windows program loader, so we can use the data for our own purposes without affecting the program code. For the purposes of this article let's call this data the <em>payload</em>.</p>
 
-    <p>
-        The problem to be solved is how to denote that an executable file has a payload and how to find out what size it is. We must be able to do this without modifying the executable portion of the file. Following <em>Daniel Polistchuck</em> we will use a special record to identify the payload. This record will follow the payload data.
-    </p>
+    <p>The problem to be solved is how to denote that an executable file has a payload and how to find out what size it is. We must be able to do this without modifying the executable portion of the file. Following <em>Daniel Polistchuck</em> we will use a special record to identify the payload. This record will follow the payload data.</p>
 
-    <p>
-        So, an executable file that contains a payload has three main components (in order):
-    </p>
+    <p>So, an executable file that contains a payload has three main components (in order):</p>
 
     <ol>
-        <li>
-            The original executable file.
-        </li>
-        <li>
-            The payload data.
-        </li>
-        <li>
-            A <em>footer record</em> that identifies that a payload is present and records the size of the executable code and the payload.
-        </li>
+        <li>The original executable file.</li>
+        <li>The payload data.</li>
+        <li>A <em>footer record</em> that identifies that a payload is present and records the size of the executable code and the payload.</li>
     </ol>
 
-    <p>
-        Our task then, is to produce code that can create, modify, read, delete and check for the existence of, a payload. To enable this we must be able to detect, read and update the payload footer.
-    </p>
+    <p>Our task then, is to produce code that can create, modify, read, delete and check for the existence of, a payload. To enable this we must be able to detect, read and update the payload footer.</p>
 
-    <p>
-        We begin our discussion by investigating how to handle this footer.
-    </p>
+    <p>We begin our discussion by investigating how to handle this footer.</p>
 
 </section>
 
 <section id="footerrec">
 
-    <h2>
-        Payload footer record
-    </h2>
+    <h2>Payload footer record</h2>
 
-    <p>
-        In the overview we noted that the payload footer has three purposes:
-    </p>
+    <p>In the overview we noted that the payload footer has three purposes:</p>
 
     <ol>
-        <li>
-            To identify that a payload is present.
-        </li>
-        <li>
-            To record the size of the payload data.
-        </li>
-        <li>
-            To record the size of the original executable file.
-        </li>
+        <li>To identify that a payload is present.</li>
+        <li>To record the size of the payload data.</li>
+        <li>To record the size of the original executable file.</li>
     </ol>
 
-    <p>
-        <span class="figureref">Listing 1</span> defines a Pascal record that records all the required information.
-    </p>
+    <p><span class="figureref">Listing 1</span> defines a Pascal record that records all the required information.</p>
 
     <div id="listing-1" class="frame">
         <div class="code-pascal">
@@ -159,34 +109,22 @@ redirect_from:
             <pre class="line"><span class="linenum"> 6</span><span class="space">  </span><span
                     class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 1
-        </div>
+        <div class="caption">Listing 1</div>
     </div>
 
-    <p>
-        The purpose of the fields is as follows:
-    </p>
+    <p>The purpose of the fields is as follows:</p>
 
     <ul class="wide">
 
-        <li>
-            The <var>Watermark</var> field is a &quot;magic number&quot; that is used to identify the fact that a payload is present. A <em>GUID</em> is used to try to ensure that the watermark is as unique as possible, to reduce the likelihood that the last few bytes of an executable file will be detected incorrectly as a payload footer. This field is always set to the same fixed value. In a while we will see how this field is used to detect a payload.
-        </li>
+        <li>The <var>Watermark</var> field is a &quot;magic number&quot; that is used to identify the fact that a payload is present. A <em>GUID</em> is used to try to ensure that the watermark is as unique as possible, to reduce the likelihood that the last few bytes of an executable file will be detected incorrectly as a payload footer. This field is always set to the same fixed value. In a while we will see how this field is used to detect a payload.</li>
 
-        <li>
-            The <var>ExeSize</var> field stores the size of the original executable file before the payload was appended. The field also specifies the offset of the start of the payload data in the file, since the payload immediately follows the executable code.
-        </li>
+        <li>The <var>ExeSize</var> field stores the size of the original executable file before the payload was appended. The field also specifies the offset of the start of the payload data in the file, since the payload immediately follows the executable code.</li>
 
-        <li>
-            The <var>DataSize</var> field stores the size of the payload itself. This is in fact redundant information &ndash; it's value can be deduced from the value of the <var>ExeSize</var> field, the size of the file and the size of the <var>TPayloadFooter</var> record. However by providing this field we can simplify subsequent code.
-        </li>
+        <li>The <var>DataSize</var> field stores the size of the payload itself. This is in fact redundant information &ndash; it's value can be deduced from the value of the <var>ExeSize</var> field, the size of the file and the size of the <var>TPayloadFooter</var> record. However by providing this field we can simplify subsequent code.</li>
 
     </ul>
 
-    <p>
-        We will often need to create a new, blank, footer record that contains the correct watermark. <span class="figureref">Listing 2</span> illustrates a simple helper procedure that initializes such a blank footer.
-    </p>
+    <p>We will often need to create a new, blank, footer record that contains the correct watermark. <span class="figureref">Listing 2</span> illustrates a simple helper procedure that initializes such a blank footer.</p>
 
     <div id="listing-2" class="frame">
         <div class="code-pascal">
@@ -200,22 +138,14 @@ redirect_from:
             <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">Footer</span><span class="sym">.</span><span class="ident">WaterMark</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">cWaterMarkGUID</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 2
-        </div>
+        <div class="caption">Listing 2</div>
     </div>
 
-    <p>
-        The routine simply zeroes the footer record and stores the required watermark in it.
-    </p>
+    <p>The routine simply zeroes the footer record and stores the required watermark in it.</p>
 
-    <p>
-        Let us now consider how to check for the presence of a payload in a file. This is done by reading the final <code>SizeOf(TPayloadFooter)</code> bytes from the file into a <var>TPayloadFooter</var> record and checking if the <var>Watermark</var> field contains the expected magic number. If this is the case it is safe to assume we have a payload and that the record provides valid information about the size of the payload and executable file.
-    </p>
+    <p>Let us now consider how to check for the presence of a payload in a file. This is done by reading the final <code>SizeOf(TPayloadFooter)</code> bytes from the file into a <var>TPayloadFooter</var> record and checking if the <var>Watermark</var> field contains the expected magic number. If this is the case it is safe to assume we have a payload and that the record provides valid information about the size of the payload and executable file.</p>
 
-    <p>
-        <span class="figureref">Listing 3</span> shows the code of a helper routine that both checks for presence of a payload on an open file and gets the footer if so. The routine operates on a standard Pascal un-typed file.
-    </p>
+    <p><span class="figureref">Listing 3</span> shows the code of a helper routine that both checks for presence of a payload on an open file and gets the footer if so. The routine operates on a standard Pascal un-typed file.</p>
 
     <div id="listing-3" class="frame">
         <div class="code-pascal">
@@ -239,61 +169,40 @@ redirect_from:
             <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">IsEqualGUID</span><span class="sym">(</span><span class="ident">Footer</span><span class="sym">.</span><span class="ident">WaterMark</span><span class="sym">,</span><span class="space"> </span><span class="ident">cWaterMarkGUID</span><span class="sym">)</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 3
+        <div class="caption">Listing 3</div>
+    </div>
+
+    <p><var>ReadFooter</var> first gets the size of the file and checks if it is large enough to contain a payload footer. If the file <em>is</em> large enough it moves the file pointer to <code>SizeOf(TPayloadFooter)</code> bytes back from the end of the file and reads in the footer record. If the file is too small then the routine fills a footer record with zeros, making it invalid (i.e. the watermark is zero). Finally the routine checks if the record's <var>Watermark</var> field contains the required <em>GUID</em> and returns the result. The footer record is passed out as a parameter.</p>
+
+    <aside>
+        <div class="callout callout-warning">
+
+            <h4>Watermark warning</h4>
+
+            <p>Now we have learned why the comment in <a href="#listing-2">listing 2</a> warned not to use a GUID that is all zeros. It's because the above code zeros the footer record when the file is too small, to ensure it never compares equal to a valid watermark.</p>
+
         </div>
-    </div>
+    </aside>
 
-    <p>
-        <var>ReadFooter</var> first gets the size of the file and checks if it is large enough to contain a payload footer. If the file <em>is</em> large enough it moves the file pointer to <code>SizeOf(TPayloadFooter)</code> bytes back from the end of the file and reads in the footer record. If the file is too small then the routine fills a footer record with zeros, making it invalid (i.e. the watermark is zero). Finally the routine checks if the record's <var>Watermark</var> field contains the required <em>GUID</em> and returns the result. The footer record is passed out as a parameter.
-    </p>
-
-    <div class="callout callout-warning">
-        <h4>
-            Watermark warning
-        </h4>
-        <p>
-            Now we have learned why the comment in <a href="#listing-2">listing 2</a> warned not to use a GUID that is all zeros. It's because above code zeros the footer record when the file is too small, to ensure it never compares equal to a valid watermark.
-        </p>
-    </div>
-
-    <p>
-        We now have enough information to enable us to move on to develop a class that helps us to manage payloads.
-    </p>
+    <p>We now have enough information to enable us to move on to develop a class that helps us to manage payloads.</p>
 
 </section>
 
 <section id="payload-class">
 
-    <h2>
-        Payload management class
-    </h2>
+    <h2>Payload management class</h2>
 
-    <p>
-        In this section we will develop a class that lets us manage payloads. Let us first define the requirements of the class. They are:
-    </p>
+    <p>In this section we will develop a class that lets us manage payloads. Let us first define the requirements of the class. They are:</p>
 
     <ul>
-        <li>
-            To check if an executable file contains a payload.
-        </li>
-        <li>
-            To find the size of the payload data.
-        </li>
-        <li>
-            To extract the payload from a file into a suitably sized buffer.
-        </li>
-        <li>
-            To delete a payload from a file.
-        </li>
-        <li>
-            To store payload data in a file.
-        </li>
+        <li>To check if an executable file contains a payload.</li>
+        <li>To find the size of the payload data.</li>
+        <li>To extract the payload from a file into a suitably sized buffer.</li>
+        <li>To delete a payload from a file.</li>
+        <li>To store payload data in a file.</li>
     </ul>
 
-    <p>
-        The class is declared as follows:
-    </p>
+    <p>The class is declared as follows:</p>
 
     <div id="listing-4" class="frame">
         <div class="code-pascal">
@@ -314,82 +223,53 @@ redirect_from:
             <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">RemovePayload</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 4
-        </div>
+        <div class="caption">Listing 4</div>
     </div>
 
-    <p>
-        The public methods are:
-    </p>
+    <p>The public methods are:</p>
 
     <ul class="wide">
 
-        <li>
-            <var>Create</var> &ndash; Creates an object to work on a named file.
-        </li>
+        <li><var>Create</var> &ndash; Creates an object to work on a named file.</li>
 
-        <li>
-            <var>HasPayload</var> &ndash; Returns true if the file contains a payload.
-        </li>
+        <li><var>HasPayload</var> &ndash; Returns true if the file contains a payload.</li>
 
-        <li>
-            <var>PayloadSize</var> &ndash; Returns the size of the payload. This information is required when allocating a buffer into which payload data can be read using <var>GetPayload</var>.
-        </li>
+        <li><var>PayloadSize</var> &ndash; Returns the size of the payload. This information is required when allocating a buffer into which payload data can be read using <var>GetPayload</var>.</li>
 
-        <li>
-            <var>SetPayload</var> &ndash; Copies a specified number of bytes from a buffer and stores them as a payload at the end of the file. Overwrites any existing payload.
-        </li>
+        <li><var>SetPayload</var> &ndash; Copies a specified number of bytes from a buffer and stores them as a payload at the end of the file. Overwrites any existing payload.</li>
 
-        <li>
-            <var>GetPayload</var> &ndash; Copies the file's payload into a given buffer. The buffer must be large enough to store all the payload. The required buffer size is given by <var>PayloadSize</var>.
-        </li>
+        <li><var>GetPayload</var> &ndash; Copies the file's payload into a given buffer. The buffer must be large enough to store all the payload. The required buffer size is given by <var>PayloadSize</var>.</li>
 
-        <li>
-            <var>RemovePayload</var> &ndash; Deletes any payload from the file and removes the footer record. This method restores file to its original condition.
-        </li>
+        <li><var>RemovePayload</var> &ndash; Deletes any payload from the file and removes the footer record. This method restores file to its original condition.</li>
 
     </ul>
 
-    <p>
-        In addition there are two private helper methods:
-    </p>
+    <p>In addition there are two private helper methods:</p>
 
     <ul class="wide">
-        <li>
-            <var>Open</var> &ndash; Opens the file in a specified mode.
-        </li>
-        <li>
-            <var>Close</var> &ndash; Closes the file and restores the original file mode.
-        </li>
+
+        <li><var>Open</var> &ndash; Opens the file in a specified mode.</li>
+
+        <li><var>Close</var> &ndash; Closes the file and restores the original file mode.</li>
+
     </ul>
 
 
-    <p>
-        The class also has three fields:
-    </p>
+    <p>The class also has three fields:</p>
 
     <ul class="wide">
-        <li>
-            <var>fFileName</var> &ndash; Stores the name of the file we are manipulating.
-        </li>
 
-        <li>
-            <var>fOldFileMode</var> &ndash; Preserves the current Pascal file mode.
-        </li>
+        <li><var>fFileName</var> &ndash; Stores the name of the file we are manipulating.</li>
 
-        <li>
-            <var>fFile</var> &ndash; Pascal file descriptor that records the details of an open file.
-        </li>
+        <li><var>fOldFileMode</var> &ndash; Preserves the current Pascal file mode.</li>
+
+        <li><var>fFile</var> &ndash; Pascal file descriptor that records the details of an open file.</li>
+
     </ul>
 
-    <p>
-        As can be seen from the discussion of the fields we will be using standard un-typed Pascal file routines to manipulate the file.
-    </p>
+    <p>As can be seen from the discussion of the fields we will be using standard un-typed Pascal file routines to manipulate the file.</p>
 
-    <p>
-        We will discuss the implementation of the class is several chunks. We begin in <span class="figureref">Listing 5</span> where we look at the constructor, some required constants and the two private helper methods.
-    </p>
+    <p>We will discuss the implementation of the class is several chunks. We begin in <span class="figureref">Listing 5</span> where we look at the constructor, some required constants and the two private helper methods.</p>
 
     <div id="listing-5" class="frame">
         <div class="code-pascal">
@@ -421,18 +301,12 @@ redirect_from:
             <pre class="line"><span class="linenum"> 26</span><span class="space">  </span><span class="ident">FileMode</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fOldFileMode</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 27</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 5
-        </div>
+        <div class="caption">Listing 5</div>
     </div>
 
-    <p>
-        The two constants define the two Pascal file modes we will require. The constructor simply records the name of the file associated with the class. The <var>Open</var> method first stores the current file mode then opens the file using the required file mode. Finally, <var>Close</var> closes the file and restores the original file mode.
-    </p>
+    <p>The two constants define the two Pascal file modes we will require. The constructor simply records the name of the file associated with the class. The <var>Open</var> method first stores the current file mode then opens the file using the required file mode. Finally, <var>Close</var> closes the file and restores the original file mode.</p>
 
-    <p>
-        We next consider the two methods that provide information about a file's payload &ndash; <var>PayloadSize</var> and <var>HasPayload</var>:
-    </p>
+    <p>We next consider the two methods that provide information about a file's payload &ndash; <var>PayloadSize</var> and <var>HasPayload</var>:</p>
 
     <div id="listing-6" class="frame">
         <div class="code-pascal">
@@ -459,22 +333,14 @@ redirect_from:
             <pre class="line"><span class="linenum"> 21</span><span class="space">  </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">PayloadSize</span><span class="space"> </span><span class="sym">&gt;</span><span class="space"> </span><span class="num">0</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 22</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 6
-        </div>
+        <div class="caption">Listing 6</div>
     </div>
 
-    <p>
-        The only method here of any substance is <var>PayloadSize</var>. We first assume a payload size of zero in case there is no payload. Next we open the file in read mode and attempt to read the footer. The <var><a href="#listing-3">ReadFooter</a></var> helper routine is used to do this. If the footer is read successfully we get the size of the payload from the footer record's <var>DataSize</var> field. The file is then closed.
-    </p>
+    <p>The only method here of any substance is <var>PayloadSize</var>. We first assume a payload size of zero in case there is no payload. Next we open the file in read mode and attempt to read the footer. The <var><a href="#listing-3">ReadFooter</a></var> helper routine is used to do this. If the footer is read successfully we get the size of the payload from the footer record's <var>DataSize</var> field. The file is then closed.</p>
 
-    <p>
-        <var>HasPayload</var> simply calls <var>PayloadSize</var> and checks if the payload size it returns is greater than zero.
-    </p>
+    <p><var>HasPayload</var> simply calls <var>PayloadSize</var> and checks if the payload size it returns is greater than zero.</p>
 
-    <p>
-        Now we move on to consider <var>GetPayload</var> which is described in <span class="figureref">Listing 7</span>. This method's <var>Data</var> parameter is a data buffer which must have a size of at least <var>PayloadSize</var> bytes.
-    </p>
+    <p>Now we move on to consider <var>GetPayload</var> which is described in <span class="figureref">Listing 7</span>. This method's <var>Data</var> parameter is a data buffer which must have a size of at least <var>PayloadSize</var> bytes.</p>
 
     <div id="listing-7" class="frame">
         <div class="code-pascal">
@@ -498,18 +364,12 @@ redirect_from:
             <pre class="line"><span class="linenum"> 18</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 19</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 7
-        </div>
+        <div class="caption">Listing 7</div>
     </div>
 
-    <p>
-        <var>GetPayload</var> opens the file in read only mode and tries to read the footer record. If we succeed in reading a footer <em>and</em> the payload contains data we move the file pointer to the start of the payload, then read the payload into the <var>Data</var> buffer. Note that we use the footer record's <var>ExeSize</var> field to perform the seek operation and the <var>DataSize</var> field to determine how many bytes to read. The method ends by closing the file.
-    </p>
+    <p><var>GetPayload</var> opens the file in read only mode and tries to read the footer record. If we succeed in reading a footer <em>and</em> the payload contains data we move the file pointer to the start of the payload, then read the payload into the <var>Data</var> buffer. Note that we use the footer record's <var>ExeSize</var> field to perform the seek operation and the <var>DataSize</var> field to determine how many bytes to read. The method ends by closing the file.</p>
 
-    <p>
-        Finally we examine the implementation of the two methods that modify the file &ndash; <var>RemovePayload</var> and <var>SetPayload</var>.
-    </p>
+    <p>Finally we examine the implementation of the two methods that modify the file &ndash; <var>RemovePayload</var> and <var>SetPayload</var>.</p>
 
     <div id="listing-8" class="frame">
         <div class="code-pascal">
@@ -560,42 +420,26 @@ redirect_from:
             <pre class="line"><span class="linenum"> 45</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 46</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 8
-        </div>
+        <div class="caption">Listing 8</div>
     </div>
 
-    <p>
-        <var>RemovePayload</var> checks the existing payload's size and proceeds only if a payload is present. If so the file is opened for writing and it's size is noted. We then seek to the end of the executable part of the file and truncate it before closing the file. We have calculated the end of the executable section by deducting the payload size and the size of the footer record from the file length. We could also have read the footer and simply used the value of its <var>ExeSize</var> field.
-    </p>
+    <p><var>RemovePayload</var> checks the existing payload's size and proceeds only if a payload is present. If so the file is opened for writing and it's size is noted. We then seek to the end of the executable part of the file and truncate it before closing the file. We have calculated the end of the executable section by deducting the payload size and the size of the footer record from the file length. We could also have read the footer and simply used the value of its <var>ExeSize</var> field.</p>
 
-    <p>
-        <var>SetPayload</var> takes two parameters: a data buffer (<var>Data</var>) and the size of the buffer (<var>DataSize</var>). The method begins by using <var>RemovePayload</var> to remove any existing payload, ensuring that the file contains only the executable code. If the payload contains some data we open the file for writing. A new payload record is then initialized using the <var><a href="#listing-2">InitFooter</a></var> helper routine, then the sizes of both the executable file and of the new payload are stored in the record. Finally we append the payload data and the footer record to the file before closing it.
-    </p>
+    <p><var>SetPayload</var> takes two parameters: a data buffer (<var>Data</var>) and the size of the buffer (<var>DataSize</var>). The method begins by using <var>RemovePayload</var> to remove any existing payload, ensuring that the file contains only the executable code. If the payload contains some data we open the file for writing. A new payload record is then initialized using the <var><a href="#listing-2">InitFooter</a></var> helper routine, then the sizes of both the executable file and of the new payload are stored in the record. Finally we append the payload data and the footer record to the file before closing it.</p>
 
-    <p>
-        Now we have created the <var>TPayload</var> class it is easy to manipulate payload data. Unfortunately we must read and write the whole of the payload at once, which is not always convenient. An improvement would be to enable random access to the data. That's what we do next.
-    </p>
+    <p>Now we have created the <var>TPayload</var> class it is easy to manipulate payload data. Unfortunately we must read and write the whole of the payload at once, which is not always convenient. An improvement would be to enable random access to the data. That's what we do next.</p>
 
 </section>
 
 <section id="random-access">
 
-    <h2>
-        Random payload access
-    </h2>
+    <h2>Random payload access</h2>
 
-    <p>
-        The &quot;Delphi way&quot; of providing random access to data is to derive a class from <var>TStream</var> and to override its abstract methods &ndash; and this is what we will do here. Our new class will be called <var>TPayloadStream</var>. It will detect payload data and provide read / write random access to it.
-    </p>
+    <p>The &quot;Delphi way&quot; of providing random access to data is to derive a class from <var>TStream</var> and to override its abstract methods &ndash; and this is what we will do here. Our new class will be called <var>TPayloadStream</var>. It will detect payload data and provide read / write random access to it.</p>
 
-    <p>
-        Not only does this approach provide random access but it also has the added advantage of hiding the details of how the payload is implemented from the user of the class. All the user sees is the familiar <var>TStream</var> interface while all the gory details are hidden in <var>TPayloadStream</var>'s implementation.
-    </p>
+    <p>Not only does this approach provide random access but it also has the added advantage of hiding the details of how the payload is implemented from the user of the class. All the user sees is the familiar <var>TStream</var> interface while all the gory details are hidden in <var>TPayloadStream</var>'s implementation.</p>
 
-    <p>
-        <span class="figureref">Listing 9</span> shows the definition of the new class, along with an enumeration &ndash; <var>TPayloadOpenMode</var> &ndash; that is used to determine whether a payload stream object is to read or write the payload data. Note that in addition to overriding <var>TStream</var>'s abstract methods, <var>TPayloadStream</var> also overrides the virtual <var>SetSize</var> method to enable the user to change the size of the payload. This is necessary because, by default, <var>SetSize</var> does nothing.
-    </p>
+    <p><span class="figureref">Listing 9</span> shows the definition of the new class, along with an enumeration &ndash; <var>TPayloadOpenMode</var> &ndash; that is used to determine whether a payload stream object is to read or write the payload data. Note that in addition to overriding <var>TStream</var>'s abstract methods, <var>TPayloadStream</var> also overrides the virtual <var>SetSize</var> method to enable the user to change the size of the payload. This is necessary because, by default, <var>SetSize</var> does nothing.</p>
 
     <div id="listing-9" class="frame">
         <div class="code-pascal">
@@ -628,74 +472,44 @@ redirect_from:
             <pre class="line"><span class="linenum"> 27</span><span class="space">    </span><span class="kwd">function</span><span class="space"> </span><span class="ident">Write</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">Buffer</span><span class="sym">;</span><span class="space"> </span><span class="ident">Count</span><span class="sym">:</span><span class="space"> </span><span class="ident">LongInt</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">LongInt</span><span class="sym">;</span><span class="space"> </span><span class="kwd">override</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 28</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 9
-        </div>
+        <div class="caption">Listing 9</div>
     </div>
 
-    <p>
-        The public methods of <var>TPayloadStream</var> are:
-    </p>
+    <p>The public methods of <var>TPayloadStream</var> are:</p>
 
     <ul class="wide">
 
-        <li>
-            <var>Create</var> &ndash; Creates a <var>TPayloadStream</var> and opens the named file either in read or write mode.
-        </li>
+        <li><var>Create</var> &ndash; Creates a <var>TPayloadStream</var> and opens the named file either in read or write mode.</li>
 
-        <li>
-            <var>Destroy</var> &ndash; Updates the payload footer, closes the file and destroys the stream object.
-        </li>
+        <li><var>Destroy</var> &ndash; Updates the payload footer, closes the file and destroys the stream object.</li>
 
-        <li>
-            <var>Seek</var> &ndash; Moves the stream's pointer to the specified position in the payload data, ensuring that the pointer remains within the payload.
-        </li>
+        <li><var>Seek</var> &ndash; Moves the stream's pointer to the specified position in the payload data, ensuring that the pointer remains within the payload.</li>
 
-        <li>
-            <var>SetSize</var> &ndash; Sets the size of the payload in write mode only. Raises an exception when used in read mode. Note that setting the size to zero will remove the payload and the associated footer record.
-        </li>
+        <li><var>SetSize</var> &ndash; Sets the size of the payload in write mode only. Raises an exception when used in read mode. Note that setting the size to zero will remove the payload and the associated footer record.</li>
 
-        <li>
-            <var>Read</var> &ndash; Attempts to read a specified number of bytes into a buffer. If there is insufficient data in the payload then just the remaining bytes are read.
-        </li>
+        <li><var>Read</var> &ndash; Attempts to read a specified number of bytes into a buffer. If there is insufficient data in the payload then just the remaining bytes are read.</li>
 
-        <li>
-            <var>Write</var> &ndash; Writes a specified number of bytes from a buffer to the payload, extending the payload if required. Works only in write mode &ndash; an exception is raised in read mode.
-        </li>
+        <li><var>Write</var> &ndash; Writes a specified number of bytes from a buffer to the payload, extending the payload if required. Works only in write mode &ndash; an exception is raised in read mode.</li>
 
     </ul>
 
-    <p>
-        The class also uses the following private fields:
-    </p>
+    <p>The class also uses the following private fields:</p>
 
     <ul class="wide">
 
-        <li>
-            <var>fMode</var> &ndash; Records whether the stream is open for reading or writing.
-        </li>
+        <li><var>fMode</var> &ndash; Records whether the stream is open for reading or writing.</li>
 
-        <li>
-            <var>fOldFileMode</var> &ndash; Preserves the current Pascal file mode.
-        </li>
+        <li><var>fOldFileMode</var> &ndash; Preserves the current Pascal file mode.</li>
 
-        <li>
-            <var>fFile</var> &ndash; Pascal file descriptor that records the details of an open file.
-        </li>
+        <li><var>fFile</var> &ndash; Pascal file descriptor that records the details of an open file.</li>
 
-        <li>
-            <var>fDataStart</var> &ndash; Offset of the start of payload data from the start of the executable file.
-        </li>
+        <li><var>fDataStart</var> &ndash; Offset of the start of payload data from the start of the executable file.</li>
 
-        <li>
-            <var>fDataSize</var> &ndash; Size of payload data.
-        </li>
+        <li><var>fDataSize</var> &ndash; Size of payload data.</li>
 
     </ul>
 
-    <p>
-        We begin our review of the class's implementation by examining <span class="figureref">Listing 10</span>, which shows the constructor and destructor. Once again we are using classic Pascal un-typed files to perform the underlying physical access to the executable file. However this could easily be changed to use some other file access techniques.
-    </p>
+    <p>We begin our review of the class's implementation by examining <span class="figureref">Listing 10</span>, which shows the constructor and destructor. Once again we are using classic Pascal un-typed files to perform the underlying physical access to the executable file. However this could easily be changed to use some other file access techniques.</p>
 
     <div id="listing-10" class="frame">
         <div class="code-pascal">
@@ -764,51 +578,34 @@ redirect_from:
             <pre class="line"><span class="linenum"> 63</span><span class="space">  </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 64</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 10
-        </div>
+        <div class="caption">Listing 10</div>
     </div>
 
-    <p>
-        In the constructor the first thing we do is to record the open mode and then open the underlying file in the required mode. Next we try to read a payload footer record, using the <var>ReadFooter</var> function we developed in <span class="figureref"><a href="#listing-3">Listing 3</a></span>.
-    </p>
+    <p>In the constructor the first thing we do is to record the open mode and then open the underlying file in the required mode. Next we try to read a payload footer record, using the <var>ReadFooter</var> function we developed in <span class="figureref"><a href="#listing-3">Listing 3</a></span>.</p>
 
-    <p>
-        If we have found a footer we a get the start of the payload data (<var>fDataStart</var>) and the size of the payload (<var>fDataSize</var>) from the footer's <var>ExeSize</var> and <var>DataSize</var> fields respectively. If there is no footer record then we have no payload, so we set <var>fDataStart</var> to refer to just beyond the end of the file and set <var>fDataSize</var> to zero.
-    </p>
+    <p>If we have found a footer we a get the start of the payload data (<var>fDataStart</var>) and the size of the payload (<var>fDataSize</var>) from the footer's <var>ExeSize</var> and <var>DataSize</var> fields respectively. If there is no footer record then we have no payload, so we set <var>fDataStart</var> to refer to just beyond the end of the file and set <var>fDataSize</var> to zero.</p>
 
     <div class="callout callout-info">
-        <h4>
-            Setting <var>fDataStart</var>
-        </h4>
-        <p>
-            <var>fDataStart</var> is the same as the size of the executable file because payloads always start immediately after the executable code.
-        </p>
+
+        <h4>Setting <var>fDataStart</var></h4>
+
+        <p><var>fDataStart</var> is the same as the size of the executable file because payloads always start immediately after the executable code.</p>
+
     </div>
 
-    <p>
-        Finally the constructor sets the file pointer according to the file mode &ndash; in read mode we set it to the start of the payload while in write mode we set it to the end.
-    </p>
+    <p>Finally the constructor sets the file pointer according to the file mode &ndash; in read mode we set it to the start of the payload while in write mode we set it to the end.</p>
 
-    <p>
-        In the destructor we proceed differently according to whether we are in read mode or write mode:
-    </p>
+    <p>In the destructor we proceed differently according to whether we are in read mode or write mode:</p>
 
     <ul class="wide">
 
-        <li>
-            In read mode all there is to do is to close the file and restore the previous Pascal file mode.
-        </li>
+        <li>In read mode all there is to do is to close the file and restore the previous Pascal file mode.</li>
 
-        <li>
-            In write mode we first check if we actually have a payload (<code>fDataSize &gt; 0</code>). If so, we create a footer record using the <var>InitFooter</var> routine we defined in <span class="figureref"><a href="#listing-2">Listing 2</a></span> and record the payload size and start position in the record. We then seek to the end of the new payload data, truncate any data that falls beyond its end (as will be the case when the data size has shrunk), then write the footer. If there is no payload data we truncate the file at the end of the executable code. Finally we close the file and restore the file mode.
-        </li>
+        <li>In write mode we first check if we actually have a payload (<code>fDataSize &gt; 0</code>). If so, we create a footer record using the <var>InitFooter</var> routine we defined in <span class="figureref"><a href="#listing-2">Listing 2</a></span> and record the payload size and start position in the record. We then seek to the end of the new payload data, truncate any data that falls beyond its end (as will be the case when the data size has shrunk), then write the footer. If there is no payload data we truncate the file at the end of the executable code. Finally we close the file and restore the file mode.</li>
 
     </ul>
 
-    <p>
-        That completes the discussion of the class constructor and destructor. Let us now consider how we override the abstract <var>Seek</var>, <var>Read</var> and <var>Write</var> methods. <span class="figureref">Listing 11</span> has the details:
-    </p>
+    <p>That completes the discussion of the class constructor and destructor. Let us now consider how we override the abstract <var>Seek</var>, <var>Read</var> and <var>Write</var> methods. <span class="figureref">Listing 11</span> has the details:</p>
 
     <div id="listing-11" class="frame">
         <div class="code-pascal">
@@ -877,30 +674,18 @@ redirect_from:
             <pre class="line"><span class="linenum"> 63</span><span class="space">    </span><span class="ident">fDataSize</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Pos</span><span class="space"> </span><span class="sym">-</span><span class="space"> </span><span class="ident">fDataStart</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 64</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 11
-        </div>
+        <div class="caption">Listing 11</div>
     </div>
 
-    <p>
-        <var>Seek</var> is the most complicated of the three methods. This is because the <var>FilePos</var> and <var>Seek</var> routines (that we use to get and set the file pointer) operate on the whole file, while our stream positions must be relative to the start of the payload data. We must also ensure that the file pointer cannot be set outside the payload data. The <span class="kwd">case</span> statement contains the code that calculates the required offset within the payload, depending on the seek origin. The two lines following the <span class="kwd">case</span> statement constrain the offset within the payload data. Finally we perform the actual seek operation on the underlying file, offset from the start of the payload data. The method returns the new offset relative to the payload.
-    </p>
+    <p><var>Seek</var> is the most complicated of the three methods. This is because the <var>FilePos</var> and <var>Seek</var> routines (that we use to get and set the file pointer) operate on the whole file, while our stream positions must be relative to the start of the payload data. We must also ensure that the file pointer cannot be set outside the payload data. The <span class="kwd">case</span> statement contains the code that calculates the required offset within the payload, depending on the seek origin. The two lines following the <span class="kwd">case</span> statement constrain the offset within the payload data. Finally we perform the actual seek operation on the underlying file, offset from the start of the payload data. The method returns the new offset relative to the payload.</p>
 
-    <p>
-        The <var>Read</var> method must ensure that the read falls wholly within the payload data. We can't assume that all the remaining bytes in the stream can be read, because the payload may be followed by a footer record that is not part of the data. Therefore we calculate the number of available bytes by subtracting the current position in the payload from the size of the payload data. If there is insufficient data to meet the request, the number of bytes to be read is reduced to the number of available bytes.
-    </p>
+    <p>The <var>Read</var> method must ensure that the read falls wholly within the payload data. We can't assume that all the remaining bytes in the stream can be read, because the payload may be followed by a footer record that is not part of the data. Therefore we calculate the number of available bytes by subtracting the current position in the payload from the size of the payload data. If there is insufficient data to meet the request, the number of bytes to be read is reduced to the number of available bytes.</p>
 
-    <p>
-        Note that <var>Read</var> uses <var>TStream</var>'s <var>Position</var> property to get the current position in the payload data. This property calls the <var>Seek</var> method which, as we have seen, ensures that the position returned falls within the payload data.
-    </p>
+    <p>Note that <var>Read</var> uses <var>TStream</var>'s <var>Position</var> property to get the current position in the payload data. This property calls the <var>Seek</var> method which, as we have seen, ensures that the position returned falls within the payload data.</p>
 
-    <p>
-        <var>Write</var> is quite simple &ndash; we just check we are in write mode and output the data to the underlying file at the current position if so. The number of bytes written is returned. The only complication is that we must check if the write operation took us beyond the end of the current data and record the new data size if so. Should the stream be in read mode then <var>Write</var> raises an exception.
-    </p>
+    <p><var>Write</var> is quite simple &ndash; we just check we are in write mode and output the data to the underlying file at the current position if so. The number of bytes written is returned. The only complication is that we must check if the write operation took us beyond the end of the current data and record the new data size if so. Should the stream be in read mode then <var>Write</var> raises an exception.</p>
 
-    <p>
-        All that remains to do now is to override the <var>SetSize</var> method. <span class="figureref">Listing 12</span> provides the implementation.
-    </p>
+    <p>All that remains to do now is to override the <var>SetSize</var> method. <span class="figureref">Listing 12</span> provides the implementation.</p>
 
     <div id="listing-12" class="frame">
         <div class="code-pascal">
@@ -922,80 +707,61 @@ redirect_from:
             <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 17</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 12
-        </div>
+        <div class="caption">Listing 12</div>
     </div>
 
-    <p>
-        Obviously, we can't change the stream size in read mode, so we raise an exception in this case. In write mode we only record the new size if it is less than the current payload size. In this case we must also check if the current stream position falls beyond the end of the reduced payload and move the position to the end of the truncated data if so. The <var>Position</var> property is used to get and set the stream position. As noted earlier, this property calls our overridden <var>Seek</var> method.
-    </p>
+    <p>Obviously, we can't change the stream size in read mode, so we raise an exception in this case. In write mode we only record the new size if it is less than the current payload size. In this case we must also check if the current stream position falls beyond the end of the reduced payload and move the position to the end of the truncated data if so. The <var>Position</var> property is used to get and set the stream position. As noted earlier, this property calls our overridden <var>Seek</var> method.</p>
 
     <div class="callout callout-info">
-        <h4>
-            Why can't <var>SetSize</var> increase the payoad size?
-        </h4>
-        <p>
-            Prohibiting <var>SetSize</var> from extending the payload data is a design decision I took, because enlarging the data leaves the problem of having to write padding bytes to the payload. What should those bytes be? Zeros? Random data? I think it's reasonable to assume that the payload should only be extended by explicitly appending data to it using the <var>Write</var> method.
-        </p>
-        <p>
-            If your view is different, then I leave implementation to you as an exercise!
-        </p>
+
+        <h4>Why can't <var>SetSize</var> increase the payoad size?</h4>
+
+        <p>Prohibiting <var>SetSize</var> from extending the payload data is a design decision I took, because enlarging the data leaves the problem of having to write padding bytes to the payload. What should those bytes be? Zeros? Random data? I think it's reasonable to assume that the payload should only be extended by explicitly appending data to it using the <var>Write</var> method.</p>
+
+        <p>If your view is different, then I leave implementation to you as an exercise!</p>
+
     </div>
 
-    <p>
-        This completes our presentation of the <var>TPayloadStream</var> class.
-    </p>
+    <p>This completes our presentation of the <var>TPayloadStream</var> class.</p>
 
 </section>
 
 <section id="demo">
 
-    <h2>
-        Demo code
-    </h2>
+    <h2>Demo code</h2>
 
-    <p>
-        A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.
-    </p>
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
 
-    <p>
-        You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-07">article-07</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
-    </p>
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-07">article-07</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
 
-    <p>
-        See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-07/README.md">README.md</a> file for details.
-    </p>
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-07/README.md">README.md</a> file for details.</p>
 
-    <p class="callout callout-warning">
-        The demo does not currently contain the source code for, or an example of using, <var><a href="#random-access">TPayloadStream</a></var>.
-    </p>
+    <p class="callout callout-warning">The demo does not currently contain the source code for, or an example of using, <var><a href="#random-access">TPayloadStream</a></var>.</p>
 
     <div class="callout callout-info">
-        <p>
-            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
-        </p>
-        <p>
-            The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-07/LICENSE.md">LICENSE.md</a> file for licensing details.
-        </p>
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-07/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
     </div>
 
 </section>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #7&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #7&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

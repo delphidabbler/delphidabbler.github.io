@@ -10,97 +10,51 @@ redirect_from:
 ---
 <section id="contents">
 
-    <h2>
-        Contents
-    </h2>
+    <h2>Contents</h2>
 
     <nav>
-
         <div class="well">
             <ul>
-                <li>
-                    <a href="#intro">Introduction</a>
-                </li>
-                <li>
-                    <a href="#overview">Overview of Solution</a>
-                </li>
-                <li>
-                    <a href="#solution">Implementing the Solution</a>
-                </li>
-                <li>
-                    <a href="#study">Case Study</a>
-                </li>
-                <li>
-                    <a href="#retval">Getting the Return Value</a>
-                </li>
-                <li>
-                    <a href="#demo">Demo Code</a>
-                </li>
+                <li><a href="#intro">Introduction</a></li>
+                <li><a href="#overview">Overview of Solution</a></li>
+                <li><a href="#solution">Implementing the Solution</a></li>
+                <li><a href="#study">Case Study</a></li>
+                <li><a href="#retval">Getting the Return Value</a></li>
+                <li><a href="#demo">Demo Code</a></li>
                 <li><a href="#feedback">Feedback</a></li>
             </ul>
         </div>
-
     </nav>
 
 </section>
 
 <section id="intro">
 
-    <h2>
-        Introduction
-    </h2>
+    <h2>Introduction</h2>
 
-    <p>
-        On some occasions, when using a <var>TWebBrowser</var>, I've needed to use Delphi to call JavaScript functions
-        contained in the current document.
-    </p>
+    <p>On some occasions, when using a <var>TWebBrowser</var>, I've needed to use Delphi to call JavaScript functions contained in the current document.</p>
 
-    <p>
-        This is quite easy to do. We'll first examine the techniques then we'll look at a case study that changes the
-        font in an HTML document.
-    </p>
+    <p>This is quite easy to do. We'll first examine the techniques then we'll look at a case study that changes the font in an HTML document.</p>
 
-    <p>
-        Finally, thanks to contributions from Christian Sciberras, we will look at how to get the return value from a
-        JavaScript function called from Delphi.
-    </p>
+    <p>Finally, thanks to contributions from Christian Sciberras, we will look at how to get the return value from a JavaScript function called from Delphi.</p>
 
 </section>
 
 <section id="overview">
 
-    <h2>
-        Overview of Solution
-    </h2>
+    <h2>Overview of Solution</h2>
 
-    <p>
-        The window object associated with an HTML document exposes a method &ndash; <var>execScript</var> &ndash; that
-        enables JavaScript to be called. The first of this method takes a string containing the required function call
-        (complete with actual parameters). The method's second parameter specifies the script language being used
-        &ndash; in our case <span class="kbd">'JavaScript'</span>.
-    </p>
+    <p>The window object associated with an HTML document exposes a method &ndash; <var>execScript</var> &ndash; that enables JavaScript to be called. The first of this method takes a string containing the required function call (complete with actual parameters). The method's second parameter specifies the script language being used &ndash; in our case <span class="kbd">'JavaScript'</span>.</p>
 
-    <p>
-        So, how do we get hold of the window object that exposes the required method? We simply use the
-        <var>parentWindow</var> property of the web browser control's document object. We need to ensure that a document
-        object is available by first loading the required document into the web browser and waiting for it to finish
-        loading.
-    </p>
+    <p>So, how do we get hold of the window object that exposes the required method? We simply use the <var>parentWindow</var> property of the web browser control's document object. We need to ensure that a document object is available by first loading the required document into the web browser and waiting for it to finish loading.</p>
 
 </section>
 
 <section id="solution">
 
-    <h2>
-        Implementing the Solution
-    </h2>
+    <h2>Implementing the Solution</h2>
 
-    <p>
-        Let us assume we have a <var>TWebBrowser</var> control on a form into which an HTML document has been loaded.
-        Assume also that the HTML document defines a JavaScript function named <var>foo()</var> that takes a string and
-        an integer parameter. Assuming the document is fully loaded, we can call <var>foo()</var> with a method similar
-        to this:
-    </p>
+    <p>Let us assume we have a <var>TWebBrowser</var> control on a form into which an HTML document has been loaded. Assume also that the HTML document defines a JavaScript function named <var>foo()</var> that takes a string and an integer parameter. Assuming the document is fully loaded, we can call <var>foo()</var> with a method similar to this:</p>
 
     <div class="frame" id="listing-1">
         <div class="code-pascal">
@@ -153,65 +107,34 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 26</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 1
-        </div>
+        <div class="caption">Listing 1</div>
     </div>
 
-    <p>
-        Let's look at what's going on here. We first check that a document is available and store a reference to in
-        <var>Doc</var>. We then attempt to get a reference to the document's parent window object and store it in
-        <var>HTMLWindow</var>. Once we have a valid window object we call its <var>execScript</var> method, passing the
-        call to <var>foo()</var>. The parameters to <var>foo()</var> must be literal values &ndash; we can't pass
-        variables. String literals must be enclosed by double or single quotes.
-    </p>
+    <p>Let's look at what's going on here. We first check that a document is available and store a reference to in <var>Doc</var>. We then attempt to get a reference to the document's parent window object and store it in <var>HTMLWindow</var>. Once we have a valid window object we call its <var>execScript</var> method, passing the call to <var>foo()</var>. The parameters to <var>foo()</var> must be literal values &ndash; we can't pass variables. String literals must be enclosed by double or single quotes.</p>
 
     <div class="callout callout-info">
-        <h4>
-            Escaping quotes in string literal parameters
-        </h4>
-        <p>
-            When passing string literal parameters to JavaScript functions you need to be careful to <em>escape</em> any
-            quote characters contained in the string, otherwise the quote will terminate the string prematurely. Since
-            JavaScript can use either single or double quotes to delimit literal strings you may need to escape either
-            of these types of quote by preceeding it with a backslash.
-        </p>
-        <p>
-            As an example, suppose we need to pass the string <kbd>He didn't say &quot;hello&quot;</kbd> to a JavaScript
-            function. If we delimit the string with double quotes we pass the it as <kbd>&quot;He didn't say
-                \&quot;hello\&quot;&quot;</kbd>.
-        </p>
-        <p>
-            Alternatively we may delimit the string with single quotes and pass it as <kbd>'He didn\'t say
-                &quot;hello&quot;'</kbd>.
-        </p>
+
+        <h4>Escaping quotes in string literal parameters</h4>
+
+        <p>When passing string literal parameters to JavaScript functions you need to be careful to <em>escape</em> any quote characters contained in the string, otherwise the quote will terminate the string prematurely. Since JavaScript can use either single or double quotes to delimit literal strings you may need to escape either of these types of quote by preceeding it with a backslash.</p>
+
+        <p>As an example, suppose we need to pass the string <kbd>He didn't say &quot;hello&quot;</kbd> to a JavaScript function. If we delimit the string with double quotes we pass the it as <kbd>&quot;He didn't say \&quot;hello\&quot;&quot;</kbd>.</p>
+
+        <p>Alternatively we may delimit the string with single quotes and pass it as <kbd>'He didn\'t say &quot;hello&quot;'</kbd>.</p>
+
     </div>
 
-    <p>
-        If the JavaScript function contains errors, or doesn't exist, an exception will be raised. We may wish to handle
-        such exceptions before returning.
-    </p>
+    <p>If the JavaScript function contains errors, or doesn't exist, an exception will be raised. We may wish to handle such exceptions before returning.</p>
 
 </section>
 
 <section id="study">
 
-    <h2>
-        Case Study
-    </h2>
+    <h2>Case Study</h2>
 
-    <p>
-        In this case study we will develop a small application that displays an HTML document in a browser window. The
-        document will contain a Javascript function &ndash; <var>SetFont()</var> &ndash; that can change document's
-        default font. The application will display a combo box containing a list of all installed screen fonts. When the
-        user selects a font from the combo box the font used in the web browser will be changed accordingly. We do this
-        by calling <var>SetFont()</var> from Delphi.
-    </p>
+    <p>In this case study we will develop a small application that displays an HTML document in a browser window. The document will contain a Javascript function &ndash; <var>SetFont()</var> &ndash; that can change document's default font. The application will display a combo box containing a list of all installed screen fonts. When the user selects a font from the combo box the font used in the web browser will be changed accordingly. We do this by calling <var>SetFont()</var> from Delphi.</p>
 
-    <p>
-        Firstly, create an HTML document with any content you choose and include the following JavaScript function in
-        the document's <span class="kwd">&lt;head&gt;</span> section:
-    </p>
+    <p>Firstly, create an HTML document with any content you choose and include the following JavaScript function in the document's <span class="kwd">&lt;head&gt;</span> section:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -222,21 +145,12 @@ redirect_from:
             <pre class="line"><span class="linenum">  4</span>  }</pre>
             <pre class="line"><span class="linenum">  5</span><span class="kwd">&lt;/script&gt;</span></pre>
         </div>
-        <div class="caption">
-            Listing 2
-        </div>
+        <div class="caption">Listing 2</div>
     </div>
 
-    <p>
-        This is the code that changes the font.
-    </p>
+    <p>This is the code that changes the font.</p>
 
-    <p>
-        Now create a new delphi application and drop a <var>TComboBox</var> and a <var>TWebBrowser</var> on the main
-        form. We will load the HTML document when the form is first shown. We will also load the screen fonts into the
-        combo box at the same time. To do this create an <var>OnShow</var> event handler for the form with the following
-        code:
-    </p>
+    <p>Now create a new delphi application and drop a <var>TComboBox</var> and a <var>TWebBrowser</var> on the main form. We will load the HTML document when the form is first shown. We will also load the screen fonts into the combo box at the same time. To do this create an <var>OnShow</var> event handler for the form with the following code:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -258,17 +172,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 3
-        </div>
+        <div class="caption">Listing 3</div>
     </div>
 
-    <p>
-        Note that we disabled the combo box to prevent a font from being selected. We do this because to set a font we
-        need to access the browser's <var>Document</var> object &ndash; and this object is only available when the HTML
-        document is fully loaded. <var>TWebBrowser</var> triggers an <var>OnDocumentComplete</var> event when the
-        document has finished loading. Therefore we handle that event and enable the combo box:
-    </p>
+    <p>Note that we disabled the combo box to prevent a font from being selected. We do this because to set a font we need to access the browser's <var>Document</var> object &ndash; and this object is only available when the HTML document is fully loaded. <var>TWebBrowser</var> triggers an <var>OnDocumentComplete</var> event when the document has finished loading. Therefore we handle that event and enable the combo box:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -284,16 +191,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  6</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 4
-        </div>
+        <div class="caption">Listing 4</div>
     </div>
 
-    <p>
-        We now come to the code that actually calls the JavaScript function. When the user selects a new font the combo
-        box triggers its <var>OnChange</var> event. We handle this event by calling the JavaScript <var>SetFont()</var>
-        function with the name of the selected font, as follows:
-    </p>
+    <p>We now come to the code that actually calls the JavaScript function. When the user selects a new font the combo box triggers its <var>OnChange</var> event. We handle this event by calling the JavaScript <var>SetFont()</var> function with the name of the selected font, as follows:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -344,21 +245,12 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 24</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 5
-        </div>
+        <div class="caption">Listing 5</div>
     </div>
 
-    <p>
-        This method is very similar to that described in the previous section. <var>SetFont()</var> is called with the
-        name of the font selected in the combo box. If an exception is raised when the JavaScript is called we display a
-        message.
-    </p>
+    <p>This method is very similar to that described in the previous section. <var>SetFont()</var> is called with the name of the font selected in the combo box. If an exception is raised when the JavaScript is called we display a message.</p>
 
-    <p>
-        We have now developed all the code. All that remains is to add the following uses clause to the implementation
-        section of the unit to enable the program to compile:
-    </p>
+    <p>We have now developed all the code. All that remains is to add the following uses clause to the implementation section of the unit to enable the program to compile:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -366,30 +258,20 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  2</span><span class="space">  </span><span class="ident">SysUtils</span><span class="sym">,</span><span class="space"> </span><span class="ident">MSHTML</span><span class="sym">,</span><span class="space"> </span><span class="ident">Dialogs</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 6
-        </div>
+        <div class="caption">Listing 6</div>
     </div>
 
 </section>
 
 <section id="retval">
 
-    <h2>
-        Getting the Return Value
-    </h2>
+    <h2>Getting the Return Value</h2>
 
-    <p>
-        All this is very well, but how can we grab the return value of a JavaScript function called from Delphi? The
-        short answer is that we can't, because the <var>execScript()</var> function doesn't ever return a useful value.
-        Here's what the Microsoft SDK Help says about it (my emphasis):
-    </p>
+    <p>All this is very well, but how can we grab the return value of a JavaScript function called from Delphi? The short answer is that we can't, because the <var>execScript()</var> function doesn't ever return a useful value. Here's what the Microsoft SDK Help says about it (my emphasis):</p>
 
     <blockquote>
         <dl>
-            <dt>
-                Syntax
-            </dt>
+            <dt>Syntax</dt>
             <dd>
                 <pre class="code">HRESULT execScript(
     BSTR code,
@@ -397,90 +279,55 @@ redirect_from:
     VARIANT *pvarRet
   );</pre>
             </dd>
-            <dt>
-                Parameters
-            </dt>
+
+            <dt>Parameters</dt>
             <dd>
                 <dl>
-                    <dt>
-                        code
-                    </dt>
-                    <dd>
-                        [in] BSTR that specifies the code to be executed.
-                    </dd>
-                    <dt>
-                        language
-                    </dt>
-                    <dd>
-                        [in] BSTR that specifies the language in which the code is executed. The language defaults to
-                        Microsoft JScript.
-                    </dd>
-                    <dt>
-                        pvarRet
-                    </dt>
-                    <dd>
-                        [out, retval] Address of a VARIANT of type VT_EMPTY. <em>This method always returns
-                            VT_EMPTY</em>.
-                    </dd>
+                    <dt>code</dt>
+                    <dd>[in] BSTR that specifies the code to be executed.</dd>
+
+                    <dt>language</dt>
+                    <dd>[in] BSTR that specifies the language in which the code is executed. The language defaults to
+                        Microsoft JScript.</dd>
+
+                    <dt>pvarRet</dt>
+                    <dd>[out, retval] Address of a VARIANT of type VT_EMPTY. <em>This method always returns
+                            VT_EMPTY</em>.</dd>
                 </dl>
             </dd>
-            <dt>
-                Return Value
-            </dt>
-            <dd>
-                Returns S_OK if successful, or an error value otherwise.
-            </dd>
+
+            <dt>Return Value</dt>
+            <dd>Returns S_OK if successful, or an error value otherwise.</dd>
         </dl>
     </blockquote>
 
-    <p>
-        Because Delphi uses the <span class="pas-kwd">safecall</span> convention for the definition of
-        <var>execScript</var> in the <code>MSHTML</code> unit, the return value from <var>execScript</var> is that of
-        the <var>pvarRet</var> parameter (flagged [retval]). (Delphi uses the documented return value to generate an
-        exception if it is not <var>S_OK</var>). Notice that the help entry for <var>pvarRet</var> says it always
-        returns <var>VT_EMPTY</var>. This means that <var>execScript</var> on Delphi always returns and empty variant,
-        not the JavaScript function return value that we may have expected.
-    </p>
+    <p>Because Delphi uses the <span class="pas-kwd">safecall</span> convention for the definition of <var>execScript</var> in the <code>MSHTML</code> unit, the return value from <var>execScript</var> is that of the <var>pvarRet</var> parameter (flagged [retval]). (Delphi uses the documented return value to generate an exception if it is not <var>S_OK</var>). Notice that the help entry for <var>pvarRet</var> says it always returns <var>VT_EMPTY</var>. This means that <var>execScript</var> on Delphi always returns and empty variant, not the JavaScript function return value that we may have expected.</p>
 
     <div class="callout callout-info">
-        <h4>
-            Huh?
-        </h4>
-        <p>
-            What's the point of a non-void function result that's always the same value?
-        </p>
-        <p>
-            Search me!
-        </p>
+
+        <h4>Huh?</h4>
+
+        <p>What's the point of a non-void function result that's always the same value?</p>
+
+        <p>Search me!</p>
+
     </div>
 
-    <p>
-        However, Christian Sciberras has come up with a clever work-around, providing you can modify the document's HTML
-        and the JavaScript source code.
-    </p>
+    <p>However, Christian Sciberras has come up with a clever work-around, providing you can modify the document's HTML and the JavaScript source code.</p>
 
-    <p>
-        Taking our original JavaScript <var>foo()</var> function, let us assume it returns a value we want to capture.
-    </p>
+    <p>Taking our original JavaScript <var>foo()</var> function, let us assume it returns a value we want to capture.</p>
 
-    <p>
-        First of all modify your HTML document's body so that it contains a hidden input field with an <var>id</var>
-        attribute of 'result', i.e.:
-    </p>
+    <p>First of all modify your HTML document's body so that it contains a hidden input field with an <var>id</var> attribute of 'result', i.e.:</p>
 
     <div class="frame">
         <div class="code-pascal">
             <pre
                 class="line"><span class="linenum">  1</span><span class="kwd">&lt;input</span> <span class="ident">type</span><span class="sym">=</span>&apos;hidden&apos; <span class="ident">id</span><span class="sym">=</span>&apos;result&apos; <span class="ident">value</span><span class="sym">=</span>&apos;&apos; <span class="kwd">/&gt;</span></pre>
         </div>
-        <div class="caption">
-            Listing 7
-        </div>
+        <div class="caption">Listing 7</div>
     </div>
 
-    <p>
-        Assume that <var>foo()</var> was originally coded like this:
-    </p>
+    <p>Assume that <var>foo()</var> was originally coded like this:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -494,14 +341,10 @@ redirect_from:
                 class="line"><span class="linenum">  4</span><span class="comment">  <span class="kwd">return</span> <span class="ident">result</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">  5</span><span class="sym">}</span></pre>
         </div>
-        <div class="caption">
-            Listing 8
-        </div>
+        <div class="caption">Listing 8</div>
     </div>
 
-    <p>
-        We modify it to write its result into the hidden input field's <var>value</var> attribute like so:
-    </p>
+    <p>We modify it to write its result into the hidden input field's <var>value</var> attribute like so:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -517,17 +360,10 @@ redirect_from:
                 class="line"><span class="linenum">  5</span><span class="comment">  <span class="kwd">return</span> <span class="ident">result</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">  6</span><span class="sym">}</span></pre>
         </div>
-        <div class="caption">
-            Listing 9
-        </div>
+        <div class="caption">Listing 9</div>
     </div>
 
-    <p>
-        Notice we've retained the return statement so that any other code that calls <var>foo()</var> still works. It
-        remains to grab the value of the hidden input field from Delphi. <span class="figureref">Listing 10</span> shows
-        a general purpose function written by Christian that can get a named attribute from an HTML tag with a specified
-        id.
-    </p>
+    <p>Notice we've retained the return statement so that any other code that calls <var>foo()</var> still works. It remains to grab the value of the hidden input field from Delphi. <span class="figureref">Listing 10</span> shows a general purpose function written by Christian that can get a named attribute from an HTML tag with a specified id.</p>
 
     <div class="frame" id="listing-10">
         <div class="code-pascal">
@@ -570,24 +406,12 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 20</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 10
-        </div>
+        <div class="caption">Listing 10</div>
     </div>
 
-    <p>
-        The function first gets a reference to the <span class="kwd">&lt;body&gt;</span> tag in the loaded HTML
-        document. It then gets hold of a collection of all the contained tags named <var>TagName</var> and searches the
-        collection looking for the tag with the required id (<var>TagId</var>). When the correct tag is found the
-        function returns the value of its <var>TagAtrrib</var> attribute. If the tag or attribute is not found the empty
-        string is returned.
-    </p>
+    <p>The function first gets a reference to the <span class="kwd">&lt;body&gt;</span> tag in the loaded HTML document. It then gets hold of a collection of all the contained tags named <var>TagName</var> and searches the collection looking for the tag with the required id (<var>TagId</var>). When the correct tag is found the function returns the value of its <var>TagAtrrib</var> attribute. If the tag or attribute is not found the empty string is returned.</p>
 
-    <p>
-        Finally we just need to adapt the code from <span class="figureref"><a href="#listing-1">Listing 1</a></span>
-        that calls <var>foo()</var> to gets its return value. <span class="figureref">Listing 11</span> shows the
-        revised code.
-    </p>
+    <p>Finally we just need to adapt the code from <span class="figureref"><a href="#listing-1">Listing 1</a></span> that calls <var>foo()</var> to gets its return value. <span class="figureref">Listing 11</span> shows the revised code.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -646,85 +470,53 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 29</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 11
-        </div>
+        <div class="caption">Listing 11</div>
     </div>
 
-    <p>
-        There are only three changes to the code:
-    </p>
+    <p>There are only three changes to the code:</p>
 
     <ol class="spaced">
-        <li>
-            <var>CallFoo</var> is changed from a procedure to a function that returns a string value.
-        </li>
-        <li>
-            A default return value of the empty string is set in case of error.
-        </li>
-        <li>
-            The return value of the function is set by calling the <var>GetElementIdValue</var> function from <span
-                class="figureref"><a href="#listing-10">Listing 10</a></span>.
-        </li>
+        <li><var>CallFoo</var> is changed from a procedure to a function that returns a string value.</li>
+        <li>A default return value of the empty string is set in case of error.</li>
+        <li>The return value of the function is set by calling the <var>GetElementIdValue</var> function from <span class="figureref"><a href="#listing-10">Listing 10</a></span>.</li>
     </ol>
 
 </section>
 
 <section id="demo">
 
-    <h2>
-        Demo code
-    </h2>
+    <h2>Demo code</h2>
 
-    <p>
-        A demo program to accompany this article can be found in the
-        <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git
-        repository on GitHub.
-    </p>
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
 
-    <p>
-        You can view the code in the
-        <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-21">article-21</a></code>
-        sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing
-        page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
-    </p>
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-21">article-21</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
 
-    <p>
-        See the demo's <a
-            href="https://github.com/delphidabbler/article-demos/blob/master/article-21/README.md">README.md</a> file
-        for details.
-    </p>
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-21/README.md">README.md</a> file for details.</p>
 
     <div class="callout callout-info">
-        <p>
-            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is
-            merely a proof of concept and is intended only illustrate this article. It is not designed for use in its
-            current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY
-            OF ANY KIND, either express or implied.
-        </p>
-        <p>
-            The demo is open source. See the demo's <a
-                href="https://github.com/delphidabbler/article-demos/blob/master/article-21/LICENSE.md">LICENSE.md</a>
-            file for licensing details.
-        </p>
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-21/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
     </div>
 
 </section>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #21&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #21&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

@@ -9,45 +9,24 @@ redirect_from:
 - /articles/1
 ---
 <section id="intro">
-    <h2>
-        Why do it?
-    </h2>
 
-    <p>
-        Sometimes we need a non-windowed component (i.e. one that isn't derived from <var>TWinControl</var>) to receive
-        Windows messages. To receive messages the component needs a window handle, but a non-windowed component hasn't
-        got one!
-    </p>
+    <h2>Why do it?</h2>
 
-    <p>
-        This article is about how to enable such a component to use a hidden window to receive messages.
-    </p>
+    <p>Sometimes we need a non-windowed component (i.e. one that isn't derived from <var>TWinControl</var>) to receive Windows messages. To receive messages the component needs a window handle, but a non-windowed component hasn't got one!</p>
+
+    <p>This article is about how to enable such a component to use a hidden window to receive messages.</p>
 
 </section>
 
 <section id="detail">
 
-    <h2>
-        How it's done
-    </h2>
+    <h2>How it's done</h2>
 
-    <p>
-        The Delphi library function <var>AllocateHWnd</var> is used to create a hidden window for us and the related
-        <var>DeallocateHWnd</var> disposes of the window when we've finished with it.
-    </p>
+    <p>The Delphi library function <var>AllocateHWnd</var> is used to create a hidden window for us and the related <var>DeallocateHWnd</var> disposes of the window when we've finished with it.</p>
 
-    <p>
-        A hidden window requires a window procedure. <var>AllocateHWnd</var> enables us to use a method as a window
-        procedure where Windows normally requires a <var>stdcall</var> function. We pass a reference to the required
-        method to <var>AllocateHWnd</var> and it takes care of the problem of registering the method as a window
-        procedure for us. Inside the registered method we handle the messages we are interested in and hand the rest off
-        to Windows using the <var>DefWindowProc</var> API call.
-    </p>
+    <p>A hidden window requires a window procedure. <var>AllocateHWnd</var> enables us to use a method as a window procedure where Windows normally requires a <var>stdcall</var> function. We pass a reference to the required method to <var>AllocateHWnd</var> and it takes care of the problem of registering the method as a window procedure for us. Inside the registered method we handle the messages we are interested in and hand the rest off to Windows using the <var>DefWindowProc</var> API call.</p>
 
-    <p>
-        <span class="figureref">Listing 2</span> below provides a skeleton of how to use <var>AllocateHWnd</var>. First
-        though, <span class="figureref">Listing 1</span> shows an outline definition for our component class:
-    </p>
+    <p><span class="figureref">Listing 2</span> below provides a skeleton of how to use <var>AllocateHWnd</var>. First though, <span class="figureref">Listing 1</span> shows an outline definition for our component class:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -96,9 +75,7 @@ redirect_from:
         </div>
     </div>
 
-    <p>
-        And here are the implementation details:
-    </p>
+    <p>And here are the implementation details:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -188,30 +165,17 @@ redirect_from:
         </div>
     </div>
 
-    <p>
-        Of course, we could just use the Windows API to create a window the hard way and provide a windows procedure.
-        But it is much more difficult to use a method as a window procedure if we do it this way. The cleverness of
-        <var>AllocateHWnd</var> is that (a) it creates the hidden window for us and (b) it allows us to use a method,
-        rather than a simple procedure, as the window procedure. Obviously, a method is more useful since it has access
-        to the class' private data.
-    </p>
+    <p>Of course, we could just use the Windows API to create a window the hard way and provide a windows procedure. But it is much more difficult to use a method as a window procedure if we do it this way. The cleverness of <var>AllocateHWnd</var> is that (a) it creates the hidden window for us and (b) it allows us to use a method, rather than a simple procedure, as the window procedure. Obviously, a method is more useful since it has access to the class' private data.</p>
 
 </section>
 
 <section id="example">
-    <h2>
-        A Real World Example
-    </h2>
 
-    <p>
-        While there is no demo code to accompany this article, my <a href="/software/cbview">Clipboard Viewer
-            Component</a> is a non-visual component that uses the hidden window techniques described here. The window
-        receives Windows messages that provide information about changes to the clipboard.
-    </p>
+    <h2>A Real World Example</h2>
 
-    <p>
-        Feel free to check it out.
-    </p>
+    <p>While there is no demo code to accompany this article, my <a href="/software/cbview">Clipboard Viewer Component</a> is a non-visual component that uses the hidden window techniques described here. The window receives Windows messages that provide information about changes to the clipboard.</p>
+
+    <p>Feel free to check it out.</p>
 
 </section>
 

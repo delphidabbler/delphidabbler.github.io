@@ -10,52 +10,32 @@ redirect_from:
 ---
 <aside>
     <div class="callout callout-warning">
-        <h2>
-            Limitations of this article
-        </h2>
-        <p>
-            This article was last updated in 2003 when 64 bit Windows was brand new, available only for Itanium processors, and certainly out of my reach! Consequently 64 bit applications were not at all mainstream and were not considered when developing the code for this article. Therefore, while the code presented here detects MS-DOS and 16 bit Windows applications correctly, it will report both Windows 32 bit and 64 bit executables as 32 bit.
-        </p>
-        <p class="alert alert-info">
-            I'm hoping to update the article to properly detect 64 bit applications and DLLs in due course. As a stop gap, a function that does detect 64 bit executables correctly has been posted in <strong><a href="https://gist.github.com/delphidabbler/1b90a542f94ae686509e285805a31665">this gist</a></strong>.
-        </p>
+
+        <h2>Limitations of this article</h2>
+
+        <p>This article was last updated in 2003 when 64 bit Windows was brand new, available only for Itanium processors, and certainly out of my reach! Consequently 64 bit applications were not at all mainstream and were not considered when developing the code for this article. Therefore, while the code presented here detects MS-DOS and 16 bit Windows applications correctly, it will report both Windows 32 bit and 64 bit executables as 32 bit.</p>
+
+        <p class="alert alert-info">I'm hoping to update the article to properly detect 64 bit applications and DLLs in due course. As a stop gap, a function that does detect 64 bit executables correctly has been posted in <strong><a href="https://gist.github.com/delphidabbler/1b90a542f94ae686509e285805a31665">this gist</a></strong>.</p>
+
     </div>
 </aside>
 
 <section id="contents">
 
-    <h2>
-        Contents
-    </h2>
+    <h2>Contents</h2>
 
     <nav>
 
         <div class="well">
             <ul>
-                <li>
-                    <a href="#abstract">Abstract</a>
-                </li>
-                <li>
-                    <a href="#outline">Outline design</a>
-                </li>
-                <li>
-                    <a href="#coding">Developing the function</a>
-                </li>
-                <li>
-                    <a href="#source">Putting it all together</a>
-                </li>
-                <li>
-                    <a href="#demo">Demo program</a>
-                </li>
-                <li>
-                    <a href="#conclusion">Conclusion</a>
-                </li>
-                <li>
-                    <a href="#credits">Credits</a>
-                </li>
-                <li>
-                    <a href="#feedback">Feedback</a>
-                </li>
+                <li><a href="#abstract">Abstract</a></li>
+                <li><a href="#outline">Outline design</a></li>
+                <li><a href="#coding">Developing the function</a></li>
+                <li><a href="#source">Putting it all together</a></li>
+                <li><a href="#demo">Demo program</a></li>
+                <li><a href="#conclusion">Conclusion</a></li>
+                <li><a href="#credits">Credits</a></li>
+                <li><a href="#feedback">Feedback</a></li>
             </ul>
         </div>
 
@@ -65,119 +45,54 @@ redirect_from:
 
 <section id="abstract">
 
-    <h2>
-        Abstract
-    </h2>
+    <h2>Abstract</h2>
 
-    <p>
-        This article looks at how we examine a file to check if it is a DOS or
-        Windows executable and, if so, whether it is a program file or a DLL.
-    </p>
+    <p>This article looks at how we examine a file to check if it is a DOS or Windows executable and, if so, whether it is a program file or a DLL.</p>
 
-    <p>
-        We will develop a function &ndash; <var>ExeType</var> &ndash; that will test
-        a file and return a value that describes what type of excutable file it is,
-        if any.
-    </p>
+    <p>We will develop a function &ndash; <var>ExeType</var> &ndash; that will test a file and return a value that describes what type of excutable file it is, if any.</p>
 
-    <p>
-        An install program may need this information, or you may need to check a
-        given file is a program or DLL before attempting to run or load it.
-    </p>
+    <p>An install program may need this information, or you may need to check a given file is a program or DLL before attempting to run or load it.</p>
 
     <aside>
-        <p class="alert alert-info glyph">
-            This article was revised on 9 September 2003 to add checks for a valid
-            MS-DOS file. It was revised again on 10 September 2003 to add checks for
-            Virtual Device Driver files.
-        </p>
+        <p class="alert alert-info glyph">This article was revised on 9 September 2003 to add checks for a valid MS-DOS file. It was revised again on 10 September 2003 to add checks for Virtual Device Driver files.</p>
     </aside>
 
 </section>
 
 <section id="outline">
 
-    <h2>
-        Outline design
-    </h2>
+    <h2>Outline design</h2>
 
-    <p>
-        Before we start coding our function, let us look at how we're going to
-        accomplish this task. Our approach will be to open the file of interest and
-        scan through it looking for markers to indicate its file type.
-    </p>
+    <p>Before we start coding our function, let us look at how we're going to accomplish this task. Our approach will be to open the file of interest and scan through it looking for markers to indicate its file type.</p>
 
-    <p>
-        All Windows executable files begin with a MS-DOS executable stub, so we
-        first test for a valid MS-DOS executable using information from the MS-DOS
-        program header that is present in every executable file. We then check for
-        markers for a 16 bit or 32 bit Windows executable or for a virtual device
-        driver (VXD). If we establish the file is a Windows executable we look for
-        information that determines whether the file is an application or is a DLL.
-        A review of the MS-DOS, Windows NE (16 bit) and PE (32 bit) executable file
-        formats leads us to note the following:
-    </p>
+    <p>All Windows executable files begin with a MS-DOS executable stub, so we first test for a valid MS-DOS executable using information from the MS-DOS program header that is present in every executable file. We then check for markers for a 16 bit or 32 bit Windows executable or for a virtual device driver (VXD). If we establish the file is a Windows executable we look for information that determines whether the file is an application or is a DLL. A review of the MS-DOS, Windows NE (16 bit) and PE (32 bit) executable file formats leads us to note the following:</p>
 
     <ul class="wide">
 
-        <li>
-            All DOS program files (and therefore Windows executables) begin with a
-            &quot;magic number&quot;; the word value $5A4D (&quot;MZ&quot; in
-            ASCII).
-        </li>
+        <li>All DOS program files (and therefore Windows executables) begin with a &quot;magic number&quot;; the word value $5A4D (&quot;MZ&quot; in ASCII).</li>
 
-        <li>
-            We use the DOS header to check that the file length exceeds or is equal
-            to the minimum length of the DOS executable and that the offset of the
-            DOS relocation table lies within the file.
-        </li>
+        <li>We use the DOS header to check that the file length exceeds or is equal to the minimum length of the DOS executable and that the offset of the DOS relocation table lies within the file.</li>
 
-        <li>
-            Windows executables have a header record whose offset in the file is
-            given by the long word at offset $3C.
-        </li>
+        <li>Windows executables have a header record whose offset in the file is given by the long word at offset $3C.</li>
 
-        <li>
-            The Windows header begins with a &quot;magic number&quot; word whose
-            value indicates whether this is a 16bit (NE format) or 32 bit (PE
-            format) executable or a virtual device driver (LE format). The word is
-            $454E (&quot;NE&quot; in ASCII), $4550 (&quot;PE&quot;) or $454C
-            (&quot;LE&quot;).
-        </li>
+        <li>The Windows header begins with a &quot;magic number&quot; word whose value indicates whether this is a 16bit (NE format) or 32 bit (PE format) executable or a virtual device driver (LE format). The word is $454E (&quot;NE&quot; in ASCII), $4550 (&quot;PE&quot;) or $454C (&quot;LE&quot;).</li>
 
-        <li>
-            32 bit Windows executables have an &quot;image header&quot; that starts four bytes after the beginning of the Windows header. This header structure has a
-            <var>Characteristics</var> field which is a bit mask. If the bit mask
-            contains the flag <var>IMAGE_FILE_DLL</var> then the file is a DLL,
-            otherwise it is a program file.
-        </li>
+        <li>32 bit Windows executables have an &quot;image header&quot; that starts four bytes after the beginning of the Windows header. This header structure has a <var>Characteristics</var> field which is a bit mask. If the bit mask contains the flag <var>IMAGE_FILE_DLL</var> then the file is a DLL, otherwise it is a program file.</li>
 
-        <li>
-            16 bit Windows programs have a byte sized field at offset $0D from the
-            start of the Windows header which is a bit mask providing information
-            about the file. If this field contains the flag $80 then the file is a
-            DLL, otherwise it is a program.
-        </li>
+        <li>16 bit Windows programs have a byte sized field at offset $0D from the start of the Windows header which is a bit mask providing information about the file. If this field contains the flag $80 then the file is a DLL, otherwise it is a program.</li>
 
     </ul>
 
-    <p>
-        The following flowchart illustrates the tests we will use, based on the
-        information above:
-    </p>
+    <p>The following flowchart illustrates the tests we will use, based on the information above:</p>
 
     <div id="figure-1" class="frame">
         <div>
             <img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/08.gif" alt="Flowchart" title="Flowchart" width="520" height="609">
         </div>
-        <div class="caption">
-            <em>Figure 1:</em> Flowchart
-        </div>
+        <div class="caption"><em>Figure 1:</em> Flowchart</div>
     </div>
 
-    <p>
-        So, in pseudo-code, our function can be described as:
-    </p>
+    <p>So, in pseudo-code, our function can be described as:</p>
 
     <div class="frame">
         <pre class="source-body">Open file (Return Error type if doesn't exist)
@@ -208,42 +123,27 @@ If first word = 'MZ' and file size is valid then
 else
   Return Unknown file type
 end</pre>
-        <div class="caption">
-            Listing 1
-        </div>
+        <div class="caption">Listing 1</div>
     </div>
 
-    <p>
-        We now have an outline design from which to work. In the next section we'll begin coding the function.
-    </p>
+    <p>We now have an outline design from which to work. In the next section we'll begin coding the function.</p>
 
 </section>
 
 <section id="coding">
 
-    <h2>
-        Developing the function
-    </h2>
+    <h2>Developing the function</h2>
 
-    <p>
-        Now we have an outline design, we can begin creating our function. Recall
-        that it will analyse a given file and return a value to indicate the type of
-        file found. <span class="figureref">Listing 2</span> shows the function
-        prototype:
-    </p>
+    <p>Now we have an outline design, we can begin creating our function. Recall that it will analyse a given file and return a value to indicate the type of file found. <span class="figureref">Listing 2</span> shows the function prototype:</p>
 
     <div class="frame">
         <div class="code-pascal">
             <pre class="line"><span class="linenum">  1</span><span class="kwd">function</span><span class="space"> </span><span class="ident">ExeType</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">TExeFileKind</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 2
         </div>
+        <div class="caption">Listing 2</div>
     </div>
 
-    <p>
-        The return value is an enumerated type, which is defined as follows.
-    </p>
+    <p>The return value is an enumerated type, which is defined as follows.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -259,33 +159,22 @@ end</pre>
             <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="ident">fkDLL16</span><span class="sym">,</span><span class="space">    </span><span class="comment">// 16 bit DLL</span></pre>
             <pre class="line"><span class="linenum"> 11</span><span class="space">    </span><span class="ident">fkVXD</span><span class="space">       </span><span class="comment">// virtual device driver</span></pre>
             <pre class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="sym">)</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 3
         </div>
+        <div class="caption">Listing 3</div>
     </div>
 
-    <p>
-        We will now examine the function's implementation. The code follows the
-        logic presented in the first part of the article. First, here's the function
-        prototype again:
-    </p>
+    <p>We will now examine the function's implementation. The code follows the logic presented in the first part of the article. First, here's the function prototype again:</p>
 
     <div class="frame">
         <div class="code-pascal">
             <pre class="line"><span class="linenum">  1</span><span class="comment">// Examines given file and returns a code that indicates the type of</span></pre>
             <pre class="line"><span class="linenum">  2</span><span class="comment">// executable file it is (or if it isn&apos;t an executable)</span></pre>
             <pre class="line"><span class="linenum">  3</span><span class="kwd">function</span><span class="space"> </span><span class="ident">ExeType</span><span class="sym">(</span><span class="kwd">const</span><span class="space"> </span><span class="ident">FileName</span><span class="sym">:</span><span class="space"> </span><span class="kwd">string</span><span class="sym">)</span><span class="sym">:</span><span class="space"> </span><span class="ident">TExeFileKind</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 4
         </div>
+        <div class="caption">Listing 4</div>
     </div>
 
-    <p>
-        Immediately following the prototype we declare some constants to hold the
-        fixed offsets, flags and &quot;magic numbers&quot; we will need to use:
-    </p>
+    <p>Immediately following the prototype we declare some constants to hold the fixed offsets, flags and &quot;magic numbers&quot; we will need to use:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -298,24 +187,11 @@ end</pre>
             <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">cPEMagic</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$4550</span><span class="sym">;</span><span class="space">       </span><span class="comment">// magic nunber for a PE executable (Win 32)</span></pre>
             <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">cLEMagic</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$454C</span><span class="sym">;</span><span class="space">       </span><span class="comment">// magic number for a Virtual Device Driver</span></pre>
             <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="ident">cNEDLLFlag</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="hex">$80</span><span class="sym">;</span><span class="space">       </span><span class="comment">// flag in NE app type field indicating a DLL</span></pre>
-            </div>
-                                <div class="caption">
-            Listing 5
         </div>
+        <div class="caption">Listing 5</div>
     </div>
 
-    <p>
-        The constants are followed by the the function's local variables. First we
-        declare a variable to reference a file stream object that we will be using
-        to read the file. We then have a variable to store Windows executable
-        &quot;magic numbers&quot;, along with another variable to store the offset
-        of the Windows header record. We then declare variables to read information
-        from the various header records - a byte in the case of the NE file format,
-        an <var>IMAGE_FILE_INFO</var> structure for PE format files and an
-        <var>IMAGE_DOS_HEADER</var> structure for the DOS file header. Finally we
-        have a variable to store the minimum expected size of the MS-DOS file.
-        <span class="figureref">Listing 6</span> has the the variable declarations:
-    </p>
+    <p>The constants are followed by the the function's local variables. First we declare a variable to reference a file stream object that we will be using to read the file. We then have a variable to store Windows executable &quot;magic numbers&quot;, along with another variable to store the offset of the Windows header record. We then declare variables to read information from the various header records - a byte in the case of the NE file format, an <var>IMAGE_FILE_INFO</var> structure for PE format files and an <var>IMAGE_DOS_HEADER</var> structure for the DOS file header. Finally we have a variable to store the minimum expected size of the MS-DOS file. <span class="figureref">Listing 6</span> has the the variable declarations:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -327,21 +203,15 @@ end</pre>
             <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">DOSHeader</span><span class="sym">:</span><span class="space"> </span><span class="ident">IMAGE_DOS_HEADER</span><span class="sym">;</span><span class="space">  </span><span class="comment">// DOS header</span></pre>
             <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="ident">AppFlagsNE</span><span class="sym">:</span><span class="space"> </span><span class="ident">Byte</span><span class="sym">;</span><span class="space">             </span><span class="comment">// byte defining DLLs in NE format</span></pre>
             <pre class="line"><span class="linenum">  8</span><span class="space">  </span><span class="ident">DOSFileSize</span><span class="sym">:</span><span class="space"> </span><span class="ident">Integer</span><span class="sym">;</span><span class="space">         </span><span class="comment">// size of DOS file</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 6
         </div>
+        <div class="caption">Listing 6</div>
     </div>
 
-    <p>
-        The <var>IMAGE_DOS_HEADER</var> structure is not declared in the
-        <va>Windows</va> unit, so we must define it ourselves as shown in
-        <span class="figureref">Listing 7</span>.
-    </p>
+    <p>The <var>IMAGE_DOS_HEADER</var> structure is not declared in the <var>Windows</var> unit, so we must define it ourselves as shown in <span class="figureref">Listing 7</span>.</p>
 
-    <p class="callout callout-info">
-        Well, the <var>Windows</var> unit <em>didn't</em> declare <var>IMAGE_DOS_HEADER</var> when this article was first written in the early 2000s. Later versions of Delphi do declare the record, so you probably will not have to use the code in <span class="figureref">Listing 7</span>.
-    </p>
+    <aside>
+        <p class="callout callout-info">Well, the <var>Windows</var> unit <em>didn't</em> declare <var>IMAGE_DOS_HEADER</var> when this article was first written in the early 2000s. Later versions of Delphi do declare the record, so you probably will not have to use the code in <span class="figureref">Listing 7</span>.</p>
+    </aside>
 
     <div class="frame">
         <div class="code-pascal">
@@ -367,20 +237,11 @@ end</pre>
             <pre class="line"><span class="linenum"> 20</span><span class="space">    </span><span class="ident">e_res2</span><span class="space">    </span><span class="sym">:</span><span class="space"> </span><span class="kwd">packed</span><span class="space"> </span><span class="kwd">array</span><span class="space"> </span><span class="sym">[</span><span class="num">0</span><span class="sym">..</span><span class="num">9</span><span class="sym">]</span><span class="space"> </span><span class="kwd">of</span><span class="space"> </span><span class="ident">Word</span><span class="sym">;</span><span class="space">  </span><span class="comment">// Reserved words</span></pre>
             <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="ident">e_lfanew</span><span class="space">  </span><span class="sym">:</span><span class="space"> </span><span class="ident">Longint</span><span class="sym">;</span><span class="space">  </span><span class="comment">// File address of new exe header</span></pre>
             <pre class="line"><span class="linenum"> 22</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 7
         </div>
+        <div class="caption">Listing 7</div>
     </div>
 
-    <p>
-        We now start to process the file. Before we can perform any analysis we need
-        to open the file for reading. A read only file stream is used to do this. We
-        also need to handle any exceptions raised when reading the file. A skeletal
-        outline of the body of the function is shown in
-        <span class="figureref">Listing 8</span>. This listing illustrates how we
-        open and close the file stream and handle any exceptions raised.
-    </p>
+    <p>We now start to process the file. Before we can perform any analysis we need to open the file for reading. A read only file stream is used to do this. We also need to handle any exceptions raised when reading the file. A skeletal outline of the body of the function is shown in <span class="figureref">Listing 8</span>. This listing illustrates how we open and close the file stream and handle any exceptions raised.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -398,27 +259,13 @@ end</pre>
             <pre class="line"><span class="linenum"> 12</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fkError</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 13</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 14</span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 8
         </div>
+        <div class="caption">Listing 8</div>
     </div>
 
-    <p>
-        If the file doesn't exist then an exception will be raised by the stream
-        constructor. This, and any other exceptions, are trapped and converted into an
-        error result. We use an inner <code class="kwd">try..finally</code>
-        block to ensure thefile stream gets closed.
-    </p>
+    <p>If the file doesn't exist then an exception will be raised by the stream constructor. This, and any other exceptions, are trapped and converted into an error result. We use an inner <code class="kwd">try..finally</code> block to ensure thefile stream gets closed.</p>
 
-    <p>
-        The file analysis code fits inside the inner
-        <code class="kwd">try..finally</code> block in the above code fragment.
-        The remainder of this section is devoted to a discussion of how we perform
-        the analysis. We begin by attempting to read the DOS header record. We then
-        use the information in the header to perform various checks. The code is
-        shown in <span class="figureref">Listing 9</span>.
-    </p>
+    <p>The file analysis code fits inside the inner <code class="kwd">try..finally</code> block in the above code fragment. The remainder of this section is devoted to a discussion of how we perform the analysis. We begin by attempting to read the DOS header record. We then use the information in the header to perform various checks. The code is shown in <span class="figureref">Listing 9</span>.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -446,50 +293,25 @@ end</pre>
             <pre class="line"><span class="linenum"> 22</span><span class="space">        </span><span class="ident">Exit</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 23</span><span class="space">      </span><span class="comment">// We assume we have an executable file: assume its a DOS program</span></pre>
             <pre class="line"><span class="linenum"> 24</span><span class="space">      </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fkDOS</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 9
         </div>
+        <div class="caption">Listing 9</div>
     </div>
 
-    <p>
-        We first assume the file format is unknown. Then we check that the file is
-        large enough to contain the DOS header and exit if this is not the case.
-        (Remember that the <code class="kwd">finally</code> block is always
-        executed following an <var>Exit</var>, so our file stream will be freed). If
-        the file is large enough we read the DOS header before performing these
-        three checks on it:
-    </p>
+    <p>We first assume the file format is unknown. Then we check that the file is large enough to contain the DOS header and exit if this is not the case. (Remember that the <code class="kwd">finally</code> block is always executed following an <var>Exit</var>, so our file stream will be freed). If the file is large enough we read the DOS header before performing these three checks on it:</p>
 
     <ol class="wide">
-        <li>
-            That the <var>e_magic</var> field stores the required magic number.
-        </li>
-        <li>
-            That the file has the required length. The <var>e_cp</var> field stores
-            the number of 512 byte pages in the file. The <var>e_cblp</var> field
-            stores the number of bytes in the last 512 byte page that are used. The expected file
-            length is calculated from these two values and this is checked against
-            the actual size of the file. (Note that the file size can be greater
-            than the expected size, since it is possible to append data to an
-            executable file &ndash; see <a href="./article-7">article #7</a> for further information).
-        </li>
-        <li>
-            That the offset of the DOS relocation table per the <var>e_lfarlc</var>
-            field falls within the file.
-        </li>
+
+        <li>That the <var>e_magic</var> field stores the required magic number.</li>
+
+        <li>That the file has the required length. The <var>e_cp</var> field stores the number of 512 byte pages in the file. The <var>e_cblp</var> field stores the number of bytes in the last 512 byte page that are used. The expected file length is calculated from these two values and this is checked against the actual size of the file. (Note that the file size can be greater than the expected size, since it is possible to append data to an executable file &ndash; see <a href="./article-7">article #7</a> for further information).</li>
+
+        <li>That the offset of the DOS relocation table per the <var>e_lfarlc</var> field falls within the file.</li>
+
     </ol>
 
-    <p>
-        If all these tests are passed then it is safe to assume we have at least a
-        DOS executable, so we set the function result accordingly.
-    </p>
+    <p>If all these tests are passed then it is safe to assume we have at least a DOS executable, so we set the function result accordingly.</p>
 
-    <p>
-        The next thing to do is to try to find a Windows file header and read the
-        Windows executable magic number at the start of it.
-        <span class="figureref">Listing 10</span> has the code to do this:
-    </p>
+    <p>The next thing to do is to try to find a Windows file header and read the Windows executable magic number at the start of it. <span class="figureref">Listing 10</span> has the code to do this:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -508,25 +330,13 @@ end</pre>
             <pre class="line"><span class="linenum"> 13</span><span class="space">      </span><span class="ident">FS</span><span class="sym">.</span><span class="ident">Position</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">HdrOffset</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 14</span><span class="space">      </span><span class="comment">// This word should be NE, PE or LE per file type</span></pre>
             <pre class="line"><span class="linenum"> 15</span><span class="space">      </span><span class="ident">FS</span><span class="sym">.</span><span class="ident">ReadBuffer</span><span class="sym">(</span><span class="ident">WinMagic</span><span class="sym">,</span><span class="space"> </span><span class="ident">SizeOf</span><span class="sym">(</span><span class="ident">Word</span><span class="sym">)</span><span class="sym">)</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 10
         </div>
+        <div class="caption">Listing 10</div>
     </div>
 
-    <p>
-        We first check that the file is large enough to store the Windows header
-        offset, and bail out if not. If we bail out we assume the file is a DOS
-        executable (the return value was set earlier). We then read in the offset
-        and once again check that the file is large enough to hold a magic number
-        located at the file position given by the offset. If so we move the file
-        pointer to the start of the header and read the magic number into the
-        <var>WinMagic</var> variable.
-    </p>
+    <p>We first check that the file is large enough to store the Windows header offset, and bail out if not. If we bail out we assume the file is a DOS executable (the return value was set earlier). We then read in the offset and once again check that the file is large enough to hold a magic number located at the file position given by the offset. If so we move the file pointer to the start of the header and read the magic number into the <var>WinMagic</var> variable.</p>
 
-    <p>
-        We now use the magic number to determine what kind of file we have. PE, NE &amp; LE format files are then processed separately. In the case of NE &amp; PE format files we also need to check whether the file is a DLL or application. A case statement is used to do the checking. Its outline is as follows:
-    </p>
+    <p>We now use the magic number to determine what kind of file we have. PE, NE &amp; LE format files are then processed separately. In the case of NE &amp; PE format files we also need to check whether the file is a DLL or application. A case statement is used to do the checking. Its outline is as follows:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -540,33 +350,17 @@ end</pre>
             <pre class="line"><span class="linenum">  8</span><span class="space">        </span><span class="kwd">else</span></pre>
             <pre class="line"><span class="linenum">  9</span><span class="space">          </span><span class="comment">// ... DOS file executable</span></pre>
             <pre class="line"><span class="linenum"> 10</span><span class="space">      </span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 11
         </div>
+        <div class="caption">Listing 11</div>
     </div>
 
-    <p>
-        We'll discuss each of the cases separately.
-    </p>
+    <p>We'll discuss each of the cases separately.</p>
 
+    <h3>PE Format</h3>
 
-    <h3>
-        PE Format
-    </h3>
+    <p>For PE format files we attempt to read the Windows header record (of type <var>IMAGE_FILE_HEADER</var>) from the file. If the <var>Characteristics</var> field of the structure (a bit mask) contains the <var>IMAGE_FILE_DLL</var> flag then we have a DLL, otherwise we have an application.</p>
 
-    <p>
-        For PE format files we attempt to read the Windows header record (of type
-        <var>IMAGE_FILE_HEADER</var>) from the file. If the
-        <var>Characteristics</var> field of the structure (a bit mask) contains the
-        <var>IMAGE_FILE_DLL</var> flag then we have a DLL, otherwise we have an
-        application.
-    </p>
-
-    <p>
-        <span class="figureref">Listing 12</span> has the code for the PE part of
-        the above case statement:
-    </p>
+    <p><span class="figureref">Listing 12</span> has the code for the PE part of the above case statement:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -586,34 +380,17 @@ end</pre>
             <pre class="line"><span class="linenum"> 14</span><span class="space">          </span><span class="kwd">else</span></pre>
             <pre class="line"><span class="linenum"> 15</span><span class="space">            </span><span class="comment">// characteristics indicate a 32 bit application</span></pre>
             <pre class="line"><span class="linenum"> 16</span><span class="space">            </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fkExe32</span><span class="sym">;</span></pre>
-            </div>
-                   <div class="caption">
-            Listing 12
         </div>
+        <div class="caption">Listing 12</div>
     </div>
 
-    <p>
-        Note that, once again, before attempting to read the header we check the
-        file is large enough to contain it and bail out if not, assuming a DOS
-        executable. If we successfully read the header we check the
-        <var>Characteristics</var> field for the required flag.
-    </p>
+    <p>Note that, once again, before attempting to read the header we check the file is large enough to contain it and bail out if not, assuming a DOS executable. If we successfully read the header we check the <var>Characteristics</var> field for the required flag.</p>
 
+    <h3>NE Format</h3>
 
-    <h3>
-        NE Format
-    </h3>
+    <p>For NE format files we read the byte at offset $0D from the start of the header and check to see if it contains a bit flag $80. If so, we have a DLL and if not we have an application.</p>
 
-    <p>
-        For NE format files we read the byte at offset $0D from the start of the
-        header and check to see if it contains a bit flag $80. If so, we have a DLL
-        and if not we have an application.
-    </p>
-
-    <p>
-        The code for the NE part of the above case statement, which follows similar
-        logic to that for the PE header, is:
-    </p>
+    <p>The code for the NE part of the above case statement, which follows similar logic to that for the PE header, is:</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -631,68 +408,41 @@ end</pre>
             <pre class="line"><span class="linenum"> 12</span><span class="space">          </span><span class="kwd">else</span></pre>
             <pre class="line"><span class="linenum"> 13</span><span class="space">            </span><span class="comment">// app flags indicate program</span></pre>
             <pre class="line"><span class="linenum"> 14</span><span class="space">            </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fkExe16</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 13
         </div>
+        <div class="caption">Listing 13</div>
     </div>
 
+    <h3>LE Format</h3>
 
-    <h3>
-        LE Format
-    </h3>
-
-    <p>
-        For LE Format files there is no further checking to be done. We simply
-        return that we have found a virtual device driver:
-    </p>
+    <p>For LE Format files there is no further checking to be done. We simply return that we have found a virtual device driver:</p>
 
     <div class="frame">
         <div class="code-pascal">
             <pre class="line"><span class="linenum">  1</span><span class="space">          </span><span class="comment">// We have a Virtual Device Driver</span></pre>
             <pre class="line"><span class="linenum">  2</span><span class="space">          </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fkVXD</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 14
         </div>
+        <div class="caption">Listing 14</div>
     </div>
 
+    <h3>DOS Format</h3>
 
-    <h3>
-        DOS Format
-    </h3>
-
-    <p>
-        This just leaves the trivial case of when none of the magic numbers are
-        present. In this case we assume that the file is a DOS application. Since we
-        have already set the function result to the DOS file type there is nothing
-        to do. We simply place a comment to document this fact:
-    </p>
-
+    <p>This just leaves the trivial case of when none of the magic numbers are present. In this case we assume that the file is a DOS application. Since we have already set the function result to the DOS file type there is nothing to do. We simply place a comment to document this fact:</p>
 
     <div class="frame">
         <div class="code-pascal">
             <pre class="line"><span class="linenum">  1</span><span class="space">          </span><span class="comment">// DOS application</span></pre>
             <pre class="line"><span class="linenum">  2</span><span class="space">          </span><span class="comment">{Do nothing - DOS result already set}</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 15
         </div>
+        <div class="caption">Listing 15</div>
     </div>
 
 </section>
 
 <section id="source">
 
-    <h2>
-        Putting it all together
-    </h2>
+    <h2>Putting it all together</h2>
 
-    <p>
-        Our <var>ExeType</var> function is now complete.
-        <span class="figureref">Listing 16</span> shows the complete function,
-        along with the required type definitions.
-    </p>
+    <p>Our <var>ExeType</var> function is now complete. <span class="figureref">Listing 16</span> shows the complete function, along with the required type definitions.</p>
 
     <div class="frame">
         <div class="code-pascal">
@@ -849,81 +599,62 @@ end</pre>
             <pre class="line"><span class="linenum">151</span><span class="space">    </span><span class="ident">Result</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">fkError</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">152</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">153</span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">
-            Listing 16
         </div>
+        <div class="caption">Listing 16</div>
     </div>
 
 </section>
 
 <section id="demo">
 
-    <h2>
-        Demo program
-    </h2>
+    <h2>Demo program</h2>
 
-    <p>
-        A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.
-    </p>
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
 
-    <p>
-        You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-08">article-08</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
-    </p>
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-08">article-08</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
 
-    <p>
-        See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-08/README.md">README.md</a> file for details.
-    </p>
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-08/README.md">README.md</a> file for details.</p>
 
     <div class="callout callout-info">
-        <p>
-            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.
-        </p>
-        <p>
-            The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-08/LICENSE.md">LICENSE.md</a> file for licensing details.
-        </p>
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-08/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
     </div>
 
 </section>
 
 <section id="conclusion">
 
-    <h2>
-        Conclusion
-    </h2>
+    <h2>Conclusion</h2>
 
-    <p>
-        In this article we reviewed the key attributes of various types of executable file then sketched out an algorithm for detecting them. We then developed a Delphi function that analysed files and returned a code describing the file type. A demo program to exercise the function was provided.
-    </p>
+    <p>In this article we reviewed the key attributes of various types of executable file then sketched out an algorithm for detecting them. We then developed a Delphi function that analysed files and returned a code describing the file type. A demo program to exercise the function was provided.</p>
 
 </section>
 
 <section id="credits">
 
-    <h2>
-        Credits
-    </h2>
+    <h2>Credits</h2>
 
-    <p>
-        Thanks are due to Flurin Honegger for suggesting some of the &quot;reasonableness&quot; checks on the DOS header to verify a valid MS-DOS file.
-    </p>
+    <p>Thanks are due to Flurin Honegger for suggesting some of the &quot;reasonableness&quot; checks on the DOS header to verify a valid MS-DOS file.</p>
 
 </section>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #8&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #8&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

@@ -3,17 +3,14 @@ article: 22
 title: "How to call Delphi code from scripts running in a TWebBrowser"
 summary: "When using a TWebBrowser control to display a user interface you may need to call your program's Delphi cod in response to user input in the TWebBrowser or to get information to be displayed by the control. This article shows how."
 meta-title: "How to call Delphi Pascal code from scripts running in TWebBrowser"
-meta-desc: "An article explaining how to call Delphi Pascal code from scripts running in an HTML document displayed in  TWebBrowser control."
+meta-desc: "An article explaining how to call Delphi Pascal code from scripts running in an HTML document displayed in TWebBrowser control."
 index: true
 redirect_from:
 - /articles/22
 ---
-
 <section id="contents">
 
-    <h2>
-        Contents
-    </h2>
+    <h2>Contents</h2>
 
     <nav>
         <div class="well">
@@ -82,169 +79,89 @@ redirect_from:
 
 <section id="intro">
 
-    <h2>
-        Introduction
-    </h2>
+    <h2>Introduction</h2>
 
-    <p>
-        When writing programs that use the <var>TWebBrowser</var> control as part of the user interface I've sometimes
-        needed my program to respond to user interaction with HTML displayed in the control. The official way to do this
-        is to extend the web browser's <em>external</em> object, and this is the technique we will use in this article.
-    </p>
+    <p>When writing programs that use the <var>TWebBrowser</var> control as part of the user interface I've sometimes needed my program to respond to user interaction with HTML displayed in the control. The official way to do this is to extend the web browser's <em>external</em> object, and this is the technique we will use in this article.</p>
 
-    <p>
-        The <em>external</em> object is part of <var>TWebBrowser</var>'s document object model. The object enables
-        interaction with the environment surrounding the browser control &ndash; in this case our program.
-    </p>
+    <p>The <em>external</em> object is part of <var>TWebBrowser</var>'s document object model. The object enables interaction with the environment surrounding the browser control &ndash; in this case our program.</p>
 
-    <p>
-        We can extend the <em>external</em> object by adding methods to it that are implemented in Delphi rather than in
-        JavaScript or VBScript. We do this by creating a COM automation object that exposes the required methods, then
-        notifying the <var>TWebBrowser</var> control that the COM object extends the <em>external</em> object. The new
-        <em>external</em> object methods can then be called from JavaScript or VBScript running in the
-        <var>TWebBrowser</var> control, which results in our Delphi code executing.
-    </p>
+    <p>We can extend the <em>external</em> object by adding methods to it that are implemented in Delphi rather than in JavaScript or VBScript. We do this by creating a COM automation object that exposes the required methods, then notifying the <var>TWebBrowser</var> control that the COM object extends the <em>external</em> object. The new <em>external</em> object methods can then be called from JavaScript or VBScript running in the <var>TWebBrowser</var> control, which results in our Delphi code executing.</p>
 
-    <p>
-        The rest of this article examines how to use Delphi to create and manipulate
-        the <em>external</em> object.
-    </p>
+    <p>The rest of this article examines how to use Delphi to create and manipulate the <em>external</em> object.</p>
 
 </section>
 
 <section id="overview">
 
-    <h2>
-        Overview
-    </h2>
+    <h2>Overview</h2>
 
-    <p>
-        The solution divides neatly into three main activities:
-    </p>
+    <p>The solution divides neatly into three main activities:</p>
 
     <ol class="wide">
-        <li>
-            Extend the <em>external</em> object in Delphi by creating a COM automation object that exposes the required
-            methods.
-        </li>
 
-        <li>
-            Register the extended <em>external</em> object with the browser control so that the object's methods can be
-            called from within the control. We do this by implementing the <var>IDocHostUIHandler</var> interface and
-            enabling the <var>TWebBrowser</var> control to use our implementation.
-        </li>
+        <li>Extend the <em>external</em> object in Delphi by creating a COM automation object that exposes the required methods.</li>
 
-        <li>
-            Call the methods of the extended <em>external</em> object from JavaScript running in the browser control.
-        </li>
+        <li>Register the extended <em>external</em> object with the browser control so that the object's methods can be called from within the control. We do this by implementing the <var>IDocHostUIHandler</var> interface and enabling the <var>TWebBrowser</var> control to use our implementation.</li>
+
+        <li>Call the methods of the extended <em>external</em> object from JavaScript running in the browser control.</li>
+
     </ol>
 
-    <p>
-        The next sections discuss each of the above activities in turn. Finally a case study will be presented that puts
-        the techniques we have learned into practise.
-    </p>
+    <p>The next sections discuss each of the above activities in turn. Finally a case study will be presented that puts the techniques we have learned into practise.</p>
 
 </section>
 
 <section id="extobj">
 
-    <h2>
-        Implementing the external object
-    </h2>
+    <h2>Implementing the external object</h2>
 
-    <p>
-        As already noted we extend the <em>external</em> object by creating a COM automation object &ndash; i.e. one
-        that implements an interface that derives from <var>IDispatch</var>.
-    </p>
+    <p>As already noted we extend the <em>external</em> object by creating a COM automation object &ndash; i.e. one that implements an interface that derives from <var>IDispatch</var>.</p>
 
-    <p>
-        An easy way to do this is to derive the new class from <var>TAutoIntfObject</var>. This class implements the
-        methods of <var>IDispatch</var> and so saves us from having to do this ourselves. However,
-        <var>TAutoIntfObject</var> needs a type library to work with. Consequently we will use Delphi's Type Library
-        editor to create a suitable type library that defines our new interface.
-    </p>
+    <p>An easy way to do this is to derive the new class from <var>TAutoIntfObject</var>. This class implements the methods of <var>IDispatch</var> and so saves us from having to do this ourselves. However, <var>TAutoIntfObject</var> needs a type library to work with. Consequently we will use Delphi's Type Library editor to create a suitable type library that defines our new interface.</p>
 
     <aside>
         <div class="callout callout-info">
-            <h4>
-                Type Library Editor
-            </h4>
-            <p>
-                Note that the Delphi Type Library Editor varies between versions of Delphi. Please refer to your
-                compiler's documentation for information about where to find the editor and ho to use it.
-            </p>
+
+            <h4>Type Library Editor</h4>
+
+            <p>Note that the Delphi Type Library Editor varies between versions of Delphi. Please refer to your compiler's documentation for information about where to find the editor and ho to use it.</p>
+
         </div>
     </aside>
 
-    <p>
-        Once we have defined the required interface in the Type Library Editor we create the type library by pressing
-        <span class="text-smallcaps">Ctrl+S</span>. This will do three things:
-    </p>
+    <p>Once we have defined the required interface in the Type Library Editor we create the type library by pressing <span class="text-smallcaps">Ctrl+S</span>. This will do three things:</p>
 
     <ol class="wide">
-        <li>
-            Depending on your version of Delphi it will either create the type library (<code>.tlb</code>) file directly
-            or create an intermediate <code>.ridl</code> file that will be compiled to the required <code>.tlb</code>
-            file when you next build the program.
-        </li>
 
-        <li>
-            Create a Pascal unit containing, amongst other things, the interface definition. The unit will have the same
-            name as the <code>.tlb</code> file but will end in <code>_TLB.pas</code>.
-        </li>
+        <li>Depending on your version of Delphi it will either create the type library (<code>.tlb</code>) file directly or create an intermediate <code>.ridl</code> file that will be compiled to the required <code>.tlb</code> file when you next build the program.</li>
 
-        <li>
-            Add a reference to the <code>_TLB.pas</code> unit to the project file.
-        </li>
+        <li>Create a Pascal unit containing, amongst other things, the interface definition. The unit will have the same name as the <code>.tlb</code> file but will end in <code>_TLB.pas</code>.</li>
+
+        <li>Add a reference to the <code>_TLB.pas</code> unit to the project file.</li>
+
     </ol>
 
-    <p>
-        Some versions of the type library editor will also include the type library in the program's resources by
-        inserting a suitable <samp>$R</samp> compiler directive in the project's <code>.dpr</code> file. Other versions
-        don't do this for you. If this is the case you need to add the line <samp>{$R *.tlb}</samp> to your
-        <code>.dpr</code> file.
-    </p>
+    <p>Some versions of the type library editor will also include the type library in the program's resources by inserting a suitable <samp>$R</samp> compiler directive in the project's <code>.dpr</code> file. Other versions don't do this for you. If this is the case you need to add the line <samp>{$R *.tlb}</samp> to your <code>.dpr</code> file.</p>
 
-    <p>
-        When creating the interface in the Type Library Editor we must abide by the following rules:
-    </p>
+    <p>When creating the interface in the Type Library Editor we must abide by the following rules:</p>
 
     <ol class="wide">
-        <li>
-            Ensure the new interface is derived from <var>IDispatch</var>.
-        </li>
 
-        <li>
-            Ensure all methods have a return value of <var>HRESULT</var>.
-        </li>
+        <li>Ensure the new interface is derived from <var>IDispatch</var>.</li>
 
-        <li>
-            Use only automation compatible parameter types.
-        </li>
+        <li>Ensure all methods have a return value of <var>HRESULT</var>.</li>
 
-        <li>
-            Ensure all <var>[out]</var> parameters are pointer types, i.e. they end with * (for example, <var>BSTR
-                *</var>).
-        </li>
+        <li>Use only automation compatible parameter types.</li>
 
-        <li>
-            Return any values from methods via a parameter that has an <var>[out,retval]</var> modifier.
-        </li>
+        <li>Ensure all <var>[out]</var> parameters are pointer types, i.e. they end with * (for example, <var>BSTR *</var>).</li>
+
+        <li>Return any values from methods via a parameter that has an <var>[out,retval]</var> modifier.</li>
+
     </ol>
 
-    <p>
-        Once we have our new type library and interface we create a new class that descends from
-        <var>TAutoIntfObject</var>. Then we implement the methods of our interface in the class. This can be done by
-        copying the method prototypes from the interface declaration in the <code>*_TLB.pas</code> file and pasting them
-        into the class's declaration.
-    </p>
+    <p>Once we have our new type library and interface we create a new class that descends from <var>TAutoIntfObject</var>. Then we implement the methods of our interface in the class. This can be done by copying the method prototypes from the interface declaration in the <code>*_TLB.pas</code> file and pasting them into the class's declaration.</p>
 
-    <p>
-        Note that Delphi creates the method prototypes using the <var>safecall</var> calling convention which means that
-        any <var>[out,retval]</var> parameters become function results. For example, suppose we use the Type Library
-        Editor to create an interface called <var>IMyIntf</var> that has two methods, <var>Foo</var> and <var>Bar</var>.
-        Assume the method parameters are defined as in <em>Table 1</em>.
-    </p>
+    <p>Note that Delphi creates the method prototypes using the <var>safecall</var> calling convention which means that any <var>[out,retval]</var> parameters become function results. For example, suppose we use the Type Library Editor to create an interface called <var>IMyIntf</var> that has two methods, <var>Foo</var> and <var>Bar</var>. Assume the method parameters are defined as in <em>Table 1</em>.</p>
 
     <div class="frame table-responsive" id="table-1">
         <table class="table" summary="Table of example routines to be created in type library editor">
@@ -280,15 +197,10 @@ redirect_from:
                 </tr>
             </tbody>
         </table>
-        <div class="caption">
-            Table 1
-        </div>
+        <div class="caption">Table 1</div>
     </div>
 
-    <p>
-        The <code>*_TLB.pas</code> file created by Delphi would contain the following interface definition shown in
-        <span class="figureref">Listing 1</span>, except that the interface's GUID will be different.
-    </p>
+    <p>The <code>*_TLB.pas</code> file created by Delphi would contain the following interface definition shown in <span class="figureref">Listing 1</span>, except that the interface's GUID will be different.</p>
 
     <div id="listing-1" class="frame">
         <div class="code-pascal">
@@ -304,14 +216,10 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 1
-        </div>
+        <div class="caption">Listing 1</div>
     </div>
 
-    <p>
-        We would therefore include the following methods in our class declaration:
-    </p>
+    <p>We would therefore include the following methods in our class declaration:</p>
 
     <div id="listing-2" class="frame">
         <div class="code-pascal">
@@ -339,47 +247,24 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 12</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 2
-        </div>
+        <div class="caption">Listing 2</div>
     </div>
 
-    <p>
-        These methods would then be implemented as required.
-    </p>
+    <p>These methods would then be implemented as required.</p>
 
-    <p class="callout callout-info">
-        Remember that we don't need to declare or implement anymethods of <var>IDispatch</var> since they are already
-        implemented by <var>TAutoIntfObject</var>.
-    </p>
+    <p class="callout callout-info">Remember that we don't need to declare or implement anymethods of <var>IDispatch</var> since they are already implemented by <var>TAutoIntfObject</var>.</p>
 
-    <p>
-        Now <var>TAutoIntfObject</var>'s implementation of the <var>IDispatch</var> methods depends on having access to
-        the type library that describes the methods of the interfaces implemented by descendent classes. This is
-        achieved by passing an object, that implements <var>ITypeLib</var> as a parameter, to
-        <var>TAutoIntfObject</var>'s
-        constructor. It is our job to create such an <var>ITypeLib</var> object that &quot;knows about&quot; our type
-        library.
-    </p>
+    <p>Now <var>TAutoIntfObject</var>'s implementation of the <var>IDispatch</var> methods depends on having access to the type library that describes the methods of the interfaces implemented by descendent classes. This is achieved by passing an object, that implements <var>ITypeLib</var> as a parameter, to <var>TAutoIntfObject</var>'s constructor. It is our job to create such an <var>ITypeLib</var> object that &quot;knows about&quot; our type library.</p>
 
-    <p>
-        We do this by declaring a parameterless constructor for the derived class. In the constructor we call the
-        <var>LoadTypeLib</var> API function, passing the name of our application as a parameter. <var>LoadTypeLib</var>
-        accesses the type library information that is embedded in the application's resources and creates the required
-        <var>ITypeLib</var> object based on this information. We then pass this <var>ITypeLib</var> object to the
-        inherited constructor. Assuming our derived class is named <var>TMyExternal</var>, <span
-            class="figureref">Listing 3</span> shows the constructor's implementation.
-    </p>
+    <p>We do this by declaring a parameterless constructor for the derived class. In the constructor we call the <var>LoadTypeLib</var> API function, passing the name of our application as a parameter. <var>LoadTypeLib</var> accesses the type library information that is embedded in the application's resources and creates the required <var>ITypeLib</var> object based on this information. We then pass this <var>ITypeLib</var> object to the inherited constructor. Assuming our derived class is named <var>TMyExternal</var>, <span class="figureref">Listing 3</span> shows the constructor's implementation.</p>
 
     <aside>
         <div class="callout callout-info">
-            <h4>
-                Type Library Resource
-            </h4>
-            <p>
-                Remember the <code>{$R&nbsp;*.tlb}</code> directive mentioned earlier ensures that the <code>.tlb</code>
-                file generated by the type library editor is included in our program's resources.
-            </p>
+
+            <h4>Type Library Resource</h4>
+
+            <p>Remember the <code>{$R&nbsp;*.tlb}</code> directive mentioned earlier ensures that the <code>.tlb</code> file generated by the type library editor is included in our program's resources.</p>
+
         </div>
     </aside>
 
@@ -414,48 +299,22 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 15</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 3
-        </div>
+        <div class="caption">Listing 3</div>
     </div>
 
 </section>
 
 <section id="regext">
 
-    <h2>
-        Registering the external object with TWebBrowser
-    </h2>
+    <h2>Registering the external object with TWebBrowser</h2>
 
-    <p>
-        Having implemented the COM object that extends the <em>external</em> object, how do we tell the web browser
-        about it?
-    </p>
+    <p>Having implemented the COM object that extends the <em>external</em> object, how do we tell the web browser about it?</p>
 
-    <p>
-        The answer is by creating a container object that hosts the web browser control. This object must implement the
-        <var><a href="./article-18#idochostuihandler">IDocHostUIHandler</a></var> and <var><a
-                href="./article-18#ioleclientsite">IOleClientSite</a></var> interfaces. <var>IDocHostUIHandler</var> has
-        a <var>GetExternal</var> method that we must implement to return a reference to our custom <em>external</em>
-        object.
-    </p>
+    <p>The answer is by creating a container object that hosts the web browser control. This object must implement the <var><a href="./article-18#idochostuihandler">IDocHostUIHandler</a></var> and <var><a href="./article-18#ioleclientsite">IOleClientSite</a></var> interfaces. <var>IDocHostUIHandler</var> has a <var>GetExternal</var> method that we must implement to return a reference to our custom <em>external</em> object.</p>
 
-    <p>
-        <var>IDocHostUIHandler</var> has many other methods that we have to implement, but we can get away with stubbing
-        them out. In the article &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot;
-        I discussed <var>IDocHostUIHandler</var> in detail and presented a do nothing implementation named
-        <var>TNulWBContainer</var> [sic]. I won't repeat that presentation here, so please check out the <a
-            href="./article-18#tnulwbcontainer"><em>Developing a reusable base class</em></a> section of the article if
-        you need to review how this is done.
-    </p>
+    <p><var>IDocHostUIHandler</var> has many other methods that we have to implement, but we can get away with stubbing them out. In the article &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot; I discussed <var>IDocHostUIHandler</var> in detail and presented a do nothing implementation named <var>TNulWBContainer</var> [sic]. I won't repeat that presentation here, so please check out the <a href="./article-18#tnulwbcontainer"><em>Developing a reusable base class</em></a> section of the article if you need to review how this is done.</p>
 
-    <p>
-        Doing all the hard work in <var>TNulWBContainer</var> means that our implementation of
-        <var>IDocHostUIHandler</var> and <var>IOleClientSite</var> can be quite simple if we descend our container class
-        from <var>TNulWBContainer</var>. <span class="figureref">Listing 4</span> has the declaration of an example of
-        such a class, which we will call <var>TExternalContainer</var>. <span class="figureref">Listing 5</span> shows
-        its implementation.
-    </p>
+    <p>Doing all the hard work in <var>TNulWBContainer</var> means that our implementation of <var>IDocHostUIHandler</var> and <var>IOleClientSite</var> can be quite simple if we descend our container class from <var>TNulWBContainer</var>. <span class="figureref">Listing 4</span> has the declaration of an example of such a class, which we will call <var>TExternalContainer</var>. <span class="figureref">Listing 5</span> shows its implementation.</p>
 
     <div id="listing-4" class="frame">
         <div class="code-pascal">
@@ -481,9 +340,7 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 11</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 4
-        </div>
+        <div class="caption">Listing 4</div>
     </div>
 
     <div id="listing-5" class="frame">
@@ -512,64 +369,34 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 13</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 5
-        </div>
+        <div class="caption">Listing 5</div>
     </div>
 
-    <p>
-        Notice that we create an instance of our <em>external</em> object extension in the constructor and store it in a
-        field of type <var>IDispatch</var>. We then implement <var>GetExternal</var> to pass back a reference to the
-        <em>external</em> object in <var>ppDispatch</var> and return <var>S_OK</var> to indicate we have provided the
-        object.
-    </p>
+    <p>Notice that we create an instance of our <em>external</em> object extension in the constructor and store it in a field of type <var>IDispatch</var>. We then implement <var>GetExternal</var> to pass back a reference to the <em>external</em> object in <var>ppDispatch</var> and return <var>S_OK</var> to indicate we have provided the object.</p>
 
-    <p>
-        We pass a reference to the web browser control we are hosting to the constructor. This reference is simply
-        passed on to the inherited constructor where it is recorded and notified that our object is its container. See
-        the implementation of <a href="./article-18#tnulwbcontainer.create"><var>TNulWBContainer.Create</var></a> in <a
-            href="./article-18">article #18</a> for details of how this is done.
-    </p>
+    <p>We pass a reference to the web browser control we are hosting to the constructor. This reference is simply passed on to the inherited constructor where it is recorded and notified that our object is its container. See the implementation of <a href="./article-18#tnulwbcontainer.create"><var>TNulWBContainer.Create</var></a> in <a href="./article-18">article #18</a> for details of how this is done.</p>
 
 </section>
 
 <section id="calling-delphi">
 
-    <h2>
-        Calling into Delphi from JavaScript
-    </h2>
+    <h2>Calling into Delphi from JavaScript</h2>
 
-    <p>
-        Having implemented our <em>external</em> object extension and registered it with the browser control, it is now
-        time to look at how we call the object's methods from JavaScript.
-    </p>
+    <p>Having implemented our <em>external</em> object extension and registered it with the browser control, it is now time to look at how we call the object's methods from JavaScript.</p>
 
-    <p class="callout callout-info">
-        A similar approach is taken if you wish to use VBScript rather than JavaScript, but the precise details are, as
-        they say, left as an exercise!
-    </p>
+    <p class="callout callout-info">A similar approach is taken if you wish to use VBScript rather than JavaScript, but the precise details are, as
+        they say, left as an exercise!</p>
 
-    <p>
-        All we have to do to call into our Delphi code from JavaScript is to reference the relevant methods of the
-        <em>external</em> object. For example to access <em>external</em> method <var>Foo</var> from JavaScript we would
-        use the code presented in <span class="figureref">Listing 6</span>:
-    </p>
+    <p>All we have to do to call into our Delphi code from JavaScript is to reference the relevant methods of the <em>external</em> object. For example to access <em>external</em> method <var>Foo</var> from JavaScript we would use the code presented in <span class="figureref">Listing 6</span>:</p>
 
     <div id="listing-6" class="frame">
         <div class="code-pascal">
             <pre class="line"><span class="linenum">  1</span><span>external.Foo();</span></pre>
         </div>
-        <div class="caption">
-            Listing 6
-        </div>
+        <div class="caption">Listing 6</div>
     </div>
 
-    <p>
-        <em>external</em> object methods can be called anywhere that a JavaScript method call is valid &ndash; either
-        from event handlers of HTML elements or from blocks of JavaScript code. For example, say we have implemented the
-        interface shown in <span class="figureref">Listing 7</span> in Delphi, and have registered it as an extension of
-        the <em>external</em> object:
-    </p>
+    <p><em>external</em> object methods can be called anywhere that a JavaScript method call is valid &ndash; either from event handlers of HTML elements or from blocks of JavaScript code. For example, say we have implemented the interface shown in <span class="figureref">Listing 7</span> in Delphi, and have registered it as an extension of the <em>external</em> object:</p>
 
     <div id="listing-7" class="frame">
         <div class="code-pascal">
@@ -589,20 +416,12 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  8</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 7
-        </div>
+        <div class="caption">Listing 7</div>
     </div>
 
-    <p>
-        Assume that <var>SetLabel</var> sets the caption of a <var>TLabel</var> to the given text and
-        <var>GetEMail</var> looks up the name of the given person in a database and returns their email address.
-    </p>
+    <p>Assume that <var>SetLabel</var> sets the caption of a <var>TLabel</var> to the given text and <var>GetEMail</var> looks up the name of the given person in a database and returns their email address.</p>
 
-    <p>
-        We can ensure the label's caption is set when a user clicks a link by using HTML such as that presented in <span
-            class="figureref">Listing 8</span>.
-    </p>
+    <p>We can ensure the label's caption is set when a user clicks a link by using HTML such as that presented in <span class="figureref">Listing 8</span>.</p>
 
     <div id="listing-8" class="frame">
         <div class="code-pascal">
@@ -617,15 +436,10 @@ redirect_from:
             <pre class="line"><span class="linenum">  7</span>  ...</pre>
             <pre class="line"><span class="linenum">  8</span><span class="kwd">&lt;/body&gt;</span></pre>
         </div>
-        <div class="caption">
-            Listing 8
-        </div>
+        <div class="caption">Listing 8</div>
     </div>
 
-    <p>
-        We can also write someone's email address into the HTML document using a block of JavaScript similar to that
-        given in <span class="figureref">Listing 9</span>.
-    </p>
+    <p>We can also write someone's email address into the HTML document using a block of JavaScript similar to that given in <span class="figureref">Listing 9</span>.</p>
 
     <div id="listing-9" class="frame">
         <div class="code-pascal">
@@ -642,50 +456,26 @@ redirect_from:
             <pre class="line"><span class="linenum">  8</span>  ...</pre>
             <pre class="line"><span class="linenum">  9</span><span class="kwd">&lt;/body&gt;</span></pre>
         </div>
-        <div class="caption">
-            Listing 9
-        </div>
+        <div class="caption">Listing 9</div>
     </div>
 
-    <p>
-        As can be seen, once the hard work of setting up and registering the <em>external</em> object has been done, it
-        is very easy to call the required methods.
-    </p>
+    <p>As can be seen, once the hard work of setting up and registering the <em>external</em> object has been done, it is very easy to call the required methods.</p>
 
-    <p>
-        That concludes our discussion of the techniques involved in calling Delphi code from JavaScript. In the next
-        section we will work through a case study that draws all the strands together.
-    </p>
+    <p>That concludes our discussion of the techniques involved in calling Delphi code from JavaScript. In the next section we will work through a case study that draws all the strands together.</p>
 
 </section>
 
 <section id="case-study">
 
-    <h2>
-        Case study
-    </h2>
+    <h2>Case study</h2>
 
+    <h3 id="case-study-overview">Overview</h3>
 
-    <h3 id="case-study-overview">
-        Overview
-    </h3>
+    <p>Our case study is a simple application that illustrates the techniques discussed in this article.</p>
 
-    <p>
-        Our case study is a simple application that illustrates the techniques discussed in this article.
-    </p>
+    <p>The program we will develop lists some of the programs available on the <em>DelphiDabbler</em> website. Clicking one of the program names will display a brief description (précis) of the program, in a box underneath the list of programs. When the mouse is moved over a program name, the URL of the its web page will be displayed in the status bar. The status bar will clear when there is no program name under the mouse. The précis of each program is stored in a data file that is read by our application.</p>
 
-    <p>
-        The program we will develop lists some of the programs available on the <em>DelphiDabbler</em> website. Clicking
-        one of the program names will display a brief description (précis) of the program, in a box underneath the list
-        of programs. When the mouse is moved over a program name, the URL of the its web page will be displayed in the
-        status bar. The status bar will clear when there is no program name under the mouse. The précis of each program
-        is stored in a data file that is read by our application.
-    </p>
-
-    <p>
-        Here is a screenshot of the completed program, compiled with Delphi 11.0 Alexandria as a 32 bit application and
-        running on Windows 11:
-    </p>
+    <p>Here is a screenshot of the completed program, compiled with Delphi 11.0 Alexandria as a 32 bit application and running on Windows 11:</p>
 
     <div id="figure-1" class="frame">
         <div>
@@ -693,97 +483,49 @@ redirect_from:
                 alt="Screenshot of case study program" title="Screenshot of case study program." width="438"
                 height="274">
         </div>
-        <div class="caption">
-            <em>Figure 1:</em> Screenshot of case study program
-        </div>
+        <div class="caption"><em>Figure 1:</em> Screenshot of case study program</div>
     </div>
 
-    <p>
-        We will develop the program in the following order:
-    </p>
+    <p>We will develop the program in the following order:</p>
 
     <ol>
-        <li>
-            Design the main form.
-        </li>
+        <li>Design the main form.</li>
 
-        <li>
-            Define the required external object and create its type library / interface.
-        </li>
+        <li>Define the required external object and create its type library / interface.</li>
 
-        <li>
-            Implement the external object.
-        </li>
+        <li>Implement the external object.</li>
 
-        <li>
-            Implement the <var>IDocHostUIHandler</var> interface's <var>GetExternal</var> method.
-        </li>
+        <li>Implement the <var>IDocHostUIHandler</var> interface's <var>GetExternal</var> method.</li>
 
-        <li>
-            Register the <var>IDocHostUIHandler</var> implementation with the web browser control.
-        </li>
+        <li>Register the <var>IDocHostUIHandler</var> implementation with the web browser control.</li>
 
-        <li>
-            Create the HTML file, containing the required JavaScript, that will be displayed in the browser control.
-        </li>
+        <li>Create the HTML file, containing the required JavaScript, that will be displayed in the browser control.</li>
     </ol>
 
+    <h3 id="case-study-visual">Designing the main form</h3>
 
-    <h3 id="case-study-visual">
-        Designing the main form
-    </h3>
-
-    <p>
-        To begin the project, start a new Delphi VCL GUI application and set up the main form as follows:
-    </p>
+    <p>To begin the project, start a new Delphi VCL GUI application and set up the main form as follows:</p>
 
     <ul>
-        <li>
-            Drop a <var>TStatusBar</var> and set its <var>SimplePanel</var> and <var>AutoHint</var> properties to
-            <var>True</var>.
-        </li>
-
-        <li>
-            Drop a <var>TWebBrowser</var> control and set its <var>Align</var> property to <var>alClient</var>.
-        </li>
+        <li>Drop a <var>TStatusBar</var> and set its <var>SimplePanel</var> and <var>AutoHint</var> properties to <var>True</var>.</li>
+        <li>Drop a <var>TWebBrowser</var> control and set its <var>Align</var> property to <var>alClient</var>.</li>
     </ul>
 
-    <p>
-        That is all there is to the main form. SSave it with the default name, probably <code>Unit1.pas</code>.
-    </p>
+    <p>That is all there is to the main form. SSave it with the default name, probably <code>Unit1.pas</code>.</p>
 
+    <h3 id="case-study-extdef">Defining the external object</h3>
 
-    <h3 id="case-study-extdef">
-        Defining the external object
-    </h3>
-
-    <p>
-        Let us consider the methods we need to add to the browser's <em>external</em> object. From the specification
-        above we see that we need methods to perform the following actions:
-    </p>
+    <p>Let us consider the methods we need to add to the browser's <em>external</em> object. From the specification above we see that we need methods to perform the following actions:</p>
 
     <ol>
-        <li>
-            Get the précis of a specified program when a program name is clicked (<var>GetPrecis</var> method). We will
-            use an id string to uniquely identify each program.
-        </li>
+        <li>Get the précis of a specified program when a program name is clicked (<var>GetPrecis</var> method). We will use an id string to uniquely identify each program.</li>
 
-        <li>
-            Display the URL of a program's web page in the status bar when the mouse cursor is over a program name
-            (<var>ShowURL</var> method). Again we will pass the program's id as a parameter.
-        </li>
+        <li>Display the URL of a program's web page in the status bar when the mouse cursor is over a program name (<var>ShowURL</var> method). Again we will pass the program's id as a parameter.</li>
 
-        <li>
-            Clear the status bar when no program's name is under the cursor (<var>HideURL</var> method).
-        </li>
+        <li>Clear the status bar when no program's name is under the cursor (<var>HideURL</var> method).</li>
     </ol>
 
-    <p>
-        We can now create an interface that contains each of the required methods. Start Delphi's Type Library Editor
-        and use it to create a new interface named <var>IMyExternal</var>. Make sure the new interface has
-        <var>IDispatch</var> as it parent interface. Now add three methods using the information in <em>Table 2</em>,
-        ensuring that each method has a return type of <var>HRESULT</var>.
-    </p>
+    <p>We can now create an interface that contains each of the required methods. Start Delphi's Type Library Editor and use it to create a new interface named <var>IMyExternal</var>. Make sure the new interface has <var>IDispatch</var> as it parent interface. Now add three methods using the information in <em>Table 2</em>, ensuring that each method has a return type of <var>HRESULT</var>.</p>
 
     <div class="frame table-responsive" id="table-1">
         <table class="table" summary="Table of example routines to be created in type library editor">
@@ -820,19 +562,10 @@ redirect_from:
                 </tr>
             </tbody>
         </table>
-        <div class="caption">
-            Table 2
-        </div>
+        <div class="caption">Table 2</div>
     </div>
 
-    <p>
-        Press <span class="text-smallcaps">Ctrl+S</span> to save the type library and name it either
-        <code>Article22.ridl</code>or <code>Article22.tlb</code>, depending on the version of Delhi in use &ndash; just
-        accept the suggested file type in any Save dialogue box. Either way, Delphi will now create a type library file
-        named <code>Article22.tlb</code> and a Pascal unit named <code>Article22_TLB.pas</code>. Opening
-        <code>Article22_TLB.pas</code> will reveal the <var>IMyExternal</var> interface declaration shown in <span
-            class="figureref">Listing 10</span>. (Note that the GUID will be different):
-    </p>
+    <p>Press <span class="text-smallcaps">Ctrl+S</span> to save the type library and name it either <code>Article22.ridl</code>or <code>Article22.tlb</code>, depending on the version of Delhi in use &ndash; just accept the suggested file type in any Save dialogue box. Either way, Delphi will now create a type library file named <code>Article22.tlb</code> and a Pascal unit named <code>Article22_TLB.pas</code>. Opening <code>Article22_TLB.pas</code> will reveal the <var>IMyExternal</var> interface declaration shown in <span class="figureref">Listing 10</span>. (Note that the GUID will be different):</p>
 
     <div id="listing-10" class="frame">
         <div class="code-pascal">
@@ -856,25 +589,14 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 10</span><span class="space">  </span><span class="sym">..</span><span class="sym">.</span></pre>
         </div>
-        <div class="caption">
-            Listing 10
-        </div>
+        <div class="caption">Listing 10</div>
     </div>
 
-    <p class="callout callout-info">
-        <code>Article22_TLB.pas</code> will also contain a <span class="kwd">dispinterface</span> named
-        <var>IMyExternalDisp</var>. You can ignore this since we won't be using it.
-    </p>
+    <p class="callout callout-info"><code>Article22_TLB.pas</code> will also contain a <span class="kwd">dispinterface</span> named <var>IMyExternalDisp</var>. You can ignore this since we won't be using it.</p>
 
-    <h3 id="case-study-extimp">
-        Implementing the external object
-    </h3>
+    <h3 id="case-study-extimp">Implementing the external object</h3>
 
-    <p>
-        Now that we have created the <var>IMyExternal</var> interface, we implement it in a class named
-        <var>TMyExternal</var>. We will add a new unit, <code>UMyExternal.pas</code> to store the class. <span
-            class="figureref">Listing 11</span> has the class declaration.
-    </p>
+    <p>Now that we have created the <var>IMyExternal</var> interface, we implement it in a class named <var>TMyExternal</var>. We will add a new unit, <code>UMyExternal.pas</code> to store the class. <span class="figureref">Listing 11</span> has the class declaration.</p>
 
     <div id="listing-11" class="frame">
         <div class="code-pascal">
@@ -908,22 +630,12 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 11
-        </div>
+        <div class="caption">Listing 11</div>
     </div>
 
-    <p>
-        As expected, the methods of <var>IMyExternal</var> are specified in the class' protected section. We also have a
-        private helper method, <var>ShowSBMsg</var>, that displays a given message in the status bar. This method is
-        used by both <var>ShowURL</var> and <var>HideURL</var> as we will see in a moment. The <var>fData</var> string
-        list is used to store the précis of the different programs. This field is accessed by <var>GetPrecis</var>.
-    </p>
+    <p>As expected, the methods of <var>IMyExternal</var> are specified in the class' protected section. We also have a private helper method, <var>ShowSBMsg</var>, that displays a given message in the status bar. This method is used by both <var>ShowURL</var> and <var>HideURL</var> as we will see in a moment. The <var>fData</var> string list is used to store the précis of the different programs. This field is accessed by <var>GetPrecis</var>.</p>
 
-    <p>
-        Let us look at the implementation of the class. We will start with the constructor and destructor shown in <span
-            class="figureref">Listing 12</span>:
-    </p>
+    <p>Let us look at the implementation of the class. We will start with the constructor and destructor shown in <span class="figureref">Listing 12</span>:</p>
 
     <div id="listing-12" class="frame">
         <div class="code-pascal">
@@ -966,23 +678,12 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 21</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 12
-        </div>
+        <div class="caption">Listing 12</div>
     </div>
 
-    <p>
-        The first three executable lines in the constructor are boilerplate code that has been explained earlier in the
-        article. Following the call to the inherited constructor we create the <var>TStringList</var> object that is to
-        store the précis data. We then read the string list's contents from a data file named <code>Article22.dat</code>
-        that is expected to be found in the same directory as the application. The format of the data file is described
-        later. The destructor simply frees the string list.
-    </p>
+    <p>The first three executable lines in the constructor are boilerplate code that has been explained earlier in the article. Following the call to the inherited constructor we create the <var>TStringList</var> object that is to store the précis data. We then read the string list's contents from a data file named <code>Article22.dat</code> that is expected to be found in the same directory as the application. The format of the data file is described later. The destructor simply frees the string list.</p>
 
-    <p>
-        Now move on to examine the implementation of the three <var>IMyExternal</var> methods shown in <span
-            class="figureref">Listing 13</span>:
-    </p>
+    <p>Now move on to examine the implementation of the three <var>IMyExternal</var> methods shown in <span class="figureref">Listing 13</span>:</p>
 
     <div id="listing-13" class="frame">
         <div class="code-pascal">
@@ -1016,32 +717,16 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 17</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 13
-        </div>
+        <div class="caption">Listing 13</div>
     </div>
 
-    <p>
-        <var>GetPrecis</var> looks up the given <var>ProgID</var> in the <var>Values</var> property of <var>fData</var>
-        and returns the value found there. The data file that was loaded into <var>fData</var> in the constructor
-        contains a line for each program. Each line has the format <code>ProgID=Precis</code>. The
-        <var>TStringList.Values[]</var> property is designed to work with strings in this format.
-    </p>
+    <p><var>GetPrecis</var> looks up the given <var>ProgID</var> in the <var>Values</var> property of <var>fData</var> and returns the value found there. The data file that was loaded into <var>fData</var> in the constructor contains a line for each program. Each line has the format <code>ProgID=Precis</code>. The <var>TStringList.Values[]</var> property is designed to work with strings in this format.</p>
 
-    <p>
-        <var>HideURL</var> uses <var>ShowSBMsg</var> to display an empty string in the status bar, which has the effect
-        of clearing any previous message.
-    </p>
+    <p><var>HideURL</var> uses <var>ShowSBMsg</var> to display an empty string in the status bar, which has the effect of clearing any previous message.</p>
 
-    <p>
-        <var>ShowURL</var> simply appends its <var>ProgID</var> parameter to a literal string to produce the URL of the
-        program's web page. It then calls <var>ShowSBMsg</var> to display the URL in the status bar.
-    </p>
+    <p><var>ShowURL</var> simply appends its <var>ProgID</var> parameter to a literal string to produce the URL of the program's web page. It then calls <var>ShowSBMsg</var> to display the URL in the status bar.</p>
 
-    <p>
-        All that remains is to look at <span class="figureref">Listing 14</span>, which shows the implementation of
-        <var>ShowSBMsg</var>.
-    </p>
+    <p>All that remains is to look at <span class="figureref">Listing 14</span>, which shows the implementation of <var>ShowSBMsg</var>.</p>
 
     <div id="listing-14" class="frame">
         <div class="code-pascal">
@@ -1068,91 +753,43 @@ redirect_from:
             <pre
                 class="line"><span class="linenum"> 12</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 14
-        </div>
+        <div class="caption">Listing 14</div>
     </div>
 
-    <p>
-        Hmm &ndash; no mention of the status bar! What's happening here is that we're creating an instance of the VCL's
-        <var>THintAction</var> action class, storing the message we want to display in its <var>Hint</var> property then
-        executing the action. A magical feature of <var>THintAction</var> is that it automatically displays its hint in
-        any <var>TStatusBar</var> that has its <var>AutoHint</var> property set to <var>True</var>. This let's us
-        decouple our <em>external</em> object implementation quite nicely from the program's form.
-    </p>
+    <p>Hmm &ndash; no mention of the status bar! What's happening here is that we're creating an instance of the VCL's <var>THintAction</var> action class, storing the message we want to display in its <var>Hint</var> property then executing the action. A magical feature of <var>THintAction</var> is that it automatically displays its hint in any <var>TStatusBar</var> that has its <var>AutoHint</var> property set to <var>True</var>. This let's us decouple our <em>external</em> object implementation quite nicely from the program's form.</p>
 
-    <p>
-        Finally, we need to add a <span class="kwd">uses</span> clause, containing the following units in order for the
-        code to compile: <var>Classes</var>, <var>ComObj</var>, <var>SysUtils</var>, <var>ActiveX</var>,
-        <var>StdActns</var> and <var>Article22_TLB</var>.
-    </p>
+    <p>Finally, we need to add a <span class="kwd">uses</span> clause, containing the following units in order for the code to compile: <var>Classes</var>, <var>ComObj</var>, <var>SysUtils</var>, <var>ActiveX</var>, <var>StdActns</var> and <var>Article22_TLB</var>.</p>
 
     <div class="callout callout-info">
-        <h4>
-            A note about unit names
-        </h4>
-        <p>
-            All unit names in this example are unqualified. Depending on which version of Delphi you are using you may
-            need to qualify the unit names with the required unit scope name. Unit scopes can vary between versions of
-            Delphi, so it is left to the reader to determine the required name qualificatons.
-        </p>
-        <p>
-            If you need help doing this you could try the DelphiDabbler <a href="/software/unit2ns">Unit2NS</a> program.
-        </p>
+
+        <h4>A note about unit names</h4>
+
+        <p>All unit names in this example are unqualified. Depending on which version of Delphi you are using you may need to qualify the unit names with the required unit scope name. Unit scopes can vary between versions of Delphi, so it is left to the reader to determine the required name qualificatons.</p>
+
+        <p>If you need help doing this you could try the DelphiDabbler <a href="/software/unit2ns">Unit2NS</a> program.</p>
     </div>
 
+    <h3 id="case-study-dochost">Implementing IDocHostUIHandler</h3>
 
-    <h3 id="case-study-dochost">
-        Implementing IDocHostUIHandler
-    </h3>
-
-    <p>
-        As already noted, we are re-using code from an <a href="./article-18">earlier article</a> for our declaration of
-        <a href="./article-18#idochostuihandler"><var>IDocHostUIHandler</var></a> and for the do-nothing implementation
-        of the interface, <a href="./article-18#tnulwbcontainer"><var>TNulWBContainer</var></a> So, to begin with, we
-        must add the <code>IntfDocHostUIHandler.pas</code> and <code>UNulContainer.pas</code> units, developed in that
-        article, to our project.
-    </p>
+    <p>As already noted, we are re-using code from an <a href="./article-18">earlier article</a> for our declaration of <a href="./article-18#idochostuihandler"><var>IDocHostUIHandler</var></a> and for the do-nothing implementation of the interface, <a href="./article-18#tnulwbcontainer"><var>TNulWBContainer</var></a> So, to begin with, we must add the <code>IntfDocHostUIHandler.pas</code> and <code>UNulContainer.pas</code> units, developed in that article, to our project.</p>
 
     <div class="callout callout-info">
-        <h4>
-            Unit source code
-        </h4>
-        <p>
-            Units containing <var>IDocHostUIHandler</var> &amp; <var>TNulWBContainer</var> are included with this
-            article's <a href="#case-study-source">source code</a>.
-        </p>
+
+        <h4>Unit source code</h4>
+
+        <p>Units containing <var>IDocHostUIHandler</var> &amp; <var>TNulWBContainer</var> are included with this article's <a href="#case-study-source">source code</a>.</p>
+
     </div>
 
-    <p>
-        We now create our custom container class, <var>TExternalContainer</var>, by descending from
-        <var>TNulWBContainer</var> and overriding the <var>GetExternal</var> method to get the functionality we need. We
-        will use exactly the same code as we developed in <a href="#listing-4"><span class="figureref">listings 4 &amp;
-                5</span></a>.
-    </p>
+    <p>We now create our custom container class, <var>TExternalContainer</var>, by descending from <var>TNulWBContainer</var> and overriding the <var>GetExternal</var> method to get the functionality we need. We will use exactly the same code as we developed in <a href="#listing-4"><span class="figureref">listings 4 &amp; 5</span></a>.</p>
 
-    <p>
-        We will create a new unit, <code>UExternalContainer.pas</code> for <var>TExternalContainer</var> and add a <span
-            class="kwd">uses</span> clause that references the following units: <var>ActiveX</var>, <var>SHDocVw</var>,
-        <var>UNulContainer</var>, <var>IntfDocHostUIHandler</var> and <var>UMyExternal</var>.
-    </p>
+    <p>We will create a new unit, <code>UExternalContainer.pas</code> for <var>TExternalContainer</var> and add a <span class="kwd">uses</span> clause that references the following units: <var>ActiveX</var>, <var>SHDocVw</var>, <var>UNulContainer</var>, <var>IntfDocHostUIHandler</var> and <var>UMyExternal</var>.</p>
 
-    <h3 id="case-study-regext">
-        Registering the external object
-    </h3>
+    <h3 id="case-study-regext">Registering the external object</h3>
 
-    <p>
-        Our final piece of Delphi code registers our <var>TExternalContainer</var> object as a client site (container)
-        for the browser control. This is done in the main form simply by instantiating a <var>TExternalContainer</var>
-        object and passing a reference to the browser control to its constructor. Recall that
-        <var>TExternalContainer</var>'s inherited constructor automatically registers the object as a client site of the
-        contained web browser control.
-    </p>
+    <p>Our final piece of Delphi code registers our <var>TExternalContainer</var> object as a client site (container) for the browser control. This is done in the main form simply by instantiating a <var>TExternalContainer</var> object and passing a reference to the browser control to its constructor. Recall that <var>TExternalContainer</var>'s inherited constructor automatically registers the object as a client site of the contained web browser control.</p>
 
-    <p>
-        We will use the form's <var>OnShow</var> event handler to create <var>TExternalContainer</var>. We will also use
-        this event handler to load the required HTML file, as <span class="figureref">Listing 15</span> shows:
-    </p>
+    <p>We will use the form's <var>OnShow</var> event handler to create <var>TExternalContainer</var>. We will also use this event handler to load the required HTML file, as <span class="figureref">Listing 15</span> shows:</p>
 
     <div id="listing-15" class="frame">
         <div class="code-pascal">
@@ -1170,36 +807,22 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  7</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 15
-        </div>
+        <div class="caption">Listing 15</div>
     </div>
 
-    <p>
-        Notice that we have stored a reference to the container object in a field named <var>fContainer</var>. Add such
-        a field, with type <var>TExternalContainer</var> to the form's declaration.
-    </p>
+    <p>Notice that we have stored a reference to the container object in a field named <var>fContainer</var>. Add such a field, with type <var>TExternalContainer</var> to the form's declaration.</p>
 
     <div class="callout callout-warning">
-        <h4>
-            Use <var>FormShow</var> and not <var>FormCreate</var>
-        </h4>
-        <p>
-            We have to create <var>TExternalContainer</var> in the form's <var>OnShow</var> event handler instead of
-            <var>OnCreate</var> (which is where we usually create objects) because the contained <var>TWebBrowser</var>
-            will raise an exception if we create the container object in <var>OnCreate</var>. Delaying construction
-            until the <var>OnShow</var> event handler gets called solves this problem.
-        </p>
-        <p>
-            Why? I don't really know, but I'm guessing that <var>TWebBrowser</var> requires the host form window to be
-            created before it can interact with any container object.
-        </p>
+
+        <h4>Use <var>FormShow</var> and not <var>FormCreate</var></h4>
+
+        <p>We have to create <var>TExternalContainer</var> in the form's <var>OnShow</var> event handler instead of <var>OnCreate</var> (which is where we usually create objects) because the contained <var>TWebBrowser</var> will raise an exception if we create the container object in <var>OnCreate</var>. Delaying construction until the <var>OnShow</var> event handler gets called solves this problem.</p>
+
+        <p>Why? I don't really know, but I'm guessing that <var>TWebBrowser</var> requires the host form window to be created before it can interact with any container object.</p>
+
     </div>
 
-    <p>
-        Having created the container object we must also ensure it gets freed. This is done in the form's
-        <var>OnHide</var> event handler as <span class="figureref">Listing 16</span> illustrates:
-    </p>
+    <p>Having created the container object we must also ensure it gets freed. This is done in the form's <var>OnHide</var> event handler as <span class="figureref">Listing 16</span> illustrates:</p>
 
     <div id="listing-16" class="frame">
         <div class="code-pascal">
@@ -1211,24 +834,14 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 16
-        </div>
+        <div class="caption">Listing 16</div>
     </div>
 
-    <p>
-        The last step is to add <var>UExternalContainer</var> to the main form's <span class="kwd">uses</span> clause.
-    </p>
+    <p>The last step is to add <var>UExternalContainer</var> to the main form's <span class="kwd">uses</span> clause.</p>
 
-    <h3 id="case-study-html">
-        Creating the HTML file
-    </h3>
+    <h3 id="case-study-html">Creating the HTML file</h3>
 
-    <p>
-        We now need to create the HTML file that we loaded in <a href="#listing-15"><span class="figureref">Listing
-                15</span></a>. This file is named <code>Article22.html</code> and <span class="figureref">listing
-            17</span> shows the file in full:
-    </p>
+    <p>We now need to create the HTML file that we loaded in <a href="#listing-15"><span class="figureref">Listing 15</span></a>. This file is named <code>Article22.html</code> and <span class="figureref">listing 17</span> shows the file in full:</p>
 
     <div id="listing-17" class="frame">
         <div class="code-pascal">
@@ -1341,104 +954,54 @@ redirect_from:
             <pre class="line"><span class="linenum"> 69</span>  <span class="kwd">&lt;/body&gt;</span></pre>
             <pre class="line"><span class="linenum"> 70</span><span class="kwd">&lt;/html&gt;</span></pre>
         </div>
-        <div class="caption">
-            Listing 17
-        </div>
+        <div class="caption">Listing 17</div>
     </div>
 
-    <p>
-        Looking at the body section of the file we see that it contains a list of four program names, each defined as
-        links (<code>&lt;a&gt;</code> tags) that reference no URL.
-    </p>
+    <p>Looking at the body section of the file we see that it contains a list of four program names, each defined as links (<code>&lt;a&gt;</code> tags) that reference no URL.</p>
 
     <div class="callout callout-info">
-        <h4>
-            Do-nothing links
-        </h4>
-        <p>
-            To ensure that a link does nothing when clicked we set the <var>href</var> attribute to call the JavaScript
-            <var>void()</var> function, like this: <samp>href="javascript:void(0);"</samp>. It's also possible to simply
-            use <samp>href="#"</samp>.
-        </p>
+
+        <h4>Do-nothing links</h4>
+
+        <p>To ensure that a link does nothing when clicked we set the <var>href</var> attribute to call the JavaScript <var>void()</var> function, like this: <samp>href="javascript:void(0);"</samp>. It's also possible to simply use <samp>href="#"</samp>.</p>
+
     </div>
 
-    <p>
-        Every link has a unique <var>id</var> attribute that identifies the program to which it refers.
-    </p>
+    <p>Every link has a unique <var>id</var> attribute that identifies the program to which it refers.</p>
 
-    <p>
-        The a-links' <var>onclick</var> event handlers call the <var>ShowPrecis</var> JavaScript routine, passing in the
-        id of the relevant program as a parameter. <var>ShowPrecis</var> is defined in the HTML head section. The
-        function first finds the <code>&lt;div&gt;</code> tag with the id of &quot;precis&quot; and then finds the
-        a-link element associated with the program id. The HTML enclosed by the &quot;precis&quot;
-        <code>&lt;div&gt;</code> tag is then replaced by HTML comprising of the program name in bold, a line break and
-        the actual précis of the program. The précis is returned by the <var>external.GetPrecis</var> method, which
-        executes <var>TMyExternal.GetPrecis</var> in the Delphi code.
-    </p>
+    <p>The a-links' <var>onclick</var> event handlers call the <var>ShowPrecis</var> JavaScript routine, passing in the id of the relevant program as a parameter. <var>ShowPrecis</var> is defined in the HTML head section. The function first finds the <code>&lt;div&gt;</code> tag with the id of &quot;precis&quot; and then finds the a-link element associated with the program id. The HTML enclosed by the &quot;precis&quot; <code>&lt;div&gt;</code> tag is then replaced by HTML comprising of the program name in bold, a line break and the actual précis of the program. The précis is returned by the <var>external.GetPrecis</var> method, which executes <var>TMyExternal.GetPrecis</var> in the Delphi code.</p>
 
-    <p>
-        Returning to the a-link tags, note that the <var>onmouseover</var> events directly call
-        <var>external.ShowURL</var> with the id of the required program while the <var>onmouseout</var> events call
-        <var>external.HideURL</var>. These JavaScript methods execute methods of the same name in
-        <var>TMyExternal</var>, which in turn show and hide the program's URL in the main window status bar.
-    </p>
+    <p>Returning to the a-link tags, note that the <var>onmouseover</var> events directly call <var>external.ShowURL</var> with the id of the required program while the <var>onmouseout</var> events call <var>external.HideURL</var>. These JavaScript methods execute methods of the same name in <var>TMyExternal</var>, which in turn show and hide the program's URL in the main window status bar.</p>
 
-    <p>
-        The only other item of note in the HTML file is that the <code>&lt;head&gt;</code> section contains an embedded
-        style sheet that styles the <code>&lt;body&gt;</code>, <code>&lt;h1&gt;</code> and
-        <code>&lt;div id=&quot;precis&quot;&gt;</code> elements.
-    </p>
+    <p>The only other item of note in the HTML file is that the <code>&lt;head&gt;</code> section contains an embedded style sheet that styles the <code>&lt;body&gt;</code>, <code>&lt;h1&gt;</code> and <code>&lt;div id=&quot;precis&quot;&gt;</code> elements.</p>
 
     <div class="callout callout-warning">
-        <h4>
-            Correct location of HTML file
-        </h4>
-        <p>
-            It is important that <code>Article22.html</code> can be found by the compiled program when it is run. By
-            default this is in the same directory as the executable file.
-        </p>
-        <p>
-            If you want to store the HTML file in a separate location you can either place a copy with the executable
-            file or modify the source code to change the expected location of the file (see <a href="#listing-15"><span
-                    class="figureref">Listing 15</span></a> line 5).
-        </p>
+
+        <h4>Correct location of HTML file</h4>
+
+        <p>It is important that <code>Article22.html</code> can be found by the compiled program when it is run. By default this is in the same directory as the executable file.</p>
+
+        <p>If you want to store the HTML file in a separate location you can either place a copy with the executable file or modify the source code to change the expected location of the file (see <a href="#listing-15"><span class="figureref">Listing 15</span></a> line 5).</p>
+
     </div>
 
-    <h3 id="case-study-data">
-        Data file
-    </h3>
+    <h3 id="case-study-data">Data file</h3>
 
-    <p>
-        The final step is to create the data file, named <code>Article22.dat</code>, that we load in <a
-            href="#listing-12"><var>TMyExternal.Create</var></a>. The file needs to be in the form
-        <code>Key=Value</code>, where <code>Key</code> is the id of one of the listed items of software and
-        <code>Value</code> is the text of a description of the software.
-    </p>
+    <p>The final step is to create the data file, named <code>Article22.dat</code>, that we load in <a href="#listing-12"><var>TMyExternal.Create</var></a>. The file needs to be in the form <code>Key=Value</code>, where <code>Key</code> is the id of one of the listed items of software and <code>Value</code> is the text of a description of the software.</p>
 
-    <p>
-        You can use any content you want, providing all the software ids are used as keys.
-    </p>
+    <p>You can use any content you want, providing all the software ids are used as keys.</p>
 
     <div class="callout callout-warning">
-        <h4>
-            Avoid HTML reserved characters
-        </h4>
-        <p>
-            When I said &quot;use any content you want&quot;, I didn't quite mean it! You need to make sure that the
-            <code>Value</code> items contain only characters that are safe to use in HTML. This is because the case
-            study code doesn't do any checking on the text. Production code should do this for security reasons.
-        </p>
-        <p>
-            Unsafe characters include <code>&gt;</code> (use the <code>&amp;gt;</code> character entity instead),
-            <code>&lt;</code> (use <code>&amp;lt;</code>), <code>&amp;</code> (use <code>&amp;amp;</code>) and
-            <code>&quot;</code> (use <code>&amp;quot;</code>).
-        </p>
+
+        <h4>Avoid HTML reserved characters</h4>
+
+        <p>When I said &quot;use any content you want&quot;, I didn't quite mean it! You need to make sure that the <code>Value</code> items contain only characters that are safe to use in HTML. This is because the case study code doesn't do any checking on the text. Production code should do this for security reasons.</p>
+
+        <p>Unsafe characters include <code>&gt;</code> (use the <code>&amp;gt;</code> character entity instead), <code>&lt;</code> (use <code>&amp;lt;</code>), <code>&amp;</code> (use <code>&amp;amp;</code>) and <code>&quot;</code> (use <code>&amp;quot;</code>).</p>
+
     </div>
 
-    <p>
-        <span class="figureref">Listing 18</span> shows the content of the file provided in the case study's source
-        code:
-    </p>
+    <p><span class="figureref">Listing 18</span> shows the content of the file provided in the case study's source code:</p>
 
     <div id="listing-17" class="frame">
         <div class="code-pascal">
@@ -1451,152 +1014,91 @@ redirect_from:
             <pre
                 class="line"><span class="linenum">  4</span><span class="kwd">bdiff</span><span class="sym">=</span>BDiff computes differences between two binary files and outputs either a human readable file of a binary patch file. BPatch uses the binary patch files produced by BDiff to patch files.</pre>
         </div>
-        <div class="caption">
-            Listing 18
-        </div>
+        <div class="caption">Listing 18</div>
     </div>
 
     <div class="callout callout-warning">
-        <h4>
-            Correct location of data file
-        </h4>
-        <p>
-            It is important that <code>Article22.dat</code> can be found by the compiled program when it is run. By
-            default this is in the same directory as the executable file.
-        </p>
-        <p>
-            If you want to store the data file in a separate location you can either place a copy with the executable
-            file or modify the source code to change the expected location of the file (see <a href="#listing-12"><span
-                    class="figureref">Listing 12</span></a>, line 14).
-        </p>
+
+        <h4> Correct location of data file</h4>
+
+        <p>It is important that <code>Article22.dat</code> can be found by the compiled program when it is run. By default this is in the same directory as the executable file.</p>
+
+        <p>If you want to store the data file in a separate location you can either place a copy with the executable file or modify the source code to change the expected location of the file (see <a href="#listing-12"><span class="figureref">Listing 12</span></a>, line 14).</p>
+
     </div>
 
-    <h3 id="case-study-source">
-        Source code
-    </h3>
+    <h3 id="case-study-source">Source code</h3>
 
-    <p>
-        A demo program to accompany this article can be found in the
-        <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git
-        repository on GitHub.
-    </p>
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
 
-    <p>
-        You can view the code in the
-        <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-22">article-22</a></code>
-        sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing
-        page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
-    </p>
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-22">article-22</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
 
-    <p>
-        See the demo's <a
-            href="https://github.com/delphidabbler/article-demos/blob/master/article-22/README.md">README.md</a> file
-        for details.
-    </p>
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-22/README.md">README.md</a> file for details.</p>
 
     <div class="callout callout-info">
-        <p>
-            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is
-            merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its
-            current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY
-            OF ANY KIND, either express or implied.
-        </p>
-        <p>
-            The demo is open source. See the demo's <a
-                href="https://github.com/delphidabbler/article-demos/blob/master/article-22/LICENSE.md">LICENSE.md</a>
-            file for licensing details.
-        </p>
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-22/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
     </div>
 
     <div class="callout callout-danger">
-        <h4>
-            Delph 2007 problems
-        </h4>
-        <p>
-            I've had a report that the demo code does not compile with Delphi 2007 unless you rename the unit
-            <code>Article22_TLB.pas</code> to <code>Article22TLB.pas</code> and change references to it accordingly.
-        </p>
+
+        <h4>Delph 2007 problems</h4>
+
+        <p>I've had a report that the demo code does not compile with Delphi 2007 unless you rename the unit <code>Article22_TLB.pas</code> to <code>Article22TLB.pas</code> and change references to it accordingly.</p>
+
     </div>
 
 </section>
 
 <section id="summary">
 
-    <h2>
-        Summary
-    </h2>
+    <h2>Summary</h2>
 
-    <p>
-        In this article we have investigated how to call into Delphi code from JavaScript running in a
-        <var>TWebBrowser</var> control.
-    </p>
+    <p>In this article we have investigated how to call into Delphi code from JavaScript running in a <var>TWebBrowser</var> control.</p>
 
-    <p>
-        We began by learning about the browser's <em>external</em> object and looked at how we can extend it using a COM
-        automation object that is registered with the browser control. We reused code from a previous article that
-        enables us to perform this registration.
-    </p>
+    <p>We began by learning about the browser's <em>external</em> object and looked at how we can extend it using a COM automation object that is registered with the browser control. We reused code from a previous article that enables us to perform this registration.</p>
 
-    <p>
-        Next we examined how the methods of the <em>external</em> object are called from JavaScript.
-    </p>
+    <p>Next we examined how the methods of the <em>external</em> object are called from JavaScript.</p>
 
-    <p>
-        Finally a simple case study program was developed that exercised the code we had developed and demonstrated
-        Delphi code being called from within the web browser control. The source code of the case study was made
-        available for download.
-    </p>
+    <p>Finally a simple case study program was developed that exercised the code we had developed and demonstrated Delphi code being called from within the web browser control. The source code of the case study was made available for download.</p>
 
 </section>
 
 <section id="references">
 
-    <h2>
-        References
-    </h2>
+    <h2>References</h2>
 
-    <p>
-        Various resources from the former Microsoft® Developer Network Library were used in researching this article.
-        The articles were:
-    </p>
+    <p>Various resources from the former Microsoft® Developer Network Library were used in researching this article. The articles were:</p>
 
     <ul>
-        <li>
-            &quot;About the Browser - Extending the Dynamic HTML Object Model'&quot;
-        </li>
-        <li>
-            &quot;WebBrowser Customization&quot;
-        </li>
-        <li>
-            &quot;External Object&quot;
-        </li>
+        <li>&quot;About the Browser - Extending the Dynamic HTML Object Model'&quot;</li>
+        <li>&quot;WebBrowser Customization&quot;</li>
+        <li>&quot;External Object&quot;</li>
     </ul>
 
-    <p class="callout callout-warning">
-        Unfortunately, these articles are no longer available at the URLs where they were originally found.
-    </p>
+    <p class="callout callout-warning">Unfortunately, these articles are no longer available at the URLs where they were originally found.</p>
 
-    <p>
-        The article also depends heavily on information provided in the companion article: &quot;<a
-            href="./article-18">How to customise the TWebBrowser user interface</a>&quot;
-    </p>
+    <p>The article also depends heavily on information provided in the companion article: &quot;<a href="./article-18">How to customise the TWebBrowser user interface</a>&quot;</p>
 
 </section>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #22&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #22&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

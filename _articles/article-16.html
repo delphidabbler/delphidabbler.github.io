@@ -10,9 +10,7 @@ redirect_from:
 ---
 <section id="contents">
 
-    <h2>
-        Contents
-    </h2>
+    <h2>Contents</h2>
 
     <nav>
         <div class="well">
@@ -68,13 +66,11 @@ redirect_from:
 
     <p>Before launching into the article proper, there are a few observations that need to be made about the limitations of list view custom drawing and of Delphi's implementation of it via the <var>OnCustomDrawXXX</var> events.</p>
 
-
     <h3 id='expectations'>Don't expect too much</h3>
 
     <p>The custom drawing support facility is meant for minor customisations of the list view control. The facility was not designed for major customisations.</p>
 
     <p>So don't expect too much from the <var>OnCustomDrawXXX</var> events &ndash; don't push them too far! If you want to perform a major customisation then you should owner-draw the control.</p>
-
 
     <h3 id="verdiffs">Delphi version differences</h3>
 
@@ -99,7 +95,6 @@ redirect_from:
 
     <p>Before diving into some code we'll briefly discuss what the different <var>OnCustomDrawXXX</var> events do.</p>
 
-
     <h3 id="oncustomdraw">OnCustomDraw</h3>
 
     <p><var>OnCustomDraw</var> allows drawing on the background of the list view control. We should handle this event if we want to draw or paint anything on the control's background.</p>
@@ -113,13 +108,11 @@ redirect_from:
 
     <p>The event could also be used to paint the background colour of the control, but if we're using just a plain colour it's easier just to set the <var>Color</var> property of the list view and let Delphi handle the painting.</p>
 
-
     <h3 id="oncustomdrawitem">OnCustomDrawItem</h3>
 
     <p>Handling <var>OnCustomDrawItem</var> allows you to influence how a list item is drawn without having to perform the actual drawing yourself. Changes are made to the list view's <var>Canvas</var> property before Delphi (or Windows) draws the list item. For example, the font or font attributes can be changed, as can the brush colour used to paint the background of the list item.</p>
 
     <p>Whatever changes are made are applied to the whole list item including the <var>Caption</var> and any <var>SubItems</var>. To demonstrate this event handler an example is provided where alternate list items are displayed in different colours. It is not advisable to directly paint any part of the list item. You should configure the control's <var>Canvas</var> and leave the painting to Delphi / Windows. Use owner-drawing if you want to paint all or part of the list item yourself.</p>
-
 
     <h3 id="oncustomdrawsubitem">OnCustomDrawSubItem</h3>
 
@@ -154,7 +147,6 @@ redirect_from:
         <li>To configure the painting of a whole list item (a row in a report style list view). Handle the <var>OnCustomDrawItem</var> event.</li>
 
         <li>
-
             <p>To configure the painting of all the &quot;columns&quot; in a list item separately (i.e. the caption and all the visible sub items), first handle <var>OnCustomDrawItem</var> event to configure how column 0 (the <var>Caption</var>) is to be displayed and then handle <var>OnCustomDrawSubItem</var> to configure the other columns.</p>
 
             <p> Here is some boilerplate code to use when handling both <var>OnCustomDrawItem</var> and <var>OnCustomDrawSubItem</var>:</p>
@@ -179,7 +171,6 @@ redirect_from:
                 </div>
                 <div class="caption">Listing 1</div>
             </div>
-
         </li>
 
     </ol>
@@ -570,18 +561,18 @@ redirect_from:
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #16&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #16&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>

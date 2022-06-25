@@ -8,70 +8,34 @@ index: true
 redirect_from:
 - /articles/19
 ---
-
 <section id="intro">
 
-    <h2>
-        Introduction
-    </h2>
+    <h2>Introduction</h2>
 
-    <p>
-        When you have a form containing a <var>TWebBrowser</var> control and you click in the control it does not
-        automatically become the active control of the parent form. However, tabbing around a form does make the web
-        browser the active control. This behaviour is unlike other controls such as <var>TEdit</var> and
-        <var>TMemo</var> and can cause some unexpected behaviour in your application, as I learned the hard way!
-    </p>
+    <p>When you have a form containing a <var>TWebBrowser</var> control and you click in the control it does not automatically become the active control of the parent form. However, tabbing around a form does make the web browser the active control. This behaviour is unlike other controls such as <var>TEdit</var> and <var>TMemo</var> and can cause some unexpected behaviour in your application, as I learned the hard way!</p>
 
-    <p>
-        This article presents two methods of ensuring that the <var>TWebBrowser</var> control behaves like other
-        controls by making it the active control when clicked. As we will see, there are problems with either approach,
-        but the second method is the most robust.
-    </p>
+    <p>This article presents two methods of ensuring that the <var>TWebBrowser</var> control behaves like other controls by making it the active control when clicked. As we will see, there are problems with either approach, but the second method is the most robust.</p>
 
 </section>
 
 <section id="problem">
 
-    <h2>
-        Investigate the problem
-    </h2>
+    <h2>Investigate the problem</h2>
 
-    <p>
-        To see the problem let's create a small application that shows the name of the parent form's active control in
-        the status bar.
-    </p>
+    <p>To see the problem let's create a small application that shows the name of the parent form's active control in the status bar.</p>
 
-    <p>
-        Start a new Delphi application and drop the following controls on the form, keeping the default names:
-    </p>
+    <p>Start a new Delphi application and drop the following controls on the form, keeping the default names:</p>
 
     <ul>
-        <li>
-            A <var>TMemo</var> &ndash; clear its <var>Lines</var> property and set its <var>TabOrder</var> property to
-            <span class="kbd">0</span>.
-        </li>
-        <li>
-            A <var>TWebBrowser</var> &ndash; sets its <var>TabOrder</var> property to <span class="kbd">1</span>.
-        </li>
-        <li>
-            A <var>TButton</var> &ndash; set its <var>Caption</var> to <span class="kbd">'Load HTML'</span> and its
-            <var>TabOrder</var> property to <span class="kbd">2</span>.
-        </li>
-        <li>
-            A <var>TTimer</var> &ndash; set its <var>Interval</var> property to <span class="kbd">100</span>.
-        </li>
-        <li>
-            A <var>TOpenDialog</var> &ndash; set its <var>Filter</var> property to display files with <code>.html</code>
-            and <code>.htm</code> extensions.
-        </li>
-        <li>
-            A <var>TStatusBar</var>.
-        </li>
+        <li>A <var>TMemo</var> &ndash; clear its <var>Lines</var> property and set its <var>TabOrder</var> property to <span class="kbd">0</span>.</li>
+        <li>A <var>TWebBrowser</var> &ndash; sets its <var>TabOrder</var> property to <span class="kbd">1</span>.</li>
+        <li>A <var>TButton</var> &ndash; set its <var>Caption</var> to <span class="kbd">'Load HTML'</span> and its <var>TabOrder</var> property to <span class="kbd">2</span>.</li>
+        <li>A <var>TTimer</var> &ndash; set its <var>Interval</var> property to <span class="kbd">100</span>.</li>
+        <li>A <var>TOpenDialog</var> &ndash; set its <var>Filter</var> property to display files with <code>.html</code> and <code>.htm</code> extensions.</li>
+        <li>A <var>TStatusBar</var>.</li>
     </ul>
 
-    <p>
-        Arrange the form and set its <var>Caption</var> to look something like this:
-    </p>
+    <p>Arrange the form and set its <var>Caption</var> to look something like this:</p>
 
     <div class="frame">
         <div>
@@ -80,16 +44,10 @@ redirect_from:
                 alt="Test application main form in Delphi form designer"
                 title="Test application main form in Delphi form designer" />
         </div>
-        <div class="caption">
-            Image 1: Test application main form in Delphi form designer
-        </div>
+        <div class="caption">Image 1: Test application main form in Delphi form designer</div>
     </div>
 
-    <p>
-        We will use the <var>TTimer</var> to update the status bar with details of the active control every
-        1/10<sup>th</sup> of a second. To do this create a <var>OnTimer</var> event handler for the <var>TTimer</var> as
-        follows:
-    </p>
+    <p>We will use the <var>TTimer</var> to update the status bar with details of the active control every 1/10<sup>th</sup> of a second. To do this create a <var>OnTimer</var> event handler for the <var>TTimer</var> as follows:</p>
 
     <div class="frame" id="listing-1">
         <div class="code-pascal">
@@ -101,22 +59,13 @@ redirect_from:
             <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="kwd">else</span></pre>
             <pre class="line"><span class="linenum">  7</span><span class="space">    </span><span class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;ActiveControl = nil&apos;</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">  8</span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">Listing 1</div>
+        </div>
+        <div class="caption">Listing 1</div>
     </div>
 
-    <p>
-        Compile and run the application and move around the controls using the <span class="keycap">Tab</span> key. You
-        will see the name of each control displayed in the status bar as it becomes active. To see the problem use the
-        mouse and click in either the memo or edit control. The status bar will change to show its name. Now click in
-        the web browser. Nothing will change.
-    </p>
+    <p>Compile and run the application and move around the controls using the <span class="keycap">Tab</span> key. You will see the name of each control displayed in the status bar as it becomes active. To see the problem use the mouse and click in either the memo or edit control. The status bar will change to show its name. Now click in the web browser. Nothing will change.</p>
 
-    <p>
-        Maybe this is because the web browser is not displaying any HTML &ndash; i.e. it has no document object? Let us
-        fix this by adding the facility to display a HTML document. Double click the <var>TButton</var> to create an
-        <var>OnClick</var> event handler and add the following code to it:
-    </p>
+    <p>Maybe this is because the web browser is not displaying any HTML &ndash; i.e. it has no document object? Let us fix this by adding the facility to display a HTML document. Double click the <var>TButton</var> to create an <var>OnClick</var> event handler and add the following code to it:</p>
 
     <div class="frame" id="listing-2">
         <div class="code-pascal">
@@ -137,34 +86,21 @@ redirect_from:
             <pre class="line"><span class="linenum"> 15</span><span class="space">    </span><span class="kwd">end</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 16</span><span class="space">  </span><span class="kwd">end</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 17</span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">Listing 2</div>
+        </div>
+        <div class="caption">Listing 2</div>
     </div>
 
-    <p>
-        This method displays the open file dialog box. If the user OKs we check if the provided file exists. If so we
-        display it in the web browser and show its source code in the memo control. If the file doesn't exist we
-        navigate to <code>about:blank</code> and display that text in the memo.
-    </p>
+    <p>This method displays the open file dialog box. If the user OKs we check if the provided file exists. If so we display it in the web browser and show its source code in the memo control. If the file doesn't exist we navigate to <code>about:blank</code> and display that text in the memo.</p>
 
-    <p>
-        Recompile the application and run it. Load a HTML file into the web browser (or create an
-        <code>about:blank</code> document by entering an invalid file name). When you try clicking the various controls
-        you will see that the problem persists. We have more work to do&hellip;
-    </p>
+    <p>Recompile the application and run it. Load a HTML file into the web browser (or create an <code>about:blank</code> document by entering an invalid file name). When you try clicking the various controls you will see that the problem persists. We have more work to do&hellip;</p>
 
 </section>
 
 <section id="solution-1">
 
-    <h2>
-        A solution
-    </h2>
+    <h2>A solution</h2>
 
-    <p>
-        This solution relies in detecting a mouse click in the web browser control and, in reponse, setting the form's
-        <var>ActiveControl</var> property to reference the web browser. In essence we wan't to do something like this:
-    </p>
+    <p>This solution relies in detecting a mouse click in the web browser control and, in reponse, setting the form's <var>ActiveControl</var> property to reference the web browser. In essence we wan't to do something like this:</p>
 
     <div class="frame" id="listing-3">
         <div class="code-pascal">
@@ -174,44 +110,21 @@ redirect_from:
             <pre class="line"><span class="linenum">  4</span><span class="space">  </span><span class="ident">ActiveControl</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Sender</span><span class="space"> </span><span class="kwd">as</span><span class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">  5</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 3
-        </div>
+        <div class="caption">Listing 3</div>
     </div>
 
-    <p>
-        Unfortunately, <var>TWebBrowser</var> does not have an <var>OnClick</var> or <var>OnMouseDown</var> event in
-        which to do this, so we have to find an alternative way of detecting the mouse click.
-    </p>
+    <p>Unfortunately, <var>TWebBrowser</var> does not have an <var>OnClick</var> or <var>OnMouseDown</var> event in which to do this, so we have to find an alternative way of detecting the mouse click.</p>
 
-    <p>
-        The web browsers's <var>OnCommandStateChange</var> event is useful here. According to Delphi's help, this event
-        is triggered when the ability to execute certain <var>TWebBrowser</var> methods changes. It happens that this
-        event is triggered when, amongst other things, the user clicks the mouse in a document.
-    </p>
+    <p>The web browsers's <var>OnCommandStateChange</var> event is useful here. According to Delphi's help, this event is triggered when the ability to execute certain <var>TWebBrowser</var> methods changes. It happens that this event is triggered when, amongst other things, the user clicks the mouse in a document.</p>
 
-    <p>
-        Note that I said &quot;amongst other things&quot;. The <var>OnCommandStateChange</var> event is not only
-        triggered when the mouse is clicked in the document &ndash; it is also triggered on other occasions. So we need
-        to find when the event is triggered in response to such a click. Research and experimentation shows that we can
-        reliably detect a mouse click in the following circumstances:
-    </p>
+    <p>Note that I said &quot;amongst other things&quot;. The <var>OnCommandStateChange</var> event is not only triggered when the mouse is clicked in the document &ndash; it is also triggered on other occasions. So we need to find when the event is triggered in response to such a click. Research and experimentation shows that we can reliably detect a mouse click in the following circumstances:</p>
 
     <ul>
-        <li>
-            The event handler is called with a <var>Command</var> parameter of <var>CSC_UPDATECOMMANDS</var>.
-        </li>
-        <li>
-            The document's <var>selection</var> object is available and has a type of <kbd>'Text'</kbd>.
-        </li>
+        <li>The event handler is called with a <var>Command</var> parameter of <var>CSC_UPDATECOMMANDS</var>.</li>
+        <li>The document's <var>selection</var> object is available and has a type of <kbd>'Text'</kbd>.</li>
     </ul>
 
-    <p>
-        Now, to use the <var>selection</var> object, we must access the browser's document object &ndash; and to access
-        the document object we must have loaded a document into the browser. This means we can't use this code on the
-        web browser control until a document has been loaded. The simplest way to ensure this is by navigating to
-        <code>about:blank</code>. We can do this in the Form's <var>OnShow</var> event handler which we add now:
-    </p>
+    <p>Now, to use the <var>selection</var> object, we must access the browser's document object &ndash; and to access the document object we must have loaded a document into the browser. This means we can't use this code on the web browser control until a document has been loaded. The simplest way to ensure this is by navigating to <code>about:blank</code>. We can do this in the Form's <var>OnShow</var> event handler which we add now:</p>
 
     <div class="frame" id="listing-4">
         <div class="code-pascal">
@@ -220,15 +133,10 @@ redirect_from:
             <pre class="line"><span class="linenum">  3</span><span class="space">  </span><span class="ident">WebBrowser1</span><span class="sym">.</span><span class="ident">Navigate</span><span class="sym">(</span><span class="str">&apos;about:blank&apos;</span><span class="sym">)</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">  4</span><span class="kwd">end</span><span class="sym">;</span></pre>
         </div>
-        <div class="caption">
-            Listing 4
-        </div>
+        <div class="caption">Listing 4</div>
     </div>
 
-    <p>
-        Having ensured there is a document present in the web browser we can use the following code in the browser's
-        <var>OnCommandStateChange</var> event handler:
-    </p>
+    <p>Having ensured there is a document present in the web browser we can use the following code in the browser's <var>OnCommandStateChange</var> event handler:</p>
 
     <div class="frame" id="listing-5">
         <div class="code-pascal">
@@ -255,77 +163,45 @@ redirect_from:
             <pre class="line"><span class="linenum"> 21</span><span class="space">    </span><span class="comment">// Make the web browser the form&apos;s active control</span></pre>
             <pre class="line"><span class="linenum"> 22</span><span class="space">    </span><span class="ident">ActiveControl</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">Sender</span><span class="space"> </span><span class="kwd">as</span><span class="space"> </span><span class="ident">TWebBrowser</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 23</span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">Listing 5</div>
+        </div>
+        <div class="caption">Listing 5</div>
     </div>
 
-    <p>
-        Here we first make sure that the sending object is a valid <var>TWebBrowser</var> control. We then check the
-        <var>Command</var> parameter and exit if it is not <var>CSC_UPDATECOMMANDS</var>. Next we try to get hold of the
-        browser's <var>Document</var> object, exiting if it is nil. From a valid document object we get the document's
-        current selection object, again checking it is not nil. We also check the selection type is <kbd>'Text'</kbd>.
-        If these tests succeed we finally set the form's <var>ActiveControl</var> property to the web browser and we are
-        done.
-    </p>
+    <p>Here we first make sure that the sending object is a valid <var>TWebBrowser</var> control. We then check the <var>Command</var> parameter and exit if it is not <var>CSC_UPDATECOMMANDS</var>. Next we try to get hold of the browser's <var>Document</var> object, exiting if it is nil. From a valid document object we get the document's current selection object, again checking it is not nil. We also check the selection type is <kbd>'Text'</kbd>. If these tests succeed we finally set the form's <var>ActiveControl</var> property to the web browser and we are done.</p>
 
-    <p>
-        Once again, recompile the project and tab and click about the form. You should now find the web browser becomes
-        the active control when clicked or tabbed into.
-    </p>
+    <p>Once again, recompile the project and tab and click about the form. You should now find the web browser becomes the active control when clicked or tabbed into.</p>
 
     <div class="callout callout-warning" id="gotchas">
-        <h4>
-            &laquo;&laquo; Gotcha #1 &raquo;&raquo;
-        </h4>
-        <p>
-            There's a gotcha here. I carefully used the word &quot;document&quot; rather than &quot;control&quot; in the
-            above description. The <var>OnCommandStateChange</var> event only detects clicks in the current document,
-            not necessarily in the control. This is because the browser, by default, places a border round the document.
-            Clicking in this border is not detected because it is <strong>not</strong> part of the document.
-        </p>
-        <p>
-            The only (partial) solution I've heard of is to make the border disappear using CSS. This is OK if you have
-            access to the document &ndash; you can use something like:
-        </p>
-        <p class="indent">
-            <samp>body {margin: 0;}</samp>
-        </p>
-        <p>
-            The technique is no good if you can't change or override the document's CSS. We can improve matters by
-            setting the browser's default CSS (See <a href="./article-18">article #18</a> for details of how to do this
-            from code). However, if the document sets its own border it will override any default, so we're stuck.
-        </p>
-        <p>
-            Thanks to <em>ANBe</em> for pointing out the cause of this problem and suggesting the CSS fix. Anyone who has any other ideas please <a href="#feedback">let me know</a>.</p>
-        <h4>
-            &laquo;&laquo; Gotcha #2 &raquo;&raquo;
-        </h4>
-        <p>
-            There's more. The solution requires the document's selection type to be &quot;text&quot;. Unfortunately, if
-            you click on a non-text item in the document, for example and image, the selection type is not
-            &quot;text&quot;.
-        </p>
+
+        <h4>&laquo;&laquo; Gotcha #1 &raquo;&raquo;</h4>
+
+        <p>There's a gotcha here. I carefully used the word &quot;document&quot; rather than &quot;control&quot; in the above description. The <var>OnCommandStateChange</var> event only detects clicks in the current document, not necessarily in the control. This is because the browser, by default, places a border round the document. Clicking in this border is not detected because it is <strong>not</strong> part of the document.</p>
+
+        <p>The only (partial) solution I've heard of is to make the border disappear using CSS. This is OK if you have access to the document &ndash; you can use something like:</p>
+
+        <p class="indent"><samp>body {margin: 0;}</samp></p>
+
+        <p>The technique is no good if you can't change or override the document's CSS. We can improve matters by setting the browser's default CSS (See <a href="./article-18">article #18</a> for details of how to do this from code). However, if the document sets its own border it will override any default, so we're stuck.</p>
+
+        <p>Thanks to <em>ANBe</em> for pointing out the cause of this problem and suggesting the CSS fix. Anyone who has any other ideas please <a href="#feedback">let me know</a>.</p>
+
+        <h4>&laquo;&laquo; Gotcha #2 &raquo;&raquo;</h4>
+
+        <p>There's more. The solution requires the document's selection type to be &quot;text&quot;. Unfortunately, if you click on a non-text item in the document, for example and image, the selection type is not &quot;text&quot;.</p>
+
         <p>I'm afraid I don't have a solution to this problem as yet. If you do then, once again, <a href="#feedback">let me know</a>.</p>
+
     </div>
 
 </section>
 
 <section id="solution-2">
 
-    <h2>
-        Another Solution
-    </h2>
+    <h2>Another Solution</h2>
 
-    <p>
-        Bärje Henriksson has suggested another solution that does detect clicks on the whole control &ndash; and so
-        avoids the <em><a href="#gotchas">gotchas</a></em> above.
-    </p>
+    <p>Bärje Henriksson has suggested another solution that does detect clicks on the whole control &ndash; and so avoids the <em><a href="#gotchas">gotchas</a></em> above.</p>
 
-    <p>
-        Bärje's solution depends on finding the window handle for the browser control. We do this by searching for a
-        window whose class is named &quot;Internet Explorer_Server&quot;. This is ultimately a child of the form window.
-        The diagram below shows the relationship.
-    </p>
+    <p>Bärje's solution depends on finding the window handle for the browser control. We do this by searching for a window whose class is named &quot;Internet Explorer_Server&quot;. This is ultimately a child of the form window. The diagram below shows the relationship.</p>
 
     <div class="frame">
         <div>
@@ -334,27 +210,14 @@ redirect_from:
                 alt="Diagram of browser control window in relationship to form window"
                 title="Diagram of browser control window in relationship to form window" />
         </div>
-        <div class="caption">
-            Image 1: Diagram showing how a broswer control relates to its host form
-        </div>
+        <div class="caption">Image 1: Diagram showing how a broswer control relates to its host form</div>
     </div>
 
-    <p>
-        And so to the code. Re-using the code we developed for the previous solution, add a private field named
-        <var>IEServerWindow</var> of type <var>HWND</var> to the form class and drop a <var>TApplicationEvents</var>
-        component on the form. Now remove the <var>WebBrowser1CommandStateChange</var> event handler we created in <span
-            class="figureref"><a href="#listing-5">listing 5</a></span>.
-    </p>
+    <p>And so to the code. Re-using the code we developed for the previous solution, add a private field named <var>IEServerWindow</var> of type <var>HWND</var> to the form class and drop a <var>TApplicationEvents</var> component on the form. Now remove the <var>WebBrowser1CommandStateChange</var> event handler we created in <span class="figureref"><a href="#listing-5">listing 5</a></span>.</p>
 
-    <p class="callout callout-info">
-        If your version of Delphi doesn't have the <var>TApplicationEvents</var> component all is not lost. Alternatives
-        are discussed below.
-    </p>
+    <p class="callout callout-info">If your version of Delphi doesn't have the <var>TApplicationEvents</var> component all is not lost. Alternatives are discussed below.</p>
 
-    <p>
-        Modify the timer component's <var>OnTimer</var> event handler as shown in <span class="figureref">listing
-            6</span> below:
-    </p>
+    <p>Modify the timer component's <var>OnTimer</var> event handler as shown in <span class="figureref">listing 6</span> below:</p>
 
     <div class="frame" id="listing-6">
         <div class="code-pascal">
@@ -375,19 +238,13 @@ redirect_from:
             <pre class="line"><span class="linenum"> 15</span><span class="space">  </span><span class="kwd">else</span></pre>
             <pre class="line"><span class="linenum"> 16</span><span class="space">    </span><span class="ident">StatusBar1</span><span class="sym">.</span><span class="ident">SimpleText</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="str">&apos;ActiveControl = nil&apos;</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 17</span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">Listing 6</div>
+        </div>
+        <div class="caption">Listing 6</div>
     </div>
 
-    <p>
-        The timer event is used to find the window since the handle may not be available straight away when the
-        application is displayed.
-    </p>
+    <p>The timer event is used to find the window since the handle may not be available straight away when the application is displayed.</p>
 
-    <p>
-        We now need to handle mouse-down messages sent to the browser control window. Create an <var>OnMessage</var>
-        event handler for the <var>TApplicationEvents</var> component:
-    </p>
+    <p>We now need to handle mouse-down messages sent to the browser control window. Create an <var>OnMessage</var> event handler for the <var>TApplicationEvents</var> component:</p>
 
     <div class="frame" id="listing-7">
         <div class="code-pascal">
@@ -400,142 +257,84 @@ redirect_from:
             <pre class="line"><span class="linenum">  7</span><span class="space">      </span><span class="kwd">or</span><span class="space"> </span><span class="sym">(</span><span class="ident">Msg</span><span class="sym">.</span><span class="kwd">message</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="ident">WM_MBUTTONDOWN</span><span class="sym">)</span><span class="space"> </span><span class="kwd">then</span></pre>
             <pre class="line"><span class="linenum">  8</span><span class="space">    </span><span class="ident">ActiveControl</span><span class="space"> </span><span class="sym">:=</span><span class="space"> </span><span class="ident">WebBrowser1</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">  9</span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">Listing 7</div>
+        </div>
+        <div class="caption">Listing 7</div>
     </div>
 
     <div class="callout callout-info">
-        <h4>
-            No <var>TApplicationEvents</var>?
-        </h4>
-        <p>
-            If you don't have <var>TApplicationEvents</var> with your version of Delphi simply create a private method
-            with the same parameter list as <var>ApplicationEvents1Message</var> and implement it as in <span
-                class="figureref">listing 7</span>. Then create a <var>OnCreate</var> message handler for your form and
-            assign your private method to the <var>Application.OnMessage</var> event within that message handler.
-        </p>
+
+        <h4>No <var>TApplicationEvents</var>?</h4>
+
+        <p>If you don't have <var>TApplicationEvents</var> with your version of Delphi simply create a private method with the same parameter list as <var>ApplicationEvents1Message</var> and implement it as in <span class="figureref">listing 7</span>. Then create a <var>OnCreate</var> message handler for your form and assign your private method to the <var>Application.OnMessage</var> event within that message handler.</p>
+
     </div>
 
-    <p>
-        This code ensures the browser control is set as the form's active control whenever the control receives
-        mouse-down events from the left, middle or right mouse buttons.
-    </p>
+    <p>This code ensures the browser control is set as the form's active control whenever the control receives mouse-down events from the left, middle or right mouse buttons.</p>
 
-    <p>
-        And that's it &ndash; clicking anywhere on the browser control activates it.
-    </p>
+    <p>And that's it &ndash; clicking anywhere on the browser control activates it.</p>
 
     <div class="callout callout-warning">
-        <h4>
-            Gotcha #3
-        </h4>
-        <p>
-            There has to be a problem doesn't there? This solution works fine providing there is only one web browser
-            control on the form. If there is more than one then the solution fails. This is because the code that finds
-            the browser control's window handle searches for a window class name &ndash; and the class name is the same
-            for each browser control instance. And that means only one browser control is found.
-        </p>
-        <p>
-            A possible fix is to put each browser control in a separate <var>TPanel</var> and then find the required
-            windows by using the appropriate panel's window handle in the <var>FindWindowEx</var> call that searches for
-            the &quot;Shell Embedding&quot; window class (see <span class="figureref"><a href="#listing-6">listing
-                    6</a></span>). Of course, you'll need to track which window relates to which browser control.
-        </p>
+
+        <h4>Gotcha #3</h4>
+
+        <p>There has to be a problem doesn't there? This solution works fine providing there is only one web browser control on the form. If there is more than one then the solution fails. This is because the code that finds the browser control's window handle searches for a window class name &ndash; and the class name is the same for each browser control instance. And that means only one browser control is found.</p>
+
+        <p>A possible fix is to put each browser control in a separate <var>TPanel</var> and then find the required windows by using the appropriate panel's window handle in the <var>FindWindowEx</var> call that searches for the &quot;Shell Embedding&quot; window class (see <span class="figureref"><a href="#listing-6">listing 6</a></span>). Of course, you'll need to track which window relates to which browser control.</p>
+
     </div>
 
 </section>
 
 <section id="summary">
 
-    <h2>
-        Summary
-    </h2>
+    <h2>Summary</h2>
 
-    <p>
-        In this article we noted that clicking in a <var>TWebBrowser</var> control does not make it the active control
-        of the parent form. We developed some code to fix this problem by detecting a mouse click on the control's
-        active document and setting the parent form's <var>ActiveControl</var> property to the browser control in
-        response to the click. This was done by handling the browser object's <var>OnCommandStateChange</var> event and
-        detecting a text selection. We observed that this solution is far from perfect because it doesn't work if:
-    </p>
+    <p>In this article we noted that clicking in a <var>TWebBrowser</var> control does not make it the active control of the parent form. We developed some code to fix this problem by detecting a mouse click on the control's active document and setting the parent form's <var>ActiveControl</var> property to the browser control in response to the click. This was done by handling the browser object's <var>OnCommandStateChange</var> event and detecting a text selection. We observed that this solution is far from perfect because it doesn't work if:</p>
 
     <ul>
-        <li>
-            there is no document loaded in the browser;
-        </li>
-        <li>
-            the user clicks in the border of an HTML document;
-        </li>
-        <li>
-            the user clicks on a image or other non-text area in the display.
-        </li>
+        <li>there is no document loaded in the browser;</li>
+        <li>the user clicks in the border of an HTML document;</li>
+        <li>the user clicks on a image or other non-text area in the display.</li>
     </ul>
 
-    <p>
-        An alternative method that does not have the above problems was then presented. This method depended on finding
-        the browser control's window handle and detecting mouse messages directed to that window. It works when no
-        document is loaded and detects clicks anywhere in the control, including the scroll bars. However, it was noted
-        that the solution fails if there are two or more browser controls on the form.
-    </p>
+    <p>An alternative method that does not have the above problems was then presented. This method depended on finding the browser control's window handle and detecting mouse messages directed to that window. It works when no document is loaded and detects clicks anywhere in the control, including the scroll bars. However, it was noted that the solution fails if there are two or more browser controls on the form.</p>
 
 </section>
 
 <section id="demo">
 
-    <h2>
-        Demonstration code
-    </h2>
+    <h2>Demonstration code</h2>
 
-    <p>
-        A demo program to accompany this article can be found in the <code><a
-                href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git
-        repository on GitHub.
-    </p>
+    <p>A demo program to accompany this article can be found in the <code><a href="https://github.com/delphidabbler/article-demos">delphidabbler/article-demos</a></code> Git repository on GitHub.</p>
 
-    <p>
-        You can view the code in the <code><a
-                href="https://github.com/delphidabbler/article-demos/tree/master/article-19">article-19</a></code>
-        sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing
-        page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.
-    </p>
+    <p>You can view the code in the <code><a href="https://github.com/delphidabbler/article-demos/tree/master/article-19">article-19</a></code> sub-directory. Alternatively download a zip file containing all the demos by going to the repository's landing page and clicking the <em>Clone or download</em> button and selecting <em>Download ZIP</em>.</p>
 
-    <p>
-        See the demo's <a
-            href="https://github.com/delphidabbler/article-demos/blob/master/article-19/README.md">README.md</a> file
-        for details.
-    </p>
+    <p>See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-19/README.md">README.md</a> file for details.</p>
 
     <div class="callout callout-info">
-        <p>
-            <span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is
-            merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its
-            current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY
-            OF ANY KIND, either express or implied.
-        </p>
-        <p>
-            The demo is open source. See the demo's <a
-                href="https://github.com/delphidabbler/article-demos/blob/master/article-19/LICENSE.md">LICENSE.md</a>
-            file for licensing details.
-        </p>
+
+        <p><span class="fa fa-code fa-x-pad-right fa-2x fa-pull-left fa-border text-muted"></span>This source code is merely a proof of concept and is intended only to illustrate this article. It is not designed for use in its current form in finished applications. The code is provided on an &quot;AS IS&quot; basis, WITHOUT WARRANTY OF ANY KIND, either express or implied.</p>
+
+        <p>The demo is open source. See the demo's <a href="https://github.com/delphidabbler/article-demos/blob/master/article-19/LICENSE.md">LICENSE.md</a> file for licensing details.</p>
+
     </div>
 
 </section>
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #19&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #19&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>
-

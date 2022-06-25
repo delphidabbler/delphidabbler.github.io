@@ -232,8 +232,8 @@ redirect_from:
         <div class="code-pascal">
             <pre class="line"><span class="linenum">  1</span><span class="kwd">procedure</span><span class="space"> </span><span class="ident">EditProperty</span><span class="sym">(</span><span class="ident">PropertyEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">TPropertyEditor</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">  2</span><span class="space">  </span><span class="kwd">var</span><span class="space"> </span><span class="ident">Continue</span><span class="sym">,</span><span class="space"> </span><span class="ident">FreeEditor</span><span class="sym">:</span><span class="space"> </span><span class="ident">Boolean</span><span class="sym">)</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">Listing 8</div>
+        </div>
+        <div class="caption">Listing 8</div>
     </div>
 
     <p>We can deal with this using conditional compilation. Assuming the <span class="pas-preproc">DELPHI6ANDUP</span> symbol is defined when we are using Delphi 6 and above, we can implement <var>TCompEditorBase.EditProperty</var> as follows:</p>
@@ -251,8 +251,8 @@ redirect_from:
             <pre class="line"><span class="linenum">  9</span><span class="space">  </span><span class="kwd">if</span><span class="space"> </span><span class="ident">CompareText</span><span class="sym">(</span><span class="ident">PropertyEditor</span><span class="sym">.</span><span class="ident">GetName</span><span class="sym">,</span><span class="space"> </span><span class="ident">DefaultEventName</span><span class="sym">)</span><span class="space"> </span><span class="sym">=</span><span class="space"> </span><span class="num">0</span><span class="space"> </span><span class="kwd">then</span></pre>
             <pre class="line"><span class="linenum"> 10</span><span class="space">    </span><span class="kwd">inherited</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum"> 11</span><span class="kwd">end</span><span class="sym">;</span></pre>
-            </div>
-                    <div class="caption">Listing 9</div>
+        </div>
+        <div class="caption">Listing 9</div>
     </div>
 
     <p>Additionally, we need to replace the <var>DesignIntf</var> and <var>DesignEditors</var> units with <var>DsgnIntf</var>:</p>
@@ -266,8 +266,8 @@ redirect_from:
             <pre class="line"><span class="linenum">  5</span><span class="space">  </span><span class="preproc">{$ELSE}</span></pre>
             <pre class="line"><span class="linenum">  6</span><span class="space">  </span><span class="ident">DsgnIntf</span><span class="sym">;</span></pre>
             <pre class="line"><span class="linenum">  7</span><span class="space">  </span><span class="preproc">{$ENDIF}</span></pre>
-            </div>
-                    <div class="caption">Listing 10</div>
+        </div>
+        <div class="caption">Listing 10</div>
     </div>
 
 </section>
@@ -306,18 +306,18 @@ redirect_from:
 
 <section id="feedback">
 
-  <h2>Feedback</h2>
+    <h2>Feedback</h2>
 
-  <p>I hope you found this article useful.</p>
+    <p>I hope you found this article useful.</p>
 
-  <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
+    <p>If you have any observations, comments, or have found any errors there are two places you can report them.</p>
 
-  <ol class="wide">
+    <ol class="wide">
 
-    <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #17&quot;.</li>
+        <li>For anything to do with the article content, <em>but not the downloadable demo code</em>, please use this website's <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">Issues page</a> on GitHub. Make sure you mention that the issue relates to &quot;article #17&quot;.</li>
 
-    <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
+        <li>For bugs in the demo code see the <code>article-demo</code> project's <code><a href="https://github.com/delphidabbler/article-demos/blob/master/README.md#bug-reports">README.md</a></code> file for details of how to report them.</li>
 
-  </ol>
+    </ol>
 
 </section>
