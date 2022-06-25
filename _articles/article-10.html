@@ -55,7 +55,7 @@ redirect_from:
 
 	<h2>Introduction</h2>
 
-	<p><a href="{{ site.base-url }}/articles/article-2">Article #2</a> noted the benefits of embedding data within your program's executable file or within a DLL. Often this is preferable to supplying a lot of separate support files that the user can accidentally alter or delete. The same principle applies to HTML and related files displayed by your application in a <var>TWebBrowser</var> control.</p>
+	<p><a href="/articles/article-2">Article #2</a> noted the benefits of embedding data within your program's executable file or within a DLL. Often this is preferable to supplying a lot of separate support files that the user can accidentally alter or delete. The same principle applies to HTML and related files displayed by your application in a <var>TWebBrowser</var> control.</p>
 
 	<p>In fact Microsoft&reg; have encouraged this by creating the <code>res://</code> protocol. This is used by <var>TWebBrowser</var> and Internet Explorer to access HTML etc. files that are stored in a module's resources. This protocol makes it very easy to navigate to HTML resources using the <var>TWebBrowser</var> control.</p>
 
@@ -83,7 +83,7 @@ redirect_from:
 
 	<div class="frame">
 		<div>
-			<img class="scale center-block" src="{{ site.base-url }}{{ site.data.core.articles-images-base-url}}/10.png" alt="IE showing a HTML resource from the demo program" title="IE showing a HTML resource from the demo program" />
+			<img class="scale center-block" src="{{ site.data.core.articles-images-base-url}}/10.png" alt="IE showing a HTML resource from the demo program" title="IE showing a HTML resource from the demo program" />
 		</div>
 		<div class="caption">Image 1</div>
 	</div>
@@ -338,7 +338,7 @@ redirect_from:
 
 			<pre class="pre-scrollable kbd">BRCC32 -fo&quot;HTML.res&quot; HTML.rc</pre>
 
-			<p>We assume that the source file is in the current directory and the compiler is on the path. If you don't have a suitable resource compiler then <code>.res</code> files can be generated programmatically &ndash; <a href="{{ site.base-url }}/articles/article-2">article #2</a> explains &ndash; or you can use my open source <a href="{{ site.base-url }}/software/htmlres">HTML resource file compiler</a>.</p>
+			<p>We assume that the source file is in the current directory and the compiler is on the path. If you don't have a suitable resource compiler then <code>.res</code> files can be generated programmatically &ndash; <a href="/articles/article-2">article #2</a> explains &ndash; or you can use my open source <a href="/software/htmlres">HTML resource file compiler</a>.</p>
 		</li>
 
 		<li>
@@ -429,7 +429,7 @@ logo.gif    23   &quot;logo.gif&quot;</pre>
 
 		<p>There's always a gotcha somewhere isn't there? The BRCC32 resource compiler that ships with Delphi refuses to compile any resource file that has dots in any of its resource names. This means that the naming scheme proposed above is useless for those of us who use BRCC32.</p>
 
-		<p>To get round the above problem I have written <a href="{{ site.base-url }}/software/htmlres">HTML resource compiler</a>, a command line application that can compile HTML resource files. This compiler automatically names each resource after its associated file.</p>
+		<p>To get round the above problem I have written <a href="/software/htmlres">HTML resource compiler</a>, a command line application that can compile HTML resource files. This compiler automatically names each resource after its associated file.</p>
 
 		<p>I have never used the Microsoft&reg; RC compiler so can't comment on whether or not it will work in this situation. If you know please please <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">open an issue</a> on GitHub <small>(GitHub account required)</small> and let me know so I can update the article.</p>
 
@@ -463,7 +463,7 @@ logo.gif    23   &quot;logo.gif&quot;</pre>
 
 	</div>
 
-	<p>If you need further demo code, the <a href="{{ site.base-url }}/software/htmlres">HTML Resource Compiler</a> comes with sample HTML files and a Delphi project to create a DLL containing only <var>RT_HTML</var> resources. These resources can be displayed in Internet Explorer by using the <code>res://</code> protocol.</p>
+	<p>If you need further demo code, the <a href="/software/htmlres">HTML Resource Compiler</a> comes with sample HTML files and a Delphi project to create a DLL containing only <var>RT_HTML</var> resources. These resources can be displayed in Internet Explorer by using the <code>res://</code> protocol.</p>
 
 </section>
 
@@ -474,8 +474,8 @@ logo.gif    23   &quot;logo.gif&quot;</pre>
 	<p>The following articles on this site deal with resources in general:</p>
 
 	<ul>
-		<li><a href="{{ site.base-url }}/articles/article-2">How to store files inside an executable program</a>.</li>
-		<li><a href="{{ site.base-url }}/articles/article-3">How to read data embedded in your program's resources</a>.</li>
+		<li><a href="/articles/article-2">How to store files inside an executable program</a>.</li>
+		<li><a href="/articles/article-3">How to read data embedded in your program's resources</a>.</li>
 	</ul>
 
 </section>
