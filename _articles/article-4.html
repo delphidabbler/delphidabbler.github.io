@@ -31,7 +31,7 @@ redirect_from:
 	<p>There are complications when saving and restoring the window state. When the window is minimised, Delphi doesn't minimise the form &ndash; it hides it and displays the Application window in the taskbar. The method I've used causes a previously minimised window to flash on-screen briefly. I'd welcome ideas on any alternative approaches.&dagger;</p>
 
 	<aside>
-		<p class="alert alert-info "><span class="bg-primary">&nbsp;&dagger;&nbsp;</span>&ensp;The later releases of my <a href="{{ site.base-url }}/software/wdwstate">Window State Components</a> solve the minimisation problem. However the solution is quite involved. You are welcome to read the component code if you are interested.</p>
+		<p class="alert alert-info "><span class="bg-primary">&nbsp;&dagger;&nbsp;</span>&ensp;The later releases of my <a href="/software/wdwstate">Window State Components</a> solve the minimisation problem. However the solution is quite involved. You are welcome to read the component code if you are interested.</p>
 	</aside>
 
 	<p>Another complication is that when a window is maximised Delphi updates the <var>Width</var>, <var>Height</var>, <var>Left</var> and <var>Top</var> properties of the form to the window's maximised size and position. This means that closing a maximised window stores the maximised size in the registry. When the program is run again it appears maximised, but when the user restores it they expect it to go to the previous normal size and position, but if we reloaded the <var>Left</var>, <var>Top</var>, <var>Height</var> and <var>Width</var> properties, the form won't shrink when restored. We get round this by using the Windows API to get the non-maximised size.</p>
@@ -167,7 +167,7 @@ redirect_from:
 
 	<h2>Component</h2>
 
-	<p>My <a href="{{ site.base-url }}/software/wdwstate">TPJRegWdwState component</a> encapsulates all this functionality on behalf of the form that owns it. A sister component, <var>TPJWdwState</var>, is included that works with ini files rather than the registry.</p>
+	<p>My <a href="/software/wdwstate">TPJRegWdwState component</a> encapsulates all this functionality on behalf of the form that owns it. A sister component, <var>TPJWdwState</var>, is included that works with ini files rather than the registry.</p>
 
 </section>
 
