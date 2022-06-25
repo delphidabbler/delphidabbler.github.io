@@ -174,7 +174,7 @@ redirect_from:
 
     <p><var>ReadFooter</var> first gets the size of the file and checks if it is large enough to contain a payload footer. If the file <em>is</em> large enough it moves the file pointer to <code>SizeOf(TPayloadFooter)</code> bytes back from the end of the file and reads in the footer record. If the file is too small then the routine fills a footer record with zeros, making it invalid (i.e. the watermark is zero). Finally the routine checks if the record's <var>Watermark</var> field contains the required <em>GUID</em> and returns the result. The footer record is passed out as a parameter.</p>
 
-    <alert>
+    <aside>
         <div class="callout callout-warning">
 
             <h4>Watermark warning</h4>
@@ -182,7 +182,7 @@ redirect_from:
             <p>Now we have learned why the comment in <a href="#listing-2">listing 2</a> warned not to use a GUID that is all zeros. It's because the above code zeros the footer record when the file is too small, to ensure it never compares equal to a valid watermark.</p>
 
         </div>
-    </alert>
+    </aside>
 
     <p>We now have enough information to enable us to move on to develop a class that helps us to manage payloads.</p>
 
