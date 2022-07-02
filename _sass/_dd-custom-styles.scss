@@ -223,8 +223,6 @@ a[href^="http"] {
   }
   &.direct-dl::after {
     content: "\f0ed";
-    font-size: 100%;
-    margin-left: 4px;
   }
   &.btn::after,
   &.label::after,
@@ -233,10 +231,13 @@ a[href^="http"] {
   }
 }
 // Modifies external link for http:// URLs to add a warning triangle followed by nbsp
-// before external link glyph
+// before external link or direct download glyph.
 a[href^="http:"] {
   &::after {
     content: "\f071\202f\f08e"
+  }
+  &.direct-dl::after {
+    content: "\f071\202f\f0ed";
   }
 }
 
