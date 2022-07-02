@@ -3,394 +3,423 @@ meta-title: "List of Delphi Pascal Features and When Introduced"
 meta-desc: "Partial list of various Delphi Pascal language and other features along with the version of Delphi where they were introduced."
 ---
 <article>
-<h1>Delphi Version Features</h1>
-<p>This page contains notes about which features were introduced in which versions of Delphi [<a href="#footnote-1">1</a>].</p>
-<p>If you have any additions or corrections please <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">create an issue</a> on GitHub (<small>GitHub account required</small>).</p>
-<div class="table-responsive">
-<table class="table table-striped table-bordered">
-<thead>
-<tr>
-<th>Feature</th>
-<th>Version</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>&amp; operator for treating keywords as identifiers</td>
-<td>Delphi 2006</td>
-</tr>
-<tr>
-<td><code>{$IFEND}</code> directive no longer required to close <code>{$IF}</code> statements: <code>{$ENDIF}</code> can now be used instead. [<a href="#footnote-1">2</a>]</td>
-<td>Delphi XE4</td>
-</tr>
-<tr>
-<td><code>{$LEGACYIFEND}</code> directive [<a href="#footnote-1">2</a>]</td>
-<td>Delphi XE5</td>
-</tr>
-<tr>
-<td><code>{$MESSAGE}</code> directive</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><code>{$WARN}</code> directive</td>
-<td>Delphi 7</td>
-</tr>
-<tr>
-<td>64 bit compiler</td>
-<td>Delphi XE2</td>
-</tr>
-<tr>
-<td>Abstract classes</td>
-<td>Delphi 2006</td>
-</tr>
-<tr>
-<td>Anonymous methods / closures</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td>Attributes</td>
-<td>Delphi 2010</td>
-</tr>
-<tr>
-<td>class constructors / destructors</td>
-<td>Delphi 2010</td>
-</tr>
-<tr>
-<td>Class data (<strong>class var</strong>)</td>
-<td>Delphi 2006</td>
-</tr>
-<tr>
-<td>Class helpers</td>
-<td>Delphi 2006</td>
-</tr>
-<tr>
-<td>Class properties</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td><strong>delayed</strong> keyword (for loading of DLLs)</td>
-<td>Delphi 2010</td>
-</tr>
-<tr>
-<td><strong>deprecated</strong> directive</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><strong>deprecated</strong> directive with comment</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>DirectoryExists</var> function moved to SysUtils unit from FileCtrl</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td>Dynamic arrays</td>
-<td>Delphi 4</td>
-</tr>
-<tr>
-<td>Dynamic array concatenation and addition extensions. Dynamic arrays can be initialised by assigning an array constant, as in <code>DI := [1, 2, 3];</code> and can be concatenated using code like <code>DI := DI + [1, 2, 3];</code> or <code>DI := DJ + DK</code>, where <var>DI</var>, <var>DJ</var> &amp; <var>DK</var> are all dynamic integer arrays.</td>
-<td>Delphi XE7</td>
-</tr>
-<tr>
-<td><var>EOSError</var> (instead of <var>EWin32Error</var>)</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>ExcludeTrailingPathDelimiter</var> function</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>Exit</var> with result parameter</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td>Final methods</td>
-<td>Delphi 2006</td>
-</tr>
-<tr>
-<td>Floating point number comparison routines added to <var>Math</var> unit.</td>
-<td>Delphi 6 [<a href="#footnote-1">3</a>]</td>
-</tr>
-<tr>
-<td><strong>for</strong> .. <strong>in</strong> loops</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td>Frames</td>
-<td>Delphi 5</td>
-</tr>
-<tr>
-<td>Function inlining</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td>Generics</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>IInterface</var></td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>IncludeTrailingPathDelim</var> function</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td>Inline variable declarations</td>
-<td>Delphi 10.3</td>
-</tr>
-<tr>
-<td><strong>inline</strong> keyword</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td>Inner exceptions</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>Insert</var> and <var>Delete</var> RTL routines can be used with dynamic arrays in a similar way to how they are used with strings.</td>
-<td>Delphi XE7</td>
-</tr>
-<tr>
-<td><var>Int8</var> type</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>Int16</var> type</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>Int32</var> type</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>Int64</var> type</td>
-<td>Delphi 4</td>
-</tr>
-<tr>
-<td>Interface to object casting</td>
-<td>Delphi 2010</td>
-</tr>
-<tr>
-<td><strong>library</strong> directive</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>LongWord</var> type</td>
-<td>Delphi 4</td>
-</tr>
-<tr>
-<td><var>Margins</var> and <var>Padding</var> properties on <var>TControl</var></td>
-<td>Delphi 2006</td>
-</tr>
-<tr>
-<td>Nested constants within classes / records</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td>Nested types within classes</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td>Operator overloading on records</td>
-<td>Delphi 2006</td>
-</tr>
-<tr>
-<td>Overloading for functions, procedures and methods</td>
-<td>Delphi 4</td>
-</tr>
-<tr>
-<td><strong>platform</strong> directive</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>RaiseLastOSError</var> procedure</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td>Record Helpers for simple types</td>
-<td>Delphi XE3</td>
-</tr>
-<tr>
-<td>Records with methods</td>
-<td>Delphi 2006</td>
-</tr>
-<tr>
-<td><strong>resourcestring</strong> statement</td>
-<td>Delphi 3</td>
-</tr>
-<tr>
-<td>RTTI enhancements</td>
-<td>Delphi 2010</td>
-</tr>
-<tr>
-<td><var>SafeLoadLibrary</var> function</td>
-<td>Delphi 5</td>
-</tr>
-<tr>
-<td>Scoped enumerators (must have type name prefix)</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td>Sealed classes</td>
-<td>Delphi 2006</td>
-</tr>
-<tr>
-<td><strong>static</strong> directive for class methods</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td><strong>strict private</strong> and <strong>strict protected</strong> visibility specifiers</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td><strong>string</strong> type is <var>UnicodeString</var></td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td>StrUtils unit</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>TApplication.MainFormOnTaskbar</var> property</td>
-<td>Delphi 2007</td>
-</tr>
-<tr>
-<td><var>TArray<T></var> type in <var>System</var> unit.</td>
-<td>Delphi 2010</td>
-</tr>
-<tr>
-<td><var>TBytes</var> alias for <strong>array</strong> <strong>of</strong> <var>Byte</var></td>
-<td>Delphi 2007</td>
-</tr>
-<tr>
-<td>Text format form files</td>
-<td>Delphi 5</td>
-</tr>
-<tr>
-<td><var>TFormatSettings</var> and overloaded format and conversion routines that use it</td>
-<td>Delphi 7</td>
-</tr>
-<tr>
-<td><var>TObject.Equals</var> virtual method</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>TObject.GetHashCode</var> virtual method</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>TObject.ToString</var> virtual method</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>TObject.UnitName</var> method</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td>Touch support</td>
-<td>Delphi 2010</td>
-</tr>
-<tr>
-<td><var>TRegistry</var> supports access flags</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>TRegistry.OpenKeyReadOnly</var> method</td>
-<td>Delphi 4</td>
-</tr>
-<tr>
-<td><var>TryStrToXXXX</var> routines added to <var>SysUtils</var></td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>TStream</var> supports 64 bit size and seek offsets</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>TStringList.Create(OwnsObjects: Boolean)</var> constructor overload</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td>Types unit</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>UInt8</var> type</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>UInt16</var> type</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>UInt32</var> type</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>UInt64</var> type</td>
-<td>Delphi 7</td>
-</tr>
-<tr>
-<td>Unicode identifier names</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td>Unicode source files</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td>Unicode support (inc Windows API)</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td><var>UnicodeString</var> type</td>
-<td>Delphi 2009</td>
-</tr>
-<tr>
-<td>Unit conversion handling (that's <em>unit</em> as in mm or inches, not <em>unit</em> as in source code unit)</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td>UTF8 source files</td>
-<td>Delphi 2005</td>
-</tr>
-<tr>
-<td><var>UTF8Decode</var> and <var>UTF8Encode</var> routines</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td><var>UTF8String</var> type</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td>Variants unit</td>
-<td>Delphi 6</td>
-</tr>
-<tr>
-<td>VCL styles</td>
-<td>Delphi XE2</td>
-</tr>
-<tr>
-<td>XMLDoc documentation</td>
-<td>Delphi 2005</td>
-</tr>
-</tbody>
-</table>
-<div> <!-- /.table-responsive -->
 
-<footer>
-<div class="well well-sm">
-<p id="footnotes" class="strong">Footnotes</p>
-<ol>
-<li id="footnote-1">All this information relates to the native Delphi compiler, not the .NET compiler.</li>
-<li id="footnote-2">From Delphi XE5 the use of the <code>{$IFEND}</code> directive results in a compiler error unless a <code>{$LEGACYIFEND}</code> directive precedes the first <code>{$IFEND}</code> directive or unless the use of legacy <code>{$IFEND}</code> is enabled in project options.</li>
-<li id="footnote-3">Source: EFG's Computer Lab (<small>defunct website</small>). This source also stated that the Math unit did not change from Delphi 4 to Delphi 5.</li>
-</ol>
-</div> <!-- /.well .well-sm -->
-</footer>
+    <h1>Delphi Version Features</h1>
+
+    <p>This page contains notes about which features were introduced in which versions of Delphi<a href="#footnote-1"><sup>1</sup></a>.</p>
+
+    <p>If you have any additions or corrections please <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">create an issue</a> on GitHub (<small>GitHub account required</small>).</p>
+
+    <style>
+        td:last-child,
+        th:last-child {
+            text-align: center;
+        }
+    </style>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+
+            <colgroup>
+                <col width="86%">
+                <col width="14%">
+            </colgroup>
+
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Version</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>&amp; operator for treating keywords as identifiers</td>
+                    <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td><code>{$IFEND}</code> directive no longer required to close <code>{$IF}</code> statements: <code>{$ENDIF}</code> can now be used instead.<a href="#footnote-2"><sup>2</sup></a></td>
+                    <td>Delphi XE4</td>
+                </tr>
+                <tr>
+                    <td><code>{$LEGACYIFEND}</code> directive<a href="#footnote-2"><sup>2</sup></a></td>
+                    <td>Delphi XE5</td>
+                </tr>
+                <tr>
+                    <td><code>{$MESSAGE}</code> directive</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><code>{$WARN}</code> directive</td>
+                    <td>Delphi 7</td>
+                </tr>
+                <tr>
+                    <td>64 bit compiler</td>
+                    <td>Delphi XE2</td>
+                </tr>
+                <tr>
+                    <td>Abstract classes</td>
+                    <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td>Anonymous methods / closures</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td>Attributes</td>
+                    <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td>class constructors / destructors</td>
+                    <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td>Class data (<strong>class var</strong>)</td>
+                    <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td>Class helpers</td>
+                    <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td>Class properties</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td><strong>delayed</strong> keyword (for loading of DLLs)</td>
+                    <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td><strong>deprecated</strong> directive</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><strong>deprecated</strong> directive with comment</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>DirectoryExists</var> function moved to SysUtils unit from FileCtrl</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td>Dynamic arrays</td>
+                    <td>Delphi 4</td>
+                </tr>
+                <tr>
+                    <td>Dynamic array concatenation and addition extensions. Dynamic arrays can be initialised by assigning an array constant, as in <code>DI := [1, 2, 3];</code> and can be concatenated using code like <code>DI := DI + [1, 2, 3];</code> or <code>DI := DJ + DK</code>, where <var>DI</var>, <var>DJ</var> &amp; <var>DK</var> are all dynamic integer arrays.</td>
+                    <td>Delphi XE7</td>
+                </tr>
+                <tr>
+                    <td><var>EOSError</var> (instead of <var>EWin32Error</var>)</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>ExcludeTrailingPathDelimiter</var> function</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>Exit</var> with result parameter</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td>Final methods</td>
+                    <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td>Floating point number comparison routines added to <var>Math</var> unit.</td>
+                    <td>Delphi 6<a href="#footnote-3"><sup>3</sup></a></td>
+                </tr>
+                <tr>
+                    <td><strong>for</strong> .. <strong>in</strong> loops</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>Frames</td>
+                    <td>Delphi 5</td>
+                </tr>
+                <tr>
+                    <td>Function inlining</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>Generics</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>IInterface</var></td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>IncludeTrailingPathDelim</var> function</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td>Inline variable declarations</td>
+                    <td>Delphi 10.3</td>
+                </tr>
+                <tr>
+                    <td><strong>inline</strong> keyword</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>Inner exceptions</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>Insert</var> and <var>Delete</var> RTL routines can be used with dynamic arrays in a similar way to how they are used with strings.</td>
+                    <td>Delphi XE7</td>
+                </tr>
+                <tr>
+                    <td><var>Int8</var> type</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>Int16</var> type</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>Int32</var> type</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>Int64</var> type</td>
+                    <td>Delphi 4</td>
+                </tr>
+                <tr>
+                    <td>Interface to object casting</td>
+                    <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td><strong>library</strong> directive</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>LongWord</var> type</td>
+                    <td>Delphi 4</td>
+                </tr>
+                <tr>
+                    <td><var>Margins</var> and <var>Padding</var> properties on <var>TControl</var></td>
+                    <td>Delphi 2006</td>
+                </tr>
+                <tr id="namespaces">
+                    <td>Namespaces [<a href="https://docwiki.embarcadero.com/RADStudio/Alexandria/en/Using_Namespaces_with_Delphi">more info</a>]. See also: <a href="#unit-scope-names"><em>Unit scope names</em></a>.</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>Nested constants within classes / records</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>Nested types within classes</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>Operator overloading on records</td>
+                    <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td>Overloading for functions, procedures and methods</td>
+                    <td>Delphi 4</td>
+                </tr>
+                <tr>
+                    <td><strong>platform</strong> directive</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>RaiseLastOSError</var> procedure</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td>Record Helpers for simple types</td>
+                    <td>Delphi XE3</td>
+                </tr>
+                <tr>
+                    <td>Records with methods</td>
+                    <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td><strong>resourcestring</strong> statement</td>
+                    <td>Delphi 3</td>
+                </tr>
+                <tr>
+                    <td>RTTI enhancements</td>
+                    <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td><var>SafeLoadLibrary</var> function</td>
+                    <td>Delphi 5</td>
+                </tr>
+                <tr>
+                    <td>Scoped enumerators (must have type name prefix)</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td>Sealed classes</td>
+                    <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td><strong>static</strong> directive for class methods</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td><strong>strict private</strong> and <strong>strict protected</strong> visibility specifiers</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td><strong>string</strong> type is <var>UnicodeString</var></td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td>StrUtils unit</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>TApplication.MainFormOnTaskbar</var> property</td>
+                    <td>Delphi 2007</td>
+                </tr>
+                <tr>
+                    <td><var>TArray<T></var> type in <var>System</var> unit.</td>
+                    <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td><var>TBytes</var> alias for <strong>array</strong> <strong>of</strong> <var>Byte</var></td>
+                    <td>Delphi 2007</td>
+                </tr>
+                <tr>
+                    <td>Text format form files</td>
+                    <td>Delphi 5</td>
+                </tr>
+                <tr>
+                    <td><var>TFormatSettings</var> and overloaded format and conversion routines that use it</td>
+                    <td>Delphi 7</td>
+                </tr>
+                <tr>
+                    <td><var>TObject.Equals</var> virtual method</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>TObject.GetHashCode</var> virtual method</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>TObject.ToString</var> virtual method</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>TObject.UnitName</var> method</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td>Touch support</td>
+                    <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td><var>TRegistry</var> supports access flags</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>TRegistry.OpenKeyReadOnly</var> method</td>
+                    <td>Delphi 4</td>
+                </tr>
+                <tr>
+                    <td><var>TryStrToXXXX</var> routines added to <var>SysUtils</var></td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>TStream</var> supports 64 bit size and seek offsets</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>TStringList.Create(OwnsObjects: Boolean)</var> constructor overload</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td>Types unit</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>UInt8</var> type</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>UInt16</var> type</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>UInt32</var> type</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>UInt64</var> type</td>
+                    <td>Delphi 7</td>
+                </tr>
+                <tr>
+                    <td>Unicode identifier names</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>Unicode source files</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>Unicode support (inc Windows API)</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>UnicodeString</var> type</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td>Unit conversion handling (that's <em>unit</em> as in mm or inches, not <em>unit</em> as in source code unit)</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr id="unit-scope-names">
+                    <td>Unit scope names [<a href="https://docwiki.embarcadero.com/RADStudio/Alexandria/en/Unit_Scope_Names">More info</a>]. See also: <a href="#namespaces"><em>Namespaces</em></a>.</td>
+                    <td>Delphi XE2</td>
+                </tr>
+                <tr>
+                    <td>UTF8 source files</td>
+                    <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td><var>UTF8Decode</var> and <var>UTF8Encode</var> routines</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td><var>UTF8String</var> type</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td>Variants unit</td>
+                    <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td>VCL styles</td>
+                    <td>Delphi XE2</td>
+                </tr>
+                <tr>
+                    <td>XMLDoc documentation</td>
+                    <td>Delphi 2005</td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div><!-- /.table-responsive -->
+
+    <footer>
+        <div class="well well-sm">
+            <p id="footnotes" class="strong">Footnotes</p>
+            <ol>
+                <li id="footnote-1">All this information relates to the native Delphi compiler, not the .NET compiler.</li>
+                <li id="footnote-2">From Delphi XE5 the use of the <code>{$IFEND}</code> directive results in a compiler error unless a <code>{$LEGACYIFEND}</code> directive precedes the first <code>{$IFEND}</code> directive or unless the use of legacy <code>{$IFEND}</code> is enabled in project options.</li>
+                <li id="footnote-3">Source: EFG's Computer Lab (<small>defunct website</small>). This source also stated that the Math unit did not change from Delphi 4 to Delphi 5.</li>
+            </ol>
+        </div><!-- /.well .well-sm -->
+    </footer>
+
 </article>
 
 <nav>
-<p>Back to the <a href="./index">Delphi Notes</a> page.</p>
+    <p>Back to the <a href="./index">Delphi Notes</a> page.</p>
 </nav>
