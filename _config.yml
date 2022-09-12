@@ -32,3 +32,7 @@ defaults:
 
 # change the following to false to re-enable flash pop-ups
 ignore-flash: true
+
+# minify CSS geerated from SASS
+sass:
+  style: compressed
