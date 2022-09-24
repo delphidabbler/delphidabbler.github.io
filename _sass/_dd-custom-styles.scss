@@ -213,31 +213,45 @@ h1, h2, h3, h4, h5, h6 {
 // If the link is a direct download that does not load another page then you can
 // specify the .direct-dl class replace the external link glyph with a cloud
 // download glyph.
+// http:// links display same glyphs as https://, but with an additional
+// warning symbol
 //** Custom
-a[href^="http"] {
-  &::after {
-    font-family: $font-family-glyph;
-    margin-left: 4px;
-    content: "\f08e";
-    font-size: 70%;
-  }
-  &.direct-dl::after {
-    content: "\f0ed";
-  }
-  &.btn::after,
-  &.label::after,
-  &.no-external-glyph::after {
-    content: "";
-  }
-}
-// Modifies external link for http:// URLs to add a warning triangle followed by nbsp
-// before external link or direct download glyph.
+
+// Suffix glyphs for http://
 a[href^="http:"] {
   &::after {
     content: "\f071\202f\f08e"
   }
   &.direct-dl::after {
     content: "\f071\202f\f0ed";
+  }
+}
+
+// Suffix gylphs for https://
+a[href^="https:"] {
+  &::after {
+    // font-family: $font-family-glyph;
+    // margin-left: 4px;
+    content: "\f08e";
+    // font-size: 70%;
+  }
+  &.direct-dl::after {
+    content: "\f0ed";
+  }
+}
+
+// Style & remove trailing glyphs for some classes for http:// and https://
+// MUST come after the SASS setting suffi gylphs above
+a[href^="http"] {
+  &::after {
+    font-family: $font-family-glyph;
+    margin-left: 4px;
+    font-size: 70%;
+  }
+  &.btn::after,
+  &.label::after,
+  &.no-external-glyph::after {
+    content: "";
   }
 }
 
