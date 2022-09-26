@@ -43,7 +43,7 @@ bootstrap-link: "/assets/scripts/bootstrap.js"
 
 prefix-free-link: "/assets/scripts/prefixfree.min.js"
 
-coockies-link: "/assets/scripts/cookies.js"
+cookies-link: "/assets/scripts/cookies.js"
 cookie-consent-link: "/assets/scripts/cookieConsent.js"
 
 flash-msg-link: "/assets/scripts/flash-msg.js"
