@@ -874,3 +874,39 @@ a {
 .flash {
     display: none;
 }
+
+// Styling for cookie confirmation pop-up
+// ** Custom
+#cookie-popup {
+
+  background-color: $brand-danger;
+  color: white;
+  border: 1px white solid;
+  padding: 1rem;
+
+  p.cookie-msg {
+    padding: 0;
+
+    a {
+      text-decoration: underline;
+      color: white;
+    }
+}
+
+  p.cookie-btn {
+    padding: 0;
+    text-align: right;
+
+    button {
+      text-align: center;
+      background-color: transparent;
+      color: white;
+      border: 1px white solid;
+      padding: 4px 2rem;
+      &:hover {
+        background-color: lighten($brand-danger, 10%);
+      }
+    }
+  }
+
+}
