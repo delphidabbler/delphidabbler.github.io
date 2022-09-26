@@ -44,6 +44,7 @@ bootstrap-link: "/assets/scripts/bootstrap.js"
 prefix-free-link: "/assets/scripts/prefixfree.min.js"
 
 coockies-link: "/assets/scripts/cookies.js"
+cookie-consent-link: "/assets/scripts/cookieConsent.js"
 
 flash-msg-link: "/assets/scripts/flash-msg.js"
 
@@ -102,8 +103,6 @@ google-fonts-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,700|Sou
 font-awesome-url: "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
 
 jquery-url: "https://code.jquery.com/jquery-1.11.1.min.js"
-
-cookie-consent-url: "https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css"
 
 
 # Original site name
