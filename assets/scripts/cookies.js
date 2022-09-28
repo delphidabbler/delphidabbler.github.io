@@ -1,34 +1,37 @@
-/**
- * Cookies script
- * Based on code at https://www.w3schools.com/js/js_cookies.asp and variation by
- * seanjacob https://stackoverflow.com/users/1134275/seanjacob
- */
- 
+/*  Cookies script */
+
+/*! (C) 2022, Peter Johnson | MIT License | Part of github.com/delphidabbler/delphidabbler.github.io */
+
  var Cookie = {
-   
-    write: function (cname, cvalue, exdays) {
-        var d = new Date();
-        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-        var expires = "expires="+d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+
+    makeCookieStr: function(cookieName, cookieValue, expiryDate) {
+        return cookieName + "=" + cookieValue + "; expires=" + expiryDate + "; path=/";
     },
-    
-    read: function (cname) {
-        var name = cname + "=";
-        var ca = document.cookie.split(';');
-        for(var i = 0; i < ca.length; i++) {
-          var c = ca[i];
-          while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-          }
-          if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-          }
+
+    set: function (cookieName, cookieValue, daysToExpiry) {
+        const millisPerDay = 24 * 60 * 60 * 1000;
+        let expiryDate = new Date();
+        expiryDate.setTime(expiryDate.getTime() + (daysToExpiry * millisPerDay));
+        document.cookie = Cookie.makeCookieStr(cookieName, cookieValue, expiryDate.toUTCString());
+    },
+
+    get: function (cookieName) {
+        let cookies = document.cookie.split(';');
+        for (const cookie of cookies) {
+            const [name, value] = cookie.split('=');
+            if (name.trim() == cookieName) {
+                return value.trim();
+            }
         }
         return null;
     },
-    
-    delete: function (cname) {
-        Cookie.write(cname, "", -1);
+
+    delete: function (cookieName) {
+        document.cookie = Cookie.makeCookieStr(cookieName, "", "Thu, 01 Jan 1970 00:00:00 GMT");
+    },
+
+    isSet: function (cookieName) {
+        // Code from https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie
+        return document.cookie.split(';').some((item) => item.trim().startsWith(cookieName + '='))
     }
 };
