@@ -11,9 +11,9 @@ $( function() {
     var id = flash.data('flash-id');
     var cookieName = 'dd_flash_' + id;
     flash.on('closed.bs.alert', function () {
-        Cookie.write(cookieName, "dismissed", 3650); 
+        Cookie.set(cookieName, "dismissed", 3650);
     });
-    if ( ! Cookie.read(cookieName) ) {
+    if ( ! Cookie.isSet(cookieName) ) {
         flash.show();
     }
     else {
