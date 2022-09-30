@@ -102,7 +102,7 @@ google-fonts-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,700|Sou
 
 font-awesome-url: "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
 
-jquery-url: "https://code.jquery.com/jquery-1.11.1.min.js"
+jquery-url: "https://code.jquery.com/jquery-3.6.1.min.js"
 
 
 # Original site name
