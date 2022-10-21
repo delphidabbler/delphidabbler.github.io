@@ -20,6 +20,6 @@ gem "wdm", "~> 0.1.1", :install_if => Gem.win_platform?
 
 
 # Vulnerability issues
-gem "nokogiri", "~> 1.13.6"
+gem "nokogiri", "~> 1.13.9"
 gem "addressable", ">= 2.8.0"
 gem "commonmarker", ">= 0.23.6"    # Dependabot alert #121
