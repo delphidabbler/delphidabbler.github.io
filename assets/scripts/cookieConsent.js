@@ -7,32 +7,79 @@
  * To style this item provide CSS for:
  *    #cookie-popup (bounding <div>)
  *    p.cookie-msg (message string <p>)
- *    p.cookie-btn (<p> containing close button)
- *    p.cookie-btn button (close <button> itself)
+ *    p.cookie-btn (<p> containing accept/reject buttons)
+ *    p.cookie-btn button (accept/reject buttons)
+ *    #cookie-consent-reject-btn (reject button)
+ *    #cookie-consent-accept-btn (accept button)
  */
 
-var CookieConsent = {
-    exec: function() {
-        let cookieName = 'dd_inhibit_cookie_consent';
-        if ( Cookie.isSet(cookieName) ) {
-            return;
-        }
-        $(document.body).prepend(
-            '<div id="cookie-popup" class="container-fluid">'
-            + '<p class="cookie-msg">This website uses a minimum number of cookies. '
-            + 'There are no trackers or advertising cookies. '
-            + '<a href="/cookies">More info</a>.'
-            + '</p>'
-            + '<p class="cookie-btn"><button id="cookie-close-btn">Dismiss</button></p>'
-            + '</div>'
-        );
-        $('#cookie-close-btn').click(function() {
-            Cookie.set(cookieName, "dismissed", 91);  // expires in apx 3 mths
-            $('#cookie-popup').hide();
+$( function() {
+
+    const cookieName = 'dd-base--cookies-accepted';
+    const sessionCookieName = 'dd-base--cookie-reject-session';
+    const optOutPara = '#cookie-consent--opt-out-text';
+    const messageHTMLPath = '/assets/scripts/includes/cookie-consent-msg.html';
+
+    // Remove redundant cookies
+    Cookie.delete('cookieconsent_status');
+    Cookie.delete('dd_inhibit_cookie_consent');
+    Cookie.delete('dd_flash_1');
+
+    if ( Cookie.isSet(cookieName) ) {
+        // User has accepted cookies: add opt-out link to footer
+        const revokeBtn = '#cookie-consent--revoke';
+        $(optOutPara).css('display', 'block');
+        $(revokeBtn).on('click', function() {
+            Cookie.delete(cookieName);
+            location.reload(true);
         });
     }
-}
 
-$( function() {
-    CookieConsent.exec();
+    else if ( sessionStorage[sessionCookieName] !== '1' ) {
+        // No cookie decision recorded: display pop-up message
+        $(document.body).prepend('<div id="cookie-message"></div>');
+        $('#cookie-message').load(
+            messageHTMLPath,
+            function (response, status, jqHXR) {
+
+                $('#cookie-consent-accept-btn').click(function() {
+                    Cookie.set(cookieName, "1", 182);  // expires in apx 6 mths
+                    $('#cookie-popup').fadeOut();
+                    $(optOutPara).css('display', 'block');
+                    location.reload(true);
+                });
+
+                $('#cookie-consent-reject-btn').click(function() {
+                    Cookie.delete(cookieName);
+                    sessionStorage[sessionCookieName] = '1';
+                    $('#cookie-popup').fadeOut();
+                    location.reload(true);
+                });
+
+                $(window).on('scroll', function() {
+
+                    let documentHeight = document.body.scrollHeight;
+                    let currentScroll = window.scrollY + window.innerHeight;
+                    // When the user is [modifier]px from the bottom, fire the event.
+                    let pageEndDelta = 150;
+                    if(currentScroll + pageEndDelta > documentHeight) {
+                        // at end: hide the message
+                        console.log('At end');
+                        if ($('#cookie-popup').css('display') !== 'none') {
+                            console.log('hiding')
+                            $('#cookie-popup').fadeOut();
+                        }
+                    }
+                    else {
+                        // not at end
+                        if ($('#cookie-popup').css('display') === 'none') {
+                            console.log('showing')
+                            $('#cookie-popup').fadeIn();
+                        }
+                    }
+                });
+            }
+        );
+    }
+
 });
