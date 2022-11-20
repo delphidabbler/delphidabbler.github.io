@@ -2,9 +2,9 @@
 layout: "programs-tplt"
 group: apps
 priority: 9
-version: "1.0.5"
-os: "Windows 2000 & later"
-release-date: "2007-08-26"
+version: "1.1.0"
+os: "Windows XP & later"
+release-date: "2022-11-20"
 title: "Version Information Manipulator Library"
 precis: "A DLL for manipulating binary version information"
 summary: "A DLL that can access, manipulate and update binary version information data."
@@ -34,6 +34,15 @@ status: "current"
     <p>
       A detailed user guide, setting out the DLL's programming interface, can be viewed in the <em>Documentation</em> section below.
     </p>
+    <p>
+      There are two <a href="https://github.com/delphidabbler/vilib/tree/master/Demos">demo programs</a> included in the source code repository, and in the source code download, that show how to use the library. There is a comprehensive read-me file included with the demos. You can view the read-me from the <em>Documentation</em> section below.
+    </p>
+    <p>
+      The download includes a Delphi Pascal unit containing the interface, CLSID, type and exported function definitions required to use the DLL. This file is <code>IntfBinaryVerInfo.pas</code>.</p>
+    </p>
+    <p class="alert alert-warning">
+      At present the DLL is only available in 32 bit format, so it can't be called from 64 bit programs.
+    </p>
   </div>
 </section>
 
@@ -52,7 +61,7 @@ status: "current"
     </p>
     <ul>
       <li>
-        Choose <code>vilib-exe-{{page.version}}.zip</code> to download a zip file containing the DLL and documentation. Extract the content of the <code>.zip</code> file. The included <code>ReadMe.txt</code> file explains how to install the DLL.
+        Choose <code>vilib-exe-{{page.version}}.zip</code> to download a zip file containing the DLL and documentation. Extract the content of the <code>.zip</code> file. The included <code>README.md</code> file explains how to install the DLL.
       </li>
       <li>
         Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
@@ -79,19 +88,19 @@ status: "current"
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/master/Docs/ReadMe.txt">Read Me<span class="sr-only"> (text file)</span></a> &ndash; contains details of how to install the DLL, along with other information.
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/vilib/blob/master/README.md">Read Me<span class="sr-only"> (Markdown file)</span></a> &ndash; contains details of how to install the DLL, along with other information.
       </li>
       <li class="list-group-item">
-        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/master/Docs/License.txt">License<span class="sr-only"> (text file)</span></a> &ndash; the DLL's end user license.
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/vilib/blob/master/LICENSE.md">License<span class="sr-only"> (Markdown file)</span></a> &ndash; the DLL's end user license.
       </li>
       <li class="list-group-item">
-        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/master/Docs/ChangeLog.txt">Change Log<span class="sr-only"> (text file)</span></a> &ndash; lists significant changes made in each DLL release.
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/vilib/blob/master/CHANGELOG.md">Change Log<span class="sr-only"> (Markdown)</span></a> &ndash; lists significant changes made in each DLL release.
       </li>
       <li class="list-group-item">
-        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://raw.githubusercontent.com/delphidabbler/vilib/develop/Docs/ReadMe-Src.txt">Build File<span class="sr-only"> (text file)</span></a> &ndash; provides information on how to build the DLL from source.
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/vilib/blob/master/Docs/UserGuide.md">User Guide<span class="sr-only"> (Markdown)</span></a> &ndash; provides detailed information on how to use the DLL.
       </li>
       <li class="list-group-item">
-        <span class="fa fa-fw fa-x-pad-right fa-file-pdf-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/vilib/blob/develop/Docs/UserGuide.pdf">User Guide<span class="sr-only"> (PDF file)</span></a> &ndash; provides detailed information on how to use the DLL.
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/vilib/blob/master/Demos/README.md">Demos Read me<span class="sr-only"> (Markdown)</span></a> &ndash; provides information about how to use the demo programs.
       </li>
     </ul>
   </div>
@@ -105,7 +114,7 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      You can report bugs or suggest new features using the <em>{{ page.title }}</em> <a href="https://github.com/delphidabbler/vilib/issues" class="offsite">issue tracker</a> on GitHub.
+      You can report bugs or suggest new features using the <em>{{ page.title }}</em> <a href="https://github.com/delphidabbler/vilib/issues">issue tracker</a> on GitHub.
     </p>
     <p>
       Please review existing bug reports and feature requests before creating a new issue. If an issue already exists you may be able to help by adding a further comment.
