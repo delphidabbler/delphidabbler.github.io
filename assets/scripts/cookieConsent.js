@@ -14,7 +14,7 @@
 var CookieConsent = {
     exec: function() {
         let cookieName = 'dd_inhibit_cookie_consent';
-        if ( Cookie.read(cookieName) ) {
+        if ( Cookie.isSet(cookieName) ) {
             return;
         }
         $(document.body).prepend(
@@ -27,7 +27,7 @@ var CookieConsent = {
             + '</div>'
         );
         $('#cookie-close-btn').click(function() {
-            Cookie.write(cookieName, "dismissed", 91);  // expires in apx 3 mths
+            Cookie.set(cookieName, "dismissed", 91);  // expires in apx 3 mths
             $('#cookie-popup').hide();
         });
     }
