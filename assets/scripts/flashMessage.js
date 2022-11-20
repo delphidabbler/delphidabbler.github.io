@@ -15,7 +15,7 @@ $( function() {
         return;
     }
     const id = flash.data('flash-id');
-    const cookieName = 'dd_flash_' + id;
+    const cookieName = 'dd-base--flash-' + id;
     flash.on('closed.bs.alert', function () {
         // set cookie for 1yr: can't set for more per EU regs
         Cookie.set(cookieName, "dismissed", 365);
