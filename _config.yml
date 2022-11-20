@@ -31,7 +31,7 @@ defaults:
       layout: "default"
 
 # change the following to false to re-enable flash pop-ups
-ignore-flash: true
+ignore-flash: false
 
 # minify CSS geerated from SASS
 sass:
