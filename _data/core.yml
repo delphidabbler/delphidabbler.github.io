@@ -83,9 +83,6 @@ site-mit-license-link-title: "MIT License page"
 generic-mit-license-url: "https://opensource.org/licenses/MIT"
 generic-mit-license-link-title: "MIT License on the Open Source Initiative web site"
 
-jquery-license-url: "https://jquery.org/license/"
-jquery-license-link-title: "jQuery License on the jQuery web site"
-
 normalize-css-license-url: "https://raw.githubusercontent.com/necolas/normalize.css/master/LICENSE.md"
 normalize-css-license-link-title: "MIT license on normalize CSS GitHub page"
 
