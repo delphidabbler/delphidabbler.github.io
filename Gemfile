@@ -2,8 +2,6 @@ source "https://rubygems.org"
 
 gem "github-pages", "~> 225", group: :jekyll_plugins
 
-gem "activesupport", ">= 6.0.3.1" # fix security issue
-
 # If you have any plugins, put them here!
 #group :jekyll_plugins do
 #end
@@ -23,3 +21,4 @@ gem "wdm", "~> 0.1.1", :install_if => Gem.win_platform?
 gem "nokogiri", "~> 1.13.10"
 gem "addressable", ">= 2.8.0"
 gem "commonmarker", ">= 0.23.7"    # Dependabot alert PR#139
+gem "activesupport", "~> 6.0.6.1"  # Dependabot alert PR#140
