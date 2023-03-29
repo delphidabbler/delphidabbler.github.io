@@ -28,10 +28,10 @@ redirect_from:
 			Development of <em>{{ page.title }}</em> is frozen.
 		</p>
 		<p>
-			I developed this program to create simple, command line based installers for my programs, but my needs have changed and the program hasn't kept up. To update it would be (a) a <em>lot</em> of work and (b) pointless because the superb <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> does it all so well.
+			I developed this program to create simple, command line based installers for my programs, but my needs have changed and the program hasn't kept up. To update it would be (a) a <em>lot</em> of work and (b) pointless because the superb <a href="https://www.jrsoftware.org/isinfo.php">Inno Setup</a> does it all so well.
 		</p>
 		<p>
-			<strong class="text-danger"><span class="fa fa-exclamation-triangle fa-x-pad-right"></span>I strongly discourage anyone from continuing to develop this program</strong> &ndash; it's had its day. I don't even know if it runs on modern versions of Windows! Having said that if you want to look at the code you can download a copy of the final version below.
+			<strong class="text-danger"><span class="fa fa-exclamation-triangle fa-x-pad-right"></span>I strongly discourage anyone from continuing to develop this program</strong> &ndash; it's had its day. I don't even know if it runs on modern versions of Windows. Having said that if you want to look at the code you can download a copy of the final version below.
 		</p>
 		<p class="alert alert-warning lead glyph">
 			There is no support available for this program. Please do not report any bugs or contact me about it.
@@ -56,7 +56,7 @@ redirect_from:
 			<img class="scale center-block" src="{{ site.data.core.software-images-base-url}}/sib.gif" alt="SIBuilder's Project Details page" title="SIBuilder's Project Details page"/>
 		</p>
 		<p>
-			For more information please download the program's <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJQ1BNWldvUzd6REE/view?usp=sharing">help file</a> or <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJMkNVTVFsdVJfR2c/view?usp=sharing">tutorial</a>.
+			For more information please download the program's <a class="direct-dl" href="https://github.com/ddab-archive/sibuilder/raw/main/Docs/Tutorial.pdf">tutorial PDF</a>.
 		</p>
   </div>
 </section>
@@ -67,56 +67,13 @@ redirect_from:
       Download
     </h2>
   </div>
-  <div class="panel-body">
+	<div class="panel-body">
 		<p>
-			The following downloads for <em>SIBuilder</em> are hosted on GoogleDrive:
+			The <em>SIBuilder</em> source code is archived in the <a href="https://github.com/ddab-archive/sibuilder"><strong>ddab-archive/sibuilder</strong></a> repository on GitHub. The read-me file of that project explains how to get the final source code and binary release.
 		</p>
-		<ul>
-			<li>
-				<p>
-					<strong>The executable program: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJeFF3cU51UEVUeE0/view?usp=sharing">sibuilder-exe.zip</a>.</strong>
-				</p>
-				<p>
-					This zip file contains the program's <em>self-generated</em> installer (<code>sib3inst.exe</code>) and a read-me file (<code>ReadMe.html</code>). Unzip the file into a new folder. Installation instructions can be found in the read-me file.
-				</p>
-			</li>
-			<li>
-				<p>
-					<strong>The source code: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJTldvLXM3eHg2cEU/view?usp=sharing">sibuilder-src.zip</a>.</strong>
-				</p>
-				<p>
-					This download includes the source code of the final version of the program. Create a new folder to hold the source code and then unzip the file into it, preserving the directory structure.
-				</p>
-			</li>
-			<li>
-				<p>
-					<strong>Build notes: <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJNHRPVk4tZTFsMk0/view?usp=sharing">sibuilder-buildnotes.txt</a>.</strong>
-				</p>
-				<p>
-					This file explains how to compile the source code.
-				</p>
-			</li>
-		</ul>
 		<p>
-			Some DelphiDabbler library projects are required to build <em>8 Queens</em> from source. They are:
+			See  <a href="https://raw.githubusercontent.com/ddab-archive/sibuilder/main/Docs/Build.txt"><code>Build.txt</code></a> in the GitHib repo for details of how to compile the program and its dependencies.
 		</p>
-		<ul>
-			<li>
-				<a href="/software/verinfo">Version Information Component</a>.
-			</li>
-			<li>
-				<a href="/software/shellfolders">Shell Folders Unit</a>.
-			</li>
-			<li>
-				<a href="/software/wdwstate">Window State Components</a>.
-			</li>
-			<li>
-				<a href="/software/cbview">Clipboard Viewer Component</a>.
-			</li>
-			<li>
-				<a href="/software/streams">Stream Extension Classes</a>.
-			</li>
-		</ul>
 	</div>
 </section>
 
@@ -128,7 +85,7 @@ redirect_from:
   </div>
   <div class="panel-body">
 		<p>
-			<em>SIBuilder</em> is open sourced. See <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJem9rdUFtVF95WkU/view?usp=sharing">sibuilder-license.txt</a> for details of the license that applies to the executable program. Much of the original source code is available under the <a href="http://www.mozilla.org/MPL/1.1/">Mozilla Public License v1.1</a>.
+			<em>SIBuilder</em> is open sourced: <a href="https://raw.githubusercontent.com/ddab-archive/sibuilder/main/Docs/SIBuilder.lic">see license</a>. Much of the original source code is available under the <a href="https://www.mozilla.org/MPL/1.1/">Mozilla Public License v1.1</a>.
 		</p>
   </div>
 </section>
@@ -141,7 +98,7 @@ redirect_from:
   </div>
   <div class="panel-body">
 		<p>
-			The program's change log can found in the file <a href="https://drive.google.com/file/d/0B8qEVqTUMgmJOUZPc1llVjY4cHc/view?usp=sharing">sibuilder-changelog.txt</a>.
+			The program's change log can found <a href="https://raw.githubusercontent.com/ddab-archive/sibuilder/main/CHANGELOG.txt">here</a>.
 		</p>
   </div>
 </section>
