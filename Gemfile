@@ -20,7 +20,7 @@ gem "wdm", "~> 0.1.1", :install_if => Gem.win_platform?
 # Vulnerability issues
 gem "nokogiri", "~> 1.13.10"
 gem "addressable", ">= 2.8.0"
-gem "commonmarker", ">= 0.23.7"
+gem "commonmarker", ">= 0.23.9"
 gem "activesupport", "~> 7.0.4.3"
 
 # Fix for when using Ruby 3 - webrick no longer installed w/ Ruby 3
