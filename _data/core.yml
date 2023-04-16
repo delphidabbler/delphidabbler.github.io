@@ -35,6 +35,9 @@ credits-link-title: "Credits page"
 cookies-page-link: "/cookies"
 cookies-page-link-title: "Cookies page"
 
+extras-link: "/extras"
+extras-title: "Extras page"
+
 install-to-ide-link: "/install-to-ide"
 
 software-base-url: "/software"

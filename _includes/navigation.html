@@ -46,6 +46,10 @@
             <a href="{{ site.data.core.notes-link }}" aria-label="{{ site.data.core.tips-notes-title }}">Delphi Notes</a>
           </li>
           <li role="separator" class="divider"></li>
+          <li{% if page.url == site.data.core.docs-link %} class="active"{% endif %}>
+            <a href="{{ site.data.core.extras-link }}" aria-label="{{ site.data.core.extras-title }}">Extras</a>
+          </li>
+          <li role="separator" class="divider"></li>
           <li{% if page.url == site.data.core.about-link %} class="active"{% endif %}>
             <a href="{{ site.data.core.about-link }}" aria-label="{{ site.data.core.about-link-title }}">About</a>
           </li>
