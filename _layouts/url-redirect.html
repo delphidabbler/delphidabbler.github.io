@@ -6,7 +6,13 @@
 
 {% include head.html %}
 
-<meta http-equiv="refresh" content="2;URL='{{ page.redirect-url }}'">
+{% if page.redirect-delay  %}
+    {% assign delay = page.redirect-delay %}
+{% else %}
+    {% assign delay = 2 %}
+{% endif %}
+
+<meta http-equiv="refresh" content="{{ delay }};URL='{{ page.redirect-url }}'">
 
 </head>
 
