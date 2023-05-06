@@ -1,0 +1,213 @@
+---
+dl-file-prefix: "dd-vibin-"
+layout: "codelib-tplt"
+group: lib
+priority: 3.5
+version: No releases yet
+release-date: N/a
+platforms: ["Win32"]
+frameworks: ["VCL", "FMX"]
+compatibility: "Delphi XE and later"
+title: "Binary Version Information Manipulation Units"
+precis: "Classes to manipulate binary Windows version information."
+summary: "UNDER DEVELOPMENT: Classes to read, manipulate and write binary Windows version information, bypassing the Windows API."
+meta-title: "Delphi VCL & FMX classes to read, manipulate and write binary Windows version information."
+meta-desc: "Delphi Pascal VCL & FMX classes to read, manipulate and write binary Windows version information, bypassing the Windows API. Requires Delphi XE & later."
+download-base-url: "https://sourceforge.net/projects/ddablib/files/vibin/"
+repo-url: "https://github.com/ddablib/vibin"
+docs-url: "https://lib-docs.delphidabbler.com/VIBin/"
+want-header-buttons: false
+status: "current"
+---
+{% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% assign dl-url = page.download-base-url | append: dl-file %}
+
+<section class="panel panel-default">
+
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Overview
+    </h2>
+  </div>
+
+  <div class="panel-body">
+    <p class="alert alert-danger glyph">
+      This code is in development and has not yet been released.
+    </p>
+    <p>
+      The Binary Version Information Manipulation Units provide a set of classes that can be used to read, manipulate and write Windows version information in its raw binary form. This is the form used to store version information in Windows executables and resource files.
+    </p>
+    <p>
+      The advantage of using this code over the Windows API for reading version information is that the code can cope with badly formed version information that would defeat the API routines. Furthermore, this code can enumerate the contents of string tables and list and access non-standard string table entries. It also works with string tables in multiple languages.
+    </p>
+
+    <h3 data-toggle="collapse" data-target="#demo" class="collapsible collapsed">
+      Demo code
+    </h3>
+
+    <div id="demo" class="collapse"> <!-- begin collapsible #demo section -->
+      <p>
+        Two programs are provided that show how to use classes made available by the <code>vibin</code> project:
+      </p>
+      <ol>
+        <li>
+          <code>ResRWDemo</code> - demonstrates how to read from and write to 32 bit version information resources within binary resource files.
+        </li>
+        <li>
+          <code>VIReaderDemo</code> - demonstrates how to read 32 bit version information from executable programs or DLLs.
+        </li>
+      </ol>
+      <p>
+        You should the read demo source code alongside the user guide: the two are complementary.
+      </p>
+    </div> <!-- /#demo -->
+  </div>
+
+</section>
+
+<section class="panel panel-default">
+
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Get The Code
+    </h2>
+  </div>
+
+  <div class="panel-body">
+    <!-- 
+    <p>
+      You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to SourceForge and download latest version automatically">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from SourceForge</span></a>
+    </p>
+    <p>
+      The <em>{{ page.title }}</em> source code is hosted in the <a href="{{ page.repo-url }}" aria-label="Link to the ddablib/vibin repository on GitHub"><code>ddablib/vibin</code></a> GitHub repository. You can <code>git clone</code> or fork the repository as required.
+    </p>
+    -->
+    <p class="alert alert-danger glyph">
+      The source code will shortly be available on GitHub. At the moment the repository is private.
+    </p>
+  </div>
+
+</section>
+
+<!--
+<section class="panel panel-default">
+
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Installation
+    </h2>
+  </div>
+
+  <div class="panel-body">
+    <p>
+      The <em>{{ page.title }}</em> is supplied in a zip file. Before installing you need to extract all the files from the zip file. The following files will be extracted:
+    </p>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <strong><code>UVerInfoData.pas</code></strong> &ndash; Contains all the primary classes you need to interact with to manipulate binary version information.
+      </li>
+      <li class="list-group-item">
+        <strong><code>UVerInfoRec.pas</code></strong> &ndash; Contains support classes required by <code>UVerInfoData.pas</code>. These classes do not need to be accessed directly.
+      </li>
+      <li class="list-group-item">
+        <strong><code>UVerInfoBinIO.pas</code></strong> &ndash; Contains support classes required by </code>>UVerInfoRec.pas</code>. These classes do not need to be accessed directly.
+      </li>
+      <li class="list-group-item">
+        <code>README.md</code> &ndash; Read-me file.
+      </li>
+      <li class="list-group-item">
+        <code>CHANGELOG</code> &ndash; The project's change log.
+      </li>
+      <li class="list-group-item">
+        <code>MPL-2.txt</code> &ndash; The Mozilla Public License v2.0.
+      </li>
+      <li class="list-group-item">
+        <code>Documentation.URL</code> &ndash; Short-cut to the component's online documentation.
+      </li>
+    </ul>
+    <p>
+      In addition to the above files you will find the the source code of two demo projects along with read-me files in the <code>Demos</code> directory.
+    </p>
+    <p>
+      There are four possible ways to use the units:
+    </p>
+    <ol>
+      <li>
+        The simplest way is to add <code>UVerInfoData.pas</code>, <code>UVerInfoRec.pas</code> and <code>UVerInfoBinIO.pas</code> to your projects.
+      </li>
+      <li>
+        To make the units easier to re-use you can either copy them to a folder on your Delphi search path, or add the folder where you extracted the units to the search path. You then simply use the units as required without needing to add it to your project.
+      </li>
+      <li>
+        For maximum portability you can add the units to a Delphi package.
+      </li>
+      <li>
+        If you use Git you can add the <a href="https://github.com/ddablib/vibin"><code>ddablib/vibin</code></a> GitHub repository as a Git submodule and add it to your project. Obviously, it's safer if you fork the repo and use your own copy, just in case <code>ddablib/vibin</code> ever goes away.
+      </li>
+    </ol>
+  </div>
+
+</section>
+-->
+
+<!--
+<section class="panel panel-default">
+
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      Documentation
+    </h2>
+  </div>
+
+  <div class="panel-body">
+    <p>
+      The <em>{{ page.title }}</em> is comprehensively documented online <a href="{{ page.docs-url }}" aria-title="View the online documentation">here</a>
+    </p>
+    <p>
+      The project's change log can be viewed <a href="https://github.com/ddablib/vibin/blob/master/CHANGELOG.md" aria-title="View the change log in Markdown format">here</a>.
+    </p>
+    <p>
+      A read-me file (<code>README.md</code>) is included in the project download or it can be viewed <a href="https://github.com/ddablib/vibin/blob/master/README.md" aria-title="View the read-me file in Markdown format">here</a>.
+    </p>
+  </div>
+
+</section>
+-->
+
+<!--
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title" id="feedback">
+      Feedback &amp; Queries
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      If you find any bugs or want to suggest a new feature please report them using the <em>{{page.title}}</em> <a href="https://github.com/ddablib/vibin/issues">issue tracker</a>.
+    </p>
+    <p>
+      If you have created a bug fix or have implemented a new feature please open a pull request for it.
+    </p>
+    <p>
+      Should you have any queries about using the component please read the <a href="{{ page.docs-url }}">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://github.com/orgs/ddablib/discussions">discussion group</a>
+    </p>
+  </div>
+</section>
+-->
+
+<section class="panel panel-default">
+  <div class="panel-heading">
+    <h2 class="panel-title">
+      License
+    </h2>
+  </div>
+  <div class="panel-body">
+    <p>
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span>
+      The <em>{{ page.title }}</em> is open source. It is copyright &copy; 1998-2014 by <a href="https://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="https://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+    </p>
+  </div>
+</section>
