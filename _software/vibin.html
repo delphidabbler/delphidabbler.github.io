@@ -3,14 +3,14 @@ dl-file-prefix: "dd-vibin-"
 layout: "codelib-tplt"
 group: lib
 priority: 3.5
-version: No releases yet
-release-date: N/a
+version: 1.0.0
+release-date: 2023-05-17
 platforms: ["Win32"]
 frameworks: ["VCL", "FMX"]
 compatibility: "Delphi XE and later"
 title: "Binary Version Information Manipulation Units"
 precis: "Classes to manipulate binary Windows version information."
-summary: "UNDER DEVELOPMENT: Classes to read, manipulate and write binary Windows version information, bypassing the Windows API."
+summary: "Classes to read, manipulate and write binary Windows version information, bypassing the Windows API."
 meta-title: "Delphi VCL & FMX classes to read, manipulate and write binary Windows version information."
 meta-desc: "Delphi Pascal VCL & FMX classes to read, manipulate and write binary Windows version information, bypassing the Windows API. Requires Delphi XE & later."
 download-base-url: "https://sourceforge.net/projects/ddablib/files/vibin/"
@@ -31,9 +31,6 @@ status: "current"
   </div>
 
   <div class="panel-body">
-    <p class="alert alert-danger glyph">
-      This code is in development and has not yet been released.
-    </p>
     <p>
       The Binary Version Information Manipulation Units provide a set of classes that can be used to read, manipulate and write Windows version information in its raw binary form. This is the form used to store version information in Windows executables and resource files.
     </p>
@@ -74,7 +71,6 @@ status: "current"
   </div>
 
   <div class="panel-body">
-    <!-- 
     <p>
       You can download the latest version of the <em>{{page.title}}</em> directly from SourceForge as <code>{{ dl-file }}</code>.
     </p>
@@ -84,15 +80,10 @@ status: "current"
     <p>
       The <em>{{ page.title }}</em> source code is hosted in the <a href="{{ page.repo-url }}" aria-label="Link to the ddablib/vibin repository on GitHub"><code>ddablib/vibin</code></a> GitHub repository. You can <code>git clone</code> or fork the repository as required.
     </p>
-    -->
-    <p class="alert alert-danger glyph">
-      The source code will shortly be available on GitHub. At the moment the repository is private.
-    </p>
   </div>
 
 </section>
 
-<!--
 <section class="panel panel-default">
 
   <div class="panel-heading">
@@ -107,25 +98,25 @@ status: "current"
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <strong><code>UVerInfoData.pas</code></strong> &ndash; Contains all the primary classes you need to interact with to manipulate binary version information.
+        <strong><code>DelphiDabbler.Lib.VIBin.Resource.pas</code></strong> &ndash; Contains the primary class you need to interact with to manipulate binary version information. This class encapsulates a binary version information resource as stored in Windows binary resource files and executable files.
       </li>
       <li class="list-group-item">
-        <strong><code>UVerInfoRec.pas</code></strong> &ndash; Contains support classes required by <code>UVerInfoData.pas</code>. These classes do not need to be accessed directly.
+        <strong><code>DelphiDabbler.Lib.VIBin.VarRec.pas</code></strong> &ndash; Contains support classes required by <code>DelphiDabbler.Lib.VIBin.Resource.pas</code>. These classes encapsulate both 16 bit and 32 bit variable size version information records. They do not need to be accessed directly. 
       </li>
       <li class="list-group-item">
-        <strong><code>UVerInfoBinIO.pas</code></strong> &ndash; Contains support classes required by </code>>UVerInfoRec.pas</code>. These classes do not need to be accessed directly.
+        <strong><code>DelphiDabbler.Lib.VIBin.Defines.inc</code></strong> &ndash; Include file containing defined symbols that enable conditional compilation for different versions of Delphi.
       </li>
       <li class="list-group-item">
         <code>README.md</code> &ndash; Read-me file.
       </li>
       <li class="list-group-item">
-        <code>CHANGELOG</code> &ndash; The project's change log.
+        <code>CHANGELOG.md</code> &ndash; The project's change log.
       </li>
       <li class="list-group-item">
         <code>MPL-2.txt</code> &ndash; The Mozilla Public License v2.0.
       </li>
       <li class="list-group-item">
-        <code>Documentation.URL</code> &ndash; Short-cut to the component's online documentation.
+        <code>Documentation.URL</code> &ndash; Short-cut to the project's online documentation.
       </li>
     </ul>
     <p>
@@ -136,10 +127,10 @@ status: "current"
     </p>
     <ol>
       <li>
-        The simplest way is to add <code>UVerInfoData.pas</code>, <code>UVerInfoRec.pas</code> and <code>UVerInfoBinIO.pas</code> to your projects.
+        The simplest way is to add <code>DelphiDabbler.Lib.VIBin.Resource.pas</code>, <code>DelphiDabbler.Lib.VIBin.VarRec.pas</code> and <code>DelphiDabbler.Lib.VIBin.Defines.pas</code> to your projects.
       </li>
       <li>
-        To make the units easier to re-use you can either copy them to a folder on your Delphi search path, or add the folder where you extracted the units to the search path. You then simply use the units as required without needing to add it to your project.
+        To make the units and include file easier to re-use you can either copy them to a folder on your Delphi search path, or add the folder where you extracted the units to the search path. You then simply use the units as required without needing to add them to your project.
       </li>
       <li>
         For maximum portability you can add the units to a Delphi package.
@@ -151,9 +142,7 @@ status: "current"
   </div>
 
 </section>
--->
 
-<!--
 <section class="panel panel-default">
 
   <div class="panel-heading">
@@ -164,7 +153,7 @@ status: "current"
 
   <div class="panel-body">
     <p>
-      The <em>{{ page.title }}</em> is comprehensively documented online <a href="{{ page.docs-url }}" aria-title="View the online documentation">here</a>
+      <em>{{ page.title }}</em> is comprehensively documented online <a href="{{ page.docs-url }}" aria-title="View the online documentation">here</a>
     </p>
     <p>
       The project's change log can be viewed <a href="https://github.com/ddablib/vibin/blob/master/CHANGELOG.md" aria-title="View the change log in Markdown format">here</a>.
@@ -175,9 +164,7 @@ status: "current"
   </div>
 
 </section>
--->
 
-<!--
 <section class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title" id="feedback">
@@ -189,14 +176,13 @@ status: "current"
       If you find any bugs or want to suggest a new feature please report them using the <em>{{page.title}}</em> <a href="https://github.com/ddablib/vibin/issues">issue tracker</a>.
     </p>
     <p>
-      If you have created a bug fix or have implemented a new feature please open a pull request for it.
+      If you have created a bug fix or have implemented a new feature please open a pull request for it, relative to the <a href="https://github.com/ddablib/vibin/tree/develop"><code>develop</code></a> branch.
     </p>
     <p>
       Should you have any queries about using the component please read the <a href="{{ page.docs-url }}">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://github.com/orgs/ddablib/discussions">discussion group</a>
-    </p>
+    </p>    
   </div>
 </section>
--->
 
 <section class="panel panel-default">
   <div class="panel-heading">
@@ -207,7 +193,7 @@ status: "current"
   <div class="panel-body">
     <p>
       <span class="fa fa-copyright fa-pull-left fa-3x"></span>
-      The <em>{{ page.title }}</em> is open source. It is copyright &copy; 1998-2014 by <a href="https://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="https://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      The <em>{{ page.title }}</em> is open source. It is copyright &copy; 2002-2023 by <a href="https://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="https://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
   </div>
 </section>
