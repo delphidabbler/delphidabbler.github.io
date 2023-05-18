@@ -928,3 +928,22 @@ a {
 #cookie-consent--opt-out-text {
   display: none;
 }
+
+.panel-list-group {
+
+  .list-group-item {
+    margin: 0;
+    margin-bottom: $line-height-computed;
+    padding: 0;
+    border-color: $brand-primary;
+  
+  }
+
+  .panel {
+    margin: 0;
+    padding: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+}
