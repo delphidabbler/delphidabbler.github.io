@@ -62,28 +62,35 @@ meta-desc: "Index page listing and linking to all Delphi Pascal programming arti
 
 <p>This page lists various articles that discuss various aspects of Delphi programming. Choose articles of interest from the list below. Many articles include source code examples in Delphi Pascal.</p>
 
-{% assign sorted_articles = site.articles | where: "index", true | sort: "article" | reverse %}
-{% for article in sorted_articles %}
-{% assign test = forloop.index | modulo: 2 %}
-{% if test <> 0 %}<div class="row">{% endif %}
-  <article role="section" aria-labelledby="art-{{ article.article | escape }}-head">
-    <div class="col-md-6">
-      <div class="panel panel-primary">
-        <header class="panel-heading" id="art-{{ article.article | escape }}-head">
-          <h2>{{ article.title | escape }}</h2>
-        </header>
-        <div class="panel-body">
-          <p>{{ article.summary | escape }}</p>
-        </div>
-        <footer class="panel-footer text-right">
-          <a href="/articles/article-{{ article.article }}" aria-label="Read &quot;{{ article.title | escape }}&quot;">Read the article</a>
-        </footer>
-      </div>
-    </div>
-  </article>
-  {% if test == 0 or forloop.last %}
-</div> <!-- ./row -->
-<!-- Clear the lg cols if their content doesn't match in height -->
-<div class="clearfix visible-md-block" role="presentation"></div>
-{% endif %}
-{% endfor %}
+{% assign sorted_articles = site.articles | where: "index", true | sort: "article" | reverse -%}
+<div class="panel-list-group">
+
+  <div class="list-group">
+    {% for article in sorted_articles -%}
+    {% assign test = forloop.index | modulo: 2 -%}
+    {% if test <> 0 %}
+    <div class="row">
+    {% endif %}
+      <div class="col-sm-6">
+        <a class="list-group-item" href="/articles/article-{{ article.article }}" aria-label="Read &quot;{{ article.title | escape }}&quot;">
+          <article role="section" aria-labelledby="art-{{ article.article | escape }}-head">
+            <div class="panel panel-primary">
+              <header class="panel-heading" id="art-{{ article.article | escape }}-head">
+                <h2>{{ article.title | escape }}</h2>
+            </div><!-- /.panel .panel-primary -->
+            <div class="panel-body">
+              <p>{{ article.summary | escape }}</p>
+            </div> <!-- ./panel-body -->
+          </article>
+        </a> <!-- list-group-item -->
+      </div> <!-- ./col-sm-6 -->
+      {% if test == 0 or forloop.last %}
+    </div> <!-- ./row -->
+    
+    <!-- Clear the lg cols if their content doesn't match in height -->
+    <div class="clearfix visible-sm-block" role="presentation"></div>
+    {% endif %}
+    {%- endfor %}
+  </div> <!-- ./list-group -->
+
+</div> <!-- ./panel-list-group -->
