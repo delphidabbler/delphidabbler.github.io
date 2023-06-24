@@ -519,6 +519,10 @@ a[href^="http"] {
   .panel-body {
     > *:last-child {
       margin-bottom: 0;
+      > *:last-child {
+        // ensures that if last child is a container, it's last child has no bottom margin
+        margin-bottom: 0;
+      }
     }
   }
   h2 {
