@@ -2,13 +2,13 @@
 layout: "programs-tplt"
 group: apps
 priority: 1.5
-version: "0.2.1-beta"
-release-date: "2022-11-03"
+version: "0.3.0"
+release-date: "2023-06-23"
 os: Windows 7 / Windows Server 2012 R2 & later
-title: "Unit2NS"
+title: "DUSE"
 precis: "Finds the unit scope that a given Pascal unit belongs to."
 summary: "Maintains one or more 'mappings' of Delphi Pascal units to the unit scopes to which they may belong. Copies the fully qualified unit name to the clipboard for pasting into Pascal code. "
-meta-title: "Unit2NS: Utility That Finds Fully Qualified Delphi Unit Names | Open Source | 32 & 64 bit"
+meta-title: "DUSE: Utility That Finds Fully Qualified Delphi Unit Names | Open Source | 32 & 64 bit"
 meta-desc: "Windows utility program that looks up a Delphi Pascal unit name and finds all fully qualified unit scopes it belongs to. Open source. Written in Delphi Pascal."
 download-base-url: "https://github.com/ddabapps/duse/releases/tag/v"
 repo-url: "https://github.com/ddabapps/duse"
@@ -24,43 +24,34 @@ redirect_from:
     </h2>
   </div>
   <div class="panel-body">
-    <div class="alert alert-danger">
+    <p>
+      <em>DUSE</em> is a little Windows GUI tool for Delphi programmers to find the <a href="https://docwiki.embarcadero.com/RADStudio/Alexandria/en/Unit_Scope_Names">unit scope(s)</a> that a unit belongs to and copies the fully qualified unit name to the clipboard.
+    </p>
+    <p>
+      Since the introduction of unit scopes to Delphi I've been struggling to remember which scopes some units belong to. OK, sometimes the code editor pops up a list of unit names in a scope, but what I wanted was to type in a unit name and be told what unit scopes(s) the unit may belong to.
+    </p>
+    <p>
+      This program does that. When you have found the required unit scope name you can copy the fully qualified unit name to the clipboard ready for pasting into your code editor. It will also let you examine a unit scope to see what units it contains.
+    </p>
+    <p>
+      You have to teach <em>DUSE</em> about what units exist and the unit scopes they belong to. The program makes this easy to do. It finds installed versions of Delphi and can automatically read the units in an installation's source code directory. Alternatively it can scan directory trees and extract the unit names from any <code>.pas</code> or <code>.dcu</code> files that it finds. <em>DUSE</em> can remember more than one set of unit-scope name &quot;mappings&quot;, which makes it useful for using with different versions of Delphi.
+    </p>
+    <p>
+      The program is available in either 64 bit 32 bit Windows versions. You should always use the 64 bit version if you are running 64 bit Windows.
+    </p>
+    <p>
+      No non-Windows version is (or will be) available, simply because the program is designed for use alongside the Windows-only Delphi IDE.
+    </p>
+    <aside>
       <p>
-        <strong>At the next release <em>Unit2NS</em> is being renamed to <em>DUSE</em>.</strong>
+        Why <em>DUSE</em>? <strong>D</strong>elphi <strong>U</strong>nit <strong>S</strong>cope <strong>E</strong>xpander. And you can think of the tool being used with <strong>D</strong>elphi <strong>use</strong>s statements.
       </p>
-      <p>
-          Some changes to the GitHub repository and this web site have already been made in preparation for this:
+    </aside>
+    <aside>
+      <p class="alert alert-info glyph">
+        Before release v0.3.0 <em>DUSE</em> was named <em>Unit2NS</em>, which stood for <em>Unit to namespace</em>. But someone pointed out that the program wasn't dealing with namespaces, but with unit scope names. Which buggered up using "NS" to stand for "namespace". Cue the rewriting of the UI and docs and, eventually, a new name!
       </p>
-      <ul class="wide">
-        <li>
-          The GitHub repository has been transferred from <code>delphidabbler/unit2ns</code> to <code>ddabapps/duse</code>.
-        </li>
-        <li>
-            All links on this page affected by the change of repository have been updated. 
-        </li>
-        <li>
-          This web page's URL has been changed to <code>https://delphidabbler.com/software/duse</code>. The old <code>https://delphidabbler.com/software/unit2ns</code> URL has been configured to redirect to the new URL.
-        </li>
-      </ul>
-      <p>
-        This page will continue to refer to <em>Unit2NS</em> until the next release is made. Following that release this page will be updated to use the new name.
-      </p>
-    </div>
-    <p>
-        <em>Unit2NS</em> is a little tool for Delphi programmers to find the <a href="https://docwiki.embarcadero.com/RADStudio/Alexandria/en/Unit_Scope_Names">unit scope(s)</a> that a unit belongs to and copies the fully qualified unit name to the clipboard.
-    </p>
-    <p>
-        Since the introduction of unit scopes to Delphi I've been struggling to remember which scopes some units belong to. OK, sometimes the code editor pops up a list of unit names in a scope, but what I wanted was to type in a unit name and be told what unit scopes(s) the unit may belong to.
-    </p>
-    <p>
-        This program does that. When you have found the required unit scope name you can copy the fully qualified unit name to the clipboard ready for pasting into your code editor. It will also let you examine a unit scope to see what units it contains.
-    </p>
-    <p>
-        You have to teach <em>Unit2NS</em> about what units exist and the unit scopes they belong to. The program makes this easy to do by being able to scan directory trees of source code. <em>Unit2NS</em> can remember more than one set of unit-scope name &quot;mappings&quot;, which makes it useful for using with different versions of Delphi.
-    </p>
-    <p>
-        The program is available as either 32 or 64 bit versions.
-    </p>
+    </aside>
   </div>
 </section>
 
@@ -72,25 +63,33 @@ redirect_from:
   </div>
   <div class="panel-body">
     <p>
-      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/duse</a></code> repository. The 32 and 64 bit versions are available as separate downloads from the repository's <em><a href="{{ page.repo-url }}/releases">Releases</a></em> section.
+      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/duse</a></code> repository. The 64 and 32 bit versions are available as separate downloads from the repository's <em><a href="{{ page.repo-url }}/releases">Releases</a></em> section.
     </p>
     <p>
-      Each release gives the option of downloading either the programs in executable format or the source code. Your options are:
+      Each release gives the option of downloading the program in executable format or as source code. From release v0.3.0 the following files can be downloaded:
     </p>
     <ul>
       <li>
-        Choose <code>unit2ns-32bit-{{page.version}}.zip</code> to download a zip file containing the 32 bit version of <em>UNit2NS</em> or <code>unit2ns-64bit-{{page.version}}.zip</code> for the 64 bit version. Extract the content of the chosen <code>.zip</code> file. The included read-me file (<code>README.txt</code>) explains how to install the program.
+        <code>duse-64bit-{{page.version}}.zip</code> &ndash; contains the 64 bit version of <em>DUSE</em> (<code>DUSE.exe</code>). The included<code>README.txt</code> file explains how to install the program. <em>Always</em> use this version on 64 bit Windows.
       </li>
       <li>
-        Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+        <code>duse-32bit-{{page.version}}.zip</code> &ndash; contains the 32 bit version of <em>DUSE</em> (<code>DUSE32.exe</code>). The included<code>README.txt</code> file explains how to install the program. <em>Only</em> use this version on 32 bit Windows.
       </li>
       <li>
-        Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a g-zipped tarball.
+        <code>Source&nbsp;code.zip</code> &ndash; contains the source code in <code>.zip</code> format.
+      </li>
+      <li>
+        <code>Source&nbsp;code.tar.gz</code> &ndash; contains the source code as a g-zipped tarball.
       </li>
     </ul>
     <p class="text-center">
       <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
     </p>
+    <aside>
+      <p class="alert alert-warning glyph">
+        This is early development code. Always use the latest release, currently v{{page.version}}.
+      </p>
+    </aside>
   </div>
 </section>
 
