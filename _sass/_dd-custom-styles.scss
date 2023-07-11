@@ -156,6 +156,10 @@ h3.collapsible {
   margin-left: $list-item-offset
 }
 
+.indent-lg {
+  margin-left: 2.5 * $list-item-offset;
+}
+
 // Additional typography: extends typographic classes exposed by Bootstrap
 //** Custom
 .text-smallcaps {
