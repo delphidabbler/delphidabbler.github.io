@@ -1,0 +1,89 @@
+---
+layout: help
+topic: Overview
+title: Overview | v0.x | SWAGView application help
+meta-title: "Help topic for the DelphiDabbler SWAGView application"
+---
+
+<div class="callout callout-info">
+    <div><i class="fa fa-pull-left fa-pencil-square-o fa-2x icon"></i></div>
+    <div class="indent-lg">
+        <p>
+            This page assumes that you have installed the SWAG database. If not then read the <a href="./getting-started">Getting Started</a> topic first.
+        </p>
+    </div>
+</div>
+
+<h2>
+    Main Window
+</h2>
+
+<p>
+    Everything in <em>SWAGView</em> is done from the main window. It is split into four parts:
+</p>
+
+<ol>
+    <li>
+        <p>
+            The left hand pane displays a tree view. The top level entries are "categories". Each category contains multiple snippets ("packets" in SWAG terminology), the titles of which are displayed as child nodes of their category. 
+        </p>
+        <p>
+            To view the packets that belong to a category double-click the category, or select it with the cursor keys and press ENTER or the right arrow key.
+        </p>
+        <p>
+            Double click on a packet title, or select it and press ENTER, to display it.
+        </p>
+        <div class="callout callout-info">
+            <div><i class="fa fa-pull-left fa-pencil-square-o fa-2x icon"></i></div>
+            <div class="indent-lg">
+                <p>
+                    When you open a category for the first time there will be a slight delay while the program loads the required packet titles from the database. A category's packets have been loaded if the <i class="fa fa-caret-right"></i> expand icon is displayed to the left of the category name in the tree view.
+                </p>
+            </div>
+        </div>
+    </li>
+    <li>
+        <p>
+            The right hand pane shows the content of a packet that has been chosen in the tree view. The packet will either be Pascal source code or plain text.
+        </p>
+        <p>
+            You can read the packet or select some or all of the text to copy to the clipboard.
+        </p>
+    </li>
+    <li>
+        <p>
+            The pane at the top of the window contains the following buttons, from left to right:
+        </p>
+        <ul>
+            <li>
+                <p>
+                    <em>Update SWAG Database...</em> (or <em>Install SWAG Database...</em> if the SWAG database has not yet been installed).
+                </p>
+                <p>
+                    Use this button to install or update the database. Regardless of the button caption the same dialogue box is used, and the process is the same as that described in the <a href="./getting-started">Getting Started</a> topic.
+                </p>
+            </li>
+            <li>
+                <p>
+                    <em>Help</em>
+                </p>
+                <p>
+                    Displays this online help.
+                </p>
+            </li>
+        </ul>
+        <p>
+            Information about the program and SWAG database versions is displayed at the right hand side to the pane.
+        </p>
+        <p>
+            When the program is accessing the database a <em>Loading...</em> message will be displayed in the center of the pane.
+        </p>
+    </li>
+    <li>
+        The pane at the bottom of the window displays brief hints about navigating the tree view.
+    </li>
+</ol>
+
+<p class="strong text-center">
+    <a href="./">Back to index page</a>
+</p>
