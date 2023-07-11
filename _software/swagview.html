@@ -1,0 +1,146 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 7.5
+version: "0.1.0"
+os: "Windows 7 & later"
+release-date: "2023-07-12"
+title: "SWAGView"
+precis: "Basic viewer for the SWAG Pascal source code collection."
+summary: "Basic viewer application for the SWAG Pascal source code collection."
+meta-title: "SWAGView: SWAG snippet collection viewer | Open Source | 32/64 bit"
+meta-desc: "32 bit & 64 bit Windows GUI program that loads and displays 'packets' from the SWAG Pascal Code collection"
+download-base-url: "https://github.com/ddabapps/swagview/releases/tag/v"
+repo-url: "https://github.com/ddabapps/swagview"
+want-header-buttons: true
+copyright-date: "2023"
+status: "current"
+---
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            Overview
+        </h2>
+    </div>
+    <div class="panel-body">
+        <p>
+            <em>SAWGView</em> is a Windows GUI application that displays &quot;packets&quot; (i.e. code snippets) from the <a href="https://github.com/delphidabbler/swag">SWAG Pascal Code Collection</a>.
+        </p>
+        <p>
+            <img class="scale center-block" src="{{ site.data.core.software-images-base-url}}/swagview.png" alt="Screenshot of SWAGView program" title="SWAGView" />
+        </p>
+        <p>
+            This application offers basic features to load and navigate the collection. While useful, the program also serves as a proof of concept for loading and viewing the DelphiDabbler Edition of the SWAG collection.
+        </p>
+        <p>
+            The core code was adapted from the SWAG import feature of <a href="./codesnip">CodeSnip</a>.
+        </p>
+        <p class="alert alert-info glyph">
+            When <em>SWAGView</em> is first installed it doesn't display anything until you also <a href="/help/swagview/0.0/getting-started">install SWAG</a>.
+        </p>
+        <p class="callout callout-info">
+            <span class="fa fa-copyright fa-pull-left fa-3x"></span><em>SWAGView</em> is copyright &copy; {{ page.copyright-date}} by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter Johnson</a>. The program and its source code are released under the terms of the <a href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla Public License v2</a>.
+        </p>
+</section>
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            Download &amp; Installation
+        </h2>
+    </div>
+    <div class="panel-body">
+        <p>
+            This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/swagview</a></code> repository. The program can be downloaded from the repository's <a href="https://github.com/ddabapps/swagview/releases"><em>Releases</em></a> page.
+        </p>
+        <p>
+            Each release gives the option of downloading either the programs's executable code or the source code. Your options are:
+        </p>
+        <h3>
+            Executable program
+        </h3>
+        <p>
+            Download <code>swagview-exe64-{{page.version}}.zip</code> if you a running 64 bit Windows or download <code>swagview-exe32-{{page.version}}.zip</code> for 32 bit Windows.
+        </p>
+        <p>
+            There is no installer, so you need to install the program manually. Proceed as follows:
+        </p>
+        <ol>
+            <li>
+                Create a new sub-directory to store the program and its associated files. This can be created in any <em>writeable</em> directory on your system drive(s) or on a removable drive.
+            </li>
+            <li>
+                Extract all the files from the zip file and copy them into the newly created directory.
+            </li>
+            <li>
+                Optionally create a shortcut to the executable file in some convenient location.
+            </li>
+            <li>
+                Run the program. It will prompt you to install the SWAG database. See the <a href="/help/swagview/0.0/getting-started">Getting Started</a> online help topic for details of how to do this. Once the installation is complete the database files will have been created in a <code>swag</code> sub-directory of the directory you created at step 1.
+            </li>
+        </ol>
+        <h3>
+            Source code
+        </h3>
+        <p>
+            Source code is available in two formats. Download:
+        </p>
+        <ul>
+            <li>
+                <code>Source&nbsp;code.zip</code> to get the source code in <code>.zip</code> format.
+            </li>
+            <li>
+                <code>Source&nbsp;code.tar.gz</code> to get the source code in a g-zipped tarball.
+            </li>
+        </ul> 
+        <p class="text-center">
+            <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
+        </p>
+    </div>
+</section>
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            Documentation
+        </h2>
+    </div>
+    <div class="panel-body">
+        <p>
+            The following documentation is available.
+        </p>
+        <ul class="list-group">
+            <li class="list-group-item">
+                <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/swagview/blob/main/README.md">Read Me<span class="sr-only"> (Markdown file)</span></a> &ndash; contains general information about the program, including instructions on how to install it.
+            </li>
+            <li class="list-group-item">
+                <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/swagview/blob/main/CHANGELOG.md">Change Log<span class="sr-only"> (Markdown file)</span></a> &ndash; lists significant changes made in each program release.
+            </li>
+            <li class="list-group-item">
+                <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/swagview/blob/main/LICENSE.txt">LICENSE.txt<span class="sr-only"> (Markdown file)</span></a> &ndash; the program's license.
+            </li>
+            <li class="list-group-item">
+                <span class="fa fa-fw fa-x-pad-right fa-question-circle" aria-hidden="true"></span><a href="/help/swagview/0.0/index">Online Help</a>
+            </li>
+        </ul>
+    </div>
+</section>
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            Bugs &amp; Feature Requests
+        </h2>
+    </div>
+    <div class="panel-body">
+        <p>
+            You can report bugs or suggest new features using the <em>SWAGView</em> <a href="https://github.com/ddabapps/swagview/issues" class="offsite">issue tracker</a> on GitHub.
+        </p>
+        <p>
+            Please review existing bug reports and feature requests before creating a new issue. If an issue already exists you may be able to help by adding a further comment.
+        </p>
+        <p class="alert alert-info glyph">
+            You will need a GitHub account if you want to create or edit an issue.
+        </p>
+    </div>
+</section>
