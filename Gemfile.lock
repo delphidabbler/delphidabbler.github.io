@@ -213,7 +213,9 @@ GEM
     minitest (5.22.3)
     net-http (0.4.1)
       uri
-    nokogiri (1.16.3-x64-mingw-ucrt)
+    nokogiri (1.16.5-x64-mingw-ucrt)
+      racc (~> 1.4)
+    nokogiri (1.16.5-x86_64-linux)
       racc (~> 1.4)
     nokogiri (1.16.3-x86_64-linux)
       racc (~> 1.4)
@@ -269,7 +271,7 @@ DEPENDENCIES
   addressable (>= 2.8.0)
   commonmarker (>= 0.23.10)
   github-pages (~> 228)
-  nokogiri (~> 1.16.2)
+  nokogiri (~> 1.16.5)
   tzinfo (~> 2.0.6)
   tzinfo-data
   wdm (~> 0.1.1)
