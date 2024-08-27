@@ -2,9 +2,9 @@
 layout: "programs-tplt"
 group: apps
 priority: 5
-version: "2.1.0"
-release-date: "2021-09-30"
-os: "Windows 2000 & later"
+version: "2.2.0"
+release-date: "2024-08-27"
+os: "Windows 7 SP1 & later"
 title: "File Date Comparison Utility"
 precis: "Compares the last modification date of two files"
 summary: "Compares the last modification date of two files. For use in batch files etc."
@@ -28,9 +28,6 @@ status: "current"
     <p>
       The type of comparison required can be customised. The program can compare either the last modification date or the creation date of files. In the case of shortcut files either the date of the shortcut file itself or that of the file it references can be compared.
     </p>
-    <p>
-      For details of how to use the programs read <code>README.md</code> &ndash; the file is linked to in the <a href="#docs">documentation section</a> below.
-    </p>
   </div>
 </section>
 
@@ -42,14 +39,17 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/compfiledate</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/compfiledate</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab. Both 64 and 32 bit versions of the program are available.
+    </p>
+    <p class="alert alert-danger glyph">
+      The program is no longer available from SourceForge.
     </p>
     <p>
       Each release gives the option of downloading either the program in executable format or the source code. Your options are:
     </p>
     <ul>
       <li>
-        Choose <code>compfiledate-exe-{{page.version}}.zip</code> to download a zip file containing the program. Extract the content of the <code>.zip</code> file. The included read-me file (<code>ReadMe.txt</code>) explains how to install and use the program.
+        The program comes packaged in a zip file. There are different zip files for the 32 bit and 64 bit versions. You should choose the 64 bit version <code>compfiledate-exe64-{{page.version}}.zip</code> unless you are running 32 bit Windows in which case choose to download <code>compfiledate-exe32-{{page.version}}.zip</code>. Extract the content of the chosen <code>.zip</code> file. The included read-me file, <a href="{{ page.repo-url }}/blob/master/Docs/ReadMe.txt"><code>README.txt</code> <span class="sr-only"> (plain text)</span></a>, explains how to install and use the program.
       </li>
       <li>
         Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
@@ -76,7 +76,7 @@ status: "current"
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/compfiledate/blob/master/README.md">Read Me<span class="sr-only"> (markdown format text file)</span></a> &ndash; contains details of how to install the program, along with other information.
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/compfiledate/blob/master/Docs/ReadMe.txt">Read Me<span class="sr-only"> (plain text file)</span></a> &ndash; contains details of how to install and use the program.
       </li>
       <li class="list-group-item">
         <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/compfiledate/blob/master/LICENSE.md">License<span class="sr-only"> (markdown format text file)</span></a> &ndash; the program's end user license agreement.
