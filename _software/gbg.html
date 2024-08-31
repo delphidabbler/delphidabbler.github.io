@@ -2,9 +2,9 @@
 layout: "programs-tplt"
 group: apps
 priority: 5.5
-version: "0.3.0"
-os: "Windows 7 & later"
-release-date: "2023-06-06"
+version: "0.4.0"
+os: "Windows 7 SP1 & later"
+release-date: "2024-08-31"
 title: "GBG"
 precis: "Creates files of a specified size filled with garbage bytes."
 summary: "Command line program that creates files of a given size containing random-ish bytes."
@@ -13,7 +13,7 @@ meta-desc: Command line 32 bit & 64 bit Windows command line program that create
 download-base-url: "https://github.com/delphidabbler/gbg/releases/tag/v"
 repo-url: "https://github.com/delphidabbler/gbg"
 want-header-buttons: true
-copyright-date: "2023"
+copyright-date: "2024"
 status: "current"
 ---
 <section class="panel panel-default">
@@ -27,7 +27,7 @@ status: "current"
       <em>GBG</em> is a 32 bit & 64 bit Windows command line program that creates files of a specified size, filled with pseudo-random <strong>G</strong>ar<strong>b</strong>a<strong>g</strong>e bytes.
    </p>
     <p>
-      Files between 0 and 2GiB in size can be generated, although for file sizes greater than 500,000,000 bytes the user must confirm the operation.
+      Files between 0 and 2GiB in size can be generated, although for file sizes greater than 500,000,000 bytes the user must either confirm the operation or specify a command line option to ignore the size check.
     </p>
     <p>
       Files up to 10MiB in size are generated with random bytes. Files larger than 10MiB have the first 10MiB bytes generated randomly, but then that same 10MiB pattern is repeated as many times as necessary. If the requested file size is zero then an empty file is created.
@@ -62,7 +62,7 @@ status: "current"
     </p>
     <ul>
       <li>
-        Choose <code>gbg-exe64-{{page.version}}.zip</code> to download a zip file containing the 64 bit version of the program or <code>gbg-exe32-{{page.version}}.zip</code> for the 32 bit version. There is no installer. Just extract the desired program's <code>.exe</code> from the <code>.zip</code> file and copy it to a folder on your system. It can be run from there.
+        Choose <code>gbg-exe-{{page.version}}.zip</code> to download a zip file containing the both the 64 bit and 32 bit versions of the program. The 64 bit program is named <code>GBG.exe</code> while the 32 bit version is named <code>GBG32.exe</code>. Which version you choose depends on whether you are running Windows 64 bit or 32 bit. There is no installer. Just extract the desired program's <code>.exe</code> from the <code>.zip</code> file and copy it to a folder on your system. It can be run from there.
       </li>
       <li>
         Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
