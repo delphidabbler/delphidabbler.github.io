@@ -6,7 +6,7 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
 
     <h1>Delphi Version Features</h1>
 
-    <p>This page contains notes about which features were introduced in which versions of Delphi<a href="#footnote-1"><sup>1</sup></a>.</p>
+    <p>This page contains an incomplete list of which features were introduced in which versions of Delphi<a href="#footnote-1"><sup>1</sup></a>.</p>
 
     <p>If you have any additions or corrections please <a href="https://github.com/delphidabbler/delphidabbler.github.io/issues">create an issue</a> on GitHub (<small>GitHub account required</small>).</p>
 
@@ -50,8 +50,20 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 6</td>
                 </tr>
                 <tr>
+                    <td><code>{$POINTERMATH}</code> directive</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><code>{$TEXTBLOCK}</code> directive to determine how line breaks are treated in multiline strings.</td>
+                    <td>Delphi 12</td>
+                </tr>
+                <tr>
                     <td><code>{$WARN}</code> directive</td>
                     <td>Delphi 7</td>
+                </tr>
+                <tr>
+                    <td>64 bit binary versions of the Delphi 32 and 64 bit compilers</td>
+                    <td>Delphi 12.2</td>
                 </tr>
                 <tr>
                     <td>64 bit compiler</td>
@@ -68,6 +80,10 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                 <tr>
                     <td>Attributes</td>
                     <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td>Binary integer literals, e.g. <code>%100101</code></td>
+                    <td>Delphi 11</td>
                 </tr>
                 <tr>
                     <td>class constructors / destructors</td>
@@ -110,8 +126,16 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 4</td>
                 </tr>
                 <tr>
+                    <td>Digit separators in integer and floating point literals: e.g. <code>1_000_000</code></td>
+                    <td>Delphi 11</td>
+                </tr>
+                <tr>
                     <td>Dynamic array concatenation and addition extensions. Dynamic arrays can be initialised by assigning an array constant, as in <code>DI := [1, 2, 3];</code> and can be concatenated using code like <code>DI := DI + [1, 2, 3];</code> or <code>DI := DJ + DK</code>, where <var>DI</var>, <var>DJ</var> &amp; <var>DK</var> are all dynamic integer arrays.</td>
                     <td>Delphi XE7</td>
+                </tr>
+                <tr>
+                    <td><var>EncodePath</var>, <var>EncodeAuth</var>, <var>EncodeQuery</var> &amp; <var>EncodeForm</var> functions</td>
+                    <td>Delphi 10.1</td>
                 </tr>
                 <tr>
                     <td><var>EOSError</var> (instead of <var>EWin32Error</var>)</td>
@@ -126,8 +150,16 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 2009</td>
                 </tr>
                 <tr>
+                    <td><var>Extended</var> type changes size depending upon the hardware and operating system<sup><a href="#footnote-5">5</a></sup></td>
+                    <td>Delphi XE2</td>
+                </tr>
+                <tr>
                     <td>Final methods</td>
                     <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td><var>FixedInt</var> &amp; <var>FixedUInt</var> types - 32 bit signed &amp; unsigned integers respectively across all platforms</td>
+                    <td>Delphi XE8</td>
                 </tr>
                 <tr>
                     <td>Floating point number comparison routines added to <var>Math</var> unit.</td>
@@ -150,6 +182,14 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 2009</td>
                 </tr>
                 <tr>
+                    <td><var>GetCompilerVersion</var> &amp; <var>GetRTLVersion</var> routines to get compiler &amp; RTL versions as 16 bit unsigned integers with major version in the high byte and minor version in the low byte.</td>
+                    <td>Delphi 12</td>
+                </tr>
+                <tr>
+                    <td>Hash (System.Hash) unit</td>
+                    <td>Delphi XE8</td>
+                </tr>
+                <tr>
                     <td><var>IInterface</var></td>
                     <td>Delphi 6</td>
                 </tr>
@@ -158,7 +198,7 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 6</td>
                 </tr>
                 <tr>
-                    <td>Inline variable declarations</td>
+                    <td>Inline variable declarations: e.g. <code><strong>for var</strong> I: Integer := 0 <strong>to</strong> 9 <strong>do</strong></code> or, with type inference, <code><strong>for var</strong> I := 0 <strong>to</strong> 9 <strong>do</strong></code></td>
                     <td>Delphi 10.3</td>
                 </tr>
                 <tr>
@@ -174,15 +214,7 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi XE7</td>
                 </tr>
                 <tr>
-                    <td><var>Int8</var> type</td>
-                    <td>Delphi 2009</td>
-                </tr>
-                <tr>
-                    <td><var>Int16</var> type</td>
-                    <td>Delphi 2009</td>
-                </tr>
-                <tr>
-                    <td><var>Int32</var> type</td>
+                    <td><var>Int8</var>, <var>Int16</var> &amp; <var>Int32</var> types</td>
                     <td>Delphi 2009</td>
                 </tr>
                 <tr>
@@ -194,8 +226,24 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 2010</td>
                 </tr>
                 <tr>
+                    <td>IOUtils unit</td>
+                    <td>Delphi 2010</td>
+                </tr>
+                <tr>
                     <td><strong>library</strong> directive</td>
                     <td>Delphi 6</td>
+                </tr>
+                <tr>
+                    <td>Linux compiler for server applications</td>
+                    <td>Delphi 10.2</td>
+                </tr>
+                <tr>
+                    <td>Long string literal support: string literals can now be longer than 255 characters.</td>
+                    <td>Delphi 12</td>
+                </tr>
+                <tr>
+                    <td><var>LongInt</var> &amp; <var>LongWord</var> type sizes become platform dependent: 32 bit on 32 bit platforms, 64 bit on 64 bit platforms.</td>
+                    <td>Delphi XE8</td>
                 </tr>
                 <tr>
                     <td><var>LongWord</var> type</td>
@@ -205,9 +253,25 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td><var>Margins</var> and <var>Padding</var> properties on <var>TControl</var></td>
                     <td>Delphi 2006</td>
                 </tr>
+                <tr>
+                    <td>Multiline string literals, delimited by triple quotes (<code>'''</code>)</td>
+                    <td>Delphi 12</td>
+                </tr>
                 <tr id="namespaces">
                     <td>Namespaces [<a href="https://docwiki.embarcadero.com/RADStudio/Alexandria/en/Using_Namespaces_with_Delphi">more info</a>]. See also: <a href="#unit-scope-names"><em>Unit scope names</em></a>.</td>
                     <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>NaN number comparisons supported</td>
+                    <td>Delphi 12</td>
+                </tr>
+                <tr>
+                    <td><var>NativeInt</var> &amp; <var>NativeUInt</var> types</td>
+                    <td>Delphi 7<a href="#footnote-4"><sup>4</sup></td>
+                </tr>
+                <tr>
+                    <td><var>NativeInt</var> &amp; <var>NativeUInt</var> types become weak references. They can no longer be used as separate types.</td>
+                    <td>Delphi 12</td>
                 </tr>
                 <tr>
                     <td>Nested constants within classes / records</td>
@@ -230,11 +294,19 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 6</td>
                 </tr>
                 <tr>
+                    <td><var>Pointer</var> type size becomes platform dependent: 32 bit on 32 bit platforms, 64 bit on 64 bit platforms.</td>
+                    <td>Delphi XE2</td>
+                </tr>
+                <tr>
+                    <td>Predefined record helpers for cores types: simple types and <strong>string</strong>, <var>TDateTime</var> and <var>Currency</var> types.</td>
+                    <td>Delphi 11</td>
+                </tr>
+                <tr>
                     <td><var>RaiseLastOSError</var> procedure</td>
                     <td>Delphi 6</td>
                 </tr>
                 <tr>
-                    <td>Record Helpers for simple types</td>
+                    <td>Record Helpers for simple types and sets</td>
                     <td>Delphi XE3</td>
                 </tr>
                 <tr>
@@ -260,6 +332,10 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                 <tr>
                     <td>Sealed classes</td>
                     <td>Delphi 2006</td>
+                </tr>
+                <tr>
+                    <td>Skia integration</td>
+                    <td>Delphi 12</td>
                 </tr>
                 <tr>
                     <td><strong>static</strong> directive for class methods</td>
@@ -294,8 +370,20 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 5</td>
                 </tr>
                 <tr>
+                    <td><var>TForm.ShowInTaskbar</var> property</td>
+                    <td>Delphi 12</td>
+                </tr>
+                <tr>
                     <td><var>TFormatSettings</var> and overloaded format and conversion routines that use it</td>
                     <td>Delphi 7</td>
+                </tr>
+                <tr>
+                    <td><var>TNoRefCountObject</var> non-reference-counted <var>IInterface</var> implementation</td>
+                    <td>Delphi 11</td>
+                </tr>
+                <tr>
+                    <td><var>TOrderedDictionary</var> - a sorted generic dictionary class.</td>
+                    <td>Delphi 12.2</td>
                 </tr>
                 <tr>
                     <td><var>TObject.Equals</var> virtual method</td>
@@ -315,6 +403,18 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                 </tr>
                 <tr>
                     <td>Touch support</td>
+                    <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td><var>TPair&lt;TKey,TValue&gt;</var> record</td>
+                    <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><var>TParallelArray</var> - a class to enable running of some operations in parallel threads.</td>
+                    <td>Delphi 12.2</td>
+                </tr>
+                <tr>
+                    <td><var>TProc&lt;T1,...&gt;</var>, <var>TFunc&lt;T1,...&gt;</var> &amp; <var>TPredicate&lt;T&gt;</var></td>
                     <td>Delphi 2010</td>
                 </tr>
                 <tr>
@@ -342,15 +442,7 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 6</td>
                 </tr>
                 <tr>
-                    <td><var>UInt8</var> type</td>
-                    <td>Delphi 2009</td>
-                </tr>
-                <tr>
-                    <td><var>UInt16</var> type</td>
-                    <td>Delphi 2009</td>
-                </tr>
-                <tr>
-                    <td><var>UInt32</var> type</td>
+                    <td><var>UInt8</var>, <var>UInt16</var> &amp; <var>UInt32</var> types</td>
                     <td>Delphi 2009</td>
                 </tr>
                 <tr>
@@ -405,6 +497,10 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>XMLDoc documentation</td>
                     <td>Delphi 2005</td>
                 </tr>
+                <tr>
+                    <td>Zip file support added with new <var>TZipFile</var> class</td>
+                    <td>Delphi XE2</td>
+                </tr>
             </tbody>
 
         </table>
@@ -418,6 +514,8 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                 <li id="footnote-1">All this information relates to the native Delphi compiler, not the .NET compiler.</li>
                 <li id="footnote-2">From Delphi XE5 the use of the <code>{$IFEND}</code> directive results in a compiler error unless a <code>{$LEGACYIFEND}</code> directive precedes the first <code>{$IFEND}</code> directive or unless the use of legacy <code>{$IFEND}</code> is enabled in project options.</li>
                 <li id="footnote-3">Source: EFG's Computer Lab (<small>defunct website</small>). This source also stated that the Math unit did not change from Delphi 4 to Delphi 5.</li>
+                <li id="footnote-4"><var>NativeInt</var> and <var>NativeUInt</var> were introduced as 64 bit signed / unsigned integers respectively with Delphi 7. Delphi 2009 redefined them as 32 bit and Delphi XE2 made them either 32 or 64 bit depending on the operating system's native integer size. Source: <a href="https://blog.dummzeuch.de/2018/09/08/nativeint-nativeuint-type-in-various-delphi-versions/">twm's blog.</a></li>
+                <li od="footnote-5">See the <a href="https://docwiki.embarcadero.com/Libraries/en/System.Extended">Embarcadero DocWiki for the <var>Extended</var> type</a> for a full explanation.</li>
             </ol>
         </div><!-- /.well .well-sm -->
     </footer>
