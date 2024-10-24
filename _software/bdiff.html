@@ -2,8 +2,8 @@
 layout: "programs-tplt"
 group: apps
 priority: 4
-version: "1.0.0-beta.2"
-release-date: "2024-08-29"
+version: "1.0.0-rc.1"
+release-date: "2024-10-24"
 os: Windows 7 SPI & later
 title: "BDiff / BPatch Utilities"
 precis: "Creates diffs between files and applies patches"
@@ -29,7 +29,7 @@ status: "current"
       <em>BDiff</em> is used to output information about the differences between two files, with the option to output binary information. <em>BPatch</em> can apply binary patches created by <em>BDiff</em>.
     </p>
     <p>
-      For details of how to use the programs read the manual pages &ndash; the are links in the <a href="#docs">documentation section</a> below.
+      For details of how to use the programs read the manual pages &ndash; there are links in the <a href="#docs">documentation section</a> below.
     </p>
     <p class="alert alert-info glyph">
       These programs are modified versions of Stefan Reuther's <em>bdiff</em> and <em>bpatch</em> utilities, based on Pascal translations of the original C source code. [<a class="direct-dl" href="https://drive.google.com/file/d/1KQ3k44NFkOdSDU7-OtNi7JKVs5Mr_gt1/view" title="File on Google drive containing of original C source code">Get the C source code from Google Drive</a>].
@@ -45,14 +45,17 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      These programs are hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/bdiff</a></code> repository. The programs can be downloaded from the repository's <em>Releases</em> tab.
+      These programs are hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/bdiff</a></code> repository. Both 32 bit and 64 bit versions of the programs can be downloaded from the repository's <em>Releases</em> section.
     </p>
     <p>
-      Each release gives the option of downloading either the programs in executable format or the source code. Your options are:
+      Each release gives the option of downloading the programs in executable format or as source code. Your options are:
     </p>
     <ul>
       <li>
-        Choose <code>dd-bdiff-{{page.version}}.zip</code> to download a zip file containing both <em>BDiff</em> and <em>BPatch</em>. Extract the content of the <code>.zip</code> file. The included read-me file (<code>README.md</code>) explains how to install the programs.
+        <code>bdiff-exe32--{{page.version}}.zip</code> - contains the 32 bit version of BDiff and BPatch along with documentation and tests.
+      </li>
+      <li>
+        <code>bdiff-exe64--{{page.version}}.zip</code> - contains the 64 bit version of BDiff and BPatch along with documentation and tests.
       </li>
       <li>
         Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
