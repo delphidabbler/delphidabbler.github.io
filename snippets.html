@@ -7,33 +7,35 @@ meta-desc: "Descriptions of, and links to, the DelphiDabbler Code Snippets Datab
 <h1 roll="heading">{{page.title | escape}}</h1>
 
 <p>
-  The old DelphiDabbler site had two web applications that displayed code snippets from two different sources:
+  I maintain two repositories of Pascal code snippets:
 </p>
 
-<ol class="wide">
+<ol>
   <li>
-    The DelphiDabbler Code Snippets &quot;Database&quot; of compilable Delphi Pascal snippets.
+    The <em>DelphiDabbler Code Snippets Collection</em>, which is an extensive collection of Delphi Pascal snippets.
   </li>
   <li>
-    The old SWAG (<b>S</b>ource<b>W</b>are <b>A</b>rchive <b>G</b>roup) collection of source code and programming examples.
+    The old <em>SWAG</em> (<b>S</b>ource<b>W</b>are <b>A</b>rchive <b>G</b>roup) collection of source code and programming examples.
   </li>
 </ol>
 
-<p class="alert alert-danger glyph">
-  Both web apps depended on web services provided by the old web server and were lost when that server closed down. It would be a big job to recover and convert the apps.
-</p>
-
 <p>
-  All is not lost. I have created a couple of Git repositories GitHub to hold the snippet collections. They are:
+  The repositories are:
 </p>
 
 <ul class="list-group">
   <li class="list-group-item">
     <p class="strong">
-      <a href="https://github.com/delphidabbler/code-snippets" aria-label="DelphiDabbler Code Snippets database repository on GitHub">delphidabbler/code-snippets</a>
+      <a href="https://github.com/delphidabbler/code-snippets" aria-label="DelphiDabbler Code Snippets Collection on GitHub">delphidabbler/code-snippets</a>
     </p>
     <p>
-      This repository contains all the snippets in the Code Snippets Database along with meta data stored in .ini files. The database is in the <code>csdb</code> directory off the repository root.
+      This repository contains all the snippets in the <em>DelphiDabbler Code Snippets Collection</em> along with meta data stored in .ini files.
+    </p>
+    <p>
+      The collection can be displayed by my <a href="/software/codesnip">CodeSnip</a> program.
+    </p>
+    <p>
+      Some of the snippets have unit tests or demo programs, all of which are available from the repository.
     </p>
   </li>
   <li class="list-group-item">
@@ -41,23 +43,14 @@ meta-desc: "Descriptions of, and links to, the DelphiDabbler Code Snippets Datab
       <a href="https://github.com/delphidabbler/swag" aria-label="SWAG collection repository on GitHub">delphidabbler/swag</a>
     </p>
     <p>
-      This repository contains all the &quot;packets&quot; (a SWAG term for a snippet) in the collection along with an XML file containing meta data.
+      This repository contains the <em>SWAG</em> collection. It contains all the &quot;packets&quot; (a SWAG term for a snippet) along with an XML file containing meta data.
+    </p>
+    <p>
+      The collection can be viewed using my <a href="/software/swagview">SWAGView</a> program. Selected SWAG packets can also be imported into <a href="/software/codesnip">CodeSnip</a>. 
     </p>
   </li>
 </ul>
 
 <p>
   Both collections are comprehensively documented.
-</p>
-
-<p class="alert alert-info glyph">
-  The Code Snippets Database can be displayed by my <a href="/software/codesnip">CodeSnip</a> program. It can also import SWAG packages. In fact CodeSnip's SWAG import wizard contains a pretty reasonable SWAG viewer!
-</p>
-
-<h2>
-  Tests
-</h2>
-
-<p>
-  There are some unit tests available for a few of the snippets in the Code Snippets Database. The tests for the latest release of the database can be downloaded from the project's <a href="https://github.com/delphidabbler/code-snippets/releases">Releases page</a>.
 </p>
