@@ -3,16 +3,16 @@ dl-file-prefix: "dd-sysinfo-"
 layout: "codelib-tplt"
 group: lib
 priority: 11
-version: "5.31.0"
-release-date: "2025-01-01"
+version: "5.32.0"
+release-date: "2025-04-02"
 platforms: ["Win32", "Win64"]
 frameworks: ["RTL"]
 compatibility: "Delphi 7 & later"
 title: "System Information Unit"
 precis: "Gets information about the host computer and operating system"
-summary: "Source code of a unit containing static classes, constant, type definitions and routines to provide information about the host computer and operating system."
+summary: "Source code of a unit containing classes, constant, type definitions and routines to provide information about the host computer and operating system."
 meta-title: "System Information Classes for Delphi Pascal | Open Source | 32 & 64 bit"
-meta-desc: "A set of Delphi Pascal static classes that provide information about the host computer & Windows version information and system folders. Requires Delphi 7 & later."
+meta-desc: "A set of Delphi Pascal classes that provide information about the host computer & Windows version information and system folders. Requires Delphi 7 & later."
 download-base-url: "https://sourceforge.net/projects/ddablib/files/sysinfo/"
 repo-url: "https://github.com/ddablib/sysinfo"
 docs-url: "https://lib-docs.delphidabbler.com/SysInfo/"
@@ -30,26 +30,32 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      This unit contains a group of static classes and some global variables that provide information about the user's computer system and operating system. Some useful constants and type definitions are also included. The static classes are:
+      This unit contains a group of three static classes, one ordinary class some global variables that provide information about the user's computer system and operating system. Some useful constants and type definitions are also included. The classes are:
     </p>
     <dl>
       <dt>
         TPJComputerInfo
       </dt>
       <dd>
-        Provides information about the host computer and current user.
+        Static class that provides information about the host computer and current user.
       </dd>
       <dt>
         TPJSystemFolders
       </dt>
       <dd>
-        Gets the full path of certain system folders.
+        Static class that gets the full path of certain system folders.
       </dd>
       <dt>
         TPJOSInfo
       </dt>
       <dd>
-        Supplies information about the operating system including the platform, product name, product ID, version and service packs.
+        Static class that supplies information about the operating system including the platform, product name, product ID, version and service packs.
+      </dd>
+      <dt>
+        TPJBiosInfo
+      </dt>
+      <dd>
+        Class that provides information about the computer's BIOS.
       </dd>
     </dl>
     <p>
