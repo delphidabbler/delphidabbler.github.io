@@ -2,18 +2,18 @@
 layout: "programs-tplt"
 group: apps
 priority: 5.5
-version: "0.4.0"
+version: "0.5.0"
 os: "Windows 7 SP1 & later"
-release-date: "2024-08-31"
+release-date: "2025-04-07"
 title: "GBG"
 precis: "Creates files of a specified size filled with garbage bytes."
 summary: "Command line program that creates files of a given size containing random-ish bytes."
 meta-title: "GBG: Garbage-filled file generator | Open Source | 32/64 bit"
 meta-desc: Command line 32 bit & 64 bit Windows command line program that creates files of a given size containing random-ish, garbage, bytes.Written in Delphi Pascal."
-download-base-url: "https://github.com/delphidabbler/gbg/releases/tag/v"
-repo-url: "https://github.com/delphidabbler/gbg"
+download-base-url: "https://github.com/ddabapps/gbg/releases/tag/v"
+repo-url: "https://github.com/ddabapps/gbg"
 want-header-buttons: true
-copyright-date: "2024"
+copyright-date: "2025"
 status: "current"
 ---
 <section class="panel panel-default">
@@ -27,20 +27,31 @@ status: "current"
       <em>GBG</em> is a 32 bit & 64 bit Windows command line program that creates files of a specified size, filled with pseudo-random <strong>G</strong>ar<strong>b</strong>a<strong>g</strong>e bytes.
    </p>
     <p>
-      Files between 0 and 2GiB in size can be generated, although for file sizes greater than 500,000,000 bytes the user must either confirm the operation or specify a command line option to ignore the size check.
+      The 64 bit version of <em>GBG</em> can generate files between 0 and 20GiB size while the maximum file size for the 32 bit version is limited to 1GiB. For file sizes greater than 500,000,000 bytes the user must either confirm the operation or specify a command line option to ignore the size check or report an error. If the requested file size is zero then an empty file is created.
     </p>
     <p>
-      Files up to 10MiB in size are generated with random bytes. Files larger than 10MiB have the first 10MiB bytes generated randomly, but then that same 10MiB pattern is repeated as many times as necessary. If the requested file size is zero then an empty file is created.
+      By default, files up to 10MiB in size are generated with random bytes. Files larger than 10MiB have the first 10MiB bytes generated randomly, but then that same 10MiB pattern is repeated as many times as necessary. However, a command line option can be used to change the size of the repeated blocks of random bytes. A similar option can be used to ensure the whole file is entirely random, with no repeated blocks.
     </p>
     <p>
-      Example of use:
-    </p>
-    <pre class="samp indent">gbg sample2MiB.dat 2,097,152</pre>
-    <p>
-      Creates a file named <code>sample2MiB.dat</code> that is 2Mib (= 2,097,152 bytes) in size.
+      There are other options available that can generate random ASCII characters, for example.
     </p>
     <p>
-      There are other options available that can generate random ASCII characters, for example. For more information about on how to use the program see the <a href="https://github.com/delphidabbler/GBG/blob/master/README.md">Read Me <span class="sr-only">Markdown </span> file</a> on GitHub.
+      Examples of use:
+    </p>
+    <pre class="samp indent">gbg sample1.dat 20,971,520</pre>
+    <p class="indent">
+      Creates a file named <code>sample1.dat</code> that is 20Mib (= 20,971,520 bytes) in size made up of 2 &times; 10MiB blocks of repeated random data.
+    </p>
+    <pre class="samp indent">gbg sample2.data 1MB -r:1,000</pre>
+    <p class="indent">
+      Creates a file that is 1MB (= 1,000,000 bytes) in size made up of repeated blocks of 1,000 bytes of random data.
+    </p>
+    <pre class="samp indent">gbg sample3.dat 20MiB -r:all</pre>
+    <p class="indent">
+      Creates a file that is 20MiB in size made up of entirely random data.
+    </p>
+    <p>
+      For more information about on how to use the program see the <a href="https://github.com/ddabapps/gbg/blob/master/README.md">Read Me <span class="sr-only">Markdown </span> file</a> on GitHub.
     </p>
     <p class="callout callout-info">
       <span class="fa fa-copyright fa-pull-left fa-3x"></span><em>GBG</em> is copyright &copy; {{ page.copyright-date}} by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter Johnson</a>. The program and its source code are released under the terms of the <a href="https://delphidabbler.mit-license.org/{{page.copyright-date}}-/">MIT License</a>.
@@ -55,7 +66,7 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">delphidabbler/gbg</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/gbg</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
     </p>
     <p>
       Each release gives the option of downloading either the programs's executable code or the source code. Your options are:
@@ -89,10 +100,10 @@ status: "current"
     </p>
     <ul class="list-group">
       <li class="list-group-item">
-        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/GBG/blob/master/README.md">Read Me<span class="sr-only"> (Markdown file)</span></a> &ndash; contains general information about the program, including usage information.
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/gbg/blob/master/README.md">Read Me<span class="sr-only"> (Markdown file)</span></a> &ndash; contains general information about the program, including usage information.
       </li>
       <li class="list-group-item">
-        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/delphidabbler/gbg/blob/master/CHANGELOG.md">Change Log<span class="sr-only"> (Markdown file)</span></a> &ndash; lists significant changes made in each program release.
+        <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/gbg/blob/master/CHANGELOG.md">Change Log<span class="sr-only"> (Markdown file)</span></a> &ndash; lists significant changes made in each program release.
       </li>
     </ul>
   </div>
@@ -106,7 +117,7 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      You can report bugs or suggest new features using the <em>GBG</em> <a href="https://github.com/delphidabbler/gbg/issues" class="offsite">issue tracker</a> on GitHub.
+      You can report bugs or suggest new features using the <em>GBG</em> <a href="https://github.com/ddabapps/gbg/issues" class="offsite">issue tracker</a> on GitHub.
     </p>
     <p>
       Please review existing bug reports and feature requests before creating a new issue. If an issue already exists you may be able to help by adding a further comment.
