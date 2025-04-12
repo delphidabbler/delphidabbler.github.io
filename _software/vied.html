@@ -2,9 +2,9 @@
 layout: "programs-tplt"
 group: apps
 priority: 3
-version: "2.16.0"
+version: "2.17.0"
 os: "Windows XP & later"
-release-date: "2024-09-13"
+release-date: "2025-04-12"
 title: "Version Information Editor"
 precis: "Creates version information resource files from templates."
 summary: "Creates version information resource files from templates that can be compiled and embedded in executable programs."
@@ -30,12 +30,53 @@ redirect_from:
     <p>
       The program can also create binary resource (<code>.res</code>) files containing version information. To do this it needs to use a 3rd party resource compiler such as Borland's <em>BRCC32</em>.
     </p>
-    <p>
-      From v2.11 the program supports a command line switch, <code>-makerc</code>,  that silently creates a <code>.rc</code> file from a native <code>.vi</code> file passed on the command line. The program simply creates the <code>.rc</code> file and exits, without displaying a window. This option has been made available to enable <em>Version Information Editor</em> to be used in automated build processes.
-    </p>
     <p class="callout callout-info">
-      <span class="fa fa-copyright fa-pull-left fa-3x"></span><em>Version Information Editor</em> is copyright &copy; 1998-2023 by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter Johnson</a>. The executable version of the program is made available under the terms of the <a href="{{ site.data.core.mpl-2-license-url }}" aria-label="{{ site.data.core.mpl-2-license-link-title }}">Mozilla Public License v2.0</a>. This means you can use, copy and distribute <em>Version Information Editor</em> as you wish.
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span><em>Version Information Editor</em> is copyright &copy;
+      1998-2025 by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter
+        Johnson</a>. The executable version of the program is made available under the terms of the <a
+        href="{{ site.data.core.mpl-2-license-url }}" aria-label="{{ site.data.core.mpl-2-license-link-title }}">Mozilla
+        Public License v2.0</a>. This means you can use, copy and distribute <em>Version Information Editor</em> as you
+      wish.
     </p>
+    <h3 data-toggle="collapse" data-target="#command-line-options" class="collapsible collapsed">
+      Command Line Options
+    </h3>
+    <div id="command-line-options" class="collapse"> <!-- begin collapsible #command-line-options section -->
+      <p>
+        The program supports various command line options:
+      </p>
+      <ol>
+        <li>
+          <pre class="source-code">vied file-dlg-directory {-E:name=value}</pre>
+        </li>
+        <li>
+          <pre class="source-code">vied -makerc vi-file-path [rc-file-path] {-E:name=value}</pre>
+        </li>
+        <li>
+          <pre class="source-code">vied -open vi-file-path {-E:name=value}</pre>
+        </li>
+        <li>
+          <pre class="source-code">vied {-E:name=value}</pre>
+        </li>
+      </ol>
+      <p>
+        where:
+      </p>
+      <ul>
+        <li>
+          <code>file-dlg-directory</code> specifies the default directory used for all file open dialogue boxes displayed by the program.
+        </li>
+        <li>
+          <code>-makerc</code> silently opens the <code>.vi</code> file specified by the following <code>vi-file-path</code> parameter and uses the information from the file to generate a <code>.rc</code> file, with the name optionally provided by the following <code>rc-file-path</code> parameter. If <code>rc-file-path</code> is not provided then the required file name is obtained by change the extention of <code>vi-file-path</code> to <code>.rc</code>. The program then closes without ever displaying its GUI.
+        </li>
+        <li>
+          The optional <code>-open</code> command causes the file specified by the following <code>vi-file-path</code> parameter to be opened in the GUI on startup.
+        </li>
+        <li>
+          Each of the optional <code>-E:name=value</code> commands defines or overwrites an environment variable that can then be accessed within the program using <em>Env</em> macros.
+        </li>
+      </ul>
+    </div> <!-- /#features -->
 </section>
 
 <section class="panel panel-default">
