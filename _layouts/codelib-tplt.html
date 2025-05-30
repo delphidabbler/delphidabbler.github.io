@@ -1,7 +1,13 @@
 ---
 layout: default
 ---
-{% assign dl-url = page.download-base-url | append: page.dl-file-prefix | append: page.version | append: ".zip" %}
+{% if page.use-github-for-downloads %}
+  {%assign dl-url = page.repo-url | append: "/tag/version-" | append: page.version %}
+  {%assign dl-label = "Go to the release page of the latest version on GitHub" %}
+{% else %}
+  {% assign dl-url = page.download-base-url | append: page.dl-file-prefix | append: page.version | append: ".zip" %}
+  {% assign dl-label = "Go to SourceForge and download latest version automatically" %}
+{% endif %}
 {% if page.status == "mothballed" %}
 	{% assign headercls = "mothballed" %}
 {% elsif page.status == "obsolete" %}
@@ -19,8 +25,8 @@ layout: default
       <a
         href="{{ dl-url }}"
         class="btn btn-primary"
-        aria-label="Go to SourceForge and download latest version automatically"
-        title="Go to SourceForge and download latest version automatically"
+        aria-label="{{ dl-label }}"
+        title="{{ dl-label }}"
       ><span 
         class="fa fa-download fa-x-pad-right" 
         aria-hidden="true">
