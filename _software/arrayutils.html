@@ -3,8 +3,8 @@ dl-file-prefix: "dd-arrayutils-"
 layout: "codelib-tplt"
 group: lib
 priority: 3
-version: "N/a"
-release-date: "TBA"
+version: "0.1.0"
+release-date: "2025-05-30"
 platforms: ["Win32", "Win64"]
 frameworks: ["RTL"]
 compatibility: "Delphi XE & later"
@@ -16,24 +16,21 @@ meta-desc: "Advanced Delphi Pascal record that acts as a container for static cl
 download-base-url: "https://github.com/ddablib/arrayutils/releases/"
 repo-url: "https://github.com/ddablib/arrayutils/releases"
 docs-url: "https://lib-docs.delphidabbler.com/ArrayUtils/"
-want-header-buttons: false
+want-header-buttons: true
+use-github-for-downloads: true;
 status: "current"
 ---
 {% assign dl-file = page.dl-file-prefix | append: page.version | append: ".zip" %}
-{% assign dl-url = page.download-base-url | append: dl-file %}
+{% assign dl-url =  page.repo-url | append: "/tag/version-" | append: page.version %}
 
 <section class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title">
-      <!-- Overview -->
-      Coming Soon 
+      Overview
     </h2>
   </div>
   <div class="panel-body">
     <p>
-      This is a holding page for the forthcomming Array Utilities Unit.
-    </p>
-    <!-- <p>
       This unit, named <code>DelphiDabbler.Lib.ArrayUtils.pas</code>, provides a single Delphi Pascal &quot;Advanced&quot; record, <var>TArrayUtils</var>, that provides operations upon and information about generic arrays.
     </p>
     <h3>
@@ -47,11 +44,11 @@ status: "current"
     </h3>
     <p>
       Each method of <var>TArrayUtils</var> has example code included in the method's online documentation. The same example code is included in the download.
-    </p> -->
+    </p>
   </div>
 </section>
 
-<!-- <section class="panel panel-default">
+<section class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title">
       Get The Code
@@ -59,7 +56,7 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      You can download the latest version of the <em>{{page.title}}</em> directly from GitHub as <code>{{ dl-file }}</code>.
+      You can download the latest version of the <em>{{page.title}}</em> from GitHub as <code>{{ dl-file }}</code>.
     </p>
     <p class="text-center">
       <a class="btn btn-primary" role="button" href="{{ dl-url }}" aria-label="Go to GitHub and download latest version">Download <span class="hidden-xs">release </span>v{{ page.version }}<span class="hidden-xs"> from GitHub</span></a>
@@ -68,9 +65,9 @@ status: "current"
       The <em>{{ page.title }}</em> source code is hosted in the <a href="{{ page.repo-url }}" aria-label="Link to the ddablib/arrayutils repository on GitHub"><code>ddablib/arrayutils</code></a> GitHub repository. You can <code>git clone</code> or fork the repository as required.
     </p>
   </div>
-</section> -->
+</section>
 
-<!-- <section class="panel panel-default">
+<section class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title">
       Installation
@@ -101,7 +98,7 @@ status: "current"
       In addition to the above files you will find the <em>DUnit</em> tests for <code>DelphiDabbler.Lib.ArrayUtils.pas</code> in the <code>Test</code> sub-directory and the example code in the <code>Demos</code> directory.
     </p>
     <p>
-      There are three possible ways to use the unit.
+      There are four possible ways to use the unit.
     </p>
     <ol class="wide">
       <li>
@@ -113,11 +110,14 @@ status: "current"
       <li>
         For maximum portability you can add the unit to a Delphi design time package. If you need help doing this <a href="{{ site.data.core.install-to-ide-link }}" aria-title="see a tip on working with design time packages">see here</a>.
       </li>
+      <li>
+        If you use Git you can add the <a href="https://github.com/ddablib/arrayutils"><code>ddablib/arrayutils</code></a> GitHub repository as a Git submodule and add it to your project. Obviously, it's safer if you fork the repo and use your copy, just in case <code>ddablib/arrayutils</code> ever goes away.
+      </li>
     </ol>
   </div>
-</section> -->
+</section>
 
-<!-- <section class="panel panel-default">
+<section class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title">
       Documentation
@@ -134,9 +134,9 @@ status: "current"
       Change log: <code><a href="https://github.com/ddablib/arrayutils/blob/main/CHANGELOG.md" aria-title="View the change log in Markdown format">CHANGELOG.md</a></code>.
     </p>
   </div>
-</section> -->
+</section>
 
-<!-- <section class="panel panel-default">
+<section class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title" id="feedback">
       Feedback &amp; Queries
@@ -144,7 +144,7 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      If you find any bugs or want to suggest a new feature please report them using the <em>{{page.title}}</em> <a href="https://github.com/ddablib/arrayutils/issues">issue tracker</a>.
+      If you find any bugs or want to suggest a new feature please use the <em>{{page.title}}</em> <a href="https://github.com/ddablib/arrayutils/issues">issue tracker</a>.
     </p>
     <p>
       If you have created a bug fix or have implemented a new feature please open a pull request for it.
@@ -153,9 +153,9 @@ status: "current"
       Should you have any queries about using the unit please read the <a href="{{ page.docs-url }}">documentation</a>. If you can't find an answer in the documentation then post a message in the <a href="https://github.com/orgs/ddablib/discussions">discussion group</a>.
     </p>
   </div>
-</section> -->
+</section>
 
-<!-- <section class="panel panel-default">
+<section class="panel panel-default">
   <div class="panel-heading">
     <h2 class="panel-title">
       License
@@ -163,7 +163,7 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>{{page.title}}</em> is open source. It is copyright &copy; 2013-2023 by <a href="https://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="https://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
+      <span class="fa fa-copyright fa-pull-left fa-3x"></span> The <em>{{page.title}}</em> is open source. It is copyright &copy; 2025 by <a href="https://en.gravatar.com/delphidabbler" aria-label="Peter Johnson's Gravatar account">Peter Johnson</a>. The source code is made available under the terms of the <a href="https://www.mozilla.org/MPL/2.0/" aria-label="Mozilla Public License v2.0 on mozilla.org">Mozilla Public License v2.0</a>. All relevant trademarks are acknowledged.
     </p>
   </div>
-</section> -->
+</section>
