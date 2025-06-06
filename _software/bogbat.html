@@ -1,0 +1,175 @@
+---
+layout: "programs-tplt"
+group: apps
+priority: 1.8
+version: "0.1.0"
+os: "Windows 7 SP1 & later"
+release-date: "2025-06-05"
+title: "BogBat"
+precis: "A bog-basic template replacement program."
+summary: "Command line program that replaces simple templates in text files with data values."
+meta-title: "BogBat: template replacement program | Open Source | 32/64 bit"
+meta-desc: 64 bit Windows command line program that reads in a template file and a data and writes an output file comprising the template file with all templates replaced by data from the data file."
+download-base-url: "https://github.com/ddabapps/bogbat/releases/tag/v"
+repo-url: "https://github.com/ddabapps/bogbat"
+want-header-buttons: true
+copyright-date: "2025"
+status: "current"
+---
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            Overview
+        </h2>
+    </div>
+    <div class="panel-body">
+        <p>
+            <em>BogBat</em> is a simple 64 bit Windows command line program that takes a text file containing templates and a data file as input and generates an output file with each template replaced by data value defined in the data file.
+        </p>
+        <p>
+            This program is very simple. It just replaces templates with text values. There are no loops, no functions, no text processing and no intelligent handling of white space around templates. The program's simple nature led to the name: the <strong>Bog</strong> <strong>Ba</strong>sic <strong>t</strong>emplate program.
+        </p>
+
+        <h3>
+            Basic usage
+        </h3>
+        
+        <p>
+            The following command line shows the normal way to use <em>BogBat</em>.
+        </p>
+        <pre class="samp indent">BogBat -d:data-file -t:template-file -o:output-file</pre>
+        <p>
+            This causes <em>BogBat</em> to read a data file named <code>data-file</code> and a template file named <code>template-file</code> and to output a file named <code>output-file</code> that results from replacing any templates in <code>template-file</code> with data from <code>data-file</code>.
+        </p>
+        <p>
+            You <strong>must</strong> provide a data file on the command line, but if either the template file or output file is not present then the template text is read from standard input and the output is sent to standard output. Of course, either standard input or standard output can be redirected so:
+        </p>
+        <pre class="samp indent">BogBat -d:data-file &lt;template-file &gt;output-file</pre>
+        <p>
+            works exactly the same as the previous example.
+        </p>
+
+        <h3>
+            File formats
+        </h3>
+        
+        <p>
+            The data file must have entries of the form <code>key=value</code>, with each entry on a different line. Blank lines and lines that begin with a <code>#</code> character are ignored. Spaces before <code>key</code> and between <code>key</code> and <code>=</code> are ignored. Spaces after the <code>=</code> sign are significant and are included in <code>value</code>.
+        </p>
+        <p>
+            Template files are simple text files that contain templates. By default templates are delimited by <code>{%raw%}{{{%endraw%}</code> and <code>}}</code> symbol pairs. Any text inside the delimiters is taken to be one of the <code>key</code> values in the data file. The whole template is replaced by the <code>value</code> from the data file that corresponds to <code>key</code>. For example, if we have a template file with content:
+        </p>
+        <pre class="samp indent">The {%raw%}{{{%endraw%} foo }} sat on the {%raw%}{{{%endraw%} bar }}.</pre>
+        <p>
+            And data file with content:
+        </p>
+        <pre class="samp indent">foo=cat
+bar=mat</pre>
+        <p>
+            Then running <em>BogBat</em> with the two files above produces the output:
+        </p>
+        <pre class="samp indent">The cat sat on the mat.</pre>
+        <p>
+            If any <code>Key</code> has no value after the <code>=</code> sign, or if the key referenced in a template does not exist then the template is deleted from the output.
+        </p>
+        <p>
+            By default all input files are assumed to be in UTF-8 format (either with or without UTF-8 preambles) and the output file is written in UTF-8 without a preamble. The text file encodings and use of preambles can be overridden using command line options.
+        </p>
+        <p>
+            The <code>{%raw%}{{{%endraw%}</code> and <code>}}</code> characters used to delimit templates can be altered using a command line option. This is useful since there is no method of including the opening delimiter literally in the output so changing to a different delimter that doesn't appear literally in the text is the only way round this.
+        </p>
+
+        <h3>
+            Getting help
+        </h3>
+        
+        <p>
+            All the available command line options can be displayed using the command:
+        </p>
+        <pre class="samp indent">BogBat --help</pre>
+        <p>
+            The output from this file is comprehensive and will scroll out of the console window. The output is sent to standard error, so can't be paged by the <code>more</code> command. You can however send the output to a text file using the following command:
+        </p>
+        <pre class="samp indent">BogBat --help 2>my-file.txt</pre>
+
+        <h3>
+            Copyright and license
+        </h3>
+
+        <p class="callout callout-info">
+            <span class="fa fa-copyright fa-pull-left fa-3x"></span><em>BogBat</em> is copyright &copy; {{ page.copyright-date}} by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter Johnson</a>. The program and its source code are released under the terms of the <a href="https://delphidabbler.mit-license.org/{{page.copyright-date}}-/">MIT License</a>.
+        </p>
+    </div>
+</section>
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            Download
+        </h2>
+    </div>
+    <div class="panel-body">
+        <p>
+            This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/bogbat</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab.
+        </p>
+        <p>
+            Each release gives the option of downloading either the program's executable code or the source code. Your options are:
+        </p>
+        <ul>
+            <li>
+                Choose <code>bogbat-exe-{{page.version}}.zip</code> to download a zip file containing the program. It is named <code>BogBat.exe</code>. There is no installer. Just extract the program's <code>.exe</code> file from the <code>.zip</code> file and copy it to a folder on your system or on an external drive. It can be run from there.
+            </li>
+            <li>
+                Choose <code>Source&nbsp;code.zip</code> to download the source code in <code>.zip</code> format.
+            </li>
+            <li>
+                Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a g-zipped tarball.
+            </li>
+        </ul>
+        <p class="alert alert-info">At present <em>BogBat</em> is only available as a 64 bit program. If there is any demand for a 32 bit version that may be considered for a future release. To request a 32 bit version you'll need to <a href="https://github.com/ddabapps/bogbat/issues" class="offsite">raise an issue</a>.</p>
+        <p class="text-center">
+            <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
+        </p>
+    </div>
+</section>
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            Documentation
+        </h2>
+    </div>
+    <div class="panel-body">
+        <p>
+            The following documentation is available. All of it opens on GitHub.
+        </p>
+        <ul class="list-group">
+            <li class="list-group-item">
+                <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/bogbat/blob/main/README.md">Read Me<span class="sr-only"> (Markdown file)</span></a> &ndash; contains general information about the program.
+            </li>
+            <li class="list-group-item">
+                <span class="fa fa-fw fa-x-pad-right fa-file-text-o" aria-hidden="true"></span><a href="https://github.com/ddabapps/bogbat/blob/main/CHANGELOG.md">Change Log<span class="sr-only"> (Markdown file)</span></a> &ndash; lists significant changes made in each program release.
+            </li>
+        </ul>
+    </div>
+</section>
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            Bugs &amp; Feature Requests
+        </h2>
+    </div>
+    <div class="panel-body">
+        <p>
+            You can report bugs or suggest new features using the <em>BogBat</em> <a href="https://github.com/ddabapps/bogbat/issues" class="offsite">issue tracker</a> on GitHub.
+        </p>
+        <p>
+            Please review existing bug reports and feature requests before creating a new issue. If an issue already exists you may be able to help by adding a further comment.
+        </p>
+        <p class="alert alert-info glyph">
+            You will need a GitHub account if you want to create or edit an issue.
+        </p>
+    </div>
+</section>
