@@ -108,6 +108,10 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi XE4</td>
                 </tr>
                 <tr>
+                    <td><code>{$IFOPT}</code> compiler directive supports long directives: e.g. <code>{$IFOPT SCOPEDENUMS ON}</code></td>
+                    <td>Delphi 13</td>
+                </tr>
+                <tr>
                     <td><code>{$LEGACYIFEND}</code> compiler directive<a href="#footnote-2"><sup>2</sup></a></td>
                     <td>Delphi XE5</td>
                 </tr>
@@ -120,7 +124,7 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 6</td>
                 </tr>
                 <tr>
-                    <td><code>{$POINTERMATH}</code> directive</td>
+                    <td><code>{$POINTERMATH}</code> compiler directive</td>
                     <td>Delphi 2009</td>
                 </tr>
                 <tr>
@@ -134,6 +138,10 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                 <tr>
                     <td><code>{$POINTERMATH}</code> compiler directive</td>
                     <td>Delphi 2009</td>
+                </tr>
+                <tr>
+                    <td><code>{$PUSHOPT}</code> &amp; <code>{$POPOPT}</code> compiler directives</td>
+                    <td>Delphi 13</td>
                 </tr>
                 <tr>
                     <td><code>{$REGION}</code> &amp; <code>{$ENDREGION}</code> compiler directives<a href="#footnote-6" title="Source: StackOverflow"><sup>6</sup></a></td>
@@ -268,8 +276,12 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 2</td>
                 </tr>
                 <tr>
-                    <td>Custom managed records</td>
+                    <td>Custom managed records, with <var>Initialize</var> and <var>Finalize</var> class operators</td>
                     <td>Delphi 10.4</td>
+                </tr>
+                <tr>
+                    <td>Custom managed records <var>Initialize</var> and <var>Finalize</var> class operators simplified with implicit <var>Self</var> references.</td>
+                    <td>Delphi 13</td>
                 </tr>
             </tbody>
             <thead id="section-d">
@@ -475,12 +487,16 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 6</td>
                 </tr>
                 <tr>
-                    <td>Inline variable declarations: e.g. <code><strong>for var</strong> I: Integer := 0 <strong>to</strong> 9 <strong>do</strong></code> or, with type inference, <code><strong>for var</strong> I := 0 <strong>to</strong> 9 <strong>do</strong></code></td>
-                    <td>Delphi 10.3</td>
+                    <td>Inline <strong>if</strong> statement (ternary operator): e.g. <code><strong>for var </strong>X := 0 <strong>to</strong> 9 <strong>do </strong>ShowMessage(<strong>if</strong> Odd(X) <strong>then</strong> 'Odd' <strong>else</strong> 'Even');</code></td>
+                    <td>Delphi 13</td>
                 </tr>
                 <tr>
                     <td><strong>inline</strong> keyword</td>
                     <td>Delphi 2005</td>
+                </tr>
+                <tr>
+                    <td>Inline variable declarations: e.g. <code><strong>for var</strong> I: Integer := 0 <strong>to</strong> 9 <strong>do</strong></code> or, with type inference, <code><strong>for var</strong> I := 0 <strong>to</strong> 9 <strong>do</strong></code></td>
+                    <td>Delphi 10.3</td>
                 </tr>
                 <tr>
                     <td>Inner exceptions</td>
@@ -517,6 +533,10 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                 <tr>
                     <td>IOUtils unit</td>
                     <td>Delphi 2010</td>
+                </tr>
+                <tr>
+                    <td><strong>is not</strong> operator</td>
+                    <td>Delphi 13</td>
                 </tr>
                 <tr>
                     <td><var>IsConstValue</var> intrinsic compiler function (undocumented)<a href="#footnote-6" title="Source: StackOverflow"><sup>6</sup></a></td>
@@ -632,6 +652,10 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                     <td>Delphi 12</td>
                 </tr>
                 <tr>
+                    <td><var>NameOf</var> intrinsic function</td>
+                    <td>Delphi 13</td>
+                </tr>
+                <tr>
                     <td><var>NativeInt</var> &amp; <var>NativeUInt</var> types</td>
                     <td>Delphi 7<a href="#footnote-4"><sup>4</sup></td>
                     </tr>
@@ -647,6 +671,10 @@ meta-desc: "Partial list of various Delphi Pascal language and other features al
                         <td>Nested types within classes</td>
                         <td>Delphi 2005</td>
                     </tr>
+                <tr>
+                    <td><strong>not in</strong> operator</td>
+                    <td>Delphi 13</td>
+                </tr>
                 </tbody>
                 <thead id="section-o">
                     <tr>
