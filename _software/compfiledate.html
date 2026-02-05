@@ -2,14 +2,14 @@
 layout: "programs-tplt"
 group: apps
 priority: 5
-version: "2.3.0"
-release-date: "2026-01-31"
-os: "Windows (64 & 32 bit)"
+version: "2.4.0"
+release-date: "2026-02-05"
+os: "Windows & Linux"
 title: "File Date Comparison Utility"
-precis: "Compares the last modification date of two files"
-summary: "Compares the last modification date of two files. For use in batch files etc."
-meta-title: "CompFileDate: File Date Stamp Comparison Utility for Windows Command Line | Open Source | 32 bit"
-meta-desc: "Windows command line program that compares file creation or modification dates of two files. Open source. Written in Delphi Pascal."
+precis: "Console application that compares the timestamps of two files"
+summary: "Console application that compares the creation or last modification dates of two files on Windows or Linux"
+meta-title: "CompFileDate: File Date Stamp Comparison Utility for the Windows on Linux command line | Open Source"
+meta-desc: "Windows & Linux command line program that compares the file creation or modification dates of two files. Open source. Written in Delphi Pascal."
 download-base-url: "https://github.com/ddabapps/compfiledate/releases/tag/v"
 repo-url: "https://github.com/ddabapps/compfiledate"
 want-header-buttons: true
@@ -23,10 +23,13 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      This console application compares the last modification dates of two files whose names are passed on the command line and returns an exit code that indicates the result.
+      This console application compares the timestamps of two files whose names are passed on the command line. It returns an exit code that indicates the result.
     </p>
     <p>
-      The type of comparison required can be customised. The program can compare either the last modification date or the creation date of files. In the case of shortcut files either the date of the shortcut file itself or that of the file it references can be compared.
+      Both Windows (64 and 32 bit) and Linux (64 bit) versions of the program are available.
+    </p>
+    <p>
+      Dates can be compared using logical comparison operators <em>eq</em> (=), <em>neq</em> (&NotEqual;), <em>lt</em> (&lt;), <em>lte</em> (&le;), <em>ge</em> (&gt;) and <em>gte</em> (&ge;). The program can compare either the last modification date or the creation date of files. In the case of shortcut files either the date of the shortcut file itself or that of the file it references can be compared (Windows version only).
     </p>
   </div>
 </section>
@@ -39,25 +42,14 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      This program is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/compfiledate</a></code> repository. The program can be downloaded from the repository's <em>Releases</em> tab. Both 64 and 32 bit versions of the program are available.
+      CompFileDate is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/compfiledate</a></code> repository.
     </p>
     <p>
-      Each release gives the option of downloading the program in executable format or the source code. Your options are:
+      There are separate downloads for each of the three available CompFileDate builds: Windows 64 bit, Windows 32 bit and Linux 64 bit. (32 bit Linux is not supported).
     </p>
-    <ul>
-      <li>
-        <code>compfiledate-exe64-{{page.version}}.zip</code> &ndash; contains the Windows 64 bit executable. Choose this if you are running a 64 bit version of Windows. Extract the content of the <code>.zip</code> file. The included read-me file, <a href="{{ page.repo-url }}/blob/master/Docs/ReadMe.txt"><code>README.txt</code><span class="sr-only"> (plain text)</span></a>, explains how to install and use the program.
-      </li>
-      <li>
-        <code>compfiledate-exe32-{{page.version}}.zip</code> &ndash; contains the Windows 32 bit executable. Choose this only if you are running a 32 bit version of Windows. Proceed as described for the 64 bit version above.
-      </li>
-      <li>
-        <code>Source&nbsp;code.zip</code> &ndash; contains the source code in <code>.zip</code> format.
-      </li>
-      <li>
-        <code>Source&nbsp;code.tar.gz</code> &ndash; contains the source code as a g-zipped tarball.
-      </li>
-    </ul>
+    <p>
+      Click the button below to go to the Release v{{page.version}} page on GitHub. There you will find a brief description of the available downloads, a list of changes in this version and links to download the program for your chosen operating system. You can also download the source code from the release page.
+    </p>
     <p class="text-center">
       <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
     </p>
