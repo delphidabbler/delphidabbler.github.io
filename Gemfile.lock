@@ -271,7 +271,7 @@ DEPENDENCIES
   rexml (~> 3.4.2)
   tzinfo (~> 2.0.6)
   tzinfo-data
-  uri (>= 0.13.2)
+  uri (>= 1.0.4)
   wdm (~> 0.1.1)
   webrick (~> 1.8)
 
