@@ -1,4 +1,4 @@
-source "https://rubygems.org"
+(source "https://rubygems.org"
 
 gem "github-pages", "~> 228", group: :jekyll_plugins
 
@@ -23,6 +23,7 @@ gem "addressable", ">= 2.8.0"
 gem "commonmarker", ">= 0.23.10"
 gem "activesupport", "~> 7.0.7.1"
 gem "uri", ">= 1.0.4"
+gem "faraday", ">= 2.14.1"
 
 # Fix for when using Ruby 3 - webrick no longer installed w/ Ruby 3
 gem "webrick", "~> 1.8"
