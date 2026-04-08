@@ -199,7 +199,7 @@ GEM
       gemoji (~> 3.0)
       html-pipeline (~> 2.2)
       jekyll (>= 3.0, < 5.0)
-    json (2.18.1)
+    json (2.19.2)
     kramdown (2.3.2)
       rexml
     kramdown-parser-gfm (1.1.0)
@@ -270,6 +270,7 @@ DEPENDENCIES
   activesupport (~> 7.0.7.1)
   addressable (>= 2.8.0)
   commonmarker (>= 0.23.10)
+  faraday (>= 2.14.1)
   github-pages (~> 228)
   nokogiri (~> 1.18.9)
   rexml (~> 3.4.2)
