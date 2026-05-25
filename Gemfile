@@ -23,7 +23,7 @@ gem "addressable", ">= 2.9.0"
 gem "commonmarker", ">= 0.23.10"
 gem "activesupport", "~> 7.2.3.1"
 gem "uri", ">= 1.0.4"
-gem "faraday", ">= 2.14.1"
+gem "faraday", ">= 2.14.2"
 gem "json", ">= 2.19.2"
 
 # Fix for when using Ruby 3 - webrick no longer installed w/ Ruby 3
