@@ -2,18 +2,18 @@
 layout: "programs-tplt"
 group: apps
 priority: 1.8
-version: "0.1.0"
-os: "Windows 7 SP1 & later"
-release-date: "2025-06-05"
+version: "0.2.0"
+os: "Windows 64 only"
+release-date: "2026-06-26"
 title: "BogBat"
 precis: "A bog-basic template replacement program."
 summary: "Command line program that replaces simple templates in text files with data values."
-meta-title: "BogBat: template replacement program | Open Source | 32/64 bit"
+meta-title: "BogBat: template replacement program | Open Source | 64 bit"
 meta-desc: 64 bit Windows command line program that reads in a template file and a data and writes an output file comprising the template file with all templates replaced by data from the data file."
 download-base-url: "https://github.com/ddabapps/bogbat/releases/tag/v"
 repo-url: "https://github.com/ddabapps/bogbat"
 want-header-buttons: true
-copyright-date: "2025"
+copyright-date: "2025-2026"
 status: "current"
 ---
 
@@ -77,7 +77,7 @@ bar=mat</pre>
             By default all input files are assumed to be in UTF-8 format (either with or without UTF-8 preambles) and the output file is written in UTF-8 without a preamble. The text file encodings and use of preambles can be overridden using command line options.
         </p>
         <p>
-            The <code>{%raw%}{{{%endraw%}</code> and <code>}}</code> characters used to delimit templates can be altered using a command line option. This is useful since there is no method of including the opening delimiter literally in the output so changing to a different delimter that doesn't appear literally in the text is the only way round this.
+            The <code>{%raw%}{{{%endraw%}</code> and <code>}}</code> characters used to delimit templates can be altered using a command line option. This is useful because there is no way of including the opening delimiter literally in the output, so changing to a different delimiter that doesn't appear literally in the text is the only way round this.
         </p>
 
         <h3>
@@ -89,16 +89,20 @@ bar=mat</pre>
         </p>
         <pre class="samp indent">BogBat --help</pre>
         <p>
-            The output from this file is comprehensive and will scroll out of the console window. The output is sent to standard error, so can't be paged by the <code>more</code> command. You can however send the output to a text file using the following command:
+            The output from this file is comprehensive and will scroll out of the console window, so piping to the Windows <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/more"><em>more</em></a> command is recommended:
         </p>
-        <pre class="samp indent">BogBat --help 2>my-file.txt</pre>
+        <pre class="samp indent">BogBat --help | more</pre>
+        <p>
+            Alternatively, the help text can be redirected to a text file for later viewing in a text editor:
+        </p>
+        <pre class="samp indent">BogBat --help >my-file.txt</pre>
 
         <h3>
             Copyright and license
         </h3>
 
         <p class="callout callout-info">
-            <span class="fa fa-copyright fa-pull-left fa-3x"></span><em>BogBat</em> is copyright &copy; {{ page.copyright-date}} by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter Johnson</a>. The program and its source code are released under the terms of the <a href="https://delphidabbler.mit-license.org/{{page.copyright-date}}-/">MIT License</a>.
+            <span class="fa fa-copyright fa-pull-left fa-3x"></span><em>BogBat</em> is copyright &copy; {{ page.copyright-date}} by <a href="{{ site.data.core.gravatar-url }}" aria-label="{{ site.data.core.gravatar-link-title }}">Peter Johnson</a>. The program and its source code are released under the terms of the <a href="https://delphidabbler.mit-license.org/{{page.copyright-date}}/">MIT License</a>.
         </p>
     </div>
 </section>
@@ -127,7 +131,7 @@ bar=mat</pre>
                 Choose <code>Source&nbsp;code.tar.gz</code> to download the source code as a g-zipped tarball.
             </li>
         </ul>
-        <p class="alert alert-info">At present <em>BogBat</em> is only available as a 64 bit program. If there is any demand for a 32 bit version that may be considered for a future release. To request a 32 bit version you'll need to <a href="https://github.com/ddabapps/bogbat/issues" class="offsite">raise an issue</a>.</p>
+        <p class="alert alert-info">At present <em>BogBat</em> is only available as a 64 bit Windows program. If there is any demand for 32 bit Windows or Linux versions that may be considered for a future release. To request either option you'll need to <a href="https://github.com/ddabapps/bogbat/issues" class="offsite">raise an issue</a>.</p>
         <p class="text-center">
             <a class="btn btn-primary" role="button" href="{{ page.download-base-url }}{{ page.version }}" aria-label="Go to release v{{ page.version}} on GitHub">Get <span class="hidden-xs">release </span>v{{ page.version }} from GitHub</a>
         </p>
