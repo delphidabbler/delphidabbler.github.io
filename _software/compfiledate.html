@@ -2,8 +2,8 @@
 layout: "programs-tplt"
 group: apps
 priority: 5
-version: "2.5.0"
-release-date: "2026-02-11"
+version: "3.0.0"
+release-date: "2026-09-24"
 os: "Windows & Linux"
 title: "File Date Comparison Utility"
 precis: "Console application that compares the timestamps of two files"
@@ -23,13 +23,25 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      This console application compares the timestamps of two files whose names are passed on the command line. It returns an exit code that indicates the result.
+      This console application compares the timestamps of two files whose names are passed on the command line. It returns an exit code that indicates the result. The result is <code>1</code> if the comparison is true or <code>0</code> if it is false. If an error occurs a return code of &GreaterEqual; <code>100</code>
     </p>
     <p>
       Both Windows (64 and 32 bit) and Linux (64 bit) versions of the program are available.
     </p>
     <p>
-      Dates can be compared using logical comparison operators <em>eq</em> (=), <em>neq</em> (&NotEqual;), <em>lt</em> (&lt;), <em>lte</em> (&le;), <em>ge</em> (&gt;) and <em>gte</em> (&ge;). The program can compare either the last modification date or the creation date of files. In the case of shortcut files either the date of the shortcut file itself or that of the file it references can be compared (Windows version only).
+      Timestamps are read in the highest accuracy supported by the platform, which is the nearest 100 ns on Windows and the nearest 1 ns on Linux. The timestamps can be compared using logical comparison operators. The program can compare either the last modification date, last access date, creation date (Windows only) or the last status change (Linux only).
+    </p>
+    <p>
+      Symlinks can optionally be expanded before dates are compared. On Windows shortcut files can also be expanded.
+    </p>
+    <p>
+      By default the the program writes no information to the console and the user must examine the program's exit code to determine the result. However two different levels of verbosity can be selected &ndash; &quot;verbose&quot; and &quot;extra verbose&quot; &ndash; both of which print information about the comparison to standard output.
+    </p>
+    <p>
+      When using the &quot;extra verbose&quot; the file timestamps are displayed. The user has the choice or whether these dates are displayed in local time or in UTC, and whether the date is in ISO-8601 format or in the format appropriate to the user's locale.
+    </p>
+    <p>
+      For a full description of command line options and available comparison operators, run <em>CompFileDate</em> with the <code>--help</code> option.
     </p>
   </div>
 </section>
@@ -42,10 +54,10 @@ status: "current"
   </div>
   <div class="panel-body">
     <p>
-      CompFileDate is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/compfiledate</a></code> repository.
+      <em>CompFileDate</em> is hosted on GitHub in the <code><a href="{{ page.repo-url }}">ddabapps/compfiledate</a></code> repository.
     </p>
     <p>
-      There are separate downloads for each of the three available CompFileDate builds: Windows 64 bit, Windows 32 bit and Linux 64 bit. (32 bit Linux is not supported).
+      There are separate downloads for each of the three available <em>CompFileDate</em> builds: Windows 64 bit, Windows 32 bit and Linux 64 bit.
     </p>
     <p>
       Click the button below to go to the Release v{{page.version}} page on GitHub. There you will find a brief description of the available downloads, a list of changes in this version and links to download the program for your chosen operating system. You can also download the source code from the release page.
